@@ -1,0 +1,20 @@
+{
+  "template": "https://github.com/dyne/starters",
+  "commit": "0bbcfefc69dd6f87773529b860637e9681167836",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "didimo",
+      "project_description": "Validate your credential issuer!",
+      "full_name": "Forkbomb",
+      "email": "info@forkbomb.com",
+      "project_slug": "didimo",
+      "repo": "https://github.com/forkbombeu/didimo",
+      "_copy_without_render": [
+        "*.svelte"
+      ],
+      "_template": "https://github.com/dyne/starters"
+    }
+  },
+  "directory": "saas"
+}
