@@ -4,3 +4,6 @@
 [submodule "webapp/zenflows-crypto"]
 	path = webapp/zenflows-crypto
 	url = https://github.com/interfacerproject/zenflows-crypto
+[submodule "webapp/src/lib/openid-vc-typescript-json-schema"]
+	path = webapp/src/lib/openid-vc-typescript-json-schema
+	url = https://github.com/ForkbombEu/openid-vc-typescript-json-schema
