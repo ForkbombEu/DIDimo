@@ -33,15 +33,16 @@
 				/>
 			</FieldController>
 
-			{#if form?.message}
+			{#if form?.error}
 				<Alert dismissable color="red" border>
 					<svelte:fragment slot="icon">
 						<InformationCircle size="20" />
 					</svelte:fragment>
 					<span class="font-semibold mr-2">Error!</span>
-					{form.message}
+					{form.error}
 				</Alert>
 			{/if}
+
 			{#if form?.success}
 				<Alert color="green" border>
 					<svelte:fragment slot="icon">

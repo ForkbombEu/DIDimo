@@ -10,12 +10,15 @@ import addFormats from 'ajv-formats';
 import {
 	Collections,
 	type CredentialIssuersRecord,
-	type CredentialIssuersResponse
+	type CredentialIssuersResponse,
+	CredentialIssuersScansErrorOptions as Errors
 } from '$lib/pocketbase/types.js';
 
 import prependHttp from 'prepend-http';
 
 import { env } from '$env/dynamic/private';
+
+//
 
 export const load = async () => {
 	return {
@@ -23,75 +26,106 @@ export const load = async () => {
 	};
 };
 
+//
+
 export const actions = {
 	default: async ({ request, fetch }) => {
+		/* Data validation */
+
 		const data = await request.formData();
 		const form = await superValidate(data, schema);
-		console.log(form.data);
-
-		if (!form.valid) return fail(400, { form, message: 'Invalid URL provided' });
+		if (!form.valid) return fail(500, { error: 'INVALID_URL' });
 
 		const url = prependHttp(form.data.url);
 
+		/* Pocketbase record creation */
+
+		let credentialIssuerRecordId: string | undefined = undefined;
+
+		await pb.admins.authWithPassword(env.PB_ADMIN_USER, env.PB_ADMIN_PASS);
+
+		const credentialIssuerRecord = await getCredentialIssuerRecord(url);
+		if (credentialIssuerRecord) credentialIssuerRecordId = credentialIssuerRecord.id;
+		else {
+			const newCredentialIssuerRecord = await createCredentialIssuerRecord(url);
+			credentialIssuerRecordId = newCredentialIssuerRecord.id;
+		}
+
+		/* JSON analysis */
+
 		try {
-			const PATH = '.well-known/openid-credential-issuer';
-			const req = await fetch(join(url, PATH));
-
-			await pb.admins.authWithPassword(env.PB_ADMIN_USER, env.PB_ADMIN_PASS);
-
-			let id: string;
-
-			const res = await pb
-				.collection(Collections.CredentialIssuers)
-				.getFullList<CredentialIssuersResponse>({
-					filter: `url = "${url}"`
-				});
-
-			if (res.length === 0) {
-				const newRecord = await pb
-					.collection(Collections.CredentialIssuers)
-					.create({ url } satisfies CredentialIssuersRecord);
-				id = newRecord.id;
-			} else {
-				id = res[0].id;
-			}
-
-			if (req.status === 404) {
-				return fail(404, {
-					form,
-					message: `Credential Issuer metadata file not found ( ${PATH} )`
-				});
-			}
-
-			if (req.status !== 200) {
-				return fail(404, {
-					form,
-					message: req.statusText
-				});
-			}
-
-			const JSON = await req.json();
-			const errors = validateJSON(JSON);
-
-			if (errors) {
-				return fail(500, {
-					form,
-					validationErrors: errors
-				});
-			} else {
-				return {
-					success: true,
-					form
-				};
-			}
-		} catch (e) {
-			return fail(404, {
+			validateJSON(await parseResponseJSON(checkResponseStatus(await getData(url))));
+			return {
 				form,
-				message: e.message
-			});
+				success: true
+			};
+		} catch (e) {
+			if (e instanceof Error) {
+				return fail(404, {
+					form,
+					error: e.message
+				});
+			}
 		}
 	}
 };
+
+//
+
+async function getCredentialIssuerRecord(
+	url: string
+): Promise<CredentialIssuersResponse | undefined> {
+	const result = await pb
+		.collection(Collections.CredentialIssuers)
+		.getFullList<CredentialIssuersResponse>({
+			filter: `url = "${url}"`
+		});
+
+	if (result.length === 0) return undefined;
+	else return result[0];
+}
+
+async function createCredentialIssuerRecord(url: string): Promise<CredentialIssuersResponse> {
+	return await pb
+		.collection(Collections.CredentialIssuers)
+		.create({ url } satisfies CredentialIssuersRecord);
+}
+
+//
+
+function getCredentialIssuerMetadataFilePath(baseUrl: string): string {
+	const PATH = '.well-known/openid-credential-issuer';
+	return join(baseUrl, PATH);
+}
+
+//
+
+async function getData(url: string): Promise<Response> {
+	try {
+		return await fetch(getCredentialIssuerMetadataFilePath(url));
+	} catch (e) {
+		console.log(e);
+		throw new Error(Errors.CONNECTION_ERROR);
+	}
+}
+
+function checkResponseStatus(response: Response): Response {
+	console.log(response.statusText);
+	if (response.status === 200) return response;
+	else {
+		if (response.status === 404) throw new Error(Errors.FILE_NOT_FOUND);
+		else throw new Error(Errors.CONNECTION_ERROR);
+	}
+}
+
+async function parseResponseJSON(response: Response): Promise<any> {
+	try {
+		return await response.json();
+	} catch (e) {
+		console.log(e);
+		throw new Error(Errors.BAD_JSON);
+	}
+}
 
 function validateJSON(data: any) {
 	const ajv = new Ajv({ allErrors: true });
@@ -103,5 +137,5 @@ function validateJSON(data: any) {
 	const validate = ajv.compile(credentialIssuerSchema);
 	validate(data);
 
-	return validate.errors;
+	if (validate.errors) throw new Error(Errors.VALIDATION_ERROR);
 }
