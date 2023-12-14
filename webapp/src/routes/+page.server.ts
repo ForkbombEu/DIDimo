@@ -13,6 +13,8 @@ import {
 	type CredentialIssuersResponse
 } from '$lib/pocketbase/types.js';
 
+import { env } from '$env/dynamic/private';
+
 export const load = async () => {
 	return {
 		form: await superValidate(schema)
@@ -31,6 +33,8 @@ export const actions = {
 		try {
 			const PATH = '.well-known/openid-credential-issuer';
 			const req = await fetch(join(url, PATH));
+
+			await pb.admins.authWithPassword(env.PB_ADMIN_USER, env.PB_ADMIN_PASS);
 
 			let id: string;
 
