@@ -15,8 +15,7 @@
 	});
 	const { enhance, delayed, form: f } = superform;
 
-	$f.url =
-		'https://raw.githubusercontent.com/ForkbombEu/DIDroom_microservices/main/public/.well-known/openid-credential-issuer';
+	$f.url = 'https://raw.githubusercontent.com/ForkbombEu/DIDroom_microservices/main/public/';
 	// $f.url = 'http://0.0.0.0:3000';
 </script>
 
@@ -41,6 +40,14 @@
 					</svelte:fragment>
 					<span class="font-semibold mr-2">Error!</span>
 					{form.message}
+				</Alert>
+			{/if}
+			{#if form?.success}
+				<Alert color="green" border>
+					<svelte:fragment slot="icon">
+						<InformationCircle size="20" />
+					</svelte:fragment>
+					<span class="font-semibold mr-2">All good!</span>
 				</Alert>
 			{/if}
 

@@ -2,7 +2,10 @@ import { superValidate } from 'sveltekit-superforms/client';
 import { schema } from './_lib/index.js';
 import { fail } from '@sveltejs/kit';
 import { join } from 'node:path';
+import credentialIssuerSchema from '$lib/openid-vc-typescript-json-schema/openid-credential-issuer/schema.json';
+
 import Ajv from 'ajv';
+import addFormats from 'ajv-formats';
 
 export const load = async () => {
 	return {
@@ -36,6 +39,19 @@ export const actions = {
 			}
 
 			const JSON = await req.json();
+			const errors = validateJSON(JSON);
+
+			if (errors) {
+				return fail(500, {
+					form,
+					validationErrors: errors
+				});
+			} else {
+				return {
+					success: true,
+					form
+				};
+			}
 		} catch (e) {
 			return fail(404, {
 				form,
@@ -44,3 +60,12 @@ export const actions = {
 		}
 	}
 };
+
+function validateJSON(data: any) {
+	const ajv = new Ajv({ allErrors: true });
+	addFormats(ajv);
+	delete credentialIssuerSchema['$schema'];
+	const validate = ajv.compile(credentialIssuerSchema);
+	validate(data);
+	return validate.errors;
+}
