@@ -13,6 +13,8 @@ import {
 	type CredentialIssuersResponse
 } from '$lib/pocketbase/types.js';
 
+import prependHttp from 'prepend-http';
+
 import { env } from '$env/dynamic/private';
 
 export const load = async () => {
@@ -25,10 +27,11 @@ export const actions = {
 	default: async ({ request, fetch }) => {
 		const data = await request.formData();
 		const form = await superValidate(data, schema);
+		console.log(form.data);
 
 		if (!form.valid) return fail(400, { form, message: 'Invalid URL provided' });
 
-		const { url } = form.data;
+		const url = prependHttp(form.data.url);
 
 		try {
 			const PATH = '.well-known/openid-credential-issuer';
@@ -93,8 +96,12 @@ export const actions = {
 function validateJSON(data: any) {
 	const ajv = new Ajv({ allErrors: true });
 	addFormats(ajv);
-	delete credentialIssuerSchema['$schema']; // Check type safety
+
+	// @ts-ignore
+	delete credentialIssuerSchema['$schema'];
+
 	const validate = ajv.compile(credentialIssuerSchema);
 	validate(data);
+
 	return validate.errors;
 }
