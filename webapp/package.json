@@ -71,6 +71,7 @@
 		"flowbite-svelte": "^0.44.18",
 		"flowbite-svelte-blocks": "^0.5.1",
 		"pocketbase": "^0.18.0",
+		"prepend-http": "^4.0.0",
 		"svelte-boring-avatars": "^1.2.4",
 		"svelte-heros": "^5.1.0",
 		"zenroom": "^3.18.1"
