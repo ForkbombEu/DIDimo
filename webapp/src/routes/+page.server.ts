@@ -54,7 +54,7 @@ export const actions = {
 		/* JSON analysis */
 
 		try {
-			validateJSON(await parseResponseJSON(checkResponseStatus(await getData(url))));
+			validateJSON(await parseResponseJSON(checkResponseStatus(await getData(url, fetch))));
 			return {
 				form,
 				success: true
@@ -100,9 +100,9 @@ function getCredentialIssuerMetadataFilePath(baseUrl: string): string {
 
 //
 
-async function getData(url: string): Promise<Response> {
+async function getData(url: string, fetchFn = fetch): Promise<Response> {
 	try {
-		return await fetch(getCredentialIssuerMetadataFilePath(url));
+		return await fetchFn(getCredentialIssuerMetadataFilePath(url));
 	} catch (e) {
 		console.log(e);
 		throw new Error(Errors.CONNECTION_ERROR);
