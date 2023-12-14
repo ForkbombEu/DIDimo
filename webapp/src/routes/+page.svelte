@@ -4,6 +4,7 @@
 	import Card from '$lib/components/card.svelte';
 	import { superForm } from 'sveltekit-superforms/client';
 	import { InformationCircle } from 'svelte-heros-v2';
+	import { CredentialIssuersScansErrorOptions as Errors } from '$lib/pocketbase/types.js';
 
 	//
 
@@ -17,6 +18,13 @@
 
 	$f.url = 'https://raw.githubusercontent.com/ForkbombEu/DIDroom_microservices/main/public/';
 	// $f.url = 'http://0.0.0.0:3000';
+
+	const errorMessages: Record<Errors, string> = {
+		[Errors.BAD_JSON]: 'JSON badly formatted.',
+		[Errors.CONNECTION_ERROR]: "Couldn't manage to connect to the url.",
+		[Errors.VALIDATION_ERROR]: 'The metadata file is not compliant to the specification.',
+		[Errors.FILE_NOT_FOUND]: 'The metadata file does not exist at the required location.'
+	};
 </script>
 
 <Card class="p-8 space-y-8">
@@ -39,7 +47,7 @@
 						<InformationCircle size="20" />
 					</svelte:fragment>
 					<span class="font-semibold mr-2">Error!</span>
-					{form.error}
+					{errorMessages[form.error] ?? form.error}
 				</Alert>
 			{/if}
 
