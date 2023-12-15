@@ -1,5 +1,5 @@
 import { superValidate } from 'sveltekit-superforms/client';
-import { schema } from '../lib/didimo/zod.js';
+import { schema } from './_lib/schema.js';
 
 import { fail } from '@sveltejs/kit';
 import { join } from 'node:path';
@@ -14,14 +14,9 @@ import {
 	type CredentialIssuersFeaturesRecord
 } from '$lib/pocketbase/types.js';
 
-import {
-	doesFileExist,
-	getResponseJson,
-	validateJson
-} from '$lib/didimo/credentialIssuerValidators.js';
+import { doesFileExist, getResponseJson, validateJson } from './_lib/credentialIssuerValidators.js';
 
 import { env } from '$env/dynamic/private';
-import { ValidationError } from 'ajv';
 
 //
 
@@ -50,6 +45,7 @@ export const actions = {
 
 			const response = await getData(url, fetch);
 			return {
+				form,
 				features: await runValidators(response, reportRecord.id)
 			};
 		} catch (e) {
