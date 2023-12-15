@@ -1,22 +1,27 @@
 import { superValidate } from 'sveltekit-superforms/client';
-import { schema } from './_lib/index.js';
+import { schema } from '../lib/didimo/zod.js';
+
 import { fail } from '@sveltejs/kit';
 import { join } from 'node:path';
-import credentialIssuerSchema from '$lib/openid-vc-typescript-json-schema/openid-credential-issuer/schema.json';
-import { pb } from '$lib/pocketbase/index.js';
+import prependHttp from 'prepend-http';
 
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import { pb } from '$lib/pocketbase/index.js';
 import {
 	Collections,
 	type CredentialIssuersRecord,
 	type CredentialIssuersResponse,
-	CredentialIssuersScansErrorOptions as Errors
+	CredentialIssuersFeaturesTypeOptions as Feature,
+	type CredentialIssuersFeaturesRecord
 } from '$lib/pocketbase/types.js';
 
-import prependHttp from 'prepend-http';
+import {
+	doesFileExist,
+	getResponseJson,
+	validateJson
+} from '$lib/didimo/credentialIssuerValidators.js';
 
 import { env } from '$env/dynamic/private';
+import { ValidationError } from 'ajv';
 
 //
 
@@ -38,39 +43,37 @@ export const actions = {
 
 		const url = prependHttp(form.data.url);
 
-		/* Pocketbase record creation */
-
-		let credentialIssuerRecordId: string | undefined = undefined;
-
-		await pb.admins.authWithPassword(env.PB_ADMIN_USER, env.PB_ADMIN_PASS);
-
-		const credentialIssuerRecord = await getCredentialIssuerRecord(url);
-		if (credentialIssuerRecord) credentialIssuerRecordId = credentialIssuerRecord.id;
-		else {
-			const newCredentialIssuerRecord = await createCredentialIssuerRecord(url);
-			credentialIssuerRecordId = newCredentialIssuerRecord.id;
-		}
-
-		/* JSON analysis */
-
 		try {
-			validateJSON(await parseResponseJSON(checkResponseStatus(await getData(url, fetch))));
+			await pb.admins.authWithPassword(env.PB_ADMIN_USER, env.PB_ADMIN_PASS);
+			const credentialIssuerRecord = await getOrCreateCredentialIssuerRecord(url);
+			const reportRecord = await createCredentialIssuerReportRecord(credentialIssuerRecord.id);
+
+			const response = await getData(url, fetch);
 			return {
-				form,
-				success: true
+				features: await runValidators(response, reportRecord.id)
 			};
 		} catch (e) {
-			if (e instanceof Error) {
+			if (e instanceof ConnectionError) {
 				return fail(404, {
 					form,
+					connectionError: true
+				});
+			} else if (e instanceof Error) {
+				return fail(500, {
+					form,
 					error: e.message
+				});
+			} else {
+				return fail(500, {
+					form,
+					error: JSON.stringify(e)
 				});
 			}
 		}
 	}
 };
 
-//
+/* Pocketbase operations */
 
 async function getCredentialIssuerRecord(
 	url: string
@@ -91,51 +94,76 @@ async function createCredentialIssuerRecord(url: string): Promise<CredentialIssu
 		.create({ url } satisfies CredentialIssuersRecord);
 }
 
-//
+async function getOrCreateCredentialIssuerRecord(url: string) {
+	const credentialIssuerRecord = await getCredentialIssuerRecord(url);
+	if (!credentialIssuerRecord) return await createCredentialIssuerRecord(url);
+	return credentialIssuerRecord;
+}
+
+async function createCredentialIssuerReportRecord(credentialIssuerRecordId: string) {
+	return await pb
+		.collection(Collections.CredentialIssuersReports)
+		.create<CredentialIssuersResponse>({
+			credential_issuer: credentialIssuerRecordId
+		});
+}
+
+async function createCredentialIssuerFeatureRecord(
+	credentialIssuerReportId: string,
+	feature: Feature
+) {
+	await pb.collection(Collections.CredentialIssuersFeatures).create({
+		report: credentialIssuerReportId,
+		type: feature
+	} satisfies CredentialIssuersFeaturesRecord);
+}
+
+/* Data fetch operations */
 
 function getCredentialIssuerMetadataFilePath(baseUrl: string): string {
 	const PATH = '.well-known/openid-credential-issuer';
 	return join(baseUrl, PATH);
 }
 
-//
-
 async function getData(url: string, fetchFn = fetch): Promise<Response> {
 	try {
 		return await fetchFn(getCredentialIssuerMetadataFilePath(url));
 	} catch (e) {
 		console.log(e);
-		throw new Error(Errors.CONNECTION_ERROR);
+		throw new ConnectionError();
 	}
 }
 
-function checkResponseStatus(response: Response): Response {
-	console.log(response.statusText);
-	if (response.status === 200) return response;
-	else {
-		if (response.status === 404) throw new Error(Errors.FILE_NOT_FOUND);
-		else throw new Error(Errors.CONNECTION_ERROR);
+class ConnectionError extends Error {
+	constructor() {
+		super('connection_error');
+		this.name = this.constructor.name;
+		if (Error.captureStackTrace) {
+			Error.captureStackTrace(this, this.constructor);
+		}
 	}
 }
 
-async function parseResponseJSON(response: Response): Promise<any> {
+/* Validation operations */
+
+async function runValidators(response: Response, reportRecordId: string): Promise<Array<Feature>> {
+	const features: Feature[] = [];
+
 	try {
-		return await response.json();
+		const validResponse = doesFileExist(response);
+		await createCredentialIssuerFeatureRecord(reportRecordId, validResponse.feature);
+		features.push(validResponse.feature);
+
+		const json = await getResponseJson(validResponse.data);
+		await createCredentialIssuerFeatureRecord(reportRecordId, json.feature);
+		features.push(json.feature);
+
+		const validJson = validateJson(json.data);
+		await createCredentialIssuerFeatureRecord(reportRecordId, validJson.feature);
+		features.push(validJson.feature);
 	} catch (e) {
 		console.log(e);
-		throw new Error(Errors.BAD_JSON);
 	}
-}
 
-function validateJSON(data: any) {
-	const ajv = new Ajv({ allErrors: true });
-	addFormats(ajv);
-
-	// @ts-ignore
-	delete credentialIssuerSchema['$schema'];
-
-	const validate = ajv.compile(credentialIssuerSchema);
-	validate(data);
-
-	if (validate.errors) throw new Error(Errors.VALIDATION_ERROR);
+	return features;
 }
