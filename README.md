@@ -6,6 +6,8 @@ Validate your credential issuer!
 
 ## Setup
 
+1. `git submodule update --init --recursive`
+
 ### Backend
 
 1. `cd admin && go build`
