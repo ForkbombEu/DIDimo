@@ -1,11 +1,13 @@
 <script lang="ts">
+	import type { RecordFullListOptions } from 'pocketbase';
+
 	import type { RecordInputOptions } from './types';
 
 	import { pb } from '$lib/pocketbase';
 	import type { PBResponse } from '$lib/utils/types';
 	import type { Collections } from '$lib/pocketbase/types';
 	import { createTypeProp } from '$lib/utils/typeProp';
-	import { createRecordLabel, excludeStringArray, getCollectionFieldNames } from './utils';
+	import { createRecordLabel, searchTextFilter, excludeIdsFilter, mergeFilters } from './utils';
 	// @ts-ignore
 	import Svelecte from 'svelecte';
 
@@ -21,7 +23,16 @@
 	export let recordId: string | undefined = undefined;
 	export let options: Partial<RecordInputOptions<RecordGeneric>> = {};
 
-	let { displayFields = [], name = undefined, required = false, placeholder = undefined } = options;
+	let {
+		displayFields = [],
+		name = undefined,
+		required = false,
+		placeholder = undefined,
+		filter = undefined,
+		expand = undefined,
+		formatRecord = undefined
+	} = options;
+
 	$: exclude = options.excludeIds ?? [];
 	$: disabled = options.disabled ?? false;
 
@@ -42,35 +53,26 @@
 	//
 
 	async function fetchOptions(text: string | undefined): Promise<Option[]> {
-		if (!text) return [];
+		const pbFilter = mergeFilters(
+			text ? searchTextFilter(collection, text) : undefined,
+			excludeIdsFilter(exclude),
+			filter
+		);
 
-		const records = await pb.collection(collection).getFullList<RecordGeneric>({
-			requestKey: null,
-			filter: filterString(text)
-		});
+		const options: RecordFullListOptions = {
+			requestKey: null
+		};
+		if (expand) options.expand = expand;
+		if (pbFilter) options.filter = pbFilter;
+
+		const records = await pb.collection(collection).getFullList<RecordGeneric>(options);
 
 		return records.map((r) => {
 			return {
 				[valueField]: r.id,
-				label: createRecordLabel(r, displayFields)
+				label: formatRecord ? formatRecord(r) : createRecordLabel(r, displayFields)
 			};
 		});
-	}
-
-	function filterString(text: string) {
-		let baseString = filterSearchString(text);
-		if (exclude.length > 0) {
-			const excludeString = excludeStringArray('id', exclude);
-			baseString = `${baseString} && ${excludeString}`;
-		}
-		return baseString;
-	}
-
-	function filterSearchString(text: string) {
-		const searchString = getCollectionFieldNames(collection)
-			.map((f) => `${f} ~ "${text}"`)
-			.join(' || ');
-		return `(${searchString})`;
 	}
 
 	//
@@ -87,7 +89,10 @@
 	}
 
 	function setPlaceholder(maybeRecord: typeof record) {
-		if (maybeRecord) actualPlaceholder = createRecordLabel(maybeRecord, displayFields);
+		if (maybeRecord)
+			actualPlaceholder = formatRecord
+				? formatRecord(maybeRecord)
+				: createRecordLabel(maybeRecord, displayFields);
 		else actualPlaceholder = placeholder;
 	}
 </script>

@@ -1,5 +1,5 @@
 <script lang="ts" context="module">
-	import type { LabelOption } from './types';
+	import type { HelpTextOption, LabelOption } from './types';
 
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
@@ -8,7 +8,8 @@
 	} & {
 		options?: string[];
 		size?: 'sm' | 'lg' | 'md' | undefined;
-	} & LabelOption;
+	} & LabelOption &
+		HelpTextOption;
 </script>
 
 <script lang="ts">
@@ -17,7 +18,7 @@
 	import { formFieldProxy, type SuperForm } from 'sveltekit-superforms/client';
 
 	import { Select, MultiSelect } from 'flowbite-svelte';
-	import type { SelectOptionType } from 'flowbite-svelte/dist/types';
+	import type { SelectOptionType } from 'flowbite-svelte';
 	import FieldWrapper from './fieldParts/fieldWrapper.svelte';
 
 	type T = $$Generic<AnyZodObject>;

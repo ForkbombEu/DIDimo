@@ -6,6 +6,9 @@
 onRecordAfterCreateRequest((e) => {
     console.log("Hook - Creating owner role for new organization");
 
+    // Don't create auth if organization is created from admin panel
+    if ($apis.requestInfo(e.httpContext).admin) return;
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 

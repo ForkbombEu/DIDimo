@@ -9,5 +9,5 @@
 </script>
 
 {#if $constraints?.required && showRequiredIndicator}
-	<span class="text-red-400 font-bold">*</span>
+	<span class="font-bold text-red-400">*</span>
 {/if}

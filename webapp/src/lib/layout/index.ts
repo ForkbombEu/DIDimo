@@ -11,7 +11,7 @@ import Topbar from './Topbar.svelte';
 
 export {
 	UIShell,
-	SidebarLink,
+	type SidebarLink,
 	AvatarMenu,
 	HamburgerButton,
 	Logo,

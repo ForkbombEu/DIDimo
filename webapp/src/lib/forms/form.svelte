@@ -28,15 +28,18 @@
 
 	//
 
-	export type SubmitFunction<T extends AnyZodObject> = NonNullable<
-		FormOptions<ZodValidation<T>, unknown>['onUpdate']
+	export type FormSettings<T extends AnyZodObject = AnyZodObject> = FormOptions<
+		ZodValidation<T>,
+		unknown
 	>;
+
+	export type SubmitFunction<T extends AnyZodObject> = NonNullable<FormSettings<T>['onUpdate']>;
 
 	export function createForm<T extends AnyZodObject>(
 		schema: T | ZodEffects<T>,
 		submitFunction: SubmitFunction<T> = async () => {},
 		initialData: Partial<z.infer<T>> | undefined = undefined,
-		options: FormOptions<ZodValidation<T>, unknown> = {}
+		options: FormSettings<T> = {}
 	) {
 		const form = superValidateSync(initialData, schema, { errors: false });
 		return superForm<ZodValidation<T>, ClientResponseErrorData>(form, {
@@ -48,7 +51,7 @@
 			dataType: 'json',
 			onUpdate: async (input) => {
 				try {
-					await submitFunction(input);
+					if (input.form.valid) await submitFunction(input);
 				} catch (e) {
 					let error = normalizeError(e);
 					for (const [key, value] of Object.entries(error.data)) {
@@ -122,13 +125,15 @@
 	export let showRequiredIndicator = false;
 	export let className = 'space-y-8';
 
+	let enctype = superform.options.dataType == 'form' ? 'multipart/form-data' : undefined;
+
 	//
 
 	const { enhance, delayed } = superform;
 	setContext<FormContext<T>>(FORM_KEY, { superform, showRequiredIndicator });
 </script>
 
-<form class={className} method="post" use:enhance>
+<form class={className} method="post" use:enhance {enctype}>
 	<slot />
 </form>
 

@@ -112,10 +112,11 @@
 	{#if isFile($value) || (isFileArray($value) && $value.length > 0)}
 		<div>
 			<Helper>FILES</Helper>
+
 			<Listgroup>
 				{#if !multiple && isFile($value)}
 					{@const isNew = !oldFiles.includes($value)}
-					<ListgroupItemButton on:click={removeFile}>
+					<ListgroupItemButton on:remove={removeFile}>
 						<div>
 							{$value.name}
 							{#if isNew}
@@ -129,7 +130,7 @@
 					{#each $value as file}
 						{@const isNew = !oldFiles.includes(file)}
 						<ListgroupItemButton
-							on:click={() => {
+							on:remove={() => {
 								removeFileFromArray(file);
 							}}
 						>

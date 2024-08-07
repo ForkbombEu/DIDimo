@@ -20,10 +20,10 @@
 
 	//
 
-	const { formFieldsSettings } = getRecordsManagerContext<RecordGeneric>();
-	const { base, edit } = formFieldsSettings;
+	let { formFieldsSettings } = getRecordsManagerContext<RecordGeneric>();
+	let { base, edit } = formFieldsSettings;
 
-	const fieldsSettings = {
+	let fieldsSettings = {
 		...base,
 		...edit,
 		...formSettings

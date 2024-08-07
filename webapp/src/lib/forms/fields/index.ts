@@ -12,6 +12,8 @@ import FieldLabel from './fieldParts/fieldLabel.svelte';
 import FieldWrapper from './fieldParts/fieldWrapper.svelte';
 import FieldRequiredIndicator from './fieldParts/fieldRequiredIndicator.svelte';
 
+import FieldController from './fieldController.svelte';
+
 export {
 	Checkbox,
 	File,
@@ -26,5 +28,6 @@ export {
 	FieldRequiredIndicator,
 	isFile,
 	isFileArray,
-	Toggle
+	Toggle,
+	FieldController
 };

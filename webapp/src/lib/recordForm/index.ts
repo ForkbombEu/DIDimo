@@ -1,2 +1,2 @@
 import RecordForm, { type FieldsSettings } from './recordForm.svelte';
-export { RecordForm, FieldsSettings };
+export { RecordForm, type FieldsSettings };

@@ -2,10 +2,11 @@
 	import { Toggle } from 'flowbite-svelte';
 	import type { ComponentProps } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
-	import type { LabelOption } from './types';
+	import type { HelpTextOption, LabelOption } from './types';
 
 	export type FormToggleOptions = Partial<HTMLInputAttributes & ComponentProps<Toggle>> &
-		LabelOption;
+		LabelOption &
+		HelpTextOption;
 </script>
 
 <script lang="ts">

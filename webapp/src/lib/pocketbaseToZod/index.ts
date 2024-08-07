@@ -14,7 +14,11 @@ const FieldTypeToZod = {
 	[FieldType.FILE]: z.instanceof(File),
 	[FieldType.SELECT]: z.string(),
 	[FieldType.RELATION]: z.string(),
-	[FieldType.JSON]: z.string()
+	[FieldType.JSON]: z.string(),
+	[FieldType.URL]: z
+		.string()
+		.url()
+		.regex(/^(http:\/\/|https:\/\/).+$/, 'Must be an HTTP or HTTPS URL')
 };
 
 type FieldOptions = Record<string, unknown>;
@@ -60,7 +64,8 @@ const FieldTypeRefiners: FieldTypeRefiners = {
 	[FieldType.BOOL]: {},
 	[FieldType.EDITOR]: {},
 	[FieldType.RELATION]: {},
-	[FieldType.JSON]: {}
+	[FieldType.JSON]: {},
+	[FieldType.URL]: {}
 };
 
 //
@@ -70,7 +75,7 @@ type ArrayRefiner = (schema: ZodArrayAny, options: FieldOptions) => ZodArrayAny;
 
 const arrayRefiners: Record<string, ArrayRefiner> = {
 	maxSelect: (s, o) => s.max(o.maxSelect as number),
-	minSelect: (s, o) => s.min(o.maxSelect as number)
+	minSelect: (s, o) => s.max(o.maxSelect as number)
 };
 
 //
@@ -86,15 +91,18 @@ function fieldSchemaToZod(fieldschema: FieldSchema) {
 		if (fieldOptions[key]) zodSchema = refiner(zodSchema, fieldOptions);
 	}
 
-	if (!fieldschema.required) zodSchema = zodSchema.nullish();
+	if (!fieldschema.required) {
+		// Extra check for url: https://github.com/colinhacks/zod/discussions/1254
+		if (fieldschema.type == FieldType.URL) zodSchema = zodSchema.or(z.literal(''));
+
+		zodSchema = zodSchema.nullish();
+	}
 
 	if (!isArrayField(fieldschema)) return zodSchema;
 	else {
 		let arraySchema = z.array(zodSchema);
 		for (const [key, refiner] of Object.entries(arrayRefiners)) {
-			if (fieldOptions[key]) {
-				arraySchema = refiner(arraySchema as ZodArrayAny, fieldOptions);
-			}
+			if (fieldOptions[key]) arraySchema = refiner(arraySchema as ZodArrayAny, fieldOptions);
 		}
 		if (fieldschema.required) return arraySchema.nonempty();
 		else return arraySchema;

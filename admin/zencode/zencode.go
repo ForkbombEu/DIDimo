@@ -11,7 +11,7 @@ import (
 //go:embed zenflows-crypto/src/keypairoomServer-6-7.zen
 var KEYPAIROOM_ZENCODE string
 
-//go:embed zenflows-crypto/src/pubkeys-request-signed.zen
+//go:embed zenflows-crypto/src/pubkeys-request-signed-02-24.zen
 var PUBKEYS_REQUEST_SIGNED_ZENCODE string
 
 func KeypairoomServer(conf *config.KeypairoomConfig, data map[string]interface{}) (string, error) {

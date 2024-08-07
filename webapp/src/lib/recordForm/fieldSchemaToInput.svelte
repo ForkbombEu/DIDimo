@@ -43,6 +43,7 @@
 	export let hidden = false;
 	export let relationInputOptions: Partial<RecordsManagerOptions<R>> = {};
 	export let label = fieldSchema.name;
+	export let description: string | undefined = undefined;
 
 	const field = fieldSchema.name;
 	const multiple = isArrayField(fieldSchema);
@@ -85,18 +86,18 @@
 		{...component.events}
 		{label}
 	/>
-{:else if fieldSchema.type == FieldType.TEXT}
-	<Input {superform} {field} options={{ label }} />
+{:else if fieldSchema.type == FieldType.TEXT || fieldSchema.type == FieldType.URL}
+	<Input {superform} {field} options={{ label, helpText: description }} />
 {:else if fieldSchema.type == FieldType.JSON}
-	<Textarea {superform} {field} options={{ label }} />
+	<Textarea {superform} {field} options={{ label, helpText: description }} />
 {:else if fieldSchema.type == FieldType.BOOL}
 	<Checkbox {superform} {field}>{label}</Checkbox>
 {:else if fieldSchema.type == FieldType.FILE}
 	<File {superform} {field} options={{ label, multiple, accept }} />
 {:else if fieldSchema.type == FieldType.SELECT}
-	<Select {superform} {field} options={{ label, options, multiple }} />
+	<Select {superform} {field} options={{ label, options, multiple, helpText: description }} />
 {:else if fieldSchema.type == FieldType.EDITOR}
-	<Textarea {superform} {field} options={{ label }} />
+	<Textarea {superform} {field} options={{ label, helpText: description }} />
 {:else if fieldSchema.type == FieldType.RELATION}
 	<Relations
 		{superform}
@@ -106,7 +107,8 @@
 			...relationInputOptions,
 			label,
 			multiple,
-			max
+			max,
+			helpText: description
 		}}
 	/>
 {/if}

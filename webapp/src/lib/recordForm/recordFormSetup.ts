@@ -23,6 +23,8 @@ type InitialData = Record<string, unknown>;
  * - 3. When submitting the form, match the new files with the original filenames
  */
 
+/** */
+
 // 1. Store original data
 
 export function getFileFieldInitialData(field: FieldSchema, initialData: InitialData) {
@@ -54,7 +56,8 @@ function mockFile(filename: string, fieldOptions: FieldOptions = {}) {
 	if (Array.isArray(mimeTypes) && mimeTypes.length > 0) {
 		fileOptions = { type: mimeTypes[0] };
 	}
-	return new File([], filename, fileOptions);
+	const mockFile = new File([], filename, fileOptions);
+	return mockFile;
 }
 
 export function mockFileFieldInitialData(field: FieldSchema, initialData: InitialData) {
@@ -86,9 +89,19 @@ export function cleanFormDataFiles(
 	fileFieldsInitialData: Record<string, string[]>
 ) {
 	const data = { ...formData };
+
 	for (const [field, initialFilenames] of Object.entries(fileFieldsInitialData)) {
 		const fieldValue = data[field];
-		if (fieldValue === undefined || fieldValue === null || isFile(fieldValue)) continue;
+
+		if (fieldValue === undefined || fieldValue === null) {
+			continue;
+		}
+		//
+		else if (isFile(fieldValue)) {
+			const isFileOld = initialFilenames.includes(fieldValue.name);
+			if (isFileOld) delete data[field];
+		}
+		//
 		else if (isFileArray(fieldValue)) {
 			const allFilenames = fieldValue.map((file) => file.name);
 			const newFiles = fieldValue.filter((file) => !initialFilenames.includes(file.name));
@@ -100,5 +113,6 @@ export function cleanFormDataFiles(
 			if (filesToRemove.length > 0) data[`${field}-`] = filesToRemove;
 		}
 	}
+
 	return data;
 }

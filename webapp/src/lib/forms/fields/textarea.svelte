@@ -2,10 +2,11 @@
 	import { Textarea } from 'flowbite-svelte';
 	import type { ComponentProps } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
-	import type { LabelOption } from './types';
+	import type { HelpTextOption, LabelOption } from './types';
 
 	export type FormTextareaOptions = Partial<HTMLInputAttributes & ComponentProps<Textarea>> &
-		LabelOption;
+		LabelOption &
+		HelpTextOption;
 </script>
 
 <script lang="ts">

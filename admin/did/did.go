@@ -37,6 +37,7 @@ type DidAgent struct {
 	EddsaPublicKey   string
 	EthereumAddress  string
 	ReflowPublicKey  string
+	Es256PublicKey   string
 }
 
 type DidResult struct {
@@ -120,6 +121,7 @@ func RequestNewDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) 
 			"https://w3id.org/security/suites/secp256k1-2019/v1",
 			"https://w3id.org/security/suites/secp256k1-2020/v1",
 			"https://dyne.github.io/W3C-DID/specs/ReflowBLS12381.json",
+			"https://dyne.github.io/W3C-DID/specs/EcdsaSecp256r1.json",
 			map[string]interface{}{
 				"description": "https://schema.org/description",
 				"identifier":  "https://schema.org/identifier",
@@ -133,8 +135,9 @@ func RequestNewDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) 
 		"eddsa_public_key":   agent.EddsaPublicKey,
 		"ethereum_address":   agent.EthereumAddress,
 		"reflow_public_key":  agent.ReflowPublicKey,
+		"es256_public_key":   agent.Es256PublicKey,
 		"timestamp":          strconv.FormatInt(time.Now().UnixMilli(), 10),
-		"ifacer_id":          map[string]interface{}{"identifier": "43"},
+		"user_id":            map[string]interface{}{"identifier": "43"},
 	}
 	for k, v := range conf.Keyring {
 		didRequest[k] = v

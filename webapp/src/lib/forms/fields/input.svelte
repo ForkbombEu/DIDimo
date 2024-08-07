@@ -1,10 +1,12 @@
 <script lang="ts" context="module">
 	import { Input } from 'flowbite-svelte';
-	import type { LabelOption } from './types';
+	import type { HelpTextOption, LabelOption } from './types';
 	import type { ComponentProps } from 'svelte';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
-	export type FormInputOptions = Partial<HTMLInputAttributes & ComponentProps<Input>> & LabelOption;
+	export type FormInputOptions = Partial<HTMLInputAttributes & ComponentProps<Input>> &
+		LabelOption &
+		HelpTextOption;
 </script>
 
 <script lang="ts">
@@ -24,7 +26,8 @@
 	const { value, errors, constraints } = formFieldProxy(superform, field as string);
 </script>
 
-<FieldWrapper {field} label={options.label}>
+<FieldWrapper {field} label={options.label} helpText={options.helpText}>
+	<slot slot="labelRight" name="labelRight" />
 	<Input
 		{...options}
 		{type}

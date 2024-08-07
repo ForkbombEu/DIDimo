@@ -1,9 +1,13 @@
-<script>
+<script lang="ts">
 	import { featureFlags } from '$lib/features';
-	import { currentUser } from '$lib/pocketbase';
+	import { getUserPublicKeys } from '$lib/keypairoom/utils';
 	import { Button } from 'flowbite-svelte';
 
-	$: eddsa = $currentUser?.eddsa_public_key;
+	let eddsa: string | undefined = undefined;
+
+	getUserPublicKeys().then((res) => {
+		eddsa = res?.eddsa_public_key;
+	});
 </script>
 
 {#if $featureFlags.DID && eddsa}

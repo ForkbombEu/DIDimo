@@ -1,40 +1,37 @@
-import type { ValueOf } from '$lib/utils/types';
 import { z } from 'zod';
+import _ from 'lodash';
 
 //
 
-export const userQuestionsKeys = {
-	question1: 'question1',
-	question2: 'question2',
-	question3: 'question3',
-	question4: 'question4',
-	question5: 'question5'
-} as const;
+const ZENROOM_NULL = 'null';
 
-export type UserQuestionsKey = ValueOf<typeof userQuestionsKeys>;
-
-export const userQuestions: Array<{ id: UserQuestionsKey; text: string }> = [
-	{ id: userQuestionsKeys.question1, text: 'Where did your parents meet?' },
-	{ id: userQuestionsKeys.question2, text: 'What is the name of your first pet?' },
-	{ id: userQuestionsKeys.question3, text: 'What is your home town?' },
-	{ id: userQuestionsKeys.question4, text: 'What is the name of your first teacher?' },
-	{ id: userQuestionsKeys.question5, text: 'What is the surname of your mother before wedding?' }
-];
-
-//
-
-export type UserAnswers = Record<UserQuestionsKey, string>;
-
-export const userAnswersSchema = (
-	z.object({
-		question1: z.string(),
-		question2: z.string(),
-		question3: z.string(),
-		question4: z.string(),
-		question5: z.string()
-	}) satisfies z.ZodType<UserAnswers>
-)
+export const userChallengesSchema = z
+	.object({
+		whereParentsMet: z.string().default(''),
+		nameFirstPet: z.string().default(''),
+		whereHomeTown: z.string().default(''),
+		nameFirstTeacher: z.string().default(''),
+		nameMotherMaid: z.string().default('')
+	})
 	.partial()
+	.transform(
+		(obj) =>
+			_.mapValues(obj, (v) => {
+				if (typeof v == 'string' && v.length >= 1) return v;
+				else return ZENROOM_NULL;
+			}) as Required<typeof obj>
+	)
 	.refine((v) => {
-		return Object.values(v).filter((v) => Boolean(v)).length >= 3;
+		return Object.values(v).filter((v) => v === ZENROOM_NULL).length <= 2;
 	}, 'AT_LEAST_THREE_QUESTIONS');
+
+export type UserChallenges = z.infer<typeof userChallengesSchema>;
+export type UserChallenge = keyof UserChallenges;
+
+export const userChallenges: Array<{ id: UserChallenge; text: string }> = [
+	{ id: 'whereParentsMet', text: 'Where did your parents meet?' },
+	{ id: 'nameFirstPet', text: 'What is the name of your first pet?' },
+	{ id: 'whereHomeTown', text: 'What is your home town?' },
+	{ id: 'nameFirstTeacher', text: 'What is the name of your first teacher?' },
+	{ id: 'nameMotherMaid', text: 'What is the surname of your mother before wedding?' }
+];

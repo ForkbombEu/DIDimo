@@ -1,59 +1,86 @@
-import type { UserAnswers } from './userQuestions';
+import type { UserChallenges } from './userQuestions';
 import { zencode_exec } from 'zenroom';
 import keypairoomClient from '../../../zenflows-crypto/src/keypairoomClient-8-9-10-11-12.zen?raw';
 import keypairoomClientRecreateKeys from '../../../zenflows-crypto/src/keypairoomClientRecreateKeys.zen?raw';
+import matchKeys from '../../../client_zencode/keypairoom/match_pubkeys_secretkeys.zen?raw';
 import { pb } from '$lib/pocketbase';
 import { browser } from '$app/environment';
+import _ from 'lodash';
+import type { PublicKeys } from './utils';
 
 //
 
 export interface Keyring {
+	bitcoin: string;
+	credential: string;
+	ecdh: string;
 	eddsa: string;
+	es256: string;
 	ethereum: string;
 	reflow: string;
-	bitcoin: string;
-	ecdh: string;
 }
 
 export interface Keypair {
-	seed: string;
-	keyring: Keyring;
-	ecdh_public_key: string;
 	bitcoin_public_key: string;
+	ecdh_public_key: string;
 	eddsa_public_key: string;
-	reflow_public_key: string;
+	es256_public_key: string;
 	ethereum_address: string;
+	keyring: Keyring;
+	reflow_public_key: string;
+	seed: string;
 }
 
 //
 
-async function zencodeExec<T>(contract: string, data: Record<string, unknown>): Promise<T> {
-	const { result } = await zencode_exec(contract, { data: JSON.stringify(data) });
+type ZenroomProps = {
+	data?: Record<string, unknown>;
+	keys?: Record<string, unknown>;
+	conf?: Record<string, unknown>;
+};
+
+async function zencodeExec<T>(contract: string, props: ZenroomProps): Promise<T> {
+	const { result } = await zencode_exec(
+		contract,
+		_.mapValues(props, (rec) => JSON.stringify(rec))
+	);
 	return JSON.parse(result);
 }
+
+//
 
 export async function generateKeypair(
 	email: string,
 	HMAC: string,
-	answers: UserAnswers
+	userChallenges: UserChallenges
 ): Promise<Keypair> {
 	return await zencodeExec<Keypair>(keypairoomClient, {
-		userChallenges: {
-			whereParentsMet: answers.question1,
-			nameFirstPet: answers.question2,
-			nameFirstTeacher: answers.question3,
-			whereHomeTown: answers.question4,
-			nameMotherMaid: answers.question5
-		},
-		username: email,
-		'seedServerSideShard.HMAC': HMAC
+		data: {
+			userChallenges,
+			username: email,
+			'seedServerSideShard.HMAC': HMAC
+		}
 	});
 }
 
 export async function regenerateKeypair(seed: string, HMAC: string): Promise<Keypair> {
 	return await zencodeExec<Keypair>(keypairoomClientRecreateKeys, {
-		seed,
-		'seedServerSideShard.HMAC': HMAC
+		data: {
+			seed,
+			'seedServerSideShard.HMAC': HMAC
+		}
+	});
+}
+
+//
+
+export async function matchPublicAndPrivateKeys(publicKeys: PublicKeys, privateKeys: Keyring) {
+	const renamedPublicKeys = _.mapKeys(publicKeys, (v, k) => `${k}_backend`); // As required by contract
+	await zencodeExec(matchKeys, {
+		data: {
+			keyring: privateKeys
+		},
+		keys: renamedPublicKeys
 	});
 }
 

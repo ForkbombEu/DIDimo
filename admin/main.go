@@ -15,6 +15,7 @@ import (
 	"pb/zencode"
 
 	"github.com/labstack/echo/v5"
+	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -68,6 +69,7 @@ func main() {
 				apis.ActivityLogger(app),
 			},
 		})
+
 		e.Router.AddRoute(echo.Route{
 			Method: http.MethodGet,
 			Path:   "/api/did",
@@ -77,21 +79,26 @@ func main() {
 					return apis.NewForbiddenError("Only auth records can access this endpoint", nil)
 				}
 
+				publicKeys, err := app.Dao().FindFirstRecordByFilter("users_public_keys", "owner = {:owner_id}", dbx.Params{"owner_id": authRecord.Id})
+				if err != nil {
+					return apis.NewForbiddenError("Only users with public keys can access this endpoint", nil)
+				}
+
 				conf, err := config.FetchDidConfig(app)
 				if err != nil {
 					return err
 				}
 
 				did, err := did.ClaimDid(conf, &did.DidAgent{
-					BitcoinPublicKey: authRecord.Get("bitcoin_public_key").(string),
-					EcdhPublicKey:    authRecord.Get("ecdh_public_key").(string),
-					EddsaPublicKey:   authRecord.Get("eddsa_public_key").(string),
-					EthereumAddress:  authRecord.Get("ethereum_address").(string),
-					ReflowPublicKey:  authRecord.Get("reflow_public_key").(string),
+					BitcoinPublicKey: publicKeys.Get("bitcoin_public_key").(string),
+					EcdhPublicKey:    publicKeys.Get("ecdh_public_key").(string),
+					EddsaPublicKey:   publicKeys.Get("eddsa_public_key").(string),
+					EthereumAddress:  publicKeys.Get("ethereum_address").(string),
+					ReflowPublicKey:  publicKeys.Get("reflow_public_key").(string),
+					Es256PublicKey:   publicKeys.Get("es256_public_key").(string),
 				})
 				if err != nil {
 					return err
-
 				}
 
 				return c.JSON(http.StatusOK, did)
