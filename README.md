@@ -1,7 +1,7 @@
 <div align="center">
 
 # DIDimo
-## Your Trustworthy Compliance Checker for Decentralized Identity Solutions
+## Your trustworthy compliance checker for decentralized identity solutions
 
 <img src="https://repository-images.githubusercontent.com/731107747/afa784ae-ee9f-4101-8cc8-440b839303d8" width="1000">
 </div>
@@ -47,7 +47,7 @@ Click the link above to dive into our comprehensive documentation, where you’l
 
 **[📝 Documentation](https://forkbombeu.github.io/didimo/)** - Getting started and more.
 
-**[🌱 Ecosystem](https://github.com/forkbombeu/didimo_plugins)** - Plugins, resources, and more.
+**[🌱 Ecosystem 👈 🚧 WIP 🚧](https://github.com/forkbombeu/didimo_plugins)** - Plugins, resources, and more.
 
 **[🚩 Issues](../../issues)** - Bugs end errors you encounter using didimo.
 
