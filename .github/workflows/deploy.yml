@@ -25,6 +25,7 @@ jobs:
       - run: |
           bun i 
           bun run docs:build
+        working-directory: docs
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
