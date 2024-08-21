@@ -25,7 +25,7 @@ DIDimo is more than just a tool – it's a platform designed to foster trust, se
 - **Foster Trust**: Build a trustworthy ecosystem where credential issuers and verifiers can demonstrate their compliance with industry standards.
 - **Support Innovation**: Encourage the development of cutting-edge identity solutions by providing essential tools for testing, debugging, and compliance checking.
 
-# 👉 [DOCUMENTATION](https://forkbombeu.github.io/didimo/)
+# 👉 [DOCUMENTATION](https://forkbombeu.github.io/DIDimo/)
 
 Click the link above to dive into our comprehensive documentation, where you’ll find detailed information about how DIDimo works, how to get started, and how to make the most of its features.
 
@@ -45,7 +45,7 @@ Click the link above to dive into our comprehensive documentation, where you’l
 ***
 ## 🚑 Community & support
 
-**[📝 Documentation](https://forkbombeu.github.io/didimo/)** - Getting started and more.
+**[📝 Documentation](https://forkbombeu.github.io/DIDimo/)** - Getting started and more.
 
 **[🌱 Ecosystem 👈 🚧 WIP 🚧](https://github.com/forkbombeu/didimo_plugins)** - Plugins, resources, and more.
 
