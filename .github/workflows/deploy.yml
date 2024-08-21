@@ -3,6 +3,7 @@ name: Deploy DIDimo docs
 on:
   push:
     branches: [main]
+    paths: [docs/**/*]
 
 permissions:
   contents: read
