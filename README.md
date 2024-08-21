@@ -61,7 +61,7 @@ Click the link above to dive into our comprehensive documentation, where you’l
 
 Copyleft 🄯 2024 by [The Forkbomb Company](https://www.forkbomb.solutions), Amsterdam
 
-<img align="left" src="./images/logo-ngi-trustchain-positive-rgb-PNG.png" width="145">
+<img align="left" src="https://github.com/ForkbombEu/DIDroom/raw/main/images/logo-ngi-trustchain-positive-rgb-PNG.png" width="145">
 
 Supported by [NGI TRUSTCHAIN](https://trustchain.ngi.eu/), which is made possible with financial support from the European Commission's [Next Generation Internet](https://ngi.eu/) programme.
 
