@@ -83,7 +83,7 @@ Supported by [NGI TRUSTCHAIN](https://trustchain.ngi.eu/), which is made possibl
 ***
 ## 💼 License
     DIDimo - Your Trustworthy Compliance Checker for Decentralized Identity Solutions
-    Copyleft 🄯 2024 Dyne.org foundation, Amsterdam
+    Copyleft 🄯 2024 The Forkbomb company, Amsterdam
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as
