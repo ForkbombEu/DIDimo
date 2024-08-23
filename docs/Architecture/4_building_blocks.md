@@ -78,7 +78,7 @@ System_Boundary(didimo, "DIDimo") {
     Container(reporting_service, "Reporting Service", "golang", "Generates and exports compliance reports.")
     Container(external_services_api, "External Services API", "APIs", "Connects to external compliance check services.")
     Container(dashboard, "Dashboard", "TypeScript/Svelte", "User interface for managing services and viewing results.")
-    Container(comparison_tool, "Comparison Tool", "TypeScript/Svelte", "Tool for comparing credential services.")
+    Container(comparison_tool, "Marketplace/Comparison Tool", "TypeScript/Svelte", "Tool for comparing credential services.")
 }
 
 Rel(dev, api_gateway, "Submits credential issuers/checks via API/CLI")
