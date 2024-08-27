@@ -14,12 +14,14 @@ hero:
 #   text: API Examples
 #   link: /api-examples
 
-# features:
-#   - title: Feature A
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature B
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
-#   - title: Feature C
-#     details: Lorem ipsum dolor sit amet, consectetur adipiscing elit
+features:
+  - title: Credential Issuer and Verifier Compliance Testing
+    details: Test OpenID4VCI and OpenID4VP services and applications for interoperability, with periodic scheduling debugging and report
+  - title: Developer Dashboard
+    details: developers can manage their services, view compliance statuses, schedule periodic checks, and access reports
+  - title: Plugin System for Extensibility
+    details: integration of additional checks and standards, enable third-party developers to contribute
+  - title: Marketplace
+    details: listing and comparison tool for end-users that allows them to browse and compare different digital identity products and services
 ---
 
