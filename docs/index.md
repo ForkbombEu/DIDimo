@@ -6,11 +6,13 @@ hero:
   name: "DIDimo"
   tagline: "Master the complexities of SSI identity solutions with DIDimo: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem."
   text: "Streamline identity compliance effortlessly."
+  image:
+   src: /images/logo/didimo_logo_fingerprint_emblem.png
   actions:
     - theme: brand
       text: 🕹 Get started
       link: /Architecture/1_start.html
-# - theme: alt
+#   - theme: alt
 #   text: API Examples
 #   link: /api-examples
 
