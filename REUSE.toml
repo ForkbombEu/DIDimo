@@ -9,7 +9,7 @@ SPDX-PackageSupplier = "Puria Nafisi Azizi <puria@dyne.org>"
 SPDX-PackageDownloadLocation = "https://github.com/ForkbombEu/didimo"
 
 [[annotations]]
-path = ["webapp/.vscode/extensions.json", "webapp/src/app.postcss", "webapp/project.inlang/project_id", "webapp/.env.example", "webapp/.npmrc"]
+path = ["webapp/.vscode/extensions.json", "webapp/src/app.postcss", "webapp/project.inlang/project_id", "webapp/.env.example", "webapp/.npmrc", "docs/index.md"]
 precedence = "override"
 SPDX-FileCopyrightText = "2024 The Forkbomb Company"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
