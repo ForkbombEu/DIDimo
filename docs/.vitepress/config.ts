@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { defineConfig } from 'vitepress'
 import { generateSidebar } from 'vitepress-sidebar';
 import umlPlugin from 'markdown-it-plantuml';
