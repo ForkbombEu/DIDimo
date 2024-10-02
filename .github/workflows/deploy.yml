@@ -15,6 +15,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  reuse:
+    name: 🚨 reuse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v4
+
   build:
     runs-on: ubuntu-latest
     steps:
