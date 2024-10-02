@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import FieldController from '$lib/forms/fields/fieldController.svelte';
 	import { Input, Button, Heading, Spinner, Alert, P } from 'flowbite-svelte';
