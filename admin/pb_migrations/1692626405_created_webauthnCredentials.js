@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 migrate((db) => {
   const collection = new Collection({
     "id": "nopzrf0n7mbfu58",

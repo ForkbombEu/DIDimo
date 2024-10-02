@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { createI18n } from '@inlang/paraglide-sveltekit';
 import * as runtime from '$paraglide/runtime.js';
 import * as m from '$paraglide/messages.js';

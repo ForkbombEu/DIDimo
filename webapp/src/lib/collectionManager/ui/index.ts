@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import CollectionTable from './collectionTable.svelte';
 import CollectionTableHeader from './collectionTableHeader.svelte';
 import RecordCard from './recordCard.svelte';

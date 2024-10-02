@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { z } from 'zod';
 import type { ZodEffects, ZodTypeAny } from 'zod';
 import { log } from '$lib/utils/devLog';

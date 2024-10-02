@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import type { SidebarLink } from '$lib/layout';
 import { GlobeAlt, Inbox, RocketLaunch, User, Document } from 'svelte-heros-v2';
 
