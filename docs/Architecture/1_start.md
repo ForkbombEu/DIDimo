@@ -1,3 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi
+SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi 
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: CC-BY-NC-SA-4.0
+-->
+
 # 🎯 Intro and Goals
 
 New systems have come up with regard to digital identity, which aim at enhancing power among people and organizations over their personal data. In contrast to traditional systems of identity, often centralized and controlled by an individual entity, modern digital identity solutions intend to provide safe, privacy-preserving identities usable across multiple applications, from financial services to interactions with the government. These systems increase security and user experience, all while decreasing the risks of centrally stored data.
