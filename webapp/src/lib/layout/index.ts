@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import UIShell from './UiShell.svelte';
 import type { SidebarLink } from './SidebarLinks.svelte';
 import AvatarMenu from './AvatarMenu.svelte';

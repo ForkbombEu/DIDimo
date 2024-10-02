@@ -1,3 +1,10 @@
+<!--
+SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi 
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: CC-BY-NC-SA-4.0
+-->
+
 # Pocketbase backend
 
 Starter for a backend that includes pocketbase and [keypairoom](https://github.com/LedgerProject/keypairoom) key generation.

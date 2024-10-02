@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import { Button, Heading, P } from 'flowbite-svelte';
 	import CopyButton from '$lib/components/copyButton.svelte';

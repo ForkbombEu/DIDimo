@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { tick } from 'svelte';
 
 // Credits: https://github.com/romkor/svelte-portal/blob/master/src/Portal.svelte

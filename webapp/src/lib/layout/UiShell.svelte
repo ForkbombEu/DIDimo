@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script context="module" lang="ts">
 	import type { Writable } from 'svelte/store';
 	import { getContext } from 'svelte';

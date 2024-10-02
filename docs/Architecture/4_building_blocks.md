@@ -1,3 +1,11 @@
+<!--
+SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi
+SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi 
+SPDX-FileCopyrightText: 2024 The Forkbomb Company
+
+SPDX-License-Identifier: CC-BY-NC-SA-4.0
+-->
+
 # 🏗️ Building blocks
 
 The following system diagrams provide a visual overview of the DIDimo platform, illustrating its architecture and key components. These diagrams are based on the C4 model, which is a widely-used approach for visualizing software architecture.

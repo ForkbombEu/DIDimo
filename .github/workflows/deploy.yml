@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 name: Deploy DIDimo docs
 
 on:
@@ -15,6 +19,13 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  reuse:
+    name: 🚨 reuse
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: fsfe/reuse-action@v4
+
   build:
     runs-on: ubuntu-latest
     steps:
