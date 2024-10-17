@@ -2,14 +2,15 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-import { defineConfig } from 'vitepress'
-import { generateSidebar } from 'vitepress-sidebar';
-import umlPlugin from 'markdown-it-plantuml';
+import { defineConfig } from "vitepress";
+import { generateSidebar } from "vitepress-sidebar";
+import umlPlugin from "markdown-it-plantuml";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: "DIDimo",
-  description: "Master the complexities of SSI identity solutions with DIDimo: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem.",
+  description:
+    "Master the complexities of SSI identity solutions with DIDimo: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem.",
   base: "/DIDimo/",
 
   lastUpdated: true,
@@ -17,26 +18,25 @@ export default defineConfig({
 
   head: [
     [
-      'script',
+      "script",
       {},
-      `window.$crisp=[];window.CRISP_WEBSITE_ID="8dd97823-ddac-401e-991a-7498234e4f00";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`
-    ]
+      `window.$crisp=[];window.CRISP_WEBSITE_ID="8dd97823-ddac-401e-991a-7498234e4f00";(function(){d=document;s=d.createElement("script");s.src="https://client.crisp.chat/l.js";s.async=1;d.getElementsByTagName("head")[0].appendChild(s);})();`,
+    ],
   ],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [
-      { text: 'Home', link: '/' },
-      { text: 'Get Started', link: '/Architecture/1_start.html' }
+      { text: "Home", link: "/" },
+      { text: "Get Started", link: "/Architecture/1_start.html" },
     ],
 
     sidebar: generateSidebar({
       useTitleFromFileHeading: true,
       sortMenusOrderNumericallyFromLink: true,
-
     }),
     logo: "",
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/forkbombeu/DIDimo' },
+      { icon: "github", link: "https://github.com/forkbombeu/DIDimo" },
       { icon: "linkedin", link: "https://linkedin.com/company/forkbomb" },
     ],
 
@@ -49,7 +49,7 @@ export default defineConfig({
   },
   markdown: {
     config(md) {
-      md.use(umlPlugin)
-    }
-  }
-})
+      md.use(umlPlugin);
+    },
+  },
+});

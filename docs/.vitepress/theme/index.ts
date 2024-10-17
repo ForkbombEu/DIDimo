@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2024 The Forkbomb Company
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // https://vitepress.dev/guide/custom-theme
 import type { Theme } from 'vitepress'
 import DefaultTheme from 'vitepress/theme'
