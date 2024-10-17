@@ -1,9 +1,13 @@
+# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 openapi: 3.0.1
 
 info:
   title: DIDimo 👀 API Gateway
   description: >
-    DIDimo API Gateway for managing decentralized identity services, compliance checks, periodic scheduling, organizational management, and reporting. 
+    DIDimo API Gateway for managing EUDI-ARF compliance checks, periodic scheduling, organizational management, and reporting. 
     This API provides developers, service providers, and organizations with tools to ensure compliance, manage tests, reports, and ownership claims.
   version: 1.4.0
   contact:
