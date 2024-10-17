@@ -28,6 +28,7 @@ export default defineConfig({
     nav: [
       { text: "Home", link: "/" },
       { text: "Get Started", link: "/Architecture/1_start.html" },
+      { text: "API Reference", target: "_self", link: "/API/index.html" },
     ],
 
     sidebar: generateSidebar({
