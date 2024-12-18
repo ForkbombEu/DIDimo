@@ -1,0 +1,35 @@
+<mjml>
+  <mj-head>
+    <mj-title>Confirm your email</mj-title>
+    <mj-include path="../_components/attributes.mjml" />
+  </mj-head>
+  <mj-body>
+    <mj-include path="../_components/header.mjml" />
+
+    <mj-section>
+      <mj-column>
+        <mj-text mj-class="big">
+          Confirm your email
+        </mj-text>
+
+        <mj-text>
+          Hello <strong>{{.UserName}}</strong>,
+        </mj-text>
+
+        <mj-text>
+          Click on the button or paste this link in your browser to confirm your registration on {{.AppName}}.
+        </mj-text>
+
+        <mj-text>
+          <a href="{{.VerificationLink}}">{{.VerificationLink}}<a/>        
+        </mj-text>
+
+        <mj-button href="{{.VerificationLink}}" mj-class="btn-primary">
+          Confirm email
+        </mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="../_components/footer.mjml" />
+  </mj-body>
+</mjml>

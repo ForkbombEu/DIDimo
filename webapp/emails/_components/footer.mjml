@@ -1,0 +1,46 @@
+<mj-section>
+	<mj-column>
+		<mj-divider></mj-divider>
+
+		<mj-text mj-class="footer">
+			If you can't visualize this email correctly,
+			<a href="@WL" style="color: #7d2fb5">click here to view it in your browser</a>.
+		</mj-text>
+
+		<mj-text mj-class="footer">
+			Don't want to receive these emails?
+			<a href="@US" style="color: #7d2fb5">Manage your subscriptions</a>.
+		</mj-text>
+	</mj-column>
+</mj-section>
+
+<!-- Social Icons Section -->
+<!-- <mj-section>
+	<mj-column>
+		<mj-text mj-class="footer">
+			<strong>Need support?</strong><br />
+			<a href="https://didroom.com/get_started.html" style="color: #7d2fb5">Read our Guide</a> or
+			<a href="https://github.com/ForkbombEu/DIDroom/issues" style="color: #7d2fb5">
+				Create an issue
+			</a>
+		</mj-text>
+	</mj-column>
+	<mj-column>
+		<mj-social>
+			<mj-social-element
+				name="github"
+				href="https://github.com/ForkbombEu/DIDroom"
+				background-color="#333333"
+			>
+				GitHub
+			</mj-social-element>
+			<mj-social-element
+				name="linkedin"
+				href="https://www.linkedin.com/company/forkbomb/"
+				background-color="#0077B5"
+			>
+				LinkedIn
+			</mj-social-element>
+		</mj-social>
+	</mj-column>
+</mj-section> -->

@@ -1,0 +1,73 @@
+<script lang="ts">
+	import * as Sidebar from '@/components/ui/sidebar';
+	import { cn } from '@/components/ui/utils';
+	import type { HTMLAnchorAttributes } from 'svelte/elements';
+	import SidebarItemIcon from './sidebarItemIcon.svelte';
+	import { Store } from 'runed';
+	import { page } from '$app/stores';
+	import type { LinkWithIcon } from '@/components/types';
+	import type { Snippet } from 'svelte';
+
+	type Props = HTMLAnchorAttributes &
+		LinkWithIcon & {
+			disabled?: boolean;
+			sub?: boolean;
+			isActive?: boolean;
+			left?: Snippet;
+		};
+
+	const {
+		href,
+		title,
+		icon,
+		disabled = false,
+		left,
+		sub = false,
+		onclick,
+		...rest
+	}: Props = $props();
+
+	const Item = $derived(sub ? Sidebar.MenuSubItem : Sidebar.MenuItem);
+	const Button = $derived(sub ? Sidebar.MenuSubButton : Sidebar.MenuButton);
+
+	const pageState = new Store(page);
+	const isActive = $derived(pageState.current.url.pathname == href);
+
+	const sidebarContext = Sidebar.useSidebar();
+</script>
+
+<Item class={cn({ 'cursor-not-allowed opacity-20': disabled })}>
+	<Button {isActive}>
+		{#snippet child({ props })}
+			{#if !disabled}
+				<a
+					{href}
+					{...props}
+					{...rest}
+					onclick={(e) => {
+						sidebarContext.setOpenMobile(false);
+						onclick?.(e);
+					}}
+				>
+					{@render content()}
+				</a>
+			{:else}
+				<p {...props}>
+					{@render content()}
+				</p>
+			{/if}
+		{/snippet}
+	</Button>
+</Item>
+
+{#snippet content()}
+	{#if left}
+		<SidebarItemIcon>
+			{@render left()}
+		</SidebarItemIcon>
+	{:else if icon}
+		<SidebarItemIcon src={icon} />
+	{/if}
+
+	<span>{title}</span>
+{/snippet}

@@ -1,0 +1,52 @@
+<script lang="ts">
+	import { getCollectionManagerContext } from './collectionManagerContext';
+	import * as Pagination from '@/components/ui/pagination';
+
+	//
+
+	interface Props {
+		class?: string;
+	}
+
+	let { class: className = '' }: Props = $props();
+
+	//
+
+	const { manager } = $derived(getCollectionManagerContext());
+	const perPage = $derived(manager.queryOptions.perPage);
+	const show = $derived(perPage && manager.totalItems > perPage);
+</script>
+
+{#if show && perPage}
+	<Pagination.Root
+		count={manager.totalItems}
+		{perPage}
+		bind:page={manager.currentPage}
+		class={className}
+	>
+		{#snippet children({ currentPage, pages })}
+			<Pagination.Content>
+				<Pagination.Item>
+					<Pagination.PrevButton />
+				</Pagination.Item>
+				{#each pages as page (page.key)}
+					{#if page.type === 'ellipsis'}
+						<Pagination.Item>
+							<Pagination.Ellipsis />
+						</Pagination.Item>
+					{:else}
+						<!-- <Pagination.Item isVisible={currentPage == page.value}> -->
+						<Pagination.Item>
+							<Pagination.Link {page} isActive={currentPage == page.value}>
+								{page.value}
+							</Pagination.Link>
+						</Pagination.Item>
+					{/if}
+				{/each}
+				<Pagination.Item>
+					<Pagination.NextButton />
+				</Pagination.Item>
+			</Pagination.Content>
+		{/snippet}
+	</Pagination.Root>
+{/if}

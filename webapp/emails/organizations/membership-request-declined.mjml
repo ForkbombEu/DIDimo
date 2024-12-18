@@ -1,0 +1,32 @@
+<mjml>
+	<mj-head>
+		<mj-title>Declined membership request</mj-title>
+		<mj-include path="../_components/attributes.mjml" />
+	</mj-head>
+
+	<mj-body>
+		<mj-include path="../_components/header.mjml" />
+
+		<mj-section>
+			<mj-column>
+				<mj-text mj-class="big">Your membership request has been declined</mj-text>
+
+				<mj-text> Hello {{.UserName}}, </mj-text>
+
+				<mj-text> You recently requested to join {{.OrganizationName}} on {{.AppName}}. </mj-text>
+
+				<mj-text> Your membership request has been declined! </mj-text>
+
+				<mj-text>
+					If you think this is a mistake, please contact the admins of the organization.
+				</mj-text>
+
+				<mj-button href="{{.DashboardLink}}" mj-class="btn-primary">
+					Go to the Dashboard
+				</mj-button>
+			</mj-column>
+		</mj-section>
+
+		<mj-include path="../_components/footer.mjml" />
+	</mj-body>
+</mjml>

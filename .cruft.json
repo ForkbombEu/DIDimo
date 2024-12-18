@@ -1,0 +1,27 @@
+{
+  "template": "https://github.com/dyne/starters",
+  "commit": "77697a7e518c561ea58d796faa75b9fdca0c88fa",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "project_name": "DIDimo",
+      "project_description": "Your trustworthy compliance checker for decentralized identity solutions",
+      "author_full_name": "Forkbomb",
+      "author_email": "info@forkbomb.com",
+      "project_slug": "didimo",
+      "repo": "https://github.com/ForkbombEu/DIDimo",
+      "_copy_without_render": [
+        "*.svelte",
+        "admin/pb_hooks/rbac.pb.js",
+        "admin/pb_hooks/organizations.pb.js",
+        "admin/pb_hooks/organizations_invites.pb.js",
+        "admin/pb_hooks/utils.js",
+        "webapp/emails/_generateEmailList.mjs",
+        "*.mjml",
+        "**/emails/*.html"
+      ],
+      "_template": "https://github.com/dyne/starters"
+    }
+  },
+  "directory": "saas"
+}

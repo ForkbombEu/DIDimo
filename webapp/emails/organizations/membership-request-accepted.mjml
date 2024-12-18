@@ -1,0 +1,32 @@
+<mjml>
+	<mj-head>
+		<mj-title>Welcome to {{.OrganizationName}}!</mj-title>
+		<mj-include path="../_components/attributes.mjml" />
+	</mj-head>
+
+	<mj-body>
+		<mj-include path="../_components/header.mjml" />
+
+		<mj-section>
+			<mj-column>
+				<mj-text mj-class="big">Your membership request has been accepted </mj-text>
+
+				<mj-text> Hello {{.UserName}}, </mj-text>
+
+				<mj-text> You recently requested to join {{.OrganizationName}} on {{.AppName}}. </mj-text>
+
+				<mj-text>
+					Your membership request has been accepted! You are now a member of {{.OrganizationName}}
+				</mj-text>
+
+				<mj-text>Login to your Dashboard to see the changes:</mj-text>
+
+				<mj-button href="{{.DashboardLink}}" mj-class="btn-primary">
+					Go to your Dashboard
+				</mj-button>
+			</mj-column>
+		</mj-section>
+
+		<mj-include path="../_components/footer.mjml" />
+	</mj-body>
+</mjml>

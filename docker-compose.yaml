@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: AGPL-3.0-or-later
+# Zenflows is designed to implement the Valueflows vocabulary,
+# written and maintained by srfsh <info@dyne.org>.
+# Copyright (C) 2021-2023 Dyne.org foundation <foundation@dyne.org>.
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+version: "3.8"
+services:
+  be:
+    image: starters-pb:latest
+    build:
+      context: ./
+      dockerfile: ./admin/Dockerfile
+    ports:
+      - 8090:8090
+    volumes:
+      - type: bind
+        source: ./admin/pb_public
+        target: /app/pb_public
+      - type: bind
+        source: ./admin/pb_migrations
+        target: /app/pb_migrations
+      - type: bind
+        source: ./admin/pb_data
+        target: /app/pb_data
+    stdin_open: true
+    tty: true
+  fe:
+    depends_on: 
+      - be
+    image: starters-fe
+    build:
+      context: ./
+      dockerfile: ./webapp/Dockerfile
+    environment:
+      - PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090/
+      - PB_ADMIN_USER=admin@example.org
+      - PB_ADMIN_PASS=adminadmin
+    volumes:
+      - type: bind
+        source: ./admin/pb_data
+        target: /admin/pb_data
+    network_mode: "host"

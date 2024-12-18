@@ -1,0 +1,62 @@
+<script lang="ts">
+	import { CollectionManager } from '@/collections-components/manager';
+	import List from '@/components/ui-custom/list.svelte';
+	import ListItem from '@/components/ui-custom/listItem.svelte';
+	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+	import PocketBase from 'pocketbase';
+	import type { TypedPocketBase } from '@/pocketbase/types';
+
+	const pbPromise = init();
+
+	async function init() {
+		const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
+		await pb.admins.authWithPassword('admin@example.org', 'adminadmin');
+		return pb;
+	}
+</script>
+
+{#await pbPromise then pb}
+	<CollectionManager
+		collection="users"
+		queryOptions={{
+			perPage: 6,
+			expand: [
+				'users_public_keys_via_owner',
+				'webauthnCredentials_via_user',
+				'orgAuthorizations_via_user'
+			],
+			pocketbase: pb
+		}}
+	>
+		{#snippet records({ records })}
+			<List>
+				{#each records as r}
+					<ListItem>
+						<pre>{JSON.stringify(r, null, 2)}</pre>
+					</ListItem>
+				{/each}
+			</List>
+		{/snippet}
+	</CollectionManager>
+
+	<!--  -->
+
+	<CollectionManager
+		collection="orgAuthorizations"
+		queryOptions={{
+			perPage: 6,
+			expand: ['role'],
+			pocketbase: pb
+		}}
+	>
+		{#snippet records({ records })}
+			<List>
+				{#each records as r}
+					<ListItem>
+						<pre>{JSON.stringify(r.expand?.role, null, 2)}</pre>
+					</ListItem>
+				{/each}
+			</List>
+		{/snippet}
+	</CollectionManager>
+{/await}

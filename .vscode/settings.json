@@ -1,0 +1,6 @@
+{
+  "tailwindCSS.classAttributes": ["class", "className", "contentClass"],
+  "editor.quickSuggestions": {
+    "strings": "on"
+  }
+}
