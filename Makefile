@@ -12,7 +12,6 @@ ADMIN	= $(ROOT_DIR)/admin
 AZC			= $(ADMIN)/zencode/zenflows-crypto
 PB			= $(ADMIN)/pb
 DATA		= $(ADMIN)/pb_data
-PUBLIC		= $(ADMIN)/pb_public
 
 WEBAPP	= $(ROOT_DIR)/webapp
 WCZ			= $(WEBAPP)/client_zencode
@@ -74,8 +73,7 @@ $(DATA):
 	mkdir -p $(DATA)
 
 setup_pb_public:
-	rm -rf $(PUBLIC)
-	ln -s $(WEBAPP)/static $(PUBLIC)
+	@cd $(ADMIN) && rm -rf ./pb_public && ln -s ../webapp/static/ ./pb_public
 
 $(PB): $(DATA) setup_pb_public
 	@echo "📦 Setup the backend"
