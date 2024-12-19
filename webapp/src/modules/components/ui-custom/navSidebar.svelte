@@ -2,7 +2,7 @@
 	import { cubicInOut } from 'svelte/easing';
 	import { crossfade } from 'svelte/transition';
 	import { cn } from '@/components/ui/utils.js';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Button } from '@/components/ui/button/index.js';
 	import type { LinkWithIcon } from '../types';
 	import Icon from './icon.svelte';
@@ -28,7 +28,7 @@
 	{/if}
 
 	{#each links as { href, title, icon }}
-		{@const isActive = $page.url.pathname === href}
+		{@const isActive = page.url.pathname === href}
 
 		<Button
 			{href}

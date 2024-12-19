@@ -1,16 +1,14 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { cn } from '@/components/ui/utils';
-	import { Store } from 'runed';
 	import type { LinkWithIcon } from '../types';
 
 	let { href, icon, title, ...rest }: LinkWithIcon = $props();
 
 	//
 
-	const pageState = new Store(page);
-	const isActive = $derived(pageState.current.url.pathname == href);
+	const isActive = $derived(page.url.pathname == href);
 
 	const classes = $derived(
 		cn(

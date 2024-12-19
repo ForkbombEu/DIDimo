@@ -31,7 +31,7 @@
 	import SidebarGroup from '@/components/layout/sidebar/sidebarGroup.svelte';
 	import SidebarItemIcon from '@/components/layout/sidebar/sidebarItemIcon.svelte';
 	import { OrganizationAvatar } from '@/organizations/components';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { Button } from '@/components/ui/button';
 
 	//
@@ -78,7 +78,7 @@
 						{#each authorizations as authorization}
 							{@const organization = authorization.expand?.organization!}
 							{@const role = authorization.expand?.role!}
-							{@const active = $page.url.pathname.includes(`/my/organizations/${organization.id}`)}
+							{@const active = page.url.pathname.includes(`/my/organizations/${organization.id}`)}
 							<SidebarGroup {active}>
 								{#snippet trigger()}
 									<SidebarItemIcon>

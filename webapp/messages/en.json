@@ -441,5 +441,6 @@
 	"Actions": "Actions",
 	"An_error_occurred_while_verifying_your_email_": "An error occurred while verifying your email! :(",
 	"Oh_no": "Oh no!",
-	"Email_verified_succesfully": "Email verified succesfully!"
+	"Email_verified_succesfully": "Email verified succesfully!",
+	"Continue_with_oauthProvider": "Continue with {oauthProvider}"
 }

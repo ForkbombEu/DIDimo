@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { m } from '@/i18n';
 	import T from '@/components/ui-custom/t.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 
-	const status = $page.status;
-	const title = status === 404 ? m.Not_Found() : m.Internal_Error();
-	const image = status === 404 ? '/404-computer.svg' : '/500.svg';
+	const status = $derived(page.status);
+	const title = $derived(status === 404 ? m.Not_Found() : m.Internal_Error());
+	const image = $derived(status === 404 ? '/404-computer.svg' : '/500.svg');
 </script>
 
 <div

@@ -3,8 +3,7 @@
 	import { cn } from '@/components/ui/utils';
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
 	import SidebarItemIcon from './sidebarItemIcon.svelte';
-	import { Store } from 'runed';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { LinkWithIcon } from '@/components/types';
 	import type { Snippet } from 'svelte';
 
@@ -29,9 +28,7 @@
 
 	const Item = $derived(sub ? Sidebar.MenuSubItem : Sidebar.MenuItem);
 	const Button = $derived(sub ? Sidebar.MenuSubButton : Sidebar.MenuButton);
-
-	const pageState = new Store(page);
-	const isActive = $derived(pageState.current.url.pathname == href);
+	const isActive = $derived(page.url.pathname == href);
 
 	const sidebarContext = Sidebar.useSidebar();
 </script>

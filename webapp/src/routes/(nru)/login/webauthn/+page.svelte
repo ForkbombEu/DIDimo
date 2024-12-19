@@ -1,11 +1,9 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { goto, m } from '@/i18n';
 	import { loginUser } from '@/webauthn/index';
 	import z from 'zod';
 
-	import { Form, createForm, FormError, SubmitButton } from '@/forms';
+	import { Form, createForm } from '@/forms';
 	import { Field } from '@/forms/fields';
 	import { currentEmail } from '../+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
@@ -21,14 +19,14 @@
 			await loginUser(data.email);
 			await goto('/my');
 		},
-		initialData: { email: $currentEmail },
+		initialData: { email: currentEmail.value },
 		options: { taintedMessage: null }
 	});
 
 	const { form: formData } = form;
 
-	run(() => {
-		$currentEmail = $formData.email;
+	$effect(() => {
+		currentEmail.value = $formData.email;
 	});
 </script>
 

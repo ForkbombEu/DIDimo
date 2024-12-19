@@ -4,13 +4,12 @@
 </script>
 
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { calcBreadcrumbs } from './breadcrumbs';
 	import type { Link } from '@/components/types';
 	import * as Breadcrumb from '@/components/ui/breadcrumb/index.js';
 	import Icon from './icon.svelte';
 	import { Home } from 'lucide-svelte';
-	import { Store } from 'runed';
 
 	//
 
@@ -24,12 +23,8 @@
 
 	let breadcrumbs: Link[] = $state([]);
 
-	const pageState = new Store(page);
-
 	$effect(() => {
-		calcBreadcrumbs(pageState.current, options).then(
-			(newBreadcrumbs) => (breadcrumbs = newBreadcrumbs)
-		);
+		calcBreadcrumbs(page, options).then((newBreadcrumbs) => (breadcrumbs = newBreadcrumbs));
 	});
 </script>
 

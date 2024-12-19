@@ -1,0 +1,85 @@
+<script lang="ts">
+	import { currentUser, pb } from '@/pocketbase';
+	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
+	import Button from '@/components/ui/button/button.svelte';
+	import type { ClientResponseError } from 'pocketbase';
+	import Alert from '@/components/ui-custom/alert.svelte';
+	import { goto, m } from '@/i18n';
+	import type { UsersRecord } from '@/pocketbase/types';
+	import { nanoid } from 'nanoid';
+	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
+	import { Separator } from '@/components/ui/separator';
+
+	//
+
+	type Props = {
+		hideOr?: boolean;
+	};
+
+	const { hideOr = false }: Props = $props();
+
+	//
+
+	let error = $state<ClientResponseError>();
+	let loading = $state(false);
+
+	const authMethods = pb
+		.collection('users')
+		.listAuthMethods()
+		.then((list) =>
+			list.authProviders.map((provider) => {
+				return {
+					displayName: provider.displayName,
+					image: `${PUBLIC_POCKETBASE_URL}_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
+					initializer: async () => {
+						loading = true;
+						try {
+							const createData: UsersRecord = { name: nanoid(5) };
+							const authData = await pb.collection('users').authWithOAuth2({
+								provider: provider.name,
+								createData
+							});
+							$currentUser = authData.record;
+							goto('/my');
+						} catch (e) {
+							error = e as ClientResponseError;
+						}
+						loading = false;
+					}
+				};
+			})
+		);
+</script>
+
+{#await authMethods then methods}
+	{#each methods as method}
+		<Button class="w-full" variant="outline" onclick={method.initializer}>
+			<figure class="size-6 rounded-sm bg-white p-0.5">
+				<img src={method.image} alt="{method.displayName} logo" />
+			</figure>
+			{m.Continue_with_oauthProvider({ oauthProvider: method.displayName })}
+		</Button>
+	{/each}
+{/await}
+
+{#if error}
+	{@const { message } = error}
+	<Alert>
+		{#snippet content({ Title, Description })}
+			<Title>{m.Error()}</Title>
+			<Description>{message}</Description>
+		{/snippet}
+	</Alert>
+{/if}
+
+{#if loading}
+	<LoadingDialog />
+{/if}
+
+{#if !hideOr}
+	<div class="flex items-center gap-2">
+		<Separator class="grow basis-1" />
+		<p class="text-xs uppercase tracking-wide text-gray-400">{m.or()}</p>
+		<Separator class="grow basis-1" />
+	</div>
+{/if}

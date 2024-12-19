@@ -13,6 +13,7 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
+	import Oauth from '@/auth/oauth/oauth.svelte';
 
 	//
 
@@ -71,7 +72,11 @@
 	{/if}
 {/if}
 
-<T tag="h4">Create an account</T>
+<T tag="h4">{m.Create_an_account()}</T>
+
+{#if $featureFlags.OAUTH}
+	<Oauth></Oauth>
+{/if}
 
 <Form {form} hideRequiredIndicator>
 	<Field
@@ -117,17 +122,22 @@
 	/>
 
 	<CheckboxField {form} name="acceptTerms">
-		{m.I_accept_the()}
-		<A
-			href="https://didroom.com/guides/7_terms-and-conditions/privacy-policy.html#%F0%9F%92%BB-didroom-control-room-dashboard-%F0%9F%92%BB"
-			target="_blank"
-		>
-			{m.Terms_and_Conditions()}
-		</A>
-		{m.and()}
-		<A href="https://didroom.com/guides/7_terms-and-conditions/privacy-policy.html" target="_blank">
-			{m.privacy_policy()}
-		</A>
+		<span class="leading-snug">
+			{m.I_accept_the()}
+			<A
+				href="https://didroom.com/guides/7_terms-and-conditions/privacy-policy.html#%F0%9F%92%BB-didroom-control-room-dashboard-%F0%9F%92%BB"
+				target="_blank"
+			>
+				{m.Terms_and_Conditions()}
+			</A>
+			{m.and()}
+			<A
+				href="https://didroom.com/guides/7_terms-and-conditions/privacy-policy.html"
+				target="_blank"
+			>
+				{m.privacy_policy()}
+			</A>
+		</span>
 	</CheckboxField>
 
 	{#snippet submitButtonContent()}

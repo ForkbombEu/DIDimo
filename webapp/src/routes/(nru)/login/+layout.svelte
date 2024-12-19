@@ -1,10 +1,9 @@
 <script lang="ts" module>
-	import { writable } from 'svelte/store';
-	export const currentEmail = writable('');
+	export const currentEmail = $state({ value: '' });
 </script>
 
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import type { Link } from '@/components/types';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
@@ -12,8 +11,13 @@
 	import { Button } from '@/components/ui/button';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
+	import type { Snippet } from 'svelte';
+	import Oauth from '@/auth/oauth/oauth.svelte';
+
+	//
+
 	interface Props {
-		children?: import('svelte').Snippet;
+		children?: Snippet;
 	}
 
 	let { children }: Props = $props();
@@ -32,12 +36,16 @@
 
 <T tag="h4">Log in</T>
 
+{#if $featureFlags.OAUTH}
+	<Oauth></Oauth>
+{/if}
+
 {#if $featureFlags.WEBAUTHN}
 	<div class="space-y-2">
 		<T tag="small" class="text-gray-500">{m.Choose_your_authentication_method()}</T>
 		<div class="flex items-center overflow-hidden rounded-md border">
 			{#each modes as { href, title }}
-				{@const isActive = $page.url.pathname === href}
+				{@const isActive = page.url.pathname === href}
 				<Button
 					variant={isActive ? 'secondary' : 'outline'}
 					{href}

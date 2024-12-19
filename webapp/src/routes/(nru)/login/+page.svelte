@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { run } from 'svelte/legacy';
-
 	import { goto, m } from '@/i18n';
 	import { pb } from '@/pocketbase';
 	import { Form, createForm } from '@/forms';
@@ -8,6 +6,8 @@
 	import z from 'zod';
 	import { currentEmail } from './+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
+
+	//
 
 	const schema = z.object({
 		email: z.string().email(),
@@ -22,14 +22,14 @@
 			await u.authWithPassword(data.email, data.password);
 			await goto('/my');
 		},
-		initialData: { email: $currentEmail },
+		initialData: { email: currentEmail.value },
 		options: { taintedMessage: null }
 	});
 
 	const { form: formData } = form;
 
-	run(() => {
-		$currentEmail = $formData.email;
+	$effect(() => {
+		currentEmail.value = $formData.email;
 	});
 </script>
 

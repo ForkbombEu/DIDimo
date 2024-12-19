@@ -7,13 +7,12 @@
 </script>
 
 <script lang="ts">
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { getLanguagesData, m, type LanguageData } from '.';
 	import { Languages } from 'lucide-svelte';
 	import { languageTag } from '.';
 	import type { Snippet } from 'svelte';
 	import type { IconComponent } from '@/components/types';
-	import { Store } from 'runed';
 
 	type Props = {
 		languages: Snippet<[{ languages: LanguageData[] }]>;
@@ -23,8 +22,7 @@
 
 	const { trigger, languages: languagesSnippet }: Props = $props();
 
-	const pageState = new Store(page);
-	const languages = $derived(getLanguagesData(pageState.current));
+	const languages = $derived(getLanguagesData(page));
 	const currentLanguage = $derived(languages.find((l) => l.tag == languageTag())!);
 </script>
 
