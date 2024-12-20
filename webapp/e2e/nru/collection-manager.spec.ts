@@ -22,7 +22,7 @@ test.describe('it should test the collection manager', () => {
 
 	test('userA should login and visit the collection manager page', async ({ browser }) => {
 		page = await userLogin(browser, 'A');
-		await page.goto('/tests/collection-manager');
+		await page.goto('/ui-tests/collection-manager');
 	});
 
 	test('it should create a new record', async () => {

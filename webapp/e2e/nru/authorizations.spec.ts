@@ -14,7 +14,7 @@ async function userRoutine(browser: Browser, index: string, shouldBeAuthorized: 
 	const page = await context.newPage();
 
 	await login(page, email, password);
-	await page.goto('/tests/authorizations');
+	await page.goto('/ui-tests/authorizations');
 	const protectedItem = page.locator('#protected');
 
 	if (shouldBeAuthorized) {
