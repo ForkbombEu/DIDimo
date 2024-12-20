@@ -8,7 +8,7 @@
 		href?: string;
 	}
 
-	let { href = '/my' }: Props = $props();
+	let { href = '/' }: Props = $props();
 </script>
 
 <a {href}>

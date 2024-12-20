@@ -13,7 +13,7 @@
 	let { children, topbarRight }: Props = $props();
 </script>
 
-<div class="fixed left-2 top-2 !m-0 hidden md:block">
+<div class="fixed left-2 top-3 !m-0 hidden md:block">
 	<AppLogo />
 </div>
 
