@@ -39,6 +39,10 @@
 	<div class="flex items-center space-x-4">
 		{#if credential.logo}
 			<img src={credential.logo} alt={credential.name} class="size-14 rounded-lg border" />
+		{:else}
+			<div class="flex size-14 items-center justify-center rounded-lg border bg-gray-100">
+				<p class="font-semibold uppercase">{credential.name.slice(0, 2)}</p>
+			</div>
 		{/if}
 		<T tag="h4">{credential.name}</T>
 	</div>

@@ -6,7 +6,7 @@
 	import BaseTopbar from '@/components/layout/topbar.svelte';
 </script>
 
-<BaseTopbar class="bg-background border-none">
+<BaseTopbar class="bg-card border-none">
 	{#snippet left()}
 		<!-- <AppLogo /> -->
 		<Button variant="link" href="/">{m.Getting_started()}</Button>
