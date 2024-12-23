@@ -21,9 +21,9 @@
 					>
 						{m.Start_a_new_test()}
 					</Button>
-					<Button variant="ghost" class="grow basis-1 border sm:grow-0" href="/login"
-						>{m.Login()}</Button
-					>
+					<Button variant="ghost" class="grow basis-1 border sm:grow-0" href="/login">
+						{m.Login()}
+					</Button>
 				</div>
 			</div>
 		</div>
