@@ -35,7 +35,7 @@
 	}
 </script>
 
-<Card class="flex flex-col justify-between space-y-6 rounded-xl p-6 {className}">
+<Card class="border-primary flex flex-col justify-between space-y-6 rounded-xl p-6 {className}">
 	<div class="flex items-center space-x-4">
 		{#if credential.logo}
 			<img src={credential.logo} alt={credential.name} class="size-14 rounded-lg border" />

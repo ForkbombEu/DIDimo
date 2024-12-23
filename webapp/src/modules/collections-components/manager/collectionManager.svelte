@@ -93,14 +93,14 @@
 		manager,
 		formsOptions: {
 			base: {
-				uiOptions: rest.editFormUIOptions,
-				superformsOptions: rest.editFormSuperformsOptions,
-				fieldsOptions: rest.editFormFieldsOptions
+				uiOptions: rest.formUIOptions,
+				superformsOptions: rest.formSuperformsOptions,
+				fieldsOptions: rest.formFieldsOptions
 			},
 			create: {
-				uiOptions: rest.editFormUIOptions,
-				superformsOptions: rest.editFormSuperformsOptions,
-				fieldsOptions: rest.editFormFieldsOptions
+				uiOptions: rest.createFormUIOptions,
+				superformsOptions: rest.createFormSuperformsOptions,
+				fieldsOptions: rest.createFormFieldsOptions
 			},
 			edit: {
 				uiOptions: rest.editFormUIOptions,

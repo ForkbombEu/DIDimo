@@ -1,10 +1,8 @@
 <script lang="ts">
-	import * as Sidebar from '@/components/ui/sidebar/index.js';
-	import MySidebar from './_partials/mySidebar.svelte';
+	import BaseLayout from '$lib/layout/baseLayout.svelte';
+	import { Button } from '@/components/ui/button';
+	import { m } from '@/i18n';
 	import type { Snippet } from 'svelte';
-	import SidebarContext from '@/components/layout/sidebar/sidebarContext.svelte';
-	import Topbar from '@/components/layout/topbar.svelte';
-	import { AppLogo } from '@/brand';
 
 	interface Props {
 		children?: Snippet;
@@ -13,26 +11,12 @@
 	let { children }: Props = $props();
 </script>
 
-<Sidebar.Provider>
-	<MySidebar />
-
-	<main class="grow">
-		<SidebarContext>
-			{#snippet content({ isMobile })}
-				{#if isMobile}
-					<Topbar>
-						{#snippet left()}
-							<div class="flex items-center gap-2">
-								<Sidebar.Trigger variant="outline" class="size-9" />
-								<AppLogo />
-							</div>
-						{/snippet}
-						{#snippet right()}{/snippet}
-					</Topbar>
-				{/if}
-			{/snippet}
-		</SidebarContext>
-
-		{@render children?.()}
-	</main>
-</Sidebar.Provider>
+<BaseLayout>
+	<div class="border-y">
+		<div class="mx-auto max-w-screen-xl px-2 py-2">
+			<Button variant="link" href="/my/profile">{m.My_profile()}</Button>
+			<Button variant="link" href="/my/organizations">{m.organizations()}</Button>
+		</div>
+	</div>
+	{@render children?.()}
+</BaseLayout>

@@ -40,7 +40,7 @@
 			})}
 		{:else}
 			<Button {...sheetTriggerAttributes} class="shrink-0">
-				<Icon src={Plus} mr />
+				<Icon src={Plus} />
 				{@render SubmitButtonText()}
 			</Button>
 		{/if}

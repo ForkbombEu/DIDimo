@@ -251,5 +251,8 @@
 	"Format": "Format",
 	"Compare_by_test_results": "Compare by test results:",
 	"Test_and_find_decentralized_IDs": "Test and find decentralized IDs",
-	"Proudly_developed_by_ForkBomb_BV": "Proudly developed by ForkBomb BV"
+	"Proudly_developed_by_ForkBomb_BV": "Proudly developed by ForkBomb BV",
+	"Upload_a_new_compliance_test": "Upload a new compliance test",
+	"Upload_test": "Upload test",
+	"Services": "Services"
 }

@@ -4,13 +4,14 @@
 	type Props = {
 		children: Snippet;
 		class?: string;
+		contentClass?: string;
 	};
 
-	const { children, class: className = '' }: Props = $props();
+	const { children, class: className = '', contentClass = '' }: Props = $props();
 </script>
 
-<div class="bg-muted">
-	<div class="mx-auto max-w-screen-xl px-8 py-12 pb-32 {className}">
+<div class={className}>
+	<div class="mx-auto max-w-screen-xl px-8 py-12 {contentClass}">
 		{@render children()}
 	</div>
 </div>

@@ -16,11 +16,12 @@
 	};
 
 	const { title, icon, href, options, children, ...rest }: Props = $props();
+	$inspect(icon);
 </script>
 
 <DropdownMenuItem {...options} class="{options?.class} hover:cursor-pointer">
 	{#snippet child({ props })}
-		<a {href} {...props} {...rest}>
+		<a {href} {...props} {...rest} data-sveltekit-preload-data="off">
 			{#if children}
 				{@render children()}
 			{:else if title}

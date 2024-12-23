@@ -1,5 +1,5 @@
 import { m } from '@/i18n';
-import { Cog, Home, Users } from 'lucide-svelte';
+import { Cog, Home, Users, Network } from 'lucide-svelte';
 import type { OrgRole } from '.';
 import type { LinkWithIcon } from '@/components/types';
 
@@ -16,6 +16,11 @@ export function createOrganizationLinks(
 			title: m.Home(),
 			href: base(),
 			icon: Home
+		},
+		{
+			title: m.Services(),
+			href: base('/services'),
+			icon: Network
 		},
 		{
 			title: m.Members(),

@@ -21,6 +21,8 @@
 		<Avatar.Image {src} alt={alt ?? m.Avatar()} />
 	{/if}
 	{#if fallback}
-		<Avatar.Fallback class="rounded-none text-[80%]">{fallback}</Avatar.Fallback>
+		<Avatar.Fallback class="rounded-none text-[80%] font-semibold uppercase">
+			{fallback}
+		</Avatar.Fallback>
 	{/if}
 </Avatar.Root>

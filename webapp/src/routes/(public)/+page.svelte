@@ -21,7 +21,7 @@
 	</div>
 </PageTop>
 
-<PageContent class="space-y-12">
+<PageContent class="bg-muted" contentClass="space-y-12">
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_solutions()}</T>
@@ -50,7 +50,7 @@
 		<div>
 			<T tag="h3">{m.Compare_by_test_results()}</T>
 		</div>
-		<div class="bg-card h-96 w-full rounded-lg border p-6">
+		<div class="bg-card border-primary h-96 w-full rounded-lg border p-6">
 			<p>table here</p>
 		</div>
 	</div>

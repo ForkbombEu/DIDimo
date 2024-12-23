@@ -50,7 +50,7 @@
 	});
 </script>
 
-<Card class="rounded-xl p-6 {className}">
+<Card class="border-primary rounded-xl p-6 {className}">
 	<div class="space-y-4">
 		<div class="space-y-1">
 			<T tag="small" class="text-muted-foreground block">{service.type}</T>
