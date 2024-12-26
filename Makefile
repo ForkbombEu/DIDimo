@@ -6,17 +6,14 @@ help: ## 🛟  Show this help message
 
 # - Folder structure - #
 
-ROOT_DIR= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-
-ADMIN	= $(ROOT_DIR)/admin
+ROOT_DIR	= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+ADMIN		= $(ROOT_DIR)
 AZC			= $(ADMIN)/zencode/zenflows-crypto
 PB			= $(ADMIN)/pb
 DATA		= $(ADMIN)/pb_data
-
-WEBAPP	= $(ROOT_DIR)/webapp
+WEBAPP		= $(ROOT_DIR)/webapp
 WCZ			= $(WEBAPP)/client_zencode
-
-BIN		= $(ROOT_DIR)/.bin
+BIN			= $(ROOT_DIR)/.bin
 SLANGROOM 	= $(BIN)/slangroom-exec
 
 export PATH := $(BIN):$(PATH)

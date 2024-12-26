@@ -1,5 +1,5 @@
-[submodule "admin/zencode/zenflows-crypto"]
-	path = admin/zencode/zenflows-crypto
+[submodule "zencode/zenflows-crypto"]
+	path = zencode/zenflows-crypto
 	url = https://github.com/interfacerproject/zenflows-crypto
 [submodule "webapp/client_zencode"]
 	path = webapp/client_zencode
