@@ -1,6 +1,16 @@
-[submodule "admin/zencode/zenflows-crypto"]
-	path = admin/zencode/zenflows-crypto
+# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+[submodule "zencode/zenflows-crypto"]
+	path = zencode/zenflows-crypto
+	url = https://github.com/interfacerproject/zenflows-crypto
+[submodule "webapp/zenflows-crypto"]
+	path = webapp/zenflows-crypto
 	url = https://github.com/interfacerproject/zenflows-crypto
 [submodule "webapp/client_zencode"]
 	path = webapp/client_zencode
 	url = https://github.com/ForkbombEu/client_zencode
+[submodule "webapp/src/lib/openid-vc-typescript-json-schema"]
+	path = webapp/src/lib/openid-vc-typescript-json-schema
+	url = https://github.com/ForkbombEu/openid-vc-typescript-json-schema

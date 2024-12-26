@@ -1,7 +1,7 @@
 import { pb } from '@/pocketbase';
 import type { OrgRole } from '.';
 
-/* Reference: admin/pb_hooks/organizations.routes.pb.js */
+/* Reference: pb_hooks/organizations.routes.pb.js */
 
 export async function verifyUserMembership(
 	organizationId: string,

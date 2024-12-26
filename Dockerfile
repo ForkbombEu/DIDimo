@@ -23,9 +23,9 @@ RUN apk add --no-cache git
 
 WORKDIR /app
 
-COPY ./admin/go.mod ./admin/go.sum ./
+COPY ./go.mod ./go.sum ./
 RUN go mod download && go mod verify
-COPY ./admin/ .
+COPY ./ .
 RUN git init
 RUN rmdir zencode/zenflows-crypto
 RUN git submodule add https://github.com/interfacerproject/zenflows-crypto zencode/zenflows-crypto

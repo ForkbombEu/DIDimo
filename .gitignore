@@ -1,1 +1,12 @@
+# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+docs/.vitepress/cache/
 .bin/slangroom-exec
+/pb
+/tmp
+/pb_data
+.DS_Store
+.env
+pb.env
