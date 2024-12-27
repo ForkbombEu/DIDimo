@@ -27,7 +27,7 @@
     "test:e2e:ui": "playwright test --ui",
     "serve": "pnpm build && pnpm preview --host",
     "vite-run": "node ./vite-run.js",
-    "generate:types": "pnpm dlx pocketbase-typegen@1.2.1 --env --out src/modules/pocketbase/types/index.generated.ts && pnpm generate:types-extra",
+    "generate:types": "pnpm dlx pocketbase-typegen@1.2.1 --db ../pb_data/data.db --out src/modules/pocketbase/types/index.generated.ts && pnpm generate:types-extra",
     "generate:types-extra": "pnpm vite-run src/modules/pocketbase/types/generate.types-extra.ts",
     "generate:features": "pnpm vite-run src/modules/features/generate.features-list.ts",
     "generate:roles": "pnpm vite-run ./src/modules/organizations/generate.roles-list.ts",

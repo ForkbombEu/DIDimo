@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
-	"strings"
+	"net/http/httputil"
+	"net/url"
 
-	"pb/config"
-	"pb/did"
-	"pb/hooks"
-	_ "pb/migrations"
-	"pb/zencode"
+	"github.com/forkbombeu/didimo/config"
+	"github.com/forkbombeu/didimo/did"
+	"github.com/forkbombeu/didimo/hooks"
+	_ "github.com/forkbombeu/didimo/migrations"
+	"github.com/forkbombeu/didimo/webauthn"
+	"github.com/forkbombeu/didimo/zencode"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
@@ -22,26 +22,18 @@ import (
 	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
-
-	"pb/webauthn"
 )
 
 func main() {
 	app := pocketbase.New()
-	var publicDirFlag string
-
-	// add "--publicDir" option flag
-	app.RootCmd.PersistentFlags().StringVar(
-		&publicDirFlag,
-		"publicDir",
-		defaultPublicDir(),
-		"the directory to serve static files",
-	)
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		// serve static files
-		spa_mode := true // missing routes serve index.html
-		e.Router.GET("/*", apis.StaticDirectoryHandler(os.DirFS(publicDirFlag), spa_mode))
+		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
+			Scheme: "http",
+			Host:   "localhost:4173",
+		})
+		e.Router.Any("/*", echo.WrapHandler(proxy))
+		e.Router.Any("/", echo.WrapHandler(proxy))
 
 		e.Router.AddRoute(echo.Route{
 			Method: http.MethodPost,
@@ -123,13 +115,4 @@ func main() {
 	if err := app.Start(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func defaultPublicDir() string {
-	if strings.HasPrefix(os.Args[0], os.TempDir()) {
-		// most likely ran with go run
-		return "./pb_public"
-	}
-
-	return filepath.Join(os.Args[0], "../pb_public")
 }

@@ -137,7 +137,7 @@ importers:
         version: 5.14.4
       svelte-check:
         specifier: ^4.0.0
-        version: 4.0.7(svelte@5.14.4)(typescript@5.6.3)
+        version: 4.0.7(picomatch@4.0.2)(svelte@5.14.4)(typescript@5.6.3)
       svelte-sonner:
         specifier: ^0.3.28
         version: 0.3.28(svelte@5.14.4)
@@ -2507,6 +2507,10 @@ packages:
   picomatch@2.3.1:
     resolution: {integrity: sha512-JU3teHTNjmE2VCGFzuY8EXzCDVwEqB2a8fsIvwaStHhAWJEeVd1o1QD80CU6+ZdEXXSLbSsuLwJjkCBWqRQUVA==}
     engines: {node: '>=8.6'}
+
+  picomatch@4.0.2:
+    resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
+    engines: {node: '>=12'}
 
   pify@2.3.0:
     resolution: {integrity: sha512-udgsAY+fTnvv7kI7aaxbqwWNb0AHiB0qBO89PZKPkoTmGOgdbrHDKD+0B2X4uTfJ/FT1R09r9gTsjUjNJotuog==}
@@ -5003,7 +5007,9 @@ snapshots:
     dependencies:
       reusify: 1.0.4
 
-  fdir@6.4.2: {}
+  fdir@6.4.2(picomatch@4.0.2):
+    optionalDependencies:
+      picomatch: 4.0.2
 
   file-entry-cache@8.0.0:
     dependencies:
@@ -5943,6 +5949,9 @@ snapshots:
 
   picomatch@2.3.1: {}
 
+  picomatch@4.0.2:
+    optional: true
+
   pify@2.3.0: {}
 
   pify@5.0.0: {}
@@ -6305,11 +6314,11 @@ snapshots:
 
   supports-preserve-symlinks-flag@1.0.0: {}
 
-  svelte-check@4.0.7(svelte@5.14.4)(typescript@5.6.3):
+  svelte-check@4.0.7(picomatch@4.0.2)(svelte@5.14.4)(typescript@5.6.3):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       chokidar: 4.0.1
-      fdir: 6.4.2
+      fdir: 6.4.2(picomatch@4.0.2)
       picocolors: 1.1.1
       sade: 1.8.1
       svelte: 5.14.4

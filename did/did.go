@@ -8,8 +8,8 @@ import (
 	"io"
 	"net"
 	"net/http"
-	"pb/config"
-	"pb/zencode"
+	"github.com/forkbombeu/didimo/config"
+	"github.com/forkbombeu/didimo/zencode"
 	"strconv"
 	"time"
 )

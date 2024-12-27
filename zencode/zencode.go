@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
-	"pb/config"
+	"github.com/forkbombeu/didimo/config"
 
 	slangroom "github.com/dyne/slangroom-exec/bindings/go"
 )

@@ -1,4 +1,4 @@
-module pb
+module github.com/forkbombeu/didimo
 
 go 1.22
 
