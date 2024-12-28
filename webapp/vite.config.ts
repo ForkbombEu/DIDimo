@@ -13,5 +13,9 @@ export default defineConfig({
 
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
+	},
+	server: {
+		port: process.env.PORT || 5173,
+		open: `http://localhost:8090/`
 	}
 });

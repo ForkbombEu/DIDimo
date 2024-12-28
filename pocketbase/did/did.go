@@ -6,30 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"net"
 	"net/http"
-	"github.com/forkbombeu/didimo/config"
-	"github.com/forkbombeu/didimo/zencode"
 	"strconv"
 	"time"
+
+	"github.com/forkbombeu/didimo/pocketbase/feature"
+	"github.com/forkbombeu/didimo/pocketbase/zencode"
 )
 
 const clientTimeout = 10 * time.Second
-
-var dialer = &net.Dialer{
-	Timeout:   30 * time.Second,
-	KeepAlive: 30 * time.Second,
-}
-var transport = &http.Transport{
-	DisableKeepAlives:     true,
-	Proxy:                 http.ProxyFromEnvironment,
-	DialContext:           dialer.DialContext,
-	ForceAttemptHTTP2:     true,
-	MaxIdleConns:          100,
-	IdleConnTimeout:       90 * time.Second,
-	TLSHandshakeTimeout:   10 * time.Second,
-	ExpectContinueTimeout: 1 * time.Second,
-}
 
 type DidAgent struct {
 	BitcoinPublicKey string
@@ -56,7 +41,7 @@ var client = &http.Client{
 	},
 }
 
-func restroomRequest(conf *config.DidConfig, contract string, body map[string]interface{}) (io.ReadCloser, error) {
+func restroomRequest(conf *feature.DidConfig, contract string, body map[string]interface{}) (io.ReadCloser, error) {
 	url := *conf.DidURL
 	url.Path = fmt.Sprintf("/api/v1/sandbox/%s", contract)
 	datakeys, _ := json.Marshal(map[string]map[string]interface{}{
@@ -75,11 +60,11 @@ func restroomRequest(conf *config.DidConfig, contract string, body map[string]in
 	return res.Body, nil
 }
 
-func didId(conf *config.DidConfig, agent *DidAgent) string {
+func didId(conf *feature.DidConfig, agent *DidAgent) string {
 	return fmt.Sprintf("did:dyne:%s:%s", conf.Spec, agent.EddsaPublicKey)
 }
 
-func GetDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) {
+func GetDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
 	url := *conf.DidURL
 	url.Path = fmt.Sprintf("/dids/%s", didId(conf, agent))
 	req, err := http.NewRequest("GET", url.String(), nil)
@@ -100,6 +85,9 @@ func GetDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) {
 	}
 	var body map[string]interface{}
 	err = json.Unmarshal(bytesBody, &body)
+	if err != nil {
+		return nil, err
+	}
 
 	result := DidResult{
 		Created: false,
@@ -109,7 +97,7 @@ func GetDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) {
 	return &result, nil
 }
 
-func RequestNewDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) {
+func RequestNewDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
 	didRequest := map[string]interface{}{
 		"proof": map[string]interface{}{
 			"type":         "EcdsaSecp256k1Signature2019",
@@ -168,7 +156,7 @@ func RequestNewDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) 
 	return &result, nil
 }
 
-func ClaimDid(conf *config.DidConfig, agent *DidAgent) (*DidResult, error) {
+func ClaimDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
 	did, err := GetDid(conf, agent)
 	if err == nil {
 		return did, nil
