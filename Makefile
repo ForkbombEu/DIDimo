@@ -25,16 +25,11 @@ OVERMIND 		?= $(GOBIN)/overmind
 AIR 			?= $(GOBIN)/air
 
 # Submodules
-AZC				= $(ROOT_DIR)/pocketbase/zencode/zenflows-crypto
 WEBAPP			= $(ROOT_DIR)/webapp
-WCZ				= $(WEBAPP)/client_zencode
 BIN				= $(ROOT_DIR)/.bin
 SLANGROOM 		= $(BIN)/slangroom-exec
-
-
-DEPS = mise wget git tmux
-K := $(foreach exec,$(DEPS),\
-        $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
+DEPS 			= mise wget git tmux
+K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
 
@@ -46,19 +41,8 @@ $(SLANGROOM): | $(BIN)
 	@chmod +x $(SLANGROOM)
 	@@echo "slangroom-exec 😎 installed"
 
-.git:
-	@echo "🌱 Setup Git"
-	@git init -q
-	@git branch -m main
-	@git add .
-
-$(AZC): .git
-	@rm -rf $@
-	@git submodule --quiet add -f https://github.com/interfacerproject/zenflows-crypto $(AZC) && git submodule update --remote --init
-
-$(WCZ): .git
-	@rm -rf $@
-	@cd $(WEBAPP) && git submodule --quiet add -f https://github.com/ForkbombEu/client_zencode $(WCZ) && git submodule update --remote --init
+submodules:
+	git submodule update --recursive --init
 
 ## Build
 GREEN  := $(shell tput -Txterm setaf 2)
@@ -82,8 +66,8 @@ version: ## ℹ️ Display version information
 	@echo "$(CYAN)Built by: 	$(RESET)$(BUILD_BY)"
 	@echo "$(CYAN)Go version:	$(RESET)$(shell $(GOCMD) version)"
 
-dev: tools $(SLANGROOM) $(AZC) $(WCZ) ## 🚀 run in watch mode
-	$(OVERMIND) start
+dev: tools $(SLANGROOM) submodules ## 🚀 run in watch mode
+	$(OVERMIND) s -f Procfile.dev
 
 test:
 	$(GOTEST) $(SUBDIRS) -v

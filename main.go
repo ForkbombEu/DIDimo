@@ -30,7 +30,7 @@ func main() {
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
 		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 			Scheme: "http",
-			Host:   "localhost:4173",
+			Host:   "localhost:5100",
 		})
 		e.Router.Any("/*", echo.WrapHandler(proxy))
 		e.Router.Any("/", echo.WrapHandler(proxy))
