@@ -7,12 +7,12 @@ import (
 	"net/http/httputil"
 	"net/url"
 
-	"github.com/forkbombeu/didimo/config"
-	"github.com/forkbombeu/didimo/did"
-	"github.com/forkbombeu/didimo/hooks"
 	_ "github.com/forkbombeu/didimo/migrations"
-	"github.com/forkbombeu/didimo/webauthn"
-	"github.com/forkbombeu/didimo/zencode"
+	"github.com/forkbombeu/didimo/pocketbase/did"
+	"github.com/forkbombeu/didimo/pocketbase/feature"
+	"github.com/forkbombeu/didimo/pocketbase/hooks"
+	"github.com/forkbombeu/didimo/pocketbase/webauthn"
+	"github.com/forkbombeu/didimo/pocketbase/zencode"
 
 	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
@@ -41,7 +41,7 @@ func main() {
 			Handler: func(c echo.Context) error {
 				var body map[string]map[string]interface{}
 
-				conf, err := config.FetchKeypairoomConfig(app)
+				conf, err := feature.FetchKeypairoomConfig(app)
 				if err != nil {
 					return err
 				}
@@ -76,7 +76,7 @@ func main() {
 					return apis.NewForbiddenError("Only users with public keys can access this endpoint", nil)
 				}
 
-				conf, err := config.FetchDidConfig(app)
+				conf, err := feature.FetchDidConfig(app)
 				if err != nil {
 					return err
 				}

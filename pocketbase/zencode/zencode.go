@@ -4,7 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
-	"github.com/forkbombeu/didimo/config"
+
+	"github.com/forkbombeu/didimo/pocketbase/feature"
 
 	slangroom "github.com/dyne/slangroom-exec/bindings/go"
 )
@@ -15,7 +16,7 @@ var KEYPAIROOM_ZENCODE string
 //go:embed zenflows-crypto/src/pubkeys-request-signed-02-24.zen
 var PUBKEYS_REQUEST_SIGNED_ZENCODE string
 
-func KeypairoomServer(conf *config.KeypairoomConfig, data map[string]interface{}) (string, error) {
+func KeypairoomServer(conf *feature.KeypairoomConfig, data map[string]interface{}) (string, error) {
 	jsonData, err := json.Marshal(map[string]interface{}{
 		"userData":       data,
 		"serverSideSalt": conf.Salt,

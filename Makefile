@@ -1,31 +1,42 @@
-.DEFAULT_GOAL := help
-.PHONY: help
+PROJECT_NAME 	?= didimo
+ORGANIZATION 	?= forkbombeu
+DESCRIPTION  	?= "SSI Compliance tool"
+ROOT_DIR		?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
+BINARY_NAME 	?= $(PROJECT_NAME)
+SUBDIRS			?= $(ROOT_DIR)/...
+MAIN_SRC 		?= $(ROOT_DIR)/main.go
+DOCS			?= $(ROOT_DIR)/docs
+GOCMD 			?= go
+GOBUILD			?= $(GOCMD) build
+GOCLEAN			?= $(GOCMD) clean
+GOTEST			?= $(GOCMD) test
+GOTOOL			?= $(GOCMD) tool
+GOGET			?= $(GOCMD) get
+GOMOD			?= $(GOCMD) mod
+GOINST			?= $(GOCMD) install
+GOPATH 			?= $(shell $(GOCMD) env GOPATH)
+GOBIN 			?= $(GOPATH)/bin
 
-help: ## 🛟  Show this help message
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf " \033[36m⦿ %-7s\033[0m %s\n\n", $$1, $$2}'
+# Tools & Linters
+GOLANGCI_LINT 	?= $(GOBIN)/golangci-lint
+GOFUMPT 		?= $(GOBIN)/gofumpt
+GOVULNCHECK 	?= $(GOBIN)/govulncheck
+OVERMIND 		?= $(GOBIN)/overmind
+AIR 			?= $(GOBIN)/air
 
-# - Folder structure - #
+# Submodules
+AZC				= $(ROOT_DIR)/pocketbase/zencode/zenflows-crypto
+WEBAPP			= $(ROOT_DIR)/webapp
+WCZ				= $(WEBAPP)/client_zencode
+BIN				= $(ROOT_DIR)/.bin
+SLANGROOM 		= $(BIN)/slangroom-exec
 
-ROOT_DIR	= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-ADMIN		= $(ROOT_DIR)
-AZC			= $(ADMIN)/zencode/zenflows-crypto
-PB			= $(ADMIN)/pb
-DATA		= $(ADMIN)/pb_data
-WEBAPP		= $(ROOT_DIR)/webapp
-WCZ			= $(WEBAPP)/client_zencode
-BIN			= $(ROOT_DIR)/.bin
-SLANGROOM 	= $(BIN)/slangroom-exec
 
-export PATH := $(BIN):$(PATH)
-
-# - Dependency check - #
-
-DEPS = pnpm git wget go npx
+DEPS = mise wget git tmux
 K := $(foreach exec,$(DEPS),\
         $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
-
-# - Setup: SLANGROOM - #
+all: help
 
 $(BIN):
 	@mkdir $(BIN)
@@ -35,98 +46,90 @@ $(SLANGROOM): | $(BIN)
 	@chmod +x $(SLANGROOM)
 	@@echo "slangroom-exec 😎 installed"
 
-# - Setup: GIT - #
-
-STARTERS_CHECK := $(shell pwd | grep -q "/starters/saas/DIDimo" && echo true || echo false)
-
-ifeq ($(STARTERS_CHECK),false)
-
 .git:
 	@echo "🌱 Setup Git"
 	@git init -q
 	@git branch -m main
 	@git add .
 
-else
-
-.git:
-	@echo "Skipping git setup"
-
-endif
-
-# - Setup: Submodules - #
-
 $(AZC): .git
 	@rm -rf $@
-	@cd $(ADMIN) && git submodule --quiet add -f https://github.com/interfacerproject/zenflows-crypto zencode/zenflows-crypto && git submodule update --remote --init
+	@git submodule --quiet add -f https://github.com/interfacerproject/zenflows-crypto $(AZC) && git submodule update --remote --init
 
 $(WCZ): .git
 	@rm -rf $@
-	@cd $(WEBAPP) && git submodule --quiet add -f https://github.com/ForkbombEu/client_zencode client_zencode && git submodule update --remote --init
+	@cd $(WEBAPP) && git submodule --quiet add -f https://github.com/ForkbombEu/client_zencode $(WCZ) && git submodule update --remote --init
 
-# - Setup: Project - #
+## Build
+GREEN  := $(shell tput -Txterm setaf 2)
+YELLOW := $(shell tput -Txterm setaf 3)
+WHITE  := $(shell tput -Txterm setaf 7)
+CYAN   := $(shell tput -Txterm setaf 6)
+RESET  := $(shell tput -Txterm sgr0)
 
-$(DATA):
-	mkdir -p $(DATA)
+VERSION_STRATEGY 	= semver # git, semver, date
+VERSION 			:= $(shell cat VERSION 2>/dev/null || echo "0.1.0")
+GIT_COMMIT 			?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
+GIT_BRANCH 			?= $(shell git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "unknown")
+BUILD_TIME 			?= $(shell date -u '+%Y-%m-%d_%H:%M:%S')
+BUILD_BY 			?= $(shell whoami)
 
-setup_pb_public:
-	@cd $(ADMIN) && rm -rf ./pb_public && ln -s ../webapp/static/ ./pb_public
+version: ## ℹ️ Display version information
+	@echo "$(CYAN)Version:	$(RESET)$(VERSION)"
+	@echo "$(CYAN)Commit:		$(RESET)$(GIT_COMMIT)"
+	@echo "$(CYAN)Branch:		$(RESET)$(GIT_BRANCH)"
+	@echo "$(CYAN)Built:		$(RESET)$(BUILD_TIME)"
+	@echo "$(CYAN)Built by: 	$(RESET)$(BUILD_BY)"
+	@echo "$(CYAN)Go version:	$(RESET)$(shell $(GOCMD) version)"
 
-$(PB): $(DATA) setup_pb_public
-	@echo "📦 Setup the backend"
-	@cd $(ADMIN) && go mod tidy && go build
+dev: tools $(SLANGROOM) $(AZC) $(WCZ) ## 🚀 run in watch mode
+	$(OVERMIND) start
 
-$(WEBAPP)/.env:
-	@cp $(WEBAPP)/.env.example $(WEBAPP)/.env
+test:
+	$(GOTEST) $(SUBDIRS) -v
 
-setup_frontend: $(WEBAPP)/.env
-	@echo "📦 Setup the frontend"
-	cd $(WEBAPP) && pnpm i
+tidy:
+	@$(GOMOD) tidy
 
-setup: $(AZC) $(WCZ) $(SLANGROOM) $(ZENCODE) $(PB) setup_frontend ## 📦 Setup the project
-
-# - Running - #
-
-# sleep 2 is needed to wait for the admin server to start
-# before the webapp tries to connect to it and generate the schema
-# check the webapp/package.json for the predev and prebuild scripts
-
-be: ## ⚙️ Run the backend
-	$(PB) serve
-
-be_remote:  ## ⚙️ Run the backend from remote
-	$(PB) serve --http=0.0.0.0:8090
-
-fe: ## ⚙️ Run the frontend
-	sleep 2 && cd webapp && pnpm serve
-
-fe_dev: ## ⚙️ Watch the frontend
-	sleep 2 && cd webapp && pnpm dev
-
-dev: ## ⚙️ Run the project in development mode
-	$(MAKE) be fe_dev -j2
-
-up: setup ## 💄 Run the project
-	$(MAKE) be fe -j2
-
-up_remote: setup  ## 💄 Run the project from remote
-	$(MAKE) be_remote fe -j2
+build: tidy ## 📦 build the project into a binary
+	@$(GOBUILD) -o $(BINARY_NAME) $(MAIN_SRC)
+	@echo "📦 built"
 
 doc: ## 📚 Serve documentation on localhost
-	npx -p docsify-cli docsify serve ./docs
+	cd $(DOCS) && bun i
+	cd $(DOCS) && bun run docs:dev --open
 
-definitions: ## ⚙️ Generate type definitions and schema
-	cd webapp && pnpm generate:definitions
+clean: ## 🧹 Clean files and caches
+	@$(GOCLEAN)
+	@rm -f $(BINARY_NAME)
+	@echo "🧹 cleaned"
 
-# - Cleaning - #
+tools:
+	mise install
+	@if [ ! -f "$(GOLANGCI_LINT)" ]; then \
+		$(GOINST) github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+	fi
+	@if [ ! -f "$(GOFUMPT)" ]; then \
+		$(GOINST) mvdan.cc/gofumpt@latest; \
+	fi
+	@if [ ! -f "$(GOVULNCHECK)" ]; then \
+		$(GOINST) golang.org/x/vuln/cmd/govulncheck@latest; \
+	fi
+	@if [ ! -f "$(OVERMIND)" ]; then \
+		$(GOINST) github.com/DarthSim/overmind/v2@latest; \
+	fi
+	@if [ ! -f "$(AIR)" ]; then \
+		$(GOINST) github.com/air-verse/air@latest; \
+	fi
 
-clean: ## 🧹 Clean the project
-	@rm -rf $(AZC) $(WCZ) $(BIN) $(PB)
-	@rm -fr webapp/node_modules
-	@rm -fr webapp/.svelte-kit
-	@find . -type f -name "*.generated.*" -delete
-	@echo "The project is ✨ cleaned"
-
-purge: ## ⛔ Purge the database
-	@echo "⛔ Purge the database"
-	@rm -rf $(DATA)
+## Help:
+help: ## Show this help.
+	@echo ''
+	@echo 'Usage:'
+	@echo '  ${YELLOW}make${RESET} ${GREEN}<target>${RESET}'
+	@echo ''
+	@echo 'Targets:'
+	@awk 'BEGIN {FS = ":.*?## "} { \
+		if (/^[a-zA-Z_-]+:.*?##.*$$/) {printf "    ${YELLOW}%-20s${GREEN}%s${RESET}\n", $$1, $$2} \
+		else if (/^## .*$$/) {printf "  ${CYAN}%s${RESET}\n", substr($$1,4)} \
+		}' $(MAKEFILE_LIST)

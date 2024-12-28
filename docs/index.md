@@ -12,9 +12,9 @@ hero:
     - theme: brand
       text: 🕹 Get started
       link: /Architecture/1_start.html
-#   - theme: alt
-#   text: API Examples
-#   link: /api-examples
+   - theme: alt
+       text: API reference
+       link: /API/index.html
 
 features:
   - title: Credential Issuer and Verifier Compliance Testing

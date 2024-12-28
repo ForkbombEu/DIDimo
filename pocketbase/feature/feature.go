@@ -14,15 +14,16 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-package config
+package feature
 
 import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/url"
+
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/types"
-	"net/url"
 )
 
 type KeypairoomConfig struct {

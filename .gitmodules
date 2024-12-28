@@ -14,3 +14,9 @@
 [submodule "webapp/src/lib/openid-vc-typescript-json-schema"]
 	path = webapp/src/lib/openid-vc-typescript-json-schema
 	url = https://github.com/ForkbombEu/openid-vc-typescript-json-schema
+[submodule "/home/puria/src/github.com/forkbombeu/didimo/pocketbase/zencode/zenflows-crypto"]
+	path = /home/puria/src/github.com/forkbombeu/didimo/pocketbase/zencode/zenflows-crypto
+	url = https://github.com/interfacerproject/zenflows-crypto
+[submodule "/home/puria/src/github.com/forkbombeu/didimo/webapp/client_zencode"]
+	path = /home/puria/src/github.com/forkbombeu/didimo/webapp/client_zencode
+	url = https://github.com/ForkbombEu/client_zencode
