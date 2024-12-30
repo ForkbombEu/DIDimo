@@ -26,6 +26,7 @@ AIR 			?= $(GOBIN)/air
 
 # Submodules
 WEBAPP			= $(ROOT_DIR)/webapp
+WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 SLANGROOM 		= $(BIN)/slangroom-exec
 DEPS 			= mise wget git tmux
@@ -66,7 +67,10 @@ version: ## ℹ️ Display version information
 	@echo "$(CYAN)Built by: 	$(RESET)$(BUILD_BY)"
 	@echo "$(CYAN)Go version:	$(RESET)$(shell $(GOCMD) version)"
 
-dev: tools $(SLANGROOM) submodules ## 🚀 run in watch mode
+$(WEBENV):
+	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
+
+dev: tools $(SLANGROOM) $(WEBENV) submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test:
