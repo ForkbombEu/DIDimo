@@ -79,18 +79,14 @@ test:
 tidy:
 	@$(GOMOD) tidy
 
-build: tidy ## 📦 build the project into a binary
+build: tools tidy submodules $(SLANGROOM) $(WEBENV) ## 📦 build the project into a binary
 	@$(GOBUILD) -o $(BINARY_NAME) $(MAIN_SRC)
-	@./$(BINARY_NAME) serve &
-	mise install
-	@echo "Starting didimo serve..."
-	@./didimo serve & \
+	# upx --best --lzma $(BINARY_NAME)
+	@./$(BINARY_NAME) serve & \
 	PID=$$!; \
-	./scripts/wait-for-it.sh localhost:8090 --timeout=60 -- echo "didimo is ready"; \
-	echo "Running Bun build..."; \
-	cd webapp && bun run bin; \
-	kill $$PID; \
-	echo "Stopped didimo serve."
+	./scripts/wait-for-it.sh localhost:8090 --timeout=60; \
+	cd $(WEBAPP) && bun i && bun run bin; \
+	kill $$PID;
 	@echo "📦 built"
 
 doc: ## 📚 Serve documentation on localhost
