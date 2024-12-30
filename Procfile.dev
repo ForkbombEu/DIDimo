@@ -1,3 +1,3 @@
 pocketbase: air
-ui: ./scripts/wait-for-it.sh localhost:8090 && cd webapp && bun dev
+ui: ./scripts/wait-for-it.sh localhost:8090 && cd webapp && bun i && bun dev
 docs: cd docs && bun i && bun run docs:dev
