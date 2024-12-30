@@ -1,8 +1,6 @@
 module github.com/forkbombeu/didimo
 
-go 1.22
-
-toolchain go1.23.2
+go 1.23
 
 require (
 	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20241017085658-fb538b02efa3

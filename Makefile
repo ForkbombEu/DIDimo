@@ -77,6 +77,16 @@ tidy:
 
 build: tidy ## 📦 build the project into a binary
 	@$(GOBUILD) -o $(BINARY_NAME) $(MAIN_SRC)
+	@./$(BINARY_NAME) serve &
+	mise install
+	@echo "Starting didimo serve..."
+	@./didimo serve & \
+	PID=$$!; \
+	./scripts/wait-for-it.sh localhost:8090 --timeout=60 -- echo "didimo is ready"; \
+	echo "Running Bun build..."; \
+	cd webapp && bun run bin; \
+	kill $$PID; \
+	echo "Stopped didimo serve."
 	@echo "📦 built"
 
 doc: ## 📚 Serve documentation on localhost
@@ -86,6 +96,8 @@ doc: ## 📚 Serve documentation on localhost
 clean: ## 🧹 Clean files and caches
 	@$(GOCLEAN)
 	@rm -f $(BINARY_NAME)
+	@rm -f $(WEBAPP)/didimo-ui
+	@rm -fr $(WEBAPP)/build
 	@echo "🧹 cleaned"
 
 tools:
