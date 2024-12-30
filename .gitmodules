@@ -2,8 +2,8 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-[submodule "zencode/zenflows-crypto"]
-	path = zencode/zenflows-crypto
+[submodule "pocketbase/zencode/zenflows-crypto"]
+	path = pocketbase/zencode/zenflows-crypto
 	url = https://github.com/interfacerproject/zenflows-crypto
 [submodule "webapp/zenflows-crypto"]
 	path = webapp/zenflows-crypto
