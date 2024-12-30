@@ -14,12 +14,10 @@ import (
 	"github.com/forkbombeu/didimo/pocketbase/webauthn"
 	"github.com/forkbombeu/didimo/pocketbase/zencode"
 
-	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 )
@@ -27,80 +25,72 @@ import (
 func main() {
 	app := pocketbase.New()
 
-	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
 			Scheme: "http",
 			Host:   "localhost:5100",
 		})
-		e.Router.Any("/*", echo.WrapHandler(proxy))
-		e.Router.Any("/", echo.WrapHandler(proxy))
-
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodPost,
-			Path:   "/api/keypairoom-server",
-			Handler: func(c echo.Context) error {
-				var body map[string]map[string]interface{}
-
-				conf, err := feature.FetchKeypairoomConfig(app)
-				if err != nil {
-					return err
-				}
-
-				err = json.NewDecoder(c.Request().Body).Decode(&body)
-				if err != nil {
-					return err
-				}
-				hmac, err := zencode.KeypairoomServer(conf, body["userData"])
-				if err != nil {
-					return err
-				}
-
-				return c.JSON(http.StatusOK, map[string]string{"hmac": hmac})
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+		se.Router.Any("/*", func(req *core.RequestEvent) error {
+			proxy.ServeHTTP(req.Response, req.Request)
+			return nil
+		})
+		se.Router.Any("/", func(req *core.RequestEvent) error {
+			proxy.ServeHTTP(req.Response, req.Request)
+			return nil
 		})
 
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodGet,
-			Path:   "/api/did",
-			Handler: func(c echo.Context) error {
-				authRecord, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-				if authRecord == nil {
-					return apis.NewForbiddenError("Only auth records can access this endpoint", nil)
-				}
+		se.Router.POST("/api/keypairoom-server", func(e *core.RequestEvent) error {
+			var body map[string]map[string]interface{}
 
-				publicKeys, err := app.Dao().FindFirstRecordByFilter("users_public_keys", "owner = {:owner_id}", dbx.Params{"owner_id": authRecord.Id})
-				if err != nil {
-					return apis.NewForbiddenError("Only users with public keys can access this endpoint", nil)
-				}
+			conf, err := feature.FetchKeypairoomConfig(app)
+			if err != nil {
+				return err
+			}
 
-				conf, err := feature.FetchDidConfig(app)
-				if err != nil {
-					return err
-				}
+			err = json.NewDecoder(e.Request.Body).Decode(&body)
+			if err != nil {
+				return err
+			}
+			hmac, err := zencode.KeypairoomServer(conf, body["userData"])
+			if err != nil {
+				return err
+			}
 
-				did, err := did.ClaimDid(conf, &did.DidAgent{
-					BitcoinPublicKey: publicKeys.Get("bitcoin_public_key").(string),
-					EcdhPublicKey:    publicKeys.Get("ecdh_public_key").(string),
-					EddsaPublicKey:   publicKeys.Get("eddsa_public_key").(string),
-					EthereumAddress:  publicKeys.Get("ethereum_address").(string),
-					ReflowPublicKey:  publicKeys.Get("reflow_public_key").(string),
-					Es256PublicKey:   publicKeys.Get("es256_public_key").(string),
-				})
-				if err != nil {
-					return err
-				}
-
-				return c.JSON(http.StatusOK, did)
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+			return e.JSON(http.StatusOK, map[string]string{"hmac": hmac})
 		})
 
-		return nil
+		se.Router.GET("/api/did", func(e *core.RequestEvent) error {
+			authRecord := e.Auth
+			if authRecord == nil {
+				return apis.NewForbiddenError("Only auth records can access this endpoint", nil)
+			}
+
+			publicKeys, err := app.FindFirstRecordByFilter("users_public_keys", "owner = {:owner_id}", dbx.Params{"owner_id": authRecord.Id})
+			if err != nil {
+				return apis.NewForbiddenError("Only users with public keys can access this endpoint", nil)
+			}
+
+			conf, err := feature.FetchDidConfig(app)
+			if err != nil {
+				return err
+			}
+
+			did, err := did.ClaimDid(conf, &did.DidAgent{
+				BitcoinPublicKey: publicKeys.Get("bitcoin_public_key").(string),
+				EcdhPublicKey:    publicKeys.Get("ecdh_public_key").(string),
+				EddsaPublicKey:   publicKeys.Get("eddsa_public_key").(string),
+				EthereumAddress:  publicKeys.Get("ethereum_address").(string),
+				ReflowPublicKey:  publicKeys.Get("reflow_public_key").(string),
+				Es256PublicKey:   publicKeys.Get("es256_public_key").(string),
+			})
+			if err != nil {
+				return err
+			}
+
+			return e.JSON(http.StatusOK, did)
+		})
+
+		return se.Next()
 	})
 
 	webauthn.Register(app)
