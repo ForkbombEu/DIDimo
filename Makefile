@@ -83,6 +83,9 @@ test: ## 🧪 run tests with coverage
 lint: tools ## 📑 lint rules checks
 	$(REVIVE) -formatter stylish github.com/$(ORGANIZATION)/$(PROJECT_NAME) pocketbase/...
 
+fmt: tools ## 🗿 format rules checks
+	$(GOFUMPT) -l -w pocketbase *.go
+
 tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
 
