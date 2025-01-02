@@ -12,3 +12,4 @@ docs/.vitepress/cache/
 pb.env
 didimo
 didimo-ui
+postgres-data
