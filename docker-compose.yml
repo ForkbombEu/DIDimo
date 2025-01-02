@@ -1,0 +1,11 @@
+services:
+  didimo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      PORT: 5100
+    volumes:
+      - ./pb_data/:/pb_data
