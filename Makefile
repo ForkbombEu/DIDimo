@@ -22,7 +22,7 @@ GOBIN 			?= $(GOPATH)/bin
 GOMOD_FILES 	:= go.mod go.sum
 
 # Tools & Linters
-GOLANGCI_LINT 	?= $(GOBIN)/golangci-lint
+REVIVE			?= $(GOBIN)/revive
 GOFUMPT 		?= $(GOBIN)/gofumpt
 GOVULNCHECK 	?= $(GOBIN)/govulncheck
 OVERMIND 		?= $(GOBIN)/overmind
@@ -36,7 +36,7 @@ DEPS 			= mise wget git tmux upx
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
-.PHONY: submodules version dev test tidy build docker doc clean tools help
+.PHONY: submodules version dev test lint tidy build docker doc clean tools help
 
 $(BIN):
 	@mkdir $(BIN)
@@ -79,6 +79,12 @@ dev: $(SLANGROOM) $(WEBENV) tools submodules ## 🚀 run in watch mode
 
 test: ## 🧪 run tests with coverage
 	$(GOTEST) $(SUBDIRS) -v -cover
+
+lint: tools ## 📑 lint rules checks
+	$(REVIVE) -formatter stylish github.com/$(ORGANIZATION)/$(PROJECT_NAME) pocketbase/...
+
+fmt: tools ## 🗿 format rules checks
+	$(GOFUMPT) -l -w pocketbase *.go
 
 tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
@@ -124,8 +130,8 @@ clean: ## 🧹 Clean files and caches
 
 tools:
 	mise install
-	@if [ ! -f "$(GOLANGCI_LINT)" ]; then \
-		$(GOINST) github.com/golangci/golangci-lint/cmd/golangci-lint@latest; \
+	@if [ ! -f "$(REVIVE)" ]; then \
+		$(GOINST) github.com/mgechev/revive@latest; \
 	fi
 	@if [ ! -f "$(GOFUMPT)" ]; then \
 		$(GOINST) mvdan.cc/gofumpt@latest; \

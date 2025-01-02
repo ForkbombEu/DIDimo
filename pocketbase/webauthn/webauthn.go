@@ -1,10 +1,9 @@
 package webauthn
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
-
-	"bytes"
 	"fmt"
 	"io"
 	"log"
@@ -26,7 +25,6 @@ type User struct {
 }
 
 func NewUser(app *pocketbase.PocketBase, m *models.Record) *User {
-
 	user := &User{
 		model: m,
 		app:   app,
@@ -212,13 +210,11 @@ func Register(app *pocketbase.PocketBase) error {
 				options, sessionData, err := w.BeginRegistration(
 					user,
 				)
-
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, err.Error())
 				}
 
 				err = storeSessionData(app, userRecord, sessionData)
-
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, err.Error())
 				}
@@ -316,7 +312,6 @@ func Register(app *pocketbase.PocketBase) error {
 				}
 
 				err = storeSessionData(app, userRecord, sessionData)
-
 				if err != nil {
 					return c.JSON(http.StatusInternalServerError, err.Error())
 				}
