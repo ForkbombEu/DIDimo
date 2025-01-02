@@ -1,3 +1,5 @@
+// main entry point for the didimo backend server
+
 package main
 
 import (
