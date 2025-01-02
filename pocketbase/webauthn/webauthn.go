@@ -11,21 +11,18 @@ import (
 	"net/http"
 
 	"github.com/go-webauthn/webauthn/webauthn"
-	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/models"
-	"github.com/pocketbase/pocketbase/tokens"
 )
 
 type User struct {
 	app   *pocketbase.PocketBase
-	model *models.Record
+	model *core.Record
 }
 
-func NewUser(app *pocketbase.PocketBase, m *models.Record) *User {
+func NewUser(app *pocketbase.PocketBase, m *core.Record) *User {
 
 	user := &User{
 		model: m,
@@ -57,16 +54,16 @@ func (u User) WebAuthnIcon() string {
 
 // AddCredential associates the credential to the user
 func (u *User) AddCredential(cred webauthn.Credential, description string) error {
-	credentialsStore, err := u.app.Dao().FindCollectionByNameOrId("webauthnCredentials")
+	credentialsStore, err := u.app.FindCollectionByNameOrId("webauthnCredentials")
 	if err != nil {
 		return err
 	}
-	record := models.NewRecord(credentialsStore)
+	record := core.NewRecord(credentialsStore)
 	record.Set("user", u.model.Id)
 	record.Set("credential", cred)
 	record.Set("description", description)
 
-	if err := u.app.Dao().SaveRecord(record); err != nil {
+	if err := u.app.Save(record); err != nil {
 		return err
 	}
 	return nil
@@ -75,7 +72,7 @@ func (u *User) AddCredential(cred webauthn.Credential, description string) error
 // WebAuthnCredentials returns credentials owned by the user
 func (u User) WebAuthnCredentials() []webauthn.Credential {
 	var credentials []webauthn.Credential
-	records, err := u.app.Dao().FindRecordsByExpr("webauthnCredentials",
+	records, err := u.app.FindAllRecords("webauthnCredentials",
 		dbx.NewExp("user = {:user}", dbx.Params{"user": u.model.Id}))
 	if err != nil {
 		log.Println(err.Error())
@@ -96,7 +93,7 @@ func (u User) WebAuthnCredentials() []webauthn.Credential {
 }
 
 func NewWebAuthnFromEnv(app *pocketbase.PocketBase) (*webauthn.WebAuthn, error) {
-	record, err := app.Dao().FindFirstRecordByData("features", "name", "webauthn")
+	record, err := app.FindFirstRecordByData("features", "name", "webauthn")
 	if err != nil {
 		return nil, err
 	}
@@ -139,241 +136,212 @@ func NewWebAuthnFromEnv(app *pocketbase.PocketBase) (*webauthn.WebAuthn, error) 
 	return w, nil
 }
 
-func storeSessionData(app *pocketbase.PocketBase, userRecord *models.Record, sessionData *webauthn.SessionData) error {
+func storeSessionData(app *pocketbase.PocketBase, userRecord *core.Record, sessionData *webauthn.SessionData) error {
 	// Remove old session data
-	record, err := app.Dao().FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
+	record, err := app.FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
 	if record != nil {
-		if err := app.Dao().DeleteRecord(record); err != nil {
+		if err := app.Delete(record); err != nil {
 			return err
 		}
 	}
 
 	// store session data as marshaled JSON
-	sessionStore, err := app.Dao().FindCollectionByNameOrId("sessionDataWebauthn")
+	sessionStore, err := app.FindCollectionByNameOrId("sessionDataWebauthn")
 	if err != nil {
 		return err
 	}
-	record = models.NewRecord(sessionStore)
+	record = core.NewRecord(sessionStore)
 	record.Set("user", userRecord.Id)
 	record.Set("session", sessionData)
 
-	if err := app.Dao().SaveRecord(record); err != nil {
+	if err := app.Save(record); err != nil {
 		return err
 	}
 	return nil
 }
 
 func Register(app *pocketbase.PocketBase) error {
-	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodGet,
-			Path:   "/api/webauthn/register/begin/:email",
-			Handler: func(c echo.Context) error {
-				w, err := NewWebAuthnFromEnv(app)
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.GET("/api/webauthn/register/begin/:email", func(e *core.RequestEvent) error {
+			w, err := NewWebAuthnFromEnv(app)
+			if err != nil {
+				return err
+			}
+
+			email := e.Request.PathValue("email")
+
+			authenticated := true
+			if e.Auth == nil {
+				authenticated = false
+				// User not authenticated I have to create a new user,
+				// but if a user exists I may go on if that user doesn't
+				// have neither a password nor a credential
+				e.Auth, err = app.FindAuthRecordByEmail("users", email)
 				if err != nil {
-					return err
-				}
-
-				email := c.PathParam("email")
-
-				authenticated := true
-				userRecord, _ := c.Get(apis.ContextAuthRecordKey).(*models.Record)
-				if userRecord == nil {
-					authenticated = false
-					// User not authenticated I have to create a new user,
-					// but if a user exists I may go on if that user doesn't
-					// have neither a password nor a credential
-					userRecord, err = app.Dao().FindAuthRecordByEmail("users", email)
+					// Could not fetch the user, try to create a new one
+					collection, err := app.FindCollectionByNameOrId("users")
 					if err != nil {
-						// Could not fetch the user, try to create a new one
-						collection, err := app.Dao().FindCollectionByNameOrId("users")
-						if err != nil {
-							return err
-						}
-
-						userRecord = models.NewRecord(collection)
-						userRecord.Set("email", email)
-						userRecord.Set("username", email)
-						userRecord.RefreshTokenKey()
-						if err := app.Dao().SaveRecord(userRecord); err != nil {
-							return err
-						}
+						return err
 					}
-				} else if userRecord.Get("email") != email { // User is logged in
-					return apis.NewForbiddenError("Wrong email", nil)
-				}
 
-				user := NewUser(app, userRecord)
-
-				if !authenticated && (len(user.WebAuthnCredentials()) > 0 || userRecord.PasswordHash() != "") {
-					return apis.NewForbiddenError("A user already exists with this email", nil)
-				}
-
-				options, sessionData, err := w.BeginRegistration(
-					user,
-				)
-
-				if err != nil {
-					return c.JSON(http.StatusInternalServerError, err.Error())
-				}
-
-				err = storeSessionData(app, userRecord, sessionData)
-
-				if err != nil {
-					return c.JSON(http.StatusInternalServerError, err.Error())
-				}
-
-				return c.JSON(http.StatusOK, options)
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
-		})
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodPost,
-			Path:   "/api/webauthn/register/finish/:email",
-			Handler: func(c echo.Context) error {
-				w, err := NewWebAuthnFromEnv(app)
-				if err != nil {
-					return err
-				}
-
-				data := new(struct {
-					Description string `json:"description" form:"description" query:"description"`
-				})
-				var b []byte
-
-				// I have to read c.Request() twice.. :(
-				if c.Request().Body != nil {
-					// TODO: check that the body is not tooo big (it should not)
-					b, _ = io.ReadAll(c.Request().Body)
-					c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
-
-					if err := c.Bind(data); err != nil {
-						return c.String(http.StatusBadRequest, err.Error())
+					e.Auth = core.NewRecord(collection)
+					e.Auth.Set("email", email)
+					e.Auth.Set("username", email)
+					e.Auth.RefreshTokenKey()
+					if err := app.Save(e.Auth); err != nil {
+						return err
 					}
-					c.Request().Body = io.NopCloser(bytes.NewBuffer(b))
 				}
-				fmt.Printf("data: %v\n", data)
-				email := c.PathParam("email")
+			} else if e.Auth.Get("email") != email { // User is logged in
+				return apis.NewForbiddenError("Wrong email", nil)
+			}
 
-				userRecord, err := app.Dao().FindAuthRecordByEmail("users", email)
-				if err != nil {
-					log.Println(err)
-					return err
-				}
-				user := NewUser(app, userRecord)
-				record, err := app.Dao().FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
-				if err != nil {
-					return err
-				}
-				var sessionData webauthn.SessionData
-				json.Unmarshal([]byte(record.GetString("session")), &sessionData)
+			user := NewUser(app, e.Auth)
 
-				credential, err := w.FinishRegistration(user, sessionData, c.Request())
-				if err != nil {
-					fmt.Println(c.Request())
-					return err
-				}
-				user.AddCredential(*credential, data.Description)
+			if !authenticated && (len(user.WebAuthnCredentials()) > 0 || e.Auth.GetString("passwordHash") != "") {
+				return apis.NewForbiddenError("A user already exists with this email", nil)
+			}
 
-				if err := app.Dao().SaveRecord(userRecord); err != nil {
-					return err
-				}
-				if err := app.Dao().DeleteRecord(record); err != nil {
-					return err
-				}
+			options, sessionData, err := w.BeginRegistration(
+				user,
+			)
 
-				return c.JSON(http.StatusOK, make(map[string]interface{}))
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+			if err != nil {
+				return e.JSON(http.StatusInternalServerError, err.Error())
+			}
+
+			err = storeSessionData(app, e.Auth, sessionData)
+
+			if err != nil {
+				return e.JSON(http.StatusInternalServerError, err.Error())
+			}
+
+			return e.JSON(http.StatusOK, options)
 		})
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodGet,
-			Path:   "/api/webauthn/login/begin/:email",
-			Handler: func(c echo.Context) error {
-				w, err := NewWebAuthnFromEnv(app)
-				if err != nil {
-					return err
-				}
-				if w == nil {
-					return apis.NewNotFoundError("Webauthn not enabled", nil)
-				}
+		se.Router.POST("/api/webauthn/register/finish/:email", func(e *core.RequestEvent) error {
+			w, err := NewWebAuthnFromEnv(app)
+			if err != nil {
+				return err
+			}
 
-				email := c.PathParam("email")
-				userRecord, err := app.Dao().FindAuthRecordByEmail("users", email)
-				if err != nil {
-					return err
+			data := new(struct {
+				Description string `json:"description" form:"description" query:"description"`
+			})
+			var b []byte
+
+			// I have to read c.Request() twice.. :(
+			if e.Request.Body != nil {
+				// TODO: check that the body is not tooo big (it should not)
+				b, _ = io.ReadAll(e.Request.Body)
+				e.Request.Body = io.NopCloser(bytes.NewBuffer(b))
+
+				if err := json.Unmarshal(b, data); err != nil {
+					return e.String(http.StatusBadRequest, err.Error())
 				}
-				user := NewUser(app, userRecord)
+				e.Request.Body = io.NopCloser(bytes.NewBuffer(b))
+			}
+			fmt.Printf("data: %v\n", data)
+			email := e.Request.PathValue("email")
 
-				// generate PublicKeyCredentialRequestOptions, session data
-				options, sessionData, err := w.BeginLogin(user)
-				if err != nil {
-					return err
-				}
+			userRecord, err := app.FindAuthRecordByEmail("users", email)
+			if err != nil {
+				log.Println(err)
+				return err
+			}
+			user := NewUser(app, userRecord)
+			record, err := app.FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
+			if err != nil {
+				return err
+			}
+			var sessionData webauthn.SessionData
+			json.Unmarshal([]byte(record.GetString("session")), &sessionData)
 
-				err = storeSessionData(app, userRecord, sessionData)
+			credential, err := w.FinishRegistration(user, sessionData, e.Request)
+			if err != nil {
+				fmt.Println(e.Request)
+				return err
+			}
+			user.AddCredential(*credential, data.Description)
 
-				if err != nil {
-					return c.JSON(http.StatusInternalServerError, err.Error())
-				}
+			if err := app.Save(userRecord); err != nil {
+				return err
+			}
+			if err := app.Delete(record); err != nil {
+				return err
+			}
 
-				return c.JSON(http.StatusOK, options)
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+			return e.JSON(http.StatusOK, make(map[string]interface{}))
 		})
-		e.Router.AddRoute(echo.Route{
-			Method: http.MethodPost,
-			Path:   "/api/webauthn/login/finish/:email",
-			Handler: func(c echo.Context) error {
-				w, err := NewWebAuthnFromEnv(app)
-				if err != nil {
-					return err
-				}
-				if w == nil {
-					return apis.NewNotFoundError("Webauthn not enabled", nil)
-				}
+		se.Router.GET("/api/webauthn/login/begin/:email", func(e *core.RequestEvent) error {
+			w, err := NewWebAuthnFromEnv(app)
+			if err != nil {
+				return err
+			}
+			if w == nil {
+				return apis.NewNotFoundError("Webauthn not enabled", nil)
+			}
 
-				email := c.PathParam("email")
-				userRecord, err := app.Dao().FindAuthRecordByEmail("users", email)
-				if err != nil {
-					return err
-				}
-				user := NewUser(app, userRecord)
-				record, err := app.Dao().FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
-				if err != nil {
-					return err
-				}
-				var sessionData webauthn.SessionData
-				json.Unmarshal([]byte(record.GetString("session")), &sessionData)
+			email := e.Request.PathValue("email")
+			userRecord, err := app.FindAuthRecordByEmail("users", email)
+			if err != nil {
+				return err
+			}
+			user := NewUser(app, userRecord)
 
-				_, err = w.FinishLogin(user, sessionData, c.Request())
-				if err != nil {
-					return err
-				}
+			// generate PublicKeyCredentialRequestOptions, session data
+			options, sessionData, err := w.BeginLogin(user)
+			if err != nil {
+				return err
+			}
 
-				// generate an auth token and return an auth response
-				// note: in the future the below will be simplified to just: return api.AuthResponse(c, user)
-				token, tokenErr := tokens.NewRecordAuthToken(app, userRecord)
-				if tokenErr != nil {
-					return errors.New("Failed to create user token")
-				}
+			err = storeSessionData(app, userRecord, sessionData)
 
-				return c.JSON(http.StatusOK, map[string]any{
-					"token": token,
-					"user":  userRecord,
-				})
-			},
-			Middlewares: []echo.MiddlewareFunc{
-				apis.ActivityLogger(app),
-			},
+			if err != nil {
+				return e.JSON(http.StatusInternalServerError, err.Error())
+			}
+
+			return e.JSON(http.StatusOK, options)
 		})
-		return nil
+		se.Router.POST("/api/webauthn/login/finish/:email", func(e *core.RequestEvent) error {
+			w, err := NewWebAuthnFromEnv(app)
+			if err != nil {
+				return err
+			}
+			if w == nil {
+				return apis.NewNotFoundError("Webauthn not enabled", nil)
+			}
+
+			email := e.Request.PathValue("email")
+			userRecord, err := app.FindAuthRecordByEmail("users", email)
+			if err != nil {
+				return err
+			}
+			user := NewUser(app, userRecord)
+			record, err := app.FindFirstRecordByData("sessionDataWebauthn", "user", userRecord.Id)
+			if err != nil {
+				return err
+			}
+			var sessionData webauthn.SessionData
+			json.Unmarshal([]byte(record.GetString("session")), &sessionData)
+
+			_, err = w.FinishLogin(user, sessionData, e.Request)
+			if err != nil {
+				return err
+			}
+
+			// generate an auth token and return an auth response
+			// note: in the future the below will be simplified to just: return api.AuthResponse(c, user)
+			token, tokenErr := userRecord.NewAuthToken()
+			if tokenErr != nil {
+				return errors.New("Failed to create user token")
+			}
+
+			return e.JSON(http.StatusOK, map[string]any{
+				"token": token,
+				"user":  userRecord,
+			})
+		})
+		return se.Next()
 	})
 	return nil
 }
