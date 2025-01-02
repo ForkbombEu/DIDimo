@@ -68,7 +68,7 @@ function isLastOwnerAuthorization(orgAuthorization) {
 
     const ownerAuthorizations = findRecordsByFilter(
         "orgAuthorizations",
-        `organization="${organizationId}" && role="${ownerRoleId}"`
+        `organization="${organizationId}" && role="${ownerRoleId}"`,
     );
 
     return ownerAuthorizations.length == 1;
@@ -83,7 +83,7 @@ function getUserRole(userId, organizationId, dao = $app.dao()) {
     const authorization = findFirstRecordByFilter(
         "orgAuthorizations",
         `user = "${userId}" && organization = "${organizationId}"`,
-        dao
+        dao,
     );
     if (!authorization) return undefined;
     return getExpanded(authorization, "role", dao);
@@ -235,7 +235,7 @@ function getOrganizationAdminsAddresses(organizationId, dao = $app.dao()) {
     const recipients = findRecordsByFilter(
         "orgAuthorizations",
         `organization.id = "${organizationId}" && ( role.name = "admin" || role.name = "owner" )`,
-        dao
+        dao,
     );
 
     return recipients
@@ -333,9 +333,10 @@ const renderEmail = (name, data) => {
     const emailPath = $filepath.join(
         __hooks,
         "..",
-        "pb_public",
+        "webapp",
+        "static",
         "emails",
-        `${name}.html`
+        `${name}.html`,
     );
     const html = $template
         .loadFiles(emailPath)
