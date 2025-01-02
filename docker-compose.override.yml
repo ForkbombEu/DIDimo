@@ -1,0 +1,99 @@
+services:
+  didimo:
+    restart: unless-stopped
+  postgresql:
+    environment:
+      POSTGRES_PASSWORD: d
+      POSTGRES_USER: d
+    image: postgres:13
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+  temporal:
+    depends_on:
+      - postgresql
+    environment:
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=d
+      - POSTGRES_PWD=d
+      - POSTGRES_SEEDS=postgresql
+      - PROMETHEUS_ENDPOINT=0.0.0.0:8000
+    image: temporalio/auto-setup:1.21.1
+  temporal-admin-tools:
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CLI_ADDRESS=temporal:7233
+    image: temporalio/admin-tools:1.21.1
+    stdin_open: true
+    tty: true
+  temporal-ui:
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
+    image: temporalio/ui:2.32.0
+    ports:
+      - 8080:8080
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - type: bind
+        source: ./deployment/prometheus/config.yml
+        target: /etc/prometheus/prometheus.yml
+  grafana:
+    build: './deployment/grafana'
+    environment:
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    ports:
+      - 8085:3000
+    volumes:
+      - type: bind
+        source: ./deployment/grafana/provisioning/datasources
+        target: /etc/grafana/provisioning/datasources
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    ports:
+      - 8025:8025
+  thirdparty:
+    build: deployment/thirdparty-simulator
+    command: thirdparty-simulator api
+    restart: unless-stopped
+    environment:
+      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+  # api:
+  #   restart: unless-stopped
+  #   environment:
+  #     - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+  #     - DATACONVERTER_ENCRYPTION_KEY_ID=secret
+  # ui:
+  #   restart: unless-stopped
+  #   environment:
+  #     - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+  # worker:
+  #   restart: unless-stopped
+  #   environment:
+  #     - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+  #     - DATACONVERTER_ENCRYPTION_KEY_ID=secret
+  # tools:
+  #   environment:
+  #     - TEMPORAL_ADDRESS=temporal:7233
+  #     - TEMPORAL_CLI_ADDRESS=temporal:7233
+  #     - TEMPORAL_CODEC_ENDPOINT=http://dataconverter:8081/
+  #     - TEMPORAL_CLI_CODEC_ENDPOINT=http://dataconverter:8081/
+  # dataconverter:
+  #   build:
+  #     context: .
+  #     target: app
+  #   command: dataconverter-server --ui http://localhost:8080 --port 8081
+  #   restart: unless-stopped
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     - DATACONVERTER_ENCRYPTION_KEY_ID=secret
