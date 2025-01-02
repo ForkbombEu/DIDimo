@@ -68,7 +68,7 @@ function isLastOwnerAuthorization(orgAuthorization) {
 
     const ownerAuthorizations = findRecordsByFilter(
         "orgAuthorizations",
-        `organization="${organizationId}" && role="${ownerRoleId}"`
+        `organization="${organizationId}" && role="${ownerRoleId}"`,
     );
 
     return ownerAuthorizations.length == 1;
@@ -84,7 +84,7 @@ function getUserRole(userId, organizationId, app = $app) {
     const authorization = findFirstRecordByFilter(
         "orgAuthorizations",
         `user = "${userId}" && organization = "${organizationId}"`,
-        app
+        app,
     );
     if (!authorization) return undefined;
     return getExpanded(authorization, "role", app);
@@ -238,7 +238,7 @@ function getOrganizationAdminsAddresses(organizationId, app = $app) {
     const recipients = findRecordsByFilter(
         "orgAuthorizations",
         `organization.id = "${organizationId}" && ( role.name = "admin" || role.name = "owner" )`,
-        app
+        app,
     );
 
     return recipients
@@ -323,9 +323,7 @@ function getRecordUpdateEventDiff(event, fields = []) {
  * @param {core.Collection} collection
  */
 function getCollectionFields(collection) {
-    return collection.fields
-        .map((f) => f?.name)
-        .filter((n) => n != undefined);
+    return collection.fields.map((f) => f?.name).filter((n) => n != undefined);
 }
 
 //
@@ -335,9 +333,10 @@ const renderEmail = (name, data) => {
     const emailPath = $filepath.join(
         __hooks,
         "..",
-        "pb_public",
+        "webapp",
+        "static",
         "emails",
-        `${name}.html`
+        `${name}.html`,
     );
     const html = $template
         .loadFiles(emailPath)
@@ -378,9 +377,7 @@ function getRecordUpdateEventDiff(event, fields = []) {
  * @param {core.Collection} collection
  */
 function getCollectionFields(collection) {
-    return collection.fields
-        .map((f) => f?.name)
-        .filter((n) => n != undefined);
+    return collection.fields.map((f) => f?.name).filter((n) => n != undefined);
 }
 
 /**

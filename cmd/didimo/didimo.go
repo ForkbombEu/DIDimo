@@ -1,5 +1,4 @@
-// main entry point for the didimo backend server
-
+// DIDimo is your companion tool for be compliant with your SSI system.
 package main
 
 import (
