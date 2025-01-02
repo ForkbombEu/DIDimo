@@ -32,7 +32,7 @@ AIR 			?= $(GOBIN)/air
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 SLANGROOM 		= $(BIN)/slangroom-exec
-DEPS 			= mise wget git tmux
+DEPS 			= mise wget git tmux upx
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
@@ -95,8 +95,15 @@ $(WEBAPP)/build: $(UI_SRC)
 	cd $(WEBAPP) && bun i && bun run build; \
 	kill $$PID;
 
-build: $(BINARY_NAME) $(BINARY_NAME)-ui ## 📦 build the project into a binary
-	# upx --best --lzma $(BINARY_NAME)
+$(BINARY_NAME)-ui: $(UI_SRC)
+	@./$(BINARY_NAME) serve & \
+	PID=$$!; \
+	./scripts/wait-for-it.sh localhost:8090 --timeout=60; \
+	cd $(WEBAPP) && bun i && bun run bin; \
+	kill $$PID;
+
+build: $(BINARY_NAME) $(BINARY_NAME)-ui
+	upx --best --lzma $(BINARY_NAME)
 	@echo "📦 Done!"
 
 docker: $(BINARY_NAME) $(WEBAPP)/build ## 🐳 run docker with all the infrastructure services
