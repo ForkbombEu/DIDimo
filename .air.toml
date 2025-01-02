@@ -1,2 +1,2 @@
 [build]
-  cmd = "go run main.go serve"
+  cmd = "go run cmd/didimo/didimo.go serve"

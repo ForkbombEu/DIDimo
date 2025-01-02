@@ -4,7 +4,7 @@ DESCRIPTION  	?= "SSI Compliance tool"
 ROOT_DIR		?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BINARY_NAME 	?= $(PROJECT_NAME)
 SUBDIRS			?= ./...
-MAIN_SRC 		?= $(ROOT_DIR)/main.go
+MAIN_SRC 		?= $(ROOT_DIR)/cmd/didimo/didimo.go
 WEBAPP			?= $(ROOT_DIR)/webapp
 GO_SRC 			:= $(wildcard **/*.go)
 UI_SRC			:= $(shell find $(WEBAPP)/src -type f \( -name '*.svelte' -o -name '*.js' -o -name '*.ts' -o -name '*.css' \) ! -name '*.generated.ts' ! -path 'webapp/src/modules/i18n/paraglide/*')
@@ -32,7 +32,7 @@ AIR 			?= $(GOBIN)/air
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 SLANGROOM 		= $(BIN)/slangroom-exec
-DEPS 			= mise wget git tmux upx
+DEPS 			= mise wget git tmux upx temporal
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
