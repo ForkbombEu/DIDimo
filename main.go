@@ -1,3 +1,5 @@
+// main entry point for the didimo backend server
+
 package main
 
 import (
@@ -26,8 +28,7 @@ import (
 
 func main() {
 	app := pocketbase.New()
-	app.RootCmd.Short = 
-		"\033[38;2;255;100;0m      dP oo       dP oo                     \033[0m\n" +
+	app.RootCmd.Short = "\033[38;2;255;100;0m      dP oo       dP oo                     \033[0m\n" +
 		"\033[38;2;255;71;43m      88          88                        \033[0m\n" +
 		"\033[38;2;255;43;86m.d888b88 dP .d888b88 dP 88d8b.d8b. .d8888b. \033[0m\n" +
 		"\033[38;2;255;14;129m88'  `88 88 88'  `88 88 88'`88'`88 88'  `88 \033[0m\n" +
