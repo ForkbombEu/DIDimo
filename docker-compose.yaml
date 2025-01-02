@@ -1,25 +1,11 @@
-version: '3.8'
-
 services:
-  builder:
-    image: alpine:latest
-    working_dir: /app
-    volumes:
-      - .:/app
+  app:
     build:
       context: .
-      dockerfile: Dockerfile.build
-    command: make build
-
-  # app:
-  #   depends_on:
-  #     - builder
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8090:8090"
-  #     - "80:80"
-  #   environment:
-  #     DOMAIN: localhost
-
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      PORT: 5100
+    volumes:
+      - ./pb_data/:/pb_data
