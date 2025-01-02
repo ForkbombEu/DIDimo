@@ -24,7 +24,6 @@ webapp/.prettierignore
 webapp/.prettierrc
 webapp/.svelte-kit
 webapp/.vscode
-webapp/build
 webapp/Dockerfile
 webapp/e2e
 webapp/eslint.config.js

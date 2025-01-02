@@ -3,8 +3,11 @@ ORGANIZATION 	?= forkbombeu
 DESCRIPTION  	?= "SSI Compliance tool"
 ROOT_DIR		?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BINARY_NAME 	?= $(PROJECT_NAME)
-SUBDIRS			?= $(ROOT_DIR)/...
+SUBDIRS			?= ./...
 MAIN_SRC 		?= $(ROOT_DIR)/main.go
+WEBAPP			?= $(ROOT_DIR)/webapp
+GO_SRC 			:= $(wildcard **/*.go)
+UI_SRC			:= $(shell find $(WEBAPP)/src -type f \( -name '*.svelte' -o -name '*.js' -o -name '*.ts' -o -name '*.css' \) ! -name '*.generated.ts' ! -path 'webapp/src/modules/i18n/paraglide/*')
 DOCS			?= $(ROOT_DIR)/docs
 GOCMD 			?= go
 GOBUILD			?= $(GOCMD) build
@@ -16,6 +19,7 @@ GOMOD			?= $(GOCMD) mod
 GOINST			?= $(GOCMD) install
 GOPATH 			?= $(shell $(GOCMD) env GOPATH)
 GOBIN 			?= $(GOPATH)/bin
+GOMOD_FILES 	:= go.mod go.sum
 
 # Tools & Linters
 GOLANGCI_LINT 	?= $(GOBIN)/golangci-lint
@@ -25,7 +29,6 @@ OVERMIND 		?= $(GOBIN)/overmind
 AIR 			?= $(GOBIN)/air
 
 # Submodules
-WEBAPP			= $(ROOT_DIR)/webapp
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 SLANGROOM 		= $(BIN)/slangroom-exec
@@ -33,6 +36,7 @@ DEPS 			= mise wget git tmux
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
+.PHONY: submodules version dev test tidy build docker doc clean tools help
 
 $(BIN):
 	@mkdir $(BIN)
@@ -45,7 +49,7 @@ $(SLANGROOM): | $(BIN)
 submodules:
 	git submodule update --recursive --init
 
-## Build
+## Hacking
 GREEN  := $(shell tput -Txterm setaf 2)
 YELLOW := $(shell tput -Txterm setaf 3)
 WHITE  := $(shell tput -Txterm setaf 7)
@@ -70,24 +74,35 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: tools $(SLANGROOM) $(WEBENV) submodules ## 🚀 run in watch mode
+dev: $(SLANGROOM) $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
-test:
-	$(GOTEST) $(SUBDIRS) -v
+test: ## 🧪 run tests with coverage
+	$(GOTEST) $(SUBDIRS) -v -cover
 
-tidy:
+tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
 
-build: tools tidy submodules $(SLANGROOM) $(WEBENV) ## 📦 build the project into a binary
+## Deployment
+
+$(BINARY_NAME): $(GO_SRC) tools tidy submodules $(SLANGROOM) $(WEBENV)
 	@$(GOBUILD) -o $(BINARY_NAME) $(MAIN_SRC)
-	# upx --best --lzma $(BINARY_NAME)
+
+$(WEBAPP)/build: $(UI_SRC)
 	@./$(BINARY_NAME) serve & \
 	PID=$$!; \
 	./scripts/wait-for-it.sh localhost:8090 --timeout=60; \
-	cd $(WEBAPP) && bun i && bun run bin; \
+	cd $(WEBAPP) && bun i && bun run build; \
 	kill $$PID;
-	@echo "📦 built"
+
+build: $(BINARY_NAME) $(BINARY_NAME)-ui ## 📦 build the project into a binary
+	# upx --best --lzma $(BINARY_NAME)
+	@echo "📦 Done!"
+
+docker: $(BINARY_NAME) $(WEBAPP)/build ## 🐳 run docker with all the infrastructure services
+	docker compose up --build
+
+## Misc
 
 doc: ## 📚 Serve documentation on localhost
 	cd $(DOCS) && bun i
@@ -96,7 +111,7 @@ doc: ## 📚 Serve documentation on localhost
 clean: ## 🧹 Clean files and caches
 	@$(GOCLEAN)
 	@rm -f $(BINARY_NAME)
-	@rm -f $(WEBAPP)/didimo-ui
+	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
 	@echo "🧹 cleaned"
 
