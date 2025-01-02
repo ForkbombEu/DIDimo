@@ -6,8 +6,6 @@ services:
       POSTGRES_PASSWORD: d
       POSTGRES_USER: d
     image: postgres:13
-    volumes:
-      - ./.postgres-data:/var/lib/postgresql/data
   temporal:
     depends_on:
       - postgresql

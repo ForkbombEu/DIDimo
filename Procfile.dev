@@ -1,3 +1,4 @@
 pocketbase: air
 ui: ./scripts/wait-for-it.sh localhost:8090 && cd webapp && bun i && bun dev
 docs: cd docs && bun i && bun run docs:dev
+temporal: temporal server start-dev  --db-filename pb_data/temporal.db

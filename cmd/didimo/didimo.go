@@ -1,5 +1,4 @@
-// main entry point for the didimo backend server
-
+// DIDimo is your companion tool for be compliant with your SSI system.
 package main
 
 import (
@@ -39,10 +38,7 @@ func main() {
 		"                   \033[48;2;0;0;139m\033[38;2;255;255;255m by The Forkbomb Company \033[0m\n" // Company name aligned to right
 
 	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-			Scheme: "http",
-			Host:   "localhost:5100",
-		})
+		proxy := httputil.NewSingleHostReverseProxy(&url.URL{Scheme: "http", Host: "localhost:5100"})
 		e.Router.Any("/*", echo.WrapHandler(proxy))
 		e.Router.Any("/", echo.WrapHandler(proxy))
 
