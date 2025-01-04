@@ -15,3 +15,4 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: docker://morphy/revive-action:v2
+    - uses: golang/govulncheck-action@v1
