@@ -4,7 +4,7 @@
 /** @typedef {import('./utils.js')} Utils */
 /** @typedef {import('./auditLogger.js')} AuditLogger */
 
-onMailerBeforeRecordResetPasswordSend((e) => {
+onMailerRecordPasswordResetSend((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -14,7 +14,7 @@ onMailerBeforeRecordResetPasswordSend((e) => {
     const token = e.meta["token"];
     if (!token) throw utils.createMissingDataError("token");
 
-    const resetLink = $app.settings().meta.appUrl + `/reset-password-${token}`;
+    const resetLink = $app.settings().meta.appURL + `/reset-password-${token}`;
 
     const emailData = utils.renderEmail("reset-password", {
         username: e.record?.get("name") ?? "User",
@@ -26,7 +26,7 @@ onMailerBeforeRecordResetPasswordSend((e) => {
     e.message.subject = emailData.subject;
 }, "users");
 
-onMailerBeforeRecordVerificationSend((e) => {
+onMailerRecordVerificationSend((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -37,7 +37,7 @@ onMailerBeforeRecordVerificationSend((e) => {
     if (!token) throw utils.createMissingDataError("token");
 
     const VerificationLink =
-        $app.settings().meta.appUrl + `/verify-email-${token}`;
+        $app.settings().meta.appURL + `/verify-email-${token}`;
 
     const emailData = utils.renderEmail("confirm-email", {
         UserName: e.record?.get("name") ?? "User",
@@ -49,7 +49,7 @@ onMailerBeforeRecordVerificationSend((e) => {
     e.message.subject = emailData.subject;
 }, "users");
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 

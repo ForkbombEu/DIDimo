@@ -14,44 +14,44 @@
 
 /* Routes */
 
-routerAdd("POST", "/organizations/verify-user-membership", (c) => {
+routerAdd("POST", "/organizations/verify-user-membership", (e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    const userId = utils.getUserFromContext(c)?.getId();
+    const userId = utils.getUserFromContext(e)?.id;
 
     /** @type {string | undefined} */
-    const organizationId = $apis.requestInfo(c).data["organizationId"];
+    const organizationId = e.requestInfo().body["organizationId"];
     if (!organizationId)
         throw utils.createMissingDataError("organizationId", "roles");
 
     try {
-        $app.dao().findFirstRecordByFilter(
+        $app.findFirstRecordByFilter(
             "orgAuthorizations",
             `organization="${organizationId}" && user="${userId}"`
         );
-        return c.json(200, { isMember: true });
+        return e.json(200, { isMember: true });
     } catch {
-        auditLogger(c).info(
+        auditLogger(e).info(
             "request_from_user_not_member",
             "organizationId",
             organizationId
         );
-        return c.json(200, { isMember: false });
+        return e.json(200, { isMember: false });
     }
 });
 
-routerAdd("POST", "/organizations/verify-user-role", (c) => {
+routerAdd("POST", "/organizations/verify-user-role", (e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    const userId = utils.getUserFromContext(c)?.getId();
+    const userId = utils.getUserFromContext(e)?.id;
 
     /** @type {{organizationId: string, roles: string[]}}*/
     // @ts-ignore
-    const { organizationId, roles } = $apis.requestInfo(c).data;
+    const { organizationId, roles } = e.requestInfo().body;
     if (!organizationId || !roles || roles.length === 0)
         throw utils.createMissingDataError("organizationId", "roles");
 
@@ -60,13 +60,13 @@ routerAdd("POST", "/organizations/verify-user-role", (c) => {
         .join(" || ")} )`;
 
     try {
-        $app.dao().findFirstRecordByFilter(
+        $app.findFirstRecordByFilter(
             "orgAuthorizations",
             `organization="${organizationId}" && user="${userId}" && ${roleFilter}`
         );
-        return c.json(200, { hasRole: true });
+        return e.json(200, { hasRole: true });
     } catch {
-        return c.json(200, { hasRole: false });
+        return e.json(200, { hasRole: false });
     }
 });
 
@@ -74,35 +74,35 @@ routerAdd("POST", "/organizations/verify-user-role", (c) => {
 
 // On Organization Create – Creating owner authorization
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
     // Don't create orgAuthorization if organization is created from admin panel
-    if (utils.isAdminContext(e.httpContext)) return;
+    if (utils.isAdminContext(e)) return;
 
-    const userId = utils.getUserFromContext(e.httpContext)?.getId();
-    const organizationId = e.record?.getId();
+    const userId = utils.getUserFromContext(e)?.id;
+    const organizationId = e.record?.id;
 
     const ownerRole = utils.getRoleByName("owner");
-    const ownerRoleId = ownerRole?.getId();
+    const ownerRoleId = ownerRole?.id;
 
-    const collection = $app.dao().findCollectionByNameOrId("orgAuthorizations");
+    const collection = $app.findCollectionByNameOrId("orgAuthorizations");
     const record = new Record(collection, {
         organization: organizationId,
         role: ownerRoleId,
         user: userId,
     });
-    $app.dao().saveRecord(record);
+    $app.Save(record);
 
     //
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Created owner role for organization",
         "organizationId",
-        e.record?.getId(),
+        e.record?.id,
         "organizationName",
         e.record?.get("name"),
         "userId",
@@ -114,14 +114,14 @@ onRecordAfterCreateRequest((e) => {
 
 //  Log organization creation
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Created organization",
         "organizationId",
-        e.record?.getId(),
+        e.record?.id,
         "organizationName",
         e.record?.get("name")
     );
@@ -131,13 +131,13 @@ onRecordAfterCreateRequest((e) => {
 
 // Send email after organization creation
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
     if (!e.record) throw utils.createMissingDataError("organization");
 
-    const user = utils.getUserFromContext(e.httpContext);
+    const user = utils.getUserFromContext(e);
     if (!user) throw utils.createMissingDataError("user creating organization");
 
     const userAddress = utils.getUserEmailAddressData(user);
@@ -146,7 +146,7 @@ onRecordAfterCreateRequest((e) => {
     const emailData = utils.renderEmail("new-organization", {
         OrganizationName: organizationName,
         UserName: user.get("name") ?? "User",
-        DashboardLink: utils.getOrganizationPageUrl(e.record.getId()),
+        DashboardLink: utils.getOrganizationPageUrl(e.record.id),
         AppName: utils.getAppName(),
     });
 

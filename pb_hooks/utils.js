@@ -42,14 +42,14 @@ const errors = {
  */
 function getRoleByName(name) {
     try {
-        return $app.dao().findFirstRecordByData("orgRoles", "name", name);
+        return $app.findFirstRecordByData("orgRoles", "name", name);
     } catch {
         return undefined;
     }
 }
 
 /**
- * @param {models.Record} role
+ * @param {core.Record} role
  * @returns {number}
  */
 function getRoleLevel(role) {
@@ -57,12 +57,12 @@ function getRoleLevel(role) {
 }
 
 /**
- * @param {models.Record} orgAuthorization
+ * @param {core.Record} orgAuthorization
  */
 function isLastOwnerAuthorization(orgAuthorization) {
     const organizationId = orgAuthorization.get("organization");
     const roleId = orgAuthorization.get("role");
-    const ownerRoleId = getRoleByName("owner")?.getId();
+    const ownerRoleId = getRoleByName("owner")?.id;
 
     if (roleId !== ownerRoleId) return false;
 
@@ -77,24 +77,25 @@ function isLastOwnerAuthorization(orgAuthorization) {
 /**
  * @param {string} userId
  * @param {string} organizationId
+ * @param {core.App | excludeHooks<PocketBase> } [app= $app]
  * @returns {RecordModel<OrgRole> | undefined}
  */
-function getUserRole(userId, organizationId, dao = $app.dao()) {
+function getUserRole(userId, organizationId, app = $app) {
     const authorization = findFirstRecordByFilter(
         "orgAuthorizations",
         `user = "${userId}" && organization = "${organizationId}"`,
-        dao
+        app
     );
     if (!authorization) return undefined;
-    return getExpanded(authorization, "role", dao);
+    return getExpanded(authorization, "role", app);
 }
 
 /**
  *
- * @param {core.RecordUpdateEvent|core.RecordDeleteEvent|core.RecordViewEvent|core.RecordCreateEvent} e
+ * @param {core.RecordRequestEvent} e
  */
 function getUserContextInOrgAuthorizationHookEvent(e) {
-    const userId = getUserFromContext(e.httpContext)?.getId();
+    const userId = getUserFromContext(e)?.id;
 
     /** @type {string | undefined} */
     const organizationId = e.record?.get("organization");
@@ -115,21 +116,21 @@ function getUserContextInOrgAuthorizationHookEvent(e) {
 /* -- Pocketbase utils -- */
 
 /**
- * @param {echo.Context} c
+ * @param {core.RequestEvent} e
  * @returns {RecordModel<User> | undefined}
  */
-function getUserFromContext(c) {
-    return $apis.requestInfo(c).authRecord;
+function getUserFromContext(e) {
+    return e.auth;
 }
 
 /**
  * @param {string} collection
  * @param {string} filter
- * @param {daos.Dao} [dao=$app.dao()]
- * @returns {Array<models.Record>}
+ * @param {core.App | excludeHooks<PocketBase> } [app= $app]
+ * @returns {Array<core.Record>}
  */
-function findRecordsByFilter(collection, filter, dao = $app.dao()) {
-    return dao
+function findRecordsByFilter(collection, filter, app = $app) {
+    return app
         .findRecordsByFilter(collection, filter, "", 0, 0)
         .filter((v) => v != undefined);
 }
@@ -137,24 +138,26 @@ function findRecordsByFilter(collection, filter, dao = $app.dao()) {
 /**
  * @param {string} collection
  * @param {string} filter
+ * @param {core.App | excludeHooks<PocketBase> } [app= $app]
  */
-function findFirstRecordByFilter(collection, filter, dao = $app.dao()) {
+function findFirstRecordByFilter(collection, filter, app = $app) {
     try {
-        return dao.findFirstRecordByFilter(collection, filter);
+        return app.findFirstRecordByFilter(collection, filter);
     } catch {
         return undefined;
     }
 }
 
 /**
- * @param {models.Record} record
+ * @param {core.Record} record
  * @param {string} key
- * @returns {models.Record | undefined}
+ * @param {core.App | excludeHooks<PocketBase> } [app= $app]
+ * @returns {core.Record | undefined}
  */
-function getExpanded(record, key, dao = $app.dao()) {
+function getExpanded(record, key, app = $app) {
     try {
         // @ts-ignore
-        dao.expandRecord(record, [key], null);
+        app.expandRecord(record, [key], null);
         return record.expandedOne(key);
     } catch (e) {
         return undefined;
@@ -162,10 +165,10 @@ function getExpanded(record, key, dao = $app.dao()) {
 }
 
 /**
- * @param {echo.Context} c
+ * @param {core.RequestEvent} e
  */
-function isAdminContext(c) {
-    return Boolean($apis.requestInfo(c).admin);
+function isAdminContext(e) {
+    return Boolean(e.hasSuperuserAuth());
 }
 
 /**
@@ -176,7 +179,7 @@ function createMissingDataError(...args) {
 }
 
 /**
- * @param {models.Record} user
+ * @param {core.Record} user
  * @returns {Address}
  */
 function getUserEmailAddressData(user) {
@@ -228,14 +231,14 @@ function removeTrailingSlash(string) {
 
 /**
  * @param {string} organizationId
- * @param {daos.Dao} [dao=$app.dao()]
+ * @param {core.App | excludeHooks<PocketBase> } [app= $app]
  * @returns {Address[]}
  */
-function getOrganizationAdminsAddresses(organizationId, dao = $app.dao()) {
+function getOrganizationAdminsAddresses(organizationId, app = $app) {
     const recipients = findRecordsByFilter(
         "orgAuthorizations",
         `organization.id = "${organizationId}" && ( role.name = "admin" || role.name = "owner" )`,
-        dao
+        app
     );
 
     return recipients
@@ -246,7 +249,7 @@ function getOrganizationAdminsAddresses(organizationId, dao = $app.dao()) {
 
 /** @returns {string} */
 function getAppUrl() {
-    return removeTrailingSlash($app.settings().meta.appUrl);
+    return removeTrailingSlash($app.settings().meta.appURL);
 }
 
 /** @returns {string} */
@@ -271,17 +274,17 @@ function getOrganizationMembersPageUrl(organizationId) {
 }
 
 /**
- * @param {echo.Context} c
+ * @param {core.RequestEvent} e
  */
-function runOrganizationInviteEndpointChecks(c) {
+function runOrganizationInviteEndpointChecks(e) {
     /** @type {{inviteId: string | undefined}} */
     // @ts-ignore
-    const data = $apis.requestInfo(c).data;
+    const data = $apis.requestInfo(e).data;
     const { inviteId } = data;
     if (!inviteId || typeof inviteId != "string")
         throw createMissingDataError("inviteId");
 
-    const userId = getUserFromContext(c)?.getId();
+    const userId = getUserFromContext(e)?.id;
     if (!userId) throw createMissingDataError("userId");
 
     const invite = findFirstRecordByFilter("org_invites", `id = "${inviteId}"`);
@@ -295,12 +298,12 @@ function runOrganizationInviteEndpointChecks(c) {
 
 /**
  *
- * @param {core.RecordUpdateEvent} event
+ * @param {core.RecordRequestEvent} event
  * @param {string[]} fields
  */
 function getRecordUpdateEventDiff(event, fields = []) {
     const updatedRecord = event.record;
-    const originalRecord = event.record?.originalCopy();
+    const originalRecord = event.record?.original();
     if (!updatedRecord || !originalRecord)
         throw createMissingDataError("updated record");
 
@@ -317,11 +320,10 @@ function getRecordUpdateEventDiff(event, fields = []) {
 }
 
 /**
- * @param {models.Collection} collection
+ * @param {core.Collection} collection
  */
 function getCollectionFields(collection) {
-    return collection.schema
-        .fields()
+    return collection.fields
         .map((f) => f?.name)
         .filter((n) => n != undefined);
 }
@@ -351,12 +353,12 @@ const renderEmail = (name, data) => {
 
 /**
  *
- * @param {core.RecordUpdateEvent} event
+ * @param {core.RecordRequestEvent} event
  * @param {string[]} fields
  */
 function getRecordUpdateEventDiff(event, fields = []) {
     const updatedRecord = event.record;
-    const originalRecord = event.record?.originalCopy();
+    const originalRecord = event.record?.original();
     if (!updatedRecord || !originalRecord)
         throw createMissingDataError("updated record");
 
@@ -373,29 +375,28 @@ function getRecordUpdateEventDiff(event, fields = []) {
 }
 
 /**
- * @param {models.Collection} collection
+ * @param {core.Collection} collection
  */
 function getCollectionFields(collection) {
-    return collection.schema
-        .fields()
+    return collection.fields
         .map((f) => f?.name)
         .filter((n) => n != undefined);
 }
 
 /**
  *
- * @param { echo.Context } httpContext
- * @returns { RecordModel<User> | models.Admin | undefined }
+ * @param { core.RequestEvent } e
+ * @returns { RecordModel<User> | undefined }
  */
-function getRequestAgent(httpContext) {
-    /** @type {RecordModel<User> | models.Admin | undefined} */
+function getRequestAgent(e) {
+    /** @type {RecordModel<User> | undefined} */
     let agent = undefined;
 
-    const adminContext = isAdminContext(httpContext);
-    const user = getUserFromContext(httpContext);
+    const adminContext = isAdminContext(e);
+    const user = getUserFromContext(e);
 
     if (adminContext) {
-        agent = $apis.requestInfo(httpContext).admin;
+        agent = e.auth;
     } else if (user) {
         agent = user;
     }
@@ -405,17 +406,15 @@ function getRequestAgent(httpContext) {
 
 /**
  *
- * @param { echo.Context } httpContext
+ * @param { core.RequestEvent } e
  * @returns { string | undefined }
  */
-function getRequestAgentName(httpContext) {
-    const agent = getRequestAgent(httpContext);
+function getRequestAgentName(e) {
+    const agent = getRequestAgent(e);
     if (!agent) return undefined;
 
     if ("getString" in agent) {
         return agent.getString("name");
-    } else {
-        return `System Admin ${agent.getId()}`;
     }
 }
 

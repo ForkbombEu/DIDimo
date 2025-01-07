@@ -12,7 +12,7 @@
 
 /* Hooks */
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -22,8 +22,8 @@ onRecordAfterCreateRequest((e) => {
     );
     invites.forEach((invite) => {
         invite.markAsNotNew();
-        invite.set("user", e.record?.getId());
-        $app.dao().saveRecord(invite);
+        invite.set("user", e.record?.id);
+        $app.Save(invite);
     });
 }, "users");
 
@@ -41,19 +41,17 @@ routerAdd("POST", "/organizations/invites/accept", (c) => {
 
     /* -- Logic -- */
 
-    const orgAuthorizationsCollection = $app
-        .dao()
-        .findCollectionByNameOrId("orgAuthorizations");
+    const orgAuthorizationsCollection = $app.findCollectionByNameOrId("orgAuthorizations");
 
     const organizationId = invite.get("organization");
 
     const authorization = new Record(orgAuthorizationsCollection);
     authorization.set("user", userId);
-    authorization.set("role", utils.getRoleByName("member")?.getId());
+    authorization.set("role", utils.getRoleByName("member")?.id);
     authorization.set("organization", organizationId);
 
-    $app.dao().saveRecord(authorization);
-    $app.dao().deleteRecord(invite);
+    $app.Save(authorization);
+    $app.Delete(invite);
 
     auditLogger(c).info(
         "user_accepted_invite",
@@ -72,7 +70,7 @@ routerAdd("POST", "/organizations/invites/decline", (c) => {
 
     invite.markAsNotNew();
     invite.set("declined", true);
-    $app.dao().saveRecord(invite);
+    $app.Save(invite);
 
     auditLogger(c).info(
         "user_accepted_invite",
@@ -99,7 +97,7 @@ routerAdd("POST", "/organizations/invite", (c) => {
         throw utils.createMissingDataError("organizationId", "emails");
 
     const actor = utils.getUserFromContext(c);
-    const actorId = actor?.getId();
+    const actorId = actor?.id;
     const actorName = actor?.get("name");
     if (!actorId) throw utils.createMissingDataError("userId");
 
@@ -110,29 +108,25 @@ routerAdd("POST", "/organizations/invite", (c) => {
 
     /* -- Logic -- */
 
-    const orgInvitesCollection = $app
-        .dao()
-        .findCollectionByNameOrId("org_invites");
+    const orgInvitesCollection = $app.findCollectionByNameOrId("org_invites");
 
-    const organization = $app
-        .dao()
-        .findRecordById("organizations", organizationId);
+    const organization = $app.findRecordById("organizations", organizationId);
     const organizationName = organization.get("name");
 
-    $app.dao().runInTransaction((txDao) => {
+    $app.runInTransaction((txApp) => {
         for (const email of emails) {
             // Checking if user is already member
 
             const user = utils.findFirstRecordByFilter(
                 "users",
                 `email = "${email}"`,
-                txDao
+                txApp
             );
             if (user) {
                 const userRole = utils.getUserRole(
-                    user.getId(),
+                    user.id,
                     organizationId,
-                    txDao
+                    txApp
                 );
                 if (userRole) continue;
             }
@@ -142,7 +136,7 @@ routerAdd("POST", "/organizations/invite", (c) => {
             const existingInvite = utils.findFirstRecordByFilter(
                 "org_invites",
                 `user_email = "${email}"`,
-                txDao
+                txApp
             );
             if (existingInvite) continue;
 
@@ -151,8 +145,8 @@ routerAdd("POST", "/organizations/invite", (c) => {
             const invite = new Record(orgInvitesCollection);
             invite.set("organization", organizationId);
             invite.set("user_email", email);
-            if (user) invite.set("user", user.getId());
-            txDao.saveRecord(invite);
+            if (user) invite.set("user", user.id);
+            txApp.Save(invite);
 
             // Send email
 
@@ -160,9 +154,9 @@ routerAdd("POST", "/organizations/invite", (c) => {
             // Reference: webapp/src/routes/[[lang]]/(nru)/organization-invite-[orgId]-[inviteId]-[email]-[[userId]]
             const routeParams = [
                 organizationId,
-                invite.getId(),
+                invite.id,
                 encodeURIComponent(email),
-                user?.getId() ?? "",
+                user?.id ?? "",
             ];
             const paramsString = routeParams.join("-");
             const emailCtaUrl = `${utils.getAppUrl()}/organization-invite-${paramsString}`;
@@ -201,12 +195,12 @@ routerAdd("POST", "/organizations/invite", (c) => {
                     "personEmail",
                     email,
                     "userId",
-                    user?.getId()
+                    user?.id
                 );
             } else {
                 invite.markAsNotNew();
                 invite.set("failed_email_send", true);
-                txDao.saveRecord(invite);
+                txApp.Save(invite);
 
                 auditLogger(c).info(
                     "failed_to_send_organization_invite",
@@ -215,7 +209,7 @@ routerAdd("POST", "/organizations/invite", (c) => {
                     "email",
                     email,
                     "userId",
-                    user?.getId(),
+                    user?.id,
                     "errorMessage",
                     err.message
                 );
@@ -226,14 +220,14 @@ routerAdd("POST", "/organizations/invite", (c) => {
 
 /* */
 
-onRecordAfterDeleteRequest((e) => {
+onRecordDeleteRequest((e) => {
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Deleted organization invite",
         "inviteId",
-        e.record?.getId(),
+        e.record?.id,
         "organizationId",
         e.record?.get("organization")
     );
