@@ -81,7 +81,8 @@ test: ## 🧪 run tests with coverage
 	$(GOTEST) $(SUBDIRS) -v -cover
 
 lint: tools ## 📑 lint rules checks
-	$(REVIVE) -formatter stylish github.com/$(ORGANIZATION)/$(PROJECT_NAME) pocketbase/...
+	$(REVIVE) -formatter stylish cmd
+	$(GOVULNCHECK) $(SUBDIRS)
 
 fmt: tools ## 🗿 format rules checks
 	$(GOFUMPT) -l -w pocketbase *.go
