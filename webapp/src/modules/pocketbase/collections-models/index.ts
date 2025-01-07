@@ -5,10 +5,10 @@ export * from './collections-models.generated';
 import {
 	CollectionsModels,
 	type CollectionName,
-	type AnySchemaField,
-	type FileSchemaField,
-	type RelationSchemaField,
-	type SelectSchemaField,
+	type AnyCollectionField,
+	type FileCollectionField,
+	type RelationCollectionField,
+	type SelectCollectionField,
 	type AnyCollectionModel
 } from './collections-models.generated';
 import { Array, Option, pipe } from 'effect';
@@ -37,16 +37,16 @@ class CollectionNotFoundError extends Error {}
 //
 
 export function isArrayField(
-	fieldConfig: AnySchemaField
-): fieldConfig is FileSchemaField | SelectSchemaField | RelationSchemaField {
+	fieldConfig: AnyCollectionField
+): fieldConfig is FileCollectionField | SelectCollectionField | RelationCollectionField {
 	const type = fieldConfig.type;
 	if (type !== 'select' && type !== 'relation' && type !== 'file') return false;
-	if (fieldConfig.options.maxSelect === 1) return false;
+	if (fieldConfig.maxSelect === 1) return false;
 	else return true;
 }
 
 export function getRelationFields<C extends CollectionName>(collection: C): string[] {
 	return getCollectionModel(collection)
-		.schema.filter((field) => field.type == 'relation')
+		.fields.filter((field) => field.type == 'relation')
 		.map((field) => field.name);
 }

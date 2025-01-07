@@ -2,8 +2,8 @@ import {
 	CollectionsModels,
 	isArrayField,
 	type AnyCollectionModel,
-	type AnySchemaField,
-	type RelationSchemaField
+	type AnyCollectionField,
+	type RelationCollectionField
 } from '@/pocketbase/collections-models';
 import { camelCase } from 'lodash';
 import { capitalize } from 'effect/String';
@@ -32,6 +32,8 @@ import type {z} from 'zod'
 
 /* Functions */
 
+class UnhandledFieldTypeError extends Error {}
+
 main();
 
 async function main() {
@@ -47,7 +49,10 @@ async function main() {
 	const zodIndexType = createIndexType(zodTypes, ZOD_RAW_SHAPE, true);
 
 	const relatedCollectionTypes = sortedCollections.map(createCollectionRelatedCollections);
-	const relatedCollectionsIndexType = createIndexType(relatedCollectionTypes, RELATED_COLLECTIONS);
+	const relatedCollectionsIndexType = createIndexType(
+		relatedCollectionTypes,
+		RELATED_COLLECTIONS
+	);
 
 	const code = [
 		IMPORT_STATEMENTS,
@@ -77,7 +82,9 @@ function createCollectionFormDataType(model: AnyCollectionModel): GeneratedColle
 	const collectionName = model.name;
 	const typeName = capitalize(camelCase(model.name)) + FORM_DATA;
 
-	const fields = model.schema.map((f) => {
+	const modelFields = model.fields as AnyCollectionField[];
+
+	const fields = modelFields.map((f) => {
 		let type: string;
 		if (f.type == 'number') type = 'number';
 		else if (f.type == 'bool') type = 'boolean';
@@ -89,11 +96,14 @@ function createCollectionFormDataType(model: AnyCollectionModel): GeneratedColle
 		else if (f.type == 'relation') type = 'string';
 		else if (f.type == 'text') type = 'string';
 		else if (f.type == 'url') type = 'string';
-		else if (f.type == 'select' && f.options.values)
-			type = f.options.values.map((v) => `"${v}"`).join(' | ');
+		else if (f.type == 'select') type = f.values.map((v) => `"${v}"`).join(' | ');
+		else if (f.type == 'autodate') type = 'string';
+		else if (f.type == 'password') type = 'string';
 		else throw new UnhandledFieldTypeError();
+
 		if (isArrayField(f)) type = `(${type})[]`;
 		const optionalQuestionMark = f.required ? '' : '?';
+
 		return `"${f.name}"${optionalQuestionMark} : ${type}`;
 	});
 
@@ -109,8 +119,9 @@ function createCollectionFormDataType(model: AnyCollectionModel): GeneratedColle
 function createCollectionZodRawType(model: AnyCollectionModel): GeneratedCollectionTypeData {
 	const collectionName = model.name;
 	const typeName = capitalize(camelCase(model.name)) + ZOD_RAW_SHAPE;
+	const modelFields = model.fields as AnyCollectionField[];
 
-	const fields = model.schema.map((f) => {
+	const fields = modelFields.map((f) => {
 		let type: string;
 		if (f.type == 'number') type = 'z.ZodNumber';
 		else if (f.type == 'bool') type = 'z.ZodBoolean';
@@ -120,12 +131,16 @@ function createCollectionZodRawType(model: AnyCollectionModel): GeneratedCollect
 		else if (f.type == 'file') type = 'z.ZodType<File>';
 		else if (f.type == 'json') type = 'z.ZodUnknown';
 		else if (f.type == 'relation') type = 'z.ZodString';
-		else if (f.type == 'select') type = `z.ZodEnum<${JSON.stringify(f.options.values)}>`;
+		else if (f.type == 'select') type = `z.ZodEnum<${JSON.stringify(f.values)}>`;
 		else if (f.type == 'text') type = 'z.ZodString';
 		else if (f.type == 'url') type = 'z.ZodString';
+		else if (f.type == 'autodate') type = 'z.ZodString';
+		else if (f.type == 'password') type = 'z.ZodString';
 		else throw new UnhandledFieldTypeError();
+
 		if (isArrayField(f)) type = `z.ZodArray<${type}>`;
 		if (!f.required) type = `z.ZodOptional<${type}>`;
+
 		return `"${f.name}" : ${type}`;
 	});
 
@@ -157,29 +172,31 @@ function createCollectionExpand(model: AnyCollectionModel): GeneratedCollectionT
 }
 
 function createCollectionExpandItems(model: AnyCollectionModel): string[] {
-	return model.schema
+	return model.fields
 		.filter((field) => field.type == 'relation')
 		.map((field) => {
-			const model = CollectionsModels.find((m) => m.id == field.options.collectionId);
+			const model = CollectionsModels.find((m) => m.id == field.collectionId);
 			assert(model, 'Missing model');
 			const optionalQuestionMark = field.required ? '' : '?';
-			const optionalArray = field.options.maxSelect == 1 ? '' : '[]';
+			//
+			const optionalArray = field.maxSelect == 1 ? '' : '[]';
+			// @ts-check
 			return `${field.name}${optionalQuestionMark} : (${COLLECTION_RESPONSES}["${model.name}"])${optionalArray}`;
 		});
 }
 
 function createCollectionInverseExpandItems(model: AnyCollectionModel): string[] {
-	function isInverseRelationField(field: AnySchemaField): field is RelationSchemaField {
-		return field.type == 'relation' && field.options.collectionId == model.id;
+	function isInverseRelationField(field: AnyCollectionField): field is RelationCollectionField {
+		return field.type == 'relation' && field.collectionId == model.id;
 	}
 
 	const inverseRelatedCollections = CollectionsModels.filter((c) =>
-		c.schema.some(isInverseRelationField)
+		c.fields.some((f) => isInverseRelationField(f as AnyCollectionField))
 	);
 
 	return inverseRelatedCollections.flatMap((c) =>
-		c.schema
-			.filter(isInverseRelationField)
+		c.fields
+			.filter((f) => isInverseRelationField(f as AnyCollectionField))
 			.map((f) => `${c.name}_via_${f.name}?: ${COLLECTION_RESPONSES}["${c.name}"][]`)
 	);
 }
@@ -192,11 +209,10 @@ function createCollectionRelatedCollections(
 	const collectionName = model.name;
 	const typeName = capitalize(camelCase(model.name)) + RELATED_COLLECTIONS;
 
-	const relatedCollections = model.schema
+	const relatedCollections = model.fields
 		.filter((field) => field.type == 'relation')
 		.map((field) => {
-			const options = field.options;
-			const model = CollectionsModels.find((m) => m.id == options.collectionId);
+			const model = CollectionsModels.find((m) => m.id == field.collectionId);
 			assert(model, 'missing model');
 			return `${field.name} : "${model.name}"`;
 		});
@@ -220,8 +236,6 @@ function createIndexType(data: GeneratedCollectionTypeData[], category: string, 
 }
 
 //
-
-class UnhandledFieldTypeError extends Error {}
 
 type GeneratedCollectionTypeData = {
 	code: string;

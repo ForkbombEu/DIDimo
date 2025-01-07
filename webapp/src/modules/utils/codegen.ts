@@ -19,7 +19,7 @@ export async function initAdminPocketbase() {
 	assert(PUBLIC_POCKETBASE_URL);
 
 	const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
-	await pb.admins.authWithPassword(PB_ADMIN_USER, PB_ADMIN_PASS);
+	await pb.collection('_superusers').authWithPassword(PB_ADMIN_USER, PB_ADMIN_PASS);
 	return pb;
 }
 
