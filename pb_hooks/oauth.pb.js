@@ -4,7 +4,7 @@
 /** @typedef {import('./utils.js')} Utils */
 
 /* Updating user info on first register */
-onRecordAfterAuthWithOAuth2Request((e) => {
+onRecordAuthWithOAuth2Request((e) => {
     if (!e.isNewRecord) return;
 
     /** @type {Utils} */
@@ -16,5 +16,5 @@ onRecordAfterAuthWithOAuth2Request((e) => {
 
     user.set("name", oAuth2User.name);
     user.markAsNotNew();
-    $app.dao().saveRecord(user);
+    $app.Save(user);
 }, "users");

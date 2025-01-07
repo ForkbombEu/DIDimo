@@ -2,22 +2,22 @@
 
 /** @typedef {import('./utils.js')} Utils */
 
-/** @param {echo.Context} c */
-function auditLogger(c) {
+/** @param {core.RequestEvent} e */
+function auditLogger(e) {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
     /** @type {unknown[]} */
-    const args = ["actorIp", c.realIP()];
+    const args = ["actorIp", e.realIP()];
 
-    if (utils.isAdminContext(c)) {
+    if (utils.isAdminContext(e)) {
         args.push("actorId", "ADMIN");
     } else {
         args.push(
             "actorId",
-            $apis.requestInfo(c).authRecord?.getId(),
+            e.auth?.id,
             "actorCollection",
-            $apis.requestInfo(c).authRecord?.collection().name
+            e.auth?.collection().name
         );
     }
 

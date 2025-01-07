@@ -14,43 +14,40 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
-	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/tools/mailer"
 	"golang.org/x/exp/slices"
 )
 
 func Register(app *pocketbase.PocketBase) error {
-	modelHandler := func(event string) func(e *core.ModelEvent) error {
-		return func(e *core.ModelEvent) error {
-			table := e.Model.TableName()
+	modelHandler := func(event string) func(e *core.RecordEvent) error {
+		return func(e *core.RecordEvent) error {
+			table := e.Record.TableName()
 			// we don't want to executeEventActions if the event is a system event (e.g. "_collections" changes)
-			if record, ok := e.Model.(*models.Record); ok {
-				executeEventActions(app, event, table, record)
+			if e.Record != nil {
+				executeEventActions(app, event, table, e.Record)
 			} else {
 				log.Println("Skipping executeEventActions for table:", table)
 			}
-			return nil
+			return e.Next()
 		}
 	}
-	app.OnBeforeServe().Add(func(e *core.ServeEvent) error {
-		app.OnModelAfterCreate().Add(modelHandler("insert"))
-		app.OnModelAfterUpdate().Add(modelHandler("update"))
-		app.OnModelAfterDelete().Add(modelHandler("delete"))
-		app.OnRecordAfterCreateRequest().Add(func(e *core.RecordCreateEvent) error {
-			return doAudit(app, "insert", e.Record, e.HttpContext)
+	app.OnServe().BindFunc(func(e *core.ServeEvent) error {
+		app.OnRecordAfterCreateSuccess().BindFunc(modelHandler("insert"))
+		app.OnRecordAfterUpdateSuccess().BindFunc(modelHandler("update"))
+		app.OnRecordAfterDeleteSuccess().BindFunc(modelHandler("delete"))
+		app.OnRecordCreateRequest().BindFunc(func(e *core.RecordRequestEvent) error {
+			return doAudit(app, "insert", e.Record, e.RequestEvent)
 		})
-		app.OnRecordAfterUpdateRequest().Add(func(e *core.RecordUpdateEvent) error {
-			return doAudit(app, "update", e.Record, e.HttpContext)
+		app.OnRecordUpdateRequest().BindFunc(func(e *core.RecordRequestEvent) error {
+			return doAudit(app, "update", e.Record, e.RequestEvent)
 		})
-		app.OnRecordAfterDeleteRequest().Add(func(e *core.RecordDeleteEvent) error {
-			return doAudit(app, "delete", e.Record, e.HttpContext)
+		app.OnRecordDeleteRequest().BindFunc(func(e *core.RecordRequestEvent) error {
+			return doAudit(app, "delete", e.Record, e.RequestEvent)
 		})
-		return nil
+		return e.Next()
 	})
 	return nil
 }
@@ -58,36 +55,29 @@ func Register(app *pocketbase.PocketBase) error {
 // collection names to be audit logged
 var collections = strings.Split(os.Getenv("AUDITLOG"), ",")
 
-func doAudit(app *pocketbase.PocketBase, event string, record *models.Record, ctx echo.Context) error {
+func doAudit(app *pocketbase.PocketBase, event string, record *core.Record, e *core.RequestEvent) error {
 	collection := record.Collection().Name
 	// exclude logging "auditlog" and include only what's in AUDITLOG env var
 	if collection != "auditlog" && slices.Contains(collections, collection) {
-		var user, admin string
-		if u, ok := ctx.Get(apis.ContextAdminKey).(*models.Admin); ok {
-			admin = u.Id
-		}
-		if u, ok := ctx.Get(apis.ContextAuthRecordKey).(*models.Record); ok {
-			user = u.Id
-		}
-		log.Printf("AuditLog:%s:%s:%s:%s:%s\n", collection, record.Id, event, user, admin)
-		target, err := app.Dao().FindCollectionByNameOrId("auditlog")
+		user := e.Auth.Id
+		log.Printf("AuditLog:%s:%s:%s:%s\n", collection, record.Id, event, user)
+		target, err := app.FindCollectionByNameOrId("auditlog")
 		if err != nil {
 			return err
 		}
-		auditlog := models.NewRecord(target)
+		auditlog := core.NewRecord(target)
 		auditlog.Set("collection", collection)
 		auditlog.Set("record", record.Id)
 		auditlog.Set("event", event)
 		auditlog.Set("user", user)
-		auditlog.Set("admin", admin)
 		auditlog.Set("data", record)
 
-		return app.Dao().SaveRecord(auditlog)
+		return app.Save(auditlog)
 	}
 	return nil
 }
 
-func executeEventActions(app *pocketbase.PocketBase, event string, table string, record *models.Record) {
+func executeEventActions(app *pocketbase.PocketBase, event string, table string, record *core.Record) {
 	// TODO: Load and cache this. Reload only on changes to "hooks" table
 	rows := []dbx.NullStringMap{}
 	app.DB().Select("action_type", "action", "action_params", "expands").
@@ -99,8 +89,8 @@ func executeEventActions(app *pocketbase.PocketBase, event string, table string,
 		action := row["action"].String
 		action_params := row["action_params"].String
 		expands := strings.Split(row["expands"].String, ",")
-		app.Dao().ExpandRecord(record, expands, func(c *models.Collection, ids []string) ([]*models.Record, error) {
-			return app.Dao().FindRecordsByIds(c.Name, ids, nil)
+		app.ExpandRecord(record, expands, func(c *core.Collection, ids []string) ([]*core.Record, error) {
+			return app.FindRecordsByIds(c.Name, ids, nil)
 		})
 		switch action_type {
 		case "sendmail":
@@ -115,13 +105,13 @@ func executeEventActions(app *pocketbase.PocketBase, event string, table string,
 	}
 }
 
-func executeEventAction(event, table, action_type, action, action_params string, record *models.Record) error {
+func executeEventAction(event, table, action_type, action, action_params string, record *core.Record) error {
 	log.Printf("event:%s, table: %s, action: %s\n", event, table, action)
 	switch action_type {
 	case "command":
 		return doCommand(action, action_params, record)
 	case "post":
-		return doPost(action, action_params, record)
+		return doPost(action, record)
 	case "restroom-mw":
 		return doRestroomMW(action, action_params, record)
 	default:
@@ -129,7 +119,7 @@ func executeEventAction(event, table, action_type, action, action_params string,
 	}
 }
 
-func doSendMail(app *pocketbase.PocketBase, action, action_params string, record *models.Record) error {
+func doSendMail(app *pocketbase.PocketBase, action, action_params string, record *core.Record) error {
 	params := struct {
 		Subject    string `json:"subject"`
 		OwnerField string `json:"ownerField"`
@@ -146,13 +136,13 @@ func doSendMail(app *pocketbase.PocketBase, action, action_params string, record
 	var emails []string
 	owner := record.Get(params.OwnerField)
 	if o, ok := owner.(string); ok {
-		userTo, err := app.Dao().FindRecordById("users", o)
+		userTo, err := app.FindRecordById("users", o)
 		if err != nil {
 			return err
 		}
 		emails = []string{userTo.Email()}
 	} else if os, ok := owner.([]string); ok {
-		records, err := app.Dao().FindRecordsByIds("users", os)
+		records, err := app.FindRecordsByIds("users", os)
 		if err != nil {
 			return err
 		}
@@ -189,7 +179,7 @@ func doSendMail(app *pocketbase.PocketBase, action, action_params string, record
 	return err
 }
 
-func doCommand(action, action_params string, record *models.Record) error {
+func doCommand(action, action_params string, record *core.Record) error {
 	cmd := exec.Command(action, action_params)
 	if w, err := cmd.StdinPipe(); err != nil {
 		return err
@@ -220,7 +210,7 @@ func doCommand(action, action_params string, record *models.Record) error {
 	return nil
 }
 
-func doPost(action, action_params string, record *models.Record) error {
+func doPost(action string, record *core.Record) error {
 	r, w := io.Pipe()
 	defer w.Close()
 	go func() {
@@ -237,7 +227,7 @@ func doPost(action, action_params string, record *models.Record) error {
 	return nil
 }
 
-func doRestroomMW(action, action_params string, record *models.Record) error {
+func doRestroomMW(action, action_params string, record *core.Record) error {
 	// Parse action params
 	params := struct {
 		Wrapper string `json:"wrapper"`
@@ -283,7 +273,7 @@ func doRestroomMW(action, action_params string, record *models.Record) error {
 
 	// Build request object
 	if params.Wrapper != "" {
-		reqObj = map[string]models.Record{
+		reqObj = map[string]core.Record{
 			params.Wrapper: *record,
 		}
 	} else {

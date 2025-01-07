@@ -7,7 +7,7 @@ onRecordViewRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e.httpContext)) return;
+    if (utils.isAdminContext(e)) return;
 
     e.record?.set("envVariables", null);
 }, "features");
@@ -16,7 +16,7 @@ onRecordsListRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e.httpContext)) return;
+    if (utils.isAdminContext(e)) return;
 
     e.records.forEach((r) => {
         r?.set("envVariables", null);

@@ -23,7 +23,7 @@ export function createDefaultRecordPresenter<C extends CollectionName, R = Colle
 	collection: C
 ): RecordPresenter<R> {
 	const fields = getCollectionModel(collection)
-		.schema.filter((field) => field.type == 'text')
+		.fields.filter((field) => field.type == 'text')
 		.map((field) => field.name) as (keyof R)[];
 
 	return (record) => {
@@ -39,7 +39,9 @@ export function createRecordDisplay<R extends ValueOf<CollectionResponses>>(
 	if (displayFields) return createRecordDisplayFromFields(record, displayFields);
 	else if (displayFn) return displayFn(record);
 	else {
-		const presenter = createDefaultRecordPresenter(getCollectionNameFromId(record.collectionId));
+		const presenter = createDefaultRecordPresenter(
+			getCollectionNameFromId(record.collectionId)
+		);
 		return presenter(record);
 	}
 }

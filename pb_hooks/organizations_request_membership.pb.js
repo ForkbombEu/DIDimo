@@ -12,14 +12,14 @@
 
 /* Base hooks */
 
-onRecordBeforeCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     e.record?.set("status", "pending");
     e.record?.set("reminders", 0);
 }, "orgJoinRequests");
 
 // Cannot create join request if user is already member
 
-onRecordBeforeCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -39,7 +39,7 @@ onRecordBeforeCreateRequest((e) => {
 
 // Create orgAuthorization after accepting membership request
 
-onRecordAfterUpdateRequest((e) => {
+onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -48,9 +48,7 @@ onRecordAfterUpdateRequest((e) => {
     const status = e.record.get("status");
     if (status != "accepted") return;
 
-    const orgAuthorizationsCollection = $app
-        .dao()
-        .findCollectionByNameOrId("orgAuthorizations");
+    const orgAuthorizationsCollection = $app.findCollectionByNameOrId("orgAuthorizations");
     if (!orgAuthorizationsCollection)
         throw utils.createMissingDataError("orgAuthorizationsCollection");
 
@@ -58,7 +56,7 @@ onRecordAfterUpdateRequest((e) => {
     const userId = e.record.get("user");
 
     const memberRole = utils.getRoleByName("member");
-    const roleId = memberRole?.getId();
+    const roleId = memberRole?.id;
 
     const record = new Record(orgAuthorizationsCollection, {
         user: userId,
@@ -66,12 +64,12 @@ onRecordAfterUpdateRequest((e) => {
         role: roleId,
     });
 
-    $app.dao().saveRecord(record);
+    $app.saveRecord(record);
 }, "orgJoinRequests");
 
 /* Email hooks - Notifications to Admins */
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -83,7 +81,7 @@ onRecordAfterCreateRequest((e) => {
     const user = utils.getExpanded(e.record, "user");
     if (!user) throw utils.createMissingDataError("user of orgJoinRequest");
 
-    const organizationId = organization.getId();
+    const organizationId = organization.id;
     const recipients = utils.getOrganizationAdminsAddresses(organizationId);
 
     for (const adminAddress of recipients) {
@@ -121,13 +119,13 @@ cronAdd("remind admins about join requests", "0 9 * * 1", () => {
             requests: utils
                 .findRecordsByFilter(
                     "orgJoinRequests",
-                    `organization.id = "${organization.getId()}"`
+                    `organization.id = "${organization.id}"`
                 )
                 .filter((r) => r.get("status") == "pending"),
         }))
         .filter(({ requests }) => requests.length > 0)
         .forEach(({ organization, requests }) => {
-            const organizationId = organization.getId();
+            const organizationId = organization.id;
             const OrganizationName = organization.get("name");
 
             const recipients =
@@ -156,7 +154,7 @@ cronAdd("remind admins about join requests", "0 9 * * 1", () => {
 
 /* Email hooks - Notifications to Users */
 
-onRecordAfterUpdateRequest((e) => {
+onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -188,7 +186,7 @@ onRecordAfterUpdateRequest((e) => {
     const successEmail = utils.renderEmail("membership-request-accepted", {
         OrganizationName,
         UserName: userAddress.name,
-        DashboardLink: utils.getOrganizationPageUrl(organization.getId()),
+        DashboardLink: utils.getOrganizationPageUrl(organization.id),
         AppName: utils.getAppName(),
     });
 
@@ -206,52 +204,52 @@ onRecordAfterUpdateRequest((e) => {
 
 /* Audit logs */
 
-onRecordAfterCreateRequest((e) => {
+onRecordCreateRequest((e) => {
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Created membership request",
         "organizationId",
         e.record?.get("organization"),
         "requestId",
-        e.record?.getId()
+        e.record?.id
     );
 }, "orgJoinRequests");
 
-onRecordAfterUpdateRequest((e) => {
+onRecordUpdateRequest((e) => {
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Updated membership request",
         "organizationId",
         e.record?.get("organization"),
         "status",
         e.record?.get("status"),
         "requestId",
-        e.record?.getId()
+        e.record?.id
     );
 }, "orgJoinRequests");
 
-onRecordAfterDeleteRequest((e) => {
+onRecordDeleteRequest((e) => {
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    auditLogger(e.httpContext).info(
+    auditLogger(e).info(
         "Deleted membership request",
         "organizationId",
         e.record?.get("organization"),
         "status",
         e.record?.get("status"),
         "requestId",
-        e.record?.getId()
+        e.record?.id
     );
 }, "orgJoinRequests");
 
 /* IMPORTANT: This hook must be registered last */
 
-onRecordAfterUpdateRequest((e) => {
+onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -263,5 +261,5 @@ onRecordAfterUpdateRequest((e) => {
     const isRelevantChange = status == "accepted" || status == "rejected";
     if (!isRelevantChange) return;
 
-    $app.dao().deleteRecord(e.record);
+    $app.Delete(e.record);
 }, "orgJoinRequests");

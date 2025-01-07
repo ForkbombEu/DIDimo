@@ -119,7 +119,7 @@ func fetchURL(env string) (*url.URL, error) {
 func fetchDict(env string) (map[string]interface{}, error) {
 	rawDecodedDict, err := base64.StdEncoding.DecodeString(env)
 	if err != nil {
-		return nil, fmt.Errorf("%q is malformed: %w", err)
+		return nil, fmt.Errorf("%q is malformed: %w", env, err)
 	}
 
 	var body map[string]interface{}
@@ -130,9 +130,8 @@ func fetchDict(env string) (map[string]interface{}, error) {
 
 func newConfig(app core.App, feature string) (map[string]string, error) {
 	var envConfig map[string]string
-	record, err := app.Dao().
-		FindFirstRecordByData("features", "name", feature)
-	envString, err := record.Get("envVariables").(types.JsonRaw).MarshalJSON()
+	record, err := app.FindFirstRecordByData("features", "name", feature)
+	envString, err := record.Get("envVariables").(types.JSONRaw).MarshalJSON()
 	if err != nil {
 		return envConfig, err
 	}

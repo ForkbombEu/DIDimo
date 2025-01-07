@@ -10,7 +10,7 @@ import {
 	logCodegenResult,
 	SEPARATOR
 } from '@/utils/codegen';
-import { pipe, Array as A, String, Record } from 'effect';
+import { pipe, Array as A, Record } from 'effect';
 import { capitalize, merge } from 'lodash';
 import JsonToTS from 'json-to-ts';
 
@@ -21,10 +21,10 @@ const models = await pb.collections.getFullList();
 
 /* Codegen */
 
-const SCHEMA_FIELD = `SchemaField`;
+const COLLECTION_FIELD = `CollectionField`;
 const COLLECTION_MODEL = `CollectionModel`;
 const IMPORT_STATEMENTS = `
-import type { ${SCHEMA_FIELD}, ${COLLECTION_MODEL} } from 'pocketbase'
+import type { ${COLLECTION_MODEL} } from 'pocketbase'
 import type { SetFieldType, Simplify } from 'type-fest';
 `;
 
@@ -36,10 +36,12 @@ const schemaFieldOptionsTypesData = schemaFieldTypes.map((f) =>
 const schemaFields = `export type SchemaFields = {
     ${schemaFieldOptionsTypesData.map(({ name, key }) => `${key}: ${name}`).join('\n')}
 }`;
-const anySchemaField = `export type AnySchemaField = ${schemaFieldOptionsTypesData.map(({ name }) => name).join(' | ')}`;
+
+const ANY_COLLECTION_FIELD = `Any${COLLECTION_FIELD}`;
+const anySchemaField = `export type ${ANY_COLLECTION_FIELD} = ${schemaFieldOptionsTypesData.map(({ name }) => name).join(' | ')}`;
 
 const ANY_COLLECTION_MODEL = `AnyCollectionModel`;
-const anyCollectionModel = `export type ${ANY_COLLECTION_MODEL} = Simplify<SetFieldType<${COLLECTION_MODEL}, 'schema', AnySchemaField[]>>;`;
+const anyCollectionModel = `export type ${ANY_COLLECTION_MODEL} = Simplify<SetFieldType<${COLLECTION_MODEL}, 'schema', ${ANY_COLLECTION_FIELD}[]>>;`;
 
 const code = [
 	IMPORT_STATEMENTS,
@@ -84,7 +86,7 @@ function collectionName(models: CollectionModel[]): string {
 
 function getFieldTypeNames(models: CollectionModel[]) {
 	return pipe(
-		models.flatMap((model) => model.schema),
+		models.flatMap((model) => model.fields),
 		A.map((field) => field.type),
 		A.dedupe
 	);
@@ -94,25 +96,21 @@ function createFieldOptionsTypeData(
 	fieldType: string,
 	models: CollectionModel[]
 ): GeneratedTypeData {
-	const typeName = capitalize(fieldType) + SCHEMA_FIELD;
+	const typeName = capitalize(fieldType) + COLLECTION_FIELD;
 	return pipe(
-		models
-			.flatMap((m) => m.schema)
-			.filter((f) => f.type == fieldType)
-			.map((f) => f.options),
+		models.flatMap((m) => m.fields).filter((f) => f.type == fieldType),
 		// merging data in a single object
-		(fieldsSchemas) => merge({}, ...fieldsSchemas),
+		// somehow `required` is not present on some sytem fields, we add it here
+		(fieldsSchemas) => merge({ required: false }, ...fieldsSchemas),
 		// converting to ts
-		(data) => JsonToTS(data, { useTypeAlias: true })[0],
+		(data) => JsonToTS(data, { useTypeAlias: true, rootName: typeName })[0],
 		//
 		(code) => {
-			const typeOnly = code.split('=')[1].trim();
-			const removeEmptyObject = typeOnly == `{\n}` ? 'Record<string,never>' : typeOnly;
-			const newCode = `export type ${typeName} = ${SCHEMA_FIELD} & { type: "${fieldType}"; options: Partial<${removeEmptyObject}>; unique: boolean }`;
-			return newCode;
+			const newCode = code
+				.replace('type: string;', `type: "${fieldType}";`)
+				.replace('any[]', 'string[]');
+			return `export ${newCode}`;
 		},
-		// small fix
-		String.replace('any[]', 'string[]'),
 		//
 		(code) => ({
 			code,
@@ -127,3 +125,10 @@ type GeneratedTypeData = {
 	name: string;
 	key: string;
 };
+
+//
+
+export function pipeLog<T>(data: T): T {
+	console.log(data);
+	return data;
+}
