@@ -15,10 +15,12 @@ import (
 	"github.com/forkbombeu/didimo/pocketbase/webauthn"
 	"github.com/forkbombeu/didimo/pocketbase/zencode"
 
+	"github.com/labstack/echo/v5"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/models"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 )
