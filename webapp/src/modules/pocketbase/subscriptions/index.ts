@@ -59,7 +59,7 @@ function getRelatedCollectionsFromExpandOption<C extends CollectionName>(
 		.filter((expandItem) => !expandItem.includes(INVERSE_RELATION_KEY))
 		.map((expandItem) => {
 			const relationField = getCollectionModel(collection)
-				.schema.filter((field) => field.type == 'relation')
+				.fields.filter((field) => field.type == 'relation')
 				.find((field) => field.name == expandItem);
 
 			if (!relationField) throw new Error('relation_field_not_found');

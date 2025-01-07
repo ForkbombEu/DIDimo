@@ -81,9 +81,17 @@ export class PocketbaseQuery<C extends CollectionName, E extends ExpandQueryOpti
 	get searchFilter(): Option.Option<string> {
 		return Option.fromNullable(this.options.search).pipe(
 			Option.map((searchText) => {
-				const allowedFieldTypes: SchemaFieldType[] = ['text', 'editor', 'select', 'email', 'url'];
+				const allowedFieldTypes: SchemaFieldType[] = [
+					'text',
+					'editor',
+					'select',
+					'email',
+					'url'
+				];
 				const fieldNames = getCollectionModel(this.collection)
-					.schema.filter((field) => allowedFieldTypes.includes(field.type))
+					.fields.filter((field) =>
+						allowedFieldTypes.includes(field.type as SchemaFieldType)
+					)
 					.map((field) => field.name);
 				if (this.collection == 'users') fieldNames.push('email');
 				return fieldNames.map((f) => `${f} ~ "${searchText}"`).join(' || ');
@@ -112,7 +120,9 @@ export class PocketbaseQuery<C extends CollectionName, E extends ExpandQueryOpti
 	}
 
 	get expandPbOption(): Option.Option<string> {
-		return Option.fromNullable(this.options.expand).pipe(Option.map((expand) => expand.join(', ')));
+		return Option.fromNullable(this.options.expand).pipe(
+			Option.map((expand) => expand.join(', '))
+		);
 	}
 
 	get sortPbOption(): string {
@@ -143,7 +153,9 @@ export class PocketbaseQuery<C extends CollectionName, E extends ExpandQueryOpti
 
 	getList(currentPage: number): Promise<ListResult<QueryResponse<C, E>>> {
 		const { perPage } = this.options;
-		return pb.collection(this.collection).getList(currentPage, perPage, this.pocketbaseListOptions);
+		return pb
+			.collection(this.collection)
+			.getList(currentPage, perPage, this.pocketbaseListOptions);
 	}
 
 	// Utils
