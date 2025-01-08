@@ -7,7 +7,7 @@ import {
 	type AnyCollectionField,
 	type CollectionName
 } from '@/pocketbase/collections-models';
-import type { CollectionZodRawShapes } from '../types';
+import { systemFields, type CollectionZodRawShapes } from '../types';
 
 //
 
@@ -16,10 +16,13 @@ export type CollectionZodSchema<C extends CollectionName> = z.ZodObject<Collecti
 export function createCollectionZodSchema<C extends CollectionName>(
 	collection: C
 ): CollectionZodSchema<C> {
-	const { schema } = getCollectionModel(collection);
-	const schemaFields = schema as AnyCollectionField[];
+	const { fields } = getCollectionModel(collection);
+	const collectionFields = (fields as AnyCollectionField[]).filter(
+		(f) => !(systemFields as unknown as string[]).includes(f.name)
+	);
+	console.log(collectionFields);
 
-	const entries = schemaFields.map((fieldConfig) => {
+	const entries = collectionFields.map((fieldConfig) => {
 		const zodTypeConstructor = schemaFieldToZodTypeMap[fieldConfig.type] as (
 			c: AnyCollectionField
 		) => z.ZodTypeAny;

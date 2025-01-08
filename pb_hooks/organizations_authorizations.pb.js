@@ -3,8 +3,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 /** @typedef {import('./utils.js')} Utils */
 /** @typedef {import('./auditLogger.js')} AuditLogger */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgRolesResponse} OrgRole */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgRolesResponse} OrgRole */
 
 /**
  * INDEX
@@ -44,6 +44,8 @@ onRecordCreateRequest((e) => {
             utils.errors.cant_create_role_higher_than_or_equal_to_yours
         );
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 // [UPDATE] Cannot update to/from a role higher than the user
@@ -91,6 +93,8 @@ onRecordUpdateRequest((e) => {
         throw new ForbiddenError(
             utils.errors.cant_edit_role_higher_than_or_equal_to_yours
         );
+
+    e.next();
 }, "orgAuthorizations");
 
 // [DELETE] Cannot delete an authorization with a level higher than or equal to yours
@@ -122,6 +126,8 @@ onRecordDeleteRequest((e) => {
         throw new ForbiddenError(
             utils.errors.cant_delete_role_higher_than_or_equal_to_yours
         );
+
+    e.next();
 }, "orgAuthorizations");
 
 // [DELETE] Cannot delete last owner role
@@ -135,6 +141,8 @@ onRecordDeleteRequest((e) => {
     if (e.record && utils.isLastOwnerAuthorization(e.record)) {
         throw new BadRequestError(utils.errors.cant_edit_last_owner_role);
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 // [UPDATE] Cannot edit last owner role
@@ -152,11 +160,15 @@ onRecordUpdateRequest((e) => {
     if (originalRecord && utils.isLastOwnerAuthorization(originalRecord)) {
         throw new BadRequestError(utils.errors.cant_delete_last_owner_role);
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 /* Audit + Email hooks */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -187,6 +199,8 @@ onRecordCreateRequest((e) => {
 }, "orgAuthorizations");
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -250,6 +264,8 @@ onRecordUpdateRequest((e) => {
 }, "orgAuthorizations");
 
 onRecordDeleteRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 

@@ -5,6 +5,8 @@
 
 /* Updating user info on first register */
 onRecordAuthWithOAuth2Request((e) => {
+    e.next();
+
     if (!e.isNewRecord) return;
 
     /** @type {Utils} */

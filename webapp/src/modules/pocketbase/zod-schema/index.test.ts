@@ -77,7 +77,7 @@ describe('generated collection zod schema', () => {
 		(schemaField) => schemaField.type == 'json'
 	);
 	if (!jsonField) throw new Error('field not found');
-	const { maxSize: jsonMaxSize } = jsonField.options;
+	const { maxSize: jsonMaxSize } = jsonField;
 	if (!jsonMaxSize) throw new Error('missing json max size');
 
 	it('fails the json size check with a large JSON object', () => {
@@ -92,7 +92,7 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('passes the json size check with a small JSON object', () => {
-		const jsonMaxSize = getCollectionModel('z_test_collection').fields[12].options.maxSize;
+		const jsonMaxSize = getCollectionModel('z_test_collection').fields[12].maxSize;
 		const jsonObject = generateLargeJSONObject(jsonMaxSize * 0.5);
 		const data: ZTestFormData = {
 			...baseData,
@@ -108,7 +108,7 @@ describe('generated collection zod schema', () => {
 		(schemaField) => schemaField.type == 'date'
 	);
 	if (!dateField) throw new Error('field not found');
-	const { max: maxDate, min: minDate } = dateField.options;
+	const { max: maxDate, min: minDate } = dateField;
 	if (!maxDate || !minDate) throw new Error('missing min and max date');
 
 	it('fails the date check with a date earlier than minimum', () => {

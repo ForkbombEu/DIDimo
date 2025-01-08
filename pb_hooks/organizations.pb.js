@@ -75,6 +75,8 @@ routerAdd("POST", "/organizations/verify-user-role", (e) => {
 // On Organization Create – Creating owner authorization
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
     /** @type {AuditLogger} */
@@ -115,6 +117,8 @@ onRecordCreateRequest((e) => {
 //  Log organization creation
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -132,6 +136,8 @@ onRecordCreateRequest((e) => {
 // Send email after organization creation
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 

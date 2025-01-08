@@ -10,6 +10,8 @@ onRecordViewRequest((e) => {
     if (utils.isAdminContext(e)) return;
 
     e.record?.set("envVariables", null);
+
+    e.next();
 }, "features");
 
 onRecordsListRequest((e) => {
@@ -21,4 +23,6 @@ onRecordsListRequest((e) => {
     e.records.forEach((r) => {
         r?.set("envVariables", null);
     });
+
+    e.next();
 }, "features");

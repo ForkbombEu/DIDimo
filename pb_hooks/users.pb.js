@@ -24,6 +24,8 @@ onMailerRecordPasswordResetSend((e) => {
 
     e.message.html = emailData.html;
     e.message.subject = emailData.subject;
+
+    e.next();
 }, "users");
 
 onMailerRecordVerificationSend((e) => {
@@ -47,9 +49,13 @@ onMailerRecordVerificationSend((e) => {
 
     e.message.html = emailData.html;
     e.message.subject = emailData.subject;
+
+    e.next();
 }, "users");
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 

@@ -15,6 +15,8 @@
 onRecordCreateRequest((e) => {
     e.record?.set("status", "pending");
     e.record?.set("reminders", 0);
+
+    e.next();
 }, "orgJoinRequests");
 
 // Cannot create join request if user is already member
@@ -35,11 +37,15 @@ onRecordCreateRequest((e) => {
 
     if (authorization)
         throw new BadRequestError(utils.errors.user_is_already_member);
+
+    e.next();
 }, "orgJoinRequests");
 
 // Create orgAuthorization after accepting membership request
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -48,7 +54,8 @@ onRecordUpdateRequest((e) => {
     const status = e.record.get("status");
     if (status != "accepted") return;
 
-    const orgAuthorizationsCollection = $app.findCollectionByNameOrId("orgAuthorizations");
+    const orgAuthorizationsCollection =
+        $app.findCollectionByNameOrId("orgAuthorizations");
     if (!orgAuthorizationsCollection)
         throw utils.createMissingDataError("orgAuthorizationsCollection");
 
@@ -70,6 +77,8 @@ onRecordUpdateRequest((e) => {
 /* Email hooks - Notifications to Admins */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -155,6 +164,8 @@ cronAdd("remind admins about join requests", "0 9 * * 1", () => {
 /* Email hooks - Notifications to Users */
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -205,6 +216,8 @@ onRecordUpdateRequest((e) => {
 /* Audit logs */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -218,6 +231,8 @@ onRecordCreateRequest((e) => {
 }, "orgJoinRequests");
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -233,6 +248,8 @@ onRecordUpdateRequest((e) => {
 }, "orgJoinRequests");
 
 onRecordDeleteRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
@@ -250,6 +267,8 @@ onRecordDeleteRequest((e) => {
 /* IMPORTANT: This hook must be registered last */
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 

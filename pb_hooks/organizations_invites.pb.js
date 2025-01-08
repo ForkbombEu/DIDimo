@@ -13,6 +13,8 @@
 /* Hooks */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -41,7 +43,8 @@ routerAdd("POST", "/organizations/invites/accept", (c) => {
 
     /* -- Logic -- */
 
-    const orgAuthorizationsCollection = $app.findCollectionByNameOrId("orgAuthorizations");
+    const orgAuthorizationsCollection =
+        $app.findCollectionByNameOrId("orgAuthorizations");
 
     const organizationId = invite.get("organization");
 
@@ -221,6 +224,8 @@ routerAdd("POST", "/organizations/invite", (c) => {
 /* */
 
 onRecordDeleteRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
