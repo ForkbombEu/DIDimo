@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { pb } from '@/pocketbase';
 	import { createCollectionZodSchema } from '@/pocketbase/zod-schema';
-	import type { CollectionFormData } from '@/pocketbase/types';
+	import type { CollectionFormData, Data } from '@/pocketbase/types';
 	import z from 'zod';
 	import { createDummyFile } from '@/utils/other';
 
@@ -19,7 +19,7 @@
 	const res = pb.collection('z_test_collection').getFullList();
 
 	async function routine() {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: Data<CollectionFormData['z_test_collection']> = {
 			file_field: createDummyFile(),
 			richtext_field: 'AO',
 			text_field: 'Miao',

@@ -1,5 +1,5 @@
 <script lang="ts" generics="C extends CollectionName">
-	import type { SchemaField } from 'pocketbase';
+	import type { CollectionField } from 'pocketbase';
 	import { capitalize } from '@/utils/other';
 	import { getCollectionModel } from '@/pocketbase/collections-models';
 	import type { CollectionName } from '@/pocketbase/collections-models';
@@ -8,7 +8,9 @@
 	import { m } from '@/i18n';
 	import { Form } from '@/forms';
 	import { setupCollectionForm } from './collectionFormSetup';
-	import CollectionFormField, { type CollectionFormFieldProps } from './collectionFormField.svelte';
+	import CollectionFormField, {
+		type CollectionFormFieldProps
+	} from './collectionFormField.svelte';
 	import {
 		type CollectionFormMode,
 		type CollectionFormProps,
@@ -51,12 +53,12 @@
 
 	const fieldsConfigs = $derived(
 		getCollectionModel(collection)
-			.schema.sort(createFieldConfigSorter(fieldsOrder))
+			.fields.sort(createFieldConfigSorter(fieldsOrder))
 			.filter((config) => !excludeFields.includes(config.name))
 	);
 
 	function createFieldConfigSorter(order: string[] = []) {
-		return (a: SchemaField, b: SchemaField) => {
+		return (a: CollectionField, b: CollectionField) => {
 			const aIndex = order.indexOf(a.name);
 			const bIndex = order.indexOf(b.name);
 			if (aIndex === -1 && bIndex === -1) {

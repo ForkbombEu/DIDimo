@@ -4,7 +4,7 @@ import { schemaFieldToZodTypeMap } from './config';
 import {
 	getCollectionModel,
 	isArrayField,
-	type AnySchemaField,
+	type AnyCollectionField,
 	type CollectionName
 } from '@/pocketbase/collections-models';
 import type { CollectionZodRawShapes } from '../types';
@@ -17,11 +17,11 @@ export function createCollectionZodSchema<C extends CollectionName>(
 	collection: C
 ): CollectionZodSchema<C> {
 	const { schema } = getCollectionModel(collection);
-	const schemaFields = schema as AnySchemaField[];
+	const schemaFields = schema as AnyCollectionField[];
 
 	const entries = schemaFields.map((fieldConfig) => {
 		const zodTypeConstructor = schemaFieldToZodTypeMap[fieldConfig.type] as (
-			c: AnySchemaField
+			c: AnyCollectionField
 		) => z.ZodTypeAny;
 
 		const zodType = pipe(
@@ -36,7 +36,7 @@ export function createCollectionZodSchema<C extends CollectionName>(
 							minSelect: z.number().nullish(),
 							maxSelect: z.number().nullish()
 						})
-						.parse(fieldConfig.options);
+						.parse(fieldConfig);
 					if (minSelect) s = s.min(minSelect);
 					if (maxSelect) s = s.max(maxSelect);
 					return s;

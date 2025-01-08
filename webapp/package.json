@@ -70,7 +70,7 @@
 		"prettier-plugin-tailwindcss": "^0.6.5",
 		"svelte": "^5.16.6",
 		"svelte-adapter-bun": "^0.5.2",
-		"svelte-check": "^4.0.0",
+		"svelte-check": "^4.1.1",
 		"svelte-sonner": "^0.3.28",
 		"sveltekit-superforms": "^2.22.1",
 		"tailwind-merge": "^2.5.4",
