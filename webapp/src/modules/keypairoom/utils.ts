@@ -1,16 +1,13 @@
 import { pb } from '@/pocketbase';
-import {
-	Collections,
-	type UsersPublicKeysRecord,
-	type UsersPublicKeysResponse
-} from '@/pocketbase/types';
+import { type Data, type UsersPublicKeysRecord } from '@/pocketbase/types';
 import _ from 'lodash';
 import type { Keypair } from './keypair';
 import { createSessionStorageHandlers } from '@/utils/sessionStorage';
+import { String } from 'effect';
 
-export type PublicKeys = Omit<UsersPublicKeysRecord, 'owner'>;
+export type PublicKeys = Omit<Data<UsersPublicKeysRecord>, 'owner'>;
 
-export function getPublicKeysFromKeypair(keypair: Keypair): PublicKeys {
+export function getPublicKeysFromKeypair(keypair: Keypair): Data<PublicKeys> {
 	const publicKeys = _.cloneDeep(keypair);
 	// @ts-expect-error Cannot use delete on required field
 	delete publicKeys.seed;
@@ -20,20 +17,21 @@ export function getPublicKeysFromKeypair(keypair: Keypair): PublicKeys {
 }
 
 export async function getUserPublicKeys(userId: string | undefined = undefined, fetchFn = fetch) {
-	const id = userId ?? pb.authStore.model?.id ?? '';
+	const id = userId ?? pb.authStore.record?.id ?? '';
+	if (String.isEmpty(id)) throw new Error('Missing user ID');
 	try {
 		return await pb
-			.collection(Collections.UsersPublicKeys)
-			.getFirstListItem<UsersPublicKeysResponse>(`owner.id = '${id}'`, { fetch: fetchFn });
-	} catch (e) {
+			.collection('users_public_keys')
+			.getFirstListItem(`owner.id = '${id}'`, { fetch: fetchFn });
+	} catch {
 		return undefined;
 	}
 }
 
-export async function saveUserPublicKeys(publicKeys: PublicKeys) {
-	const data: UsersPublicKeysRecord = {
+export async function saveUserPublicKeys(userId: string, publicKeys: PublicKeys) {
+	const data: Data<UsersPublicKeysRecord> = {
 		...publicKeys,
-		owner: pb.authStore.model?.id
+		owner: userId
 	};
 	await pb.collection('users_public_keys').create(data);
 }

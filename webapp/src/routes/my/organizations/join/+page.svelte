@@ -2,6 +2,7 @@
 	import { currentUser, pb } from '@/pocketbase/index.js';
 	import {
 		OrgJoinRequestsStatusOptions,
+		type Data,
 		type OrgJoinRequestsRecord,
 		type OrganizationsResponse
 	} from '@/pocketbase/types';
@@ -12,7 +13,6 @@
 	import SectionTitle from '@/components/ui-custom/sectionTitle.svelte';
 	import PageContent from '@/components/layout/pageContent.svelte';
 	import PageCard from '@/components/layout/pageCard.svelte';
-	import EmptyState from '@/components/ui-custom/emptyState.svelte';
 	import PlainCard from '@/components/ui-custom/itemCard.svelte';
 	import { CollectionManager } from '@/collections-components';
 	import Dialog from '@/components/ui-custom/dialog.svelte';
@@ -28,7 +28,7 @@
 			organization: org.id!,
 			status: OrgJoinRequestsStatusOptions.pending,
 			reminders: 0
-		} satisfies OrgJoinRequestsRecord);
+		} satisfies Data<OrgJoinRequestsRecord>);
 	}
 </script>
 
@@ -64,7 +64,8 @@
 			{#snippet records({ records })}
 				<div class="space-y-2">
 					{#each records as org}
-						{@const sentMembershipRequest = org.expand?.orgJoinRequests_via_organization?.at(0)}
+						{@const sentMembershipRequest =
+							org.expand?.orgJoinRequests_via_organization?.at(0)}
 
 						<PlainCard>
 							{#snippet left()}
@@ -96,19 +97,28 @@
 											{/snippet}
 
 											{#snippet content({ closeDialog })}
-												<T>{m.Please_confirm_that_you_want_to_join_this_organization_()}</T>
-												<div class="flex items-center justify-center gap-2 pt-4">
+												<T
+													>{m.Please_confirm_that_you_want_to_join_this_organization_()}</T
+												>
+												<div
+													class="flex items-center justify-center gap-2 pt-4"
+												>
 													<Button variant="outline" onclick={closeDialog}>
 														{m.Cancel()}
 													</Button>
-													<Button onclick={() => sendJoinRequest(org).then(closeDialog)}>
+													<Button
+														onclick={() =>
+															sendJoinRequest(org).then(closeDialog)}
+													>
 														{m.Send_join_request()}
 													</Button>
 												</div>
 											{/snippet}
 										</Dialog>
 									{:else}
-										<Button variant="outline" disabled>{m.Request_sent()}</Button>
+										<Button variant="outline" disabled
+											>{m.Request_sent()}</Button
+										>
 									{/if}
 								</div>
 							{/snippet}
