@@ -1621,6 +1621,19 @@
                 "type": "text"
             },
             {
+                "cascadeDelete": false,
+                "collectionId": "aako88kt3br4npt",
+                "hidden": false,
+                "id": "relation1542800728",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "field",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "relation"
+            },
+            {
                 "hidden": false,
                 "id": "autodate2990389176",
                 "name": "created",
