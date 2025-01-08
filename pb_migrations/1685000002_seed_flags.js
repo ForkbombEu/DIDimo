@@ -32,7 +32,7 @@ const flags = [
     {
         name: "webauthn",
         envVariables: {
-            DISPLAY_NAME: "{{cookiecutter.project_name}}",
+            DISPLAY_NAME: "DIDimo",
             RPID: "localhost",
             RPORIGINS: "http://localhost:5173",
         },
@@ -53,7 +53,7 @@ migrate((app) => {
                 new Record(featuresCollection, {
                     ...flag,
                     active: flag.active ?? true,
-                })
+                }),
         )
         .forEach((flagRecord) => app.save(flagRecord));
 });
