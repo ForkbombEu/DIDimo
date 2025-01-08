@@ -1,5 +1,5 @@
 migrate((app) => {
     const settings = app.settings();
-    settings.meta.appName = "{{cookiecutter.project_name}}";
+    settings.meta.appName = "DIDimo";
     app.save(settings);
 });

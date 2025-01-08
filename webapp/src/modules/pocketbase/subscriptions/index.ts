@@ -63,7 +63,7 @@ function getRelatedCollectionsFromExpandOption<C extends CollectionName>(
 				.find((field) => field.name == expandItem);
 
 			if (!relationField) throw new Error('relation_field_not_found');
-			return getCollectionNameFromId(relationField.options.collectionId!);
+			return getCollectionNameFromId(relationField.collectionId);
 		});
 
 	return [...inverseRelations, ...directRelations];
