@@ -92,18 +92,18 @@
 	);
 </script>
 
-<Form {form} {hideRequiredIndicator} submitButton={submitButtonArea} {submitButtonContent}>
+<Form {form} {hideRequiredIndicator} submitButton={submitButtonArea}>
 	{#each fields as field}
 		<CollectionFormField {...field} />
 	{/each}
-</Form>
 
-{#snippet submitButtonContent()}
-	{#if buttonContent}
-		{@render buttonContent()}
-	{:else if formMode == 'edit'}
-		{m.Edit_record()}
-	{:else if formMode == 'create'}
-		{m.Create_record()}
-	{/if}
-{/snippet}
+	{#snippet submitButtonContent()}
+		{#if buttonContent}
+			{@render buttonContent()}
+		{:else if formMode == 'edit'}
+			{m.Edit_record()}
+		{:else if formMode == 'create'}
+			{m.Create_record()}
+		{/if}
+	{/snippet}
+</Form>
