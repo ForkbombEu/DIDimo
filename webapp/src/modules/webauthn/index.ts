@@ -62,7 +62,8 @@ export async function loginUser(username: string) {
 		const clientDataJSON = resp.clientDataJSON;
 		const rawId = assertion.rawId;
 		const sig = resp.signature;
-		const userHandle = resp.userHandle || new Uint8Array();
+		const userHandle = resp.userHandle;
+		if (!userHandle) throw new Error('WEBAUTHN: Missing user handle');
 
 		const token = await pb.send('/api/webauthn/login/finish/' + username, {
 			body: {
@@ -97,7 +98,9 @@ export async function isPlatformAuthenticatorAvailable() {
 
 // Base64 to ArrayBuffer
 function bufferDecode(value: string) {
-	return Uint8Array.from(atob(value.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+	return Uint8Array.from(atob(value.replace(/-/g, '+').replace(/_/g, '/')), (c) =>
+		c.charCodeAt(0)
+	);
 }
 
 function bufferEncode(buffer: ArrayBuffer) {

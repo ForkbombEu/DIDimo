@@ -5,7 +5,7 @@
 	import type { ClientResponseError } from 'pocketbase';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { goto, m } from '@/i18n';
-	import type { UsersRecord } from '@/pocketbase/types';
+	import type { Data, UsersRecord } from '@/pocketbase/types';
 	import { nanoid } from 'nanoid';
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { Separator } from '@/components/ui/separator';
@@ -27,14 +27,14 @@
 		.collection('users')
 		.listAuthMethods()
 		.then((list) =>
-			list.authProviders.map((provider) => {
+			list.oauth2.providers.map((provider) => {
 				return {
 					displayName: provider.displayName,
 					image: `${PUBLIC_POCKETBASE_URL}_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
 					initializer: async () => {
 						loading = true;
 						try {
-							const createData: UsersRecord = { name: nanoid(5) };
+							const createData: Data<UsersRecord> = { name: nanoid(5) };
 							const authData = await pb.collection('users').authWithOAuth2({
 								provider: provider.name,
 								createData
