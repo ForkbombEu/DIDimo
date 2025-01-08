@@ -2,7 +2,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 /** @type {{name:string, envVariables?:Record<string,unknown>, active?:boolean}[]} */
-const features = [
+const flags = [
     {
         name: "keypairoom",
         envVariables: {
@@ -45,13 +45,15 @@ const features = [
 //
 
 migrate((app) => {
-    const featuresCollection = app.findCollectionByNameOrId("features");
+    const featuresCollection = app.findCollectionByNameOrId("flags");
 
-    features
-        .map((feature) => {
-            const record = new Record(featuresCollection);
-            record.set("name", feature.name);
-            return record;
-        })
-        .forEach((featureRecord) => app.save(featureRecord));
+    flags
+        .map(
+            (flag) =>
+                new Record(featuresCollection, {
+                    ...flag,
+                    active: flag.active ?? true,
+                })
+        )
+        .forEach((flagRecord) => app.save(flagRecord));
 });

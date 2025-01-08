@@ -209,10 +209,10 @@
             }
         ],
         "id": "z4cc0g76ciqx13v",
-        "indexes": ["CREATE UNIQUE INDEX `idx_T3xOIQy` ON `features` (`name`)"],
+        "indexes": ["CREATE UNIQUE INDEX `idx_T3xOIQy` ON `flags` (`name`)"],
         "listRule": "",
-        "name": "features",
-        "system": false,
+        "name": "flags",
+        "system": true,
         "type": "base",
         "updateRule": null,
         "viewRule": ""
