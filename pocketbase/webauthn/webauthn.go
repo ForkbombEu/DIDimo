@@ -91,7 +91,7 @@ func (u User) WebAuthnCredentials() []webauthn.Credential {
 }
 
 func NewWebAuthnFromEnv(app *pocketbase.PocketBase) (*webauthn.WebAuthn, error) {
-	record, err := app.FindFirstRecordByData("features", "name", "webauthn")
+	record, err := app.FindFirstRecordByData("flags", "name", "webauthn")
 	if err != nil {
 		return nil, err
 	}

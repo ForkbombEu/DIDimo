@@ -12,7 +12,7 @@ onRecordViewRequest((e) => {
     e.record?.set("envVariables", null);
 
     e.next();
-}, "features");
+}, "flags");
 
 onRecordsListRequest((e) => {
     /** @type {Utils} */
@@ -25,4 +25,4 @@ onRecordsListRequest((e) => {
     });
 
     e.next();
-}, "features");
+}, "flags");
