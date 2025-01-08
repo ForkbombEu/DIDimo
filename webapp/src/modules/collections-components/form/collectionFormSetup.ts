@@ -1,6 +1,6 @@
 import type {
 	CollectionName,
-	FileSchemaField,
+	FileCollectionField,
 	SchemaFields
 } from '@/pocketbase/collections-models';
 import { pipe, Record, String } from 'effect';
@@ -98,7 +98,9 @@ export function setupCollectionForm<C extends CollectionName>({
 
 				let record: CollectionResponses[C];
 				if (recordId) {
-					record = await pb.collection(collection).update<CollectionResponses[C]>(recordId, data);
+					record = await pb
+						.collection(collection)
+						.update<CollectionResponses[C]>(recordId, data);
 				} else {
 					record = await pb.collection(collection).create<CollectionResponses[C]>(data);
 				}
@@ -136,7 +138,7 @@ export function setupCollectionForm<C extends CollectionName>({
 
 	//
 
-	return form as SuperForm<CollectionFormData[C]>;
+	return form as unknown as SuperForm<CollectionFormData[C]>;
 }
 
 //
@@ -146,7 +148,7 @@ function removeExcessProperties<T extends GenericRecord>(
 	collectionModel: CollectionModel,
 	exclude: string[] = []
 ): Partial<T> {
-	const collectionFields = collectionModel.schema.map((f) => f.name);
+	const collectionFields = collectionModel.fields.map((f) => f.name);
 	return Record.filter(recordData, (v, k) => {
 		const isRecordField = collectionFields.includes(k);
 		const isNotExcluded = !exclude.includes(k);
@@ -177,9 +179,9 @@ function mockInitialDataFiles<C extends CollectionName>(
 	) as Partial<CollectionFormData[C]>;
 }
 
-function mockFile(filename: string, fileFieldConfig: FileSchemaField) {
+function mockFile(filename: string, fileFieldConfig: FileCollectionField) {
 	let fileOptions: FilePropertyBag | undefined = undefined;
-	const mimeTypes = fileFieldConfig.options.mimeTypes;
+	const mimeTypes = fileFieldConfig.mimeTypes;
 	if (Array.isArray(mimeTypes) && mimeTypes.length > 0) {
 		fileOptions = { type: mimeTypes[0] };
 	}
@@ -212,7 +214,7 @@ export function cleanFormDataFiles(
 		initialData,
 		Record.filter((_, fieldName) => {
 			return Boolean(
-				model.schema.find(
+				model.fields.find(
 					(fieldConfig) => fieldConfig.name == fieldName && fieldConfig.type == 'file'
 				)
 			);
@@ -236,7 +238,9 @@ export function cleanFormDataFiles(
 		else if (Array.isArray(newFieldValue) && newFieldValue.every((v) => v instanceof File)) {
 			const allFilenames = newFieldValue.map((file) => file.name);
 			const newFiles = newFieldValue.filter((file) => !initialFilenames.includes(file.name));
-			const filesToRemove = initialFilenames.filter((filename) => !allFilenames.includes(filename));
+			const filesToRemove = initialFilenames.filter(
+				(filename) => !allFilenames.includes(filename)
+			);
 
 			if (newFiles.length === 0) delete data[field];
 			else data[field] = newFiles;
@@ -261,7 +265,7 @@ function mapRecordDataByFieldType<T extends keyof SchemaFields>(
 	return pipe(
 		recordData,
 		Record.map((fieldValue, fieldName) => {
-			const fieldConfig = model.schema.find((field) => field.name == fieldName);
+			const fieldConfig = model.fields.find((field) => field.name == fieldName);
 			if (!fieldConfig) throw new FieldConfigNotFound();
 			if (fieldConfig.type != fieldType) return fieldValue;
 			return handler(fieldValue, fieldConfig as SchemaFields[T]);
