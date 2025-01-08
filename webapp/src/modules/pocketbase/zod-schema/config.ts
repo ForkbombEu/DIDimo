@@ -13,8 +13,8 @@ type SchemaFieldToZodTypeMap = {
 };
 
 export const schemaFieldToZodTypeMap: SchemaFieldToZodTypeMap = {
-	text: (config) => {
-		const { max, min, pattern } = config.options;
+	text: (field) => {
+		const { max, min, pattern } = field;
 		let s = z.string();
 		if (max) s = s.max(max);
 		if (min) s = s.min(min);
@@ -31,21 +31,25 @@ export const schemaFieldToZodTypeMap: SchemaFieldToZodTypeMap = {
 		return z.boolean();
 	},
 
-	email: ({ options }) => {
-		const { exceptDomains, onlyDomains } = options;
+	email: (field) => {
+		const { exceptDomains, onlyDomains } = field;
 		return pipe(z.string().email(), (zodEmail) =>
-			validateDomains(zodEmail, exceptDomains, onlyDomains)
+			validateDomains(
+				zodEmail,
+				exceptDomains as unknown as string[],
+				onlyDomains as unknown as string[]
+			)
 		);
 	},
 
-	file: ({ options }) => {
-		const { mimeTypes, maxSize } = options;
+	file: (field) => {
+		const { mimeTypes, maxSize } = field;
 		const mimes = mimeTypes as string[] | undefined;
 		return zodFileSchema({ mimeTypes: mimes, maxSize });
 	},
 
-	date: ({ options }) => {
-		const { min, max } = options;
+	date: (field) => {
+		const { min, max } = field;
 		return z
 			.string()
 			.refine(
@@ -62,8 +66,8 @@ export const schemaFieldToZodTypeMap: SchemaFieldToZodTypeMap = {
 			);
 	},
 
-	json: ({ options }) => {
-		const { maxSize } = options;
+	json: (field) => {
+		const { maxSize } = field;
 		return z.unknown().refine((json) => {
 			if (maxSize) return getJsonDataSize(json) < maxSize;
 			else return true;
@@ -74,17 +78,17 @@ export const schemaFieldToZodTypeMap: SchemaFieldToZodTypeMap = {
 		return z.string();
 	},
 
-	number: ({ options }) => {
-		const { min, max, noDecimal } = options;
+	number: (field) => {
+		const { min, max, onlyInt } = field;
 		let s = z.number();
 		if (min) s = s.min(min);
 		if (max) s = s.max(max);
-		if (noDecimal) s = s.int();
+		if (onlyInt) s = s.int();
 		return s;
 	},
 
-	select: ({ options }) => {
-		const { values } = options;
+	select: (field) => {
+		const { values } = field;
 		if (!values) throw new SelectSchemaFieldNoOptionsError();
 		return z.string().refine((s) => values.includes(s));
 	},
@@ -93,9 +97,19 @@ export const schemaFieldToZodTypeMap: SchemaFieldToZodTypeMap = {
 		return z.string();
 	},
 
-	url: ({ options }) => {
-		const { exceptDomains, onlyDomains } = options;
-		return pipe(z.string().url(), (zodUrl) => validateDomains(zodUrl, exceptDomains, onlyDomains));
+	url: (field) => {
+		const { exceptDomains, onlyDomains } = field;
+		return pipe(z.string().url(), (zodUrl) =>
+			validateDomains(zodUrl, exceptDomains as unknown as string[], onlyDomains)
+		);
+	},
+
+	password: () => {
+		return z.string();
+	},
+
+	autodate: () => {
+		return z.string();
 	}
 };
 

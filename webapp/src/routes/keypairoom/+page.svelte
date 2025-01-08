@@ -62,7 +62,7 @@
 				const storedPublicKeys = await getUserPublicKeys();
 
 				if (!storedPublicKeys) {
-					await saveUserPublicKeys(publicKeys);
+					await saveUserPublicKeys($currentUser!.id, publicKeys);
 				} else {
 					try {
 						await matchPublicAndPrivateKeys(storedPublicKeys, privateKeys);
