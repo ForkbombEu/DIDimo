@@ -96,7 +96,7 @@ onRecordCreateRequest((e) => {
     for (const adminAddress of recipients) {
         const email = utils.renderEmail("membership-request-new", {
             OrganizationName: organization.getString("name"),
-            Admin: adminAddress.name,
+            Admin: adminAddress.name ?? "Admin",
             UserName: user.getString("name"),
             DashboardLink: utils.getOrganizationMembersPageUrl(organizationId),
             AppName: utils.getAppName(),
@@ -145,7 +145,7 @@ cronAdd("remind admins about join requests", "0 9 * * 1", () => {
                     OrganizationName,
                     DashboardLink:
                         utils.getOrganizationMembersPageUrl(organizationId),
-                    Admin: recipient.name,
+                    Admin: recipient.name ?? "Admin",
                     PendingNumber: requests.length.toString(),
                     AppName: utils.getAppName(),
                 });
@@ -196,7 +196,7 @@ onRecordUpdateRequest((e) => {
     /** @type {EmailContent} */
     const successEmail = utils.renderEmail("membership-request-accepted", {
         OrganizationName,
-        UserName: userAddress.name,
+        UserName: userAddress.name ?? "User",
         DashboardLink: utils.getOrganizationPageUrl(organization.id),
         AppName: utils.getAppName(),
     });
@@ -204,7 +204,7 @@ onRecordUpdateRequest((e) => {
     /** @type {EmailContent} */
     const rejectEmail = utils.renderEmail("membership-request-declined", {
         OrganizationName,
-        UserName: userAddress.name,
+        UserName: userAddress.name ?? "User",
         DashboardLink: utils.getAppUrl() + "/my/organizations",
         AppName: utils.getAppName(),
     });
