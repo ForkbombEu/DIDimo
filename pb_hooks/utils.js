@@ -277,8 +277,7 @@ function getOrganizationMembersPageUrl(organizationId) {
 function runOrganizationInviteEndpointChecks(e) {
     /** @type {{inviteId: string | undefined}} */
     // @ts-ignore
-    const data = $apis.requestInfo(e).data;
-    const { inviteId } = data;
+    const { inviteId } = e.requestInfo().body;
     if (!inviteId || typeof inviteId != "string")
         throw createMissingDataError("inviteId");
 

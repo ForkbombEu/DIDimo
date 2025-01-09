@@ -18,6 +18,6 @@ onRecordAuthWithOAuth2Request((e) => {
 
         user.set("name", oAuth2User.name);
         user.markAsNotNew();
-        $app.Save(user);
+        $app.save(user);
     }
 }, "users");

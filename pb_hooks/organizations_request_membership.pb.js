@@ -129,7 +129,7 @@ onRecordUpdateRequest((e) => {
             role: roleId,
         });
 
-        $app.saveRecord(record);
+        $app.save(record);
     }
 
     // 2 - Notifying user about the change
@@ -167,7 +167,7 @@ onRecordUpdateRequest((e) => {
     // 3 - Finally, deleting the record
 
     if (status == "accepted" || status == "rejected") {
-        $app.Delete(e.record);
+        $app.delete(e.record);
     }
 }, "orgJoinRequests");
 
