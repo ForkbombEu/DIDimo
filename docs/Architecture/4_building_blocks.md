@@ -8,6 +8,8 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 # 🏗️ Building blocks
 
+
+
 The following system diagrams provide a visual overview of the DIDimo platform, illustrating its architecture and key components. These diagrams are based on the C4 model, which is a widely-used approach for visualizing software architecture.
 
 While we follow the principles of the C4 model, our implementation is somewhat loose, focusing on clarity and relevance to the specific context of DIDimo. The diagrams capture different levels of abstraction, from the overall system context down to detailed component interactions within the platform. This structured approach helps in understanding how various parts of the system interact and contribute to its overall functionality.
@@ -58,6 +60,7 @@ Illustrates the main containers within the DIDimo system (API Gateway, Complianc
 
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 !define I https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/govicons
 !define FA6 https://raw.githubusercontent.com/tupadr3/plantuml-icon-font-sprites/master/font-awesome-4
 !include I/user_politician.puml
@@ -65,52 +68,52 @@ Illustrates the main containers within the DIDimo system (API Gateway, Complianc
 !include I/ribbon.puml
 !include I/presenter.puml
 
-LAYOUT_WITH_LEGEND()
 
 title Container Diagram for DIDimo
 
+Person(enduser, "End User")
 Person(dev, "Developer")
 Person(sp, "Service Provider")
 Person(gov, "Government IT Manager", $sprite="user_suit")
 Person(eu, "EU Official", $sprite="user_politician")
 Person(cto, "CTO")
-Person(enduser, "End User")
 Person(researcher, "Researcher", $sprite="presenter")
 Person(sb, "Standardization Body", $sprite="ribbon")
 
 System_Boundary(didimo, "DIDimo") {
-    Container(api_gateway, "API Gateway", "golang", "Handles API requests and CLI submissions.")
-    Container(compliance_engine, "Compliance Engine", "Zenroom / Slangroom", "Performs compliance checks and runs periodic tasks.")
-    Container(database, "Database", "MongoDB", "Stores compliance data, user data, and reports.")
-    Container(queue_manager, "Queue Manager", "RabbitMQ / golang", "Manages long-running compliance tasks.")
-    Container(reporting_service, "Reporting Service", "golang", "Generates and exports compliance reports.")
-    Container(external_services_api, "External Services API", "APIs", "Connects to external compliance check services.")
     Container(dashboard, "Dashboard", "TypeScript/Svelte", "User interface for managing services and viewing results.")
     Container(comparison_tool, "Marketplace/Comparison Tool", "TypeScript/Svelte", "Tool for comparing credential services.")
+    Container_Boundary(api_gateway, "API Gateway (golang)") {
+        Component(cli, "CLI", "Command Line Interface", "For direct interaction with the system.")
+        Component(ci_cd, "CI/CD", "Continuous Integration/Continuous Deployment", "For automated compliance validation.")
+        Component(api, "API", "REST API", "For programmatic interactions.")
+    }
+    Container(compliance_engine, "Compliance Engine", "go, Temporal.io", "Performs compliance checks, integrates plugins, and manages workflows.") 
+    Container(reporting_service, "Reporting Service", "PDF/JSON", "Generates and exports compliance reports.")
 }
+Container(third, "Third party conformance tools", "Different systems", "Allow to run already in place checks")
 
-Rel(dev, api_gateway, "Submits credential issuers/checks via API/CLI")
+Rel(dev, api_gateway, "Submits and checks compliance")
+Rel(enduser, comparison_tool, "Browses verified issuers and services")
 Rel(sp, dashboard, "Manages and publishes results")
-Rel(enduser, comparison_tool, "Browses verified issuers")
-Rel(cto, dashboard, "Browses and compares services")
+Rel(cto, dashboard, "Schedules and monitors compliance workflows")
 
+Lay_U(ci_cd, api)
+Lay_U(api, cli)
+
+Rel(dashboard, api_gateway, "Schedules periodic and ad-hoc checks")
+Rel(comparison_tool, api_gateway, "Fetches compliance data for visualization")
+
+
+Rel_D(api_gateway, compliance_engine, "Processes compliance checks and workflows")
+Rel_R(compliance_engine, third, "run check on external tools")
+
+Rel_U(reporting_service, compliance_engine, "Generates reports from stored compliance data")
 Rel_U(sb, reporting_service, "Evaluates standards alignment")
 Rel_U(gov, reporting_service, "Generates compliance reports")
 Rel_U(eu, reporting_service, "Generates compliance reports")
 Rel_U(researcher, reporting_service, "Accesses compliance data")
-
-Rel(api_gateway, compliance_engine, "Processes compliance checks")
-Rel_L(compliance_engine, database, "Stores compliance results")
-Rel(queue_manager, compliance_engine, "Manages long-running tasks")
-Rel(compliance_engine, external_services_api, "Uses external services for checks")
-Rel(dashboard, compliance_engine, "Schedules periodic checks")
-Rel(dashboard, database, "Manages user data")
-Rel(comparison_tool, database, "Accesses compliance data")
-Rel_U(reporting_service, database, "Fetches data for reports")
-
 @enduml
-
-
 
 ## Component Diagram
 Focuses on the internal components of the Compliance Engine, showing how the various modules work together.
@@ -125,18 +128,23 @@ Focuses on the internal components of the Compliance Engine, showing how the var
 
 title Component Diagram for Compliance Engine
 
-Container_Boundary(didimo_backend, "DIDimo Backend - Compliance Engine") {
-    Component(compliance_engine, "Compliance Engine", "Slangroom/ncr", "Performs all compliance checks.")
-    Component(standards_checker, "Standards Checker", "Step CI/slangroom", "Validates against various identity standards.")
-    Component(debugging_tool, "Debugging Tool", "Slangroom/golang", "Helps developers resolve compliance issues.")
-    Component(periodic_checker, "Periodic Checker", "golang", "Schedules and runs periodic checks.")
-    Component(external_service_integration, "External Service Integration", "REST", "Connects to external compliance services via APIs.")
-}
+ Container_Boundary(compliance_engine, "Compliance Engine", "go, Temporal.io", "Performs compliance checks, integrates plugins, and manages workflows.") {
+        Component(database, "Database", "PostgreSQL", "Stores compliance data, user data, and reports.")
+        Component(plugin_system, "Plugin Management", "Go / Docker", "Handles third-party plugin integration and execution.")
+        Component(prometheus, "Prometheus", "Monitoring", "Collects metrics from all services.")
+        Component(grafana, "Grafana", "Visualization", "Provides real-time dashboards and alerts.")
+        Component(temporal_ui, "Debug dashboard", "", "Allows to playback error visually debug workflows and repeat processes")
+        Component(temporal, "Temporal", "Workflow manager", "Handles long running processes and allow visible workflow debugs")
+        Component(backend, "Backend", "Pocketbase/temporal", "The business login and orchestrator of the engine")
+    }
 
-Rel(compliance_engine, standards_checker, "Uses for compliance validation")
-Rel(compliance_engine, debugging_tool, "Uses for debugging and issue resolution")
-Rel(compliance_engine, periodic_checker, "Uses for scheduling periodic checks")
-Rel(compliance_engine, external_service_integration, "Uses for external compliance checks")
+Rel_U(backend, temporal, "Manages the conformance check workflows")
+Rel(backend, plugin_system, "Loads and executes third-party plugins")
+Rel_L(plugin_system, database, "Stores plugin configurations")
+Rel_R(prometheus, backend, "Collects metrics from workflows")
+Rel(prometheus, database, "Tracks database metrics")
+Rel(grafana, prometheus, "Visualizes metrics and generates alerts")
+Rel_U(temporal, temporal_ui, "try and repeat")
 
 @enduml
 

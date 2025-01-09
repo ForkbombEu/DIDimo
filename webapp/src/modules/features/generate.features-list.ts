@@ -8,7 +8,7 @@ const TYPE_NAME = 'Feature';
 const OBJECT_NAME = `${TYPE_NAME}s`;
 
 const pb = await initAdminPocketbase();
-const featuresRecords = await pb.collection('features').getFullList();
+const featuresRecords = await pb.collection('flags').getFullList();
 const featuresEntries = featuresRecords.map((f) => `${f.name.toUpperCase()}: '${f.name}'`);
 
 const code = `

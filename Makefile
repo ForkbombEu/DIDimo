@@ -36,7 +36,7 @@ DEPS 			= mise wget git tmux upx temporal
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
-.PHONY: submodules version dev test lint tidy build docker doc clean tools help
+.PHONY: submodules version dev test lint tidy purge build docker doc clean tools help
 
 $(BIN):
 	@mkdir $(BIN)
@@ -89,6 +89,10 @@ fmt: tools ## 🗿 format rules checks
 
 tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
+
+purge: ## ⛔ Purge the database
+	@echo "⛔ Purge the database"
+	@rm -rf $(DATA)
 
 ## Deployment
 

@@ -21,6 +21,10 @@ WORKDIR /app
 COPY --from=builder /src/didimo /usr/bin/didimo
 COPY ./webapp/build/ /app/build
 COPY ./scripts/entry.sh /app/entry.sh
+COPY ./.certs/mailpit+3.pem /usr/local/share/ca-certificates/mailpit.crt
+RUN cat /usr/local/share/ca-certificates/mailpit.crt >> /etc/ssl/certs/ca-certificates.crt
+RUN apk --no-cache add --no-check-certificate ca-certificates && update-ca-certificates
+
 
 EXPOSE 8090
 ENV PORT=5100
