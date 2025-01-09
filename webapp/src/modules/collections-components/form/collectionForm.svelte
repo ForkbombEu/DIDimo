@@ -16,6 +16,7 @@
 		type CollectionFormProps,
 		type FieldsOptions
 	} from './collectionFormTypes';
+	import { getCollectionFields } from '@/pocketbase/zod-schema';
 
 	/* Props and unpacking */
 
@@ -52,8 +53,8 @@
 	/* Fields */
 
 	const fieldsConfigs = $derived(
-		getCollectionModel(collection)
-			.fields.sort(createFieldConfigSorter(fieldsOrder))
+		getCollectionFields(collection)
+			.sort(createFieldConfigSorter(fieldsOrder))
 			.filter((config) => !excludeFields.includes(config.name))
 	);
 

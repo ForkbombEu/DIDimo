@@ -13,14 +13,17 @@ import { systemFields, type CollectionZodRawShapes } from '../types';
 
 export type CollectionZodSchema<C extends CollectionName> = z.ZodObject<CollectionZodRawShapes[C]>;
 
+export function getCollectionFields(collection: CollectionName) {
+	const { fields } = getCollectionModel(collection);
+	return (fields as AnyCollectionField[]).filter(
+		(f) => !(systemFields as unknown as string[]).includes(f.name)
+	);
+}
+
 export function createCollectionZodSchema<C extends CollectionName>(
 	collection: C
 ): CollectionZodSchema<C> {
-	const { fields } = getCollectionModel(collection);
-	const collectionFields = (fields as AnyCollectionField[]).filter(
-		(f) => !(systemFields as unknown as string[]).includes(f.name)
-	);
-	console.log(collectionFields);
+	const collectionFields = getCollectionFields(collection);
 
 	const entries = collectionFields.map((fieldConfig) => {
 		const zodTypeConstructor = schemaFieldToZodTypeMap[fieldConfig.type] as (
