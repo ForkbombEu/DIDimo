@@ -11,7 +11,6 @@ import (
 	_ "github.com/forkbombeu/didimo/migrations"
 	"github.com/forkbombeu/didimo/pocketbase/did"
 	"github.com/forkbombeu/didimo/pocketbase/feature"
-	"github.com/forkbombeu/didimo/pocketbase/hooks"
 	"github.com/forkbombeu/didimo/pocketbase/webauthn"
 	"github.com/forkbombeu/didimo/pocketbase/zencode"
 
@@ -104,7 +103,10 @@ func main() {
 	})
 
 	webauthn.Register(app)
-	hooks.Register(app)
+
+	// ** BAD LINE **
+	// hooks.Register(app)
+
 	jsvm.MustRegister(app, jsvm.Config{
 		HooksWatch: true,
 	})

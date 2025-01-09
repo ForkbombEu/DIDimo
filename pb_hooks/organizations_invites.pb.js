@@ -29,6 +29,21 @@ onRecordCreateRequest((e) => {
     });
 }, "users");
 
+onRecordDeleteRequest((e) => {
+    e.next();
+
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    auditLogger(e).info(
+        "Deleted organization invite",
+        "inviteId",
+        e.record?.id,
+        "organizationId",
+        e.record?.get("organization")
+    );
+});
+
 /* Routes */
 
 routerAdd("POST", "/organizations/invites/accept", (c) => {
@@ -219,21 +234,4 @@ routerAdd("POST", "/organizations/invite", (c) => {
             }
         }
     });
-});
-
-/* */
-
-onRecordDeleteRequest((e) => {
-    e.next();
-
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
-
-    auditLogger(e).info(
-        "Deleted organization invite",
-        "inviteId",
-        e.record?.id,
-        "organizationId",
-        e.record?.get("organization")
-    );
 });

@@ -341,7 +341,7 @@
                 "username": "username",
                 "avatarURL": ""
             },
-            "enabled": false
+            "enabled": true
         },
         "passwordAuth": {
             "enabled": true,
@@ -896,7 +896,7 @@
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
-        "name": "flags",
+        "name": "features",
         "type": "base",
         "fields": [
             {
@@ -967,7 +967,7 @@
                 "type": "autodate"
             }
         ],
-        "indexes": ["CREATE UNIQUE INDEX `idx_T3xOIQy` ON `flags` (`name`)"],
+        "indexes": ["CREATE UNIQUE INDEX `idx_T3xOIQy` ON `features` (`name`)"],
         "system": true
     },
     {

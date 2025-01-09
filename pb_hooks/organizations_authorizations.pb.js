@@ -20,7 +20,7 @@ onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
@@ -54,7 +54,7 @@ onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel: requestingUserRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
@@ -103,13 +103,13 @@ onRecordDeleteRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel: requestingUserRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
 
     // If user requests delete for itself, it's fine
-    if (isSelf) return;
+    if (isSelf) e.next();
 
     // Getting role of authorization to delete
 
@@ -136,7 +136,7 @@ onRecordDeleteRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     if (e.record && utils.isLastOwnerAuthorization(e.record)) {
         throw new BadRequestError(utils.errors.cant_edit_last_owner_role);
@@ -151,7 +151,7 @@ onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const originalRecord = e.record?.original();
     // e.record is already the "modified" version, so it is not a "owner" role anymore
@@ -175,7 +175,7 @@ onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const organization = utils.getExpanded(e.record, "organization");
     const user = utils.getExpanded(e.record, "user");
@@ -207,7 +207,7 @@ onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const organization = utils.getExpanded(e.record, "organization");
     if (!organization) throw utils.createMissingDataError("organization");
@@ -272,7 +272,7 @@ onRecordDeleteRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const record = e.record.original();
 
@@ -281,7 +281,6 @@ onRecordDeleteRequest((e) => {
 
     const user = utils.getExpanded(record, "user");
     const role = utils.getExpanded(record, "role");
-
     if (!user) throw utils.createMissingDataError("user of orgAuthorization");
     if (!role) throw utils.createMissingDataError("role of orgAuthorization");
 

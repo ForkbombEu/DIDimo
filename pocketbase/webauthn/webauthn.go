@@ -91,7 +91,7 @@ func (u User) WebAuthnCredentials() []webauthn.Credential {
 }
 
 func NewWebAuthnFromEnv(app *pocketbase.PocketBase) (*webauthn.WebAuthn, error) {
-	record, err := app.FindFirstRecordByData("flags", "name", "webauthn")
+	record, err := app.FindFirstRecordByData("features", "name", "webauthn")
 	if err != nil {
 		return nil, err
 	}
@@ -268,7 +268,7 @@ func Register(app *pocketbase.PocketBase) error {
 			return e.JSON(http.StatusOK, make(map[string]interface{}))
 		})
 
-    se.Router.GET("/api/webauthn/login/begin/:email", func(e *core.RequestEvent) error {
+		se.Router.GET("/api/webauthn/login/begin/:email", func(e *core.RequestEvent) error {
 			w, err := NewWebAuthnFromEnv(app)
 			if err != nil {
 				return err
@@ -297,8 +297,8 @@ func Register(app *pocketbase.PocketBase) error {
 
 			return e.JSON(http.StatusOK, options)
 		})
-		
-    se.Router.POST("/api/webauthn/login/finish/:email", func(e *core.RequestEvent) error {
+
+		se.Router.POST("/api/webauthn/login/finish/:email", func(e *core.RequestEvent) error {
 			w, err := NewWebAuthnFromEnv(app)
 			if err != nil {
 				return err

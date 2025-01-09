@@ -60,6 +60,14 @@
 			{m.Continue_with_oauthProvider({ oauthProvider: method.displayName })}
 		</Button>
 	{/each}
+
+	{#if methods.length > 0 && !hideOr}
+		<div class="flex items-center gap-2">
+			<Separator class="grow basis-1" />
+			<p class="text-xs uppercase tracking-wide text-gray-400">{m.or()}</p>
+			<Separator class="grow basis-1" />
+		</div>
+	{/if}
 {/await}
 
 {#if error}
@@ -74,12 +82,4 @@
 
 {#if loading}
 	<LoadingDialog />
-{/if}
-
-{#if !hideOr}
-	<div class="flex items-center gap-2">
-		<Separator class="grow basis-1" />
-		<p class="text-xs uppercase tracking-wide text-gray-400">{m.or()}</p>
-		<Separator class="grow basis-1" />
-	</div>
 {/if}

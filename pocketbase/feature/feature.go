@@ -130,7 +130,7 @@ func fetchDict(env string) (map[string]interface{}, error) {
 
 func newConfig(app core.App, feature string) (map[string]string, error) {
 	var envConfig map[string]string
-	record, err := app.FindFirstRecordByData("flags", "name", feature)
+	record, err := app.FindFirstRecordByData("features", "name", feature)
 	if err != nil {
 		return envConfig, err
 	}

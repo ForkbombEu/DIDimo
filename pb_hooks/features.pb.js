@@ -7,22 +7,22 @@ onRecordViewRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
-
-    e.record?.set("envVariables", null);
+    if (!utils.isAdminContext(e)) {
+        e.record?.set("envVariables", null);
+    }
 
     e.next();
-}, "flags");
+}, "features");
 
 onRecordsListRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
-
-    e.records.forEach((r) => {
-        r?.set("envVariables", null);
-    });
+    if (!utils.isAdminContext(e)) {
+        e.records.forEach((r) => {
+            r?.set("envVariables", null);
+        });
+    }
 
     e.next();
-}, "flags");
+}, "features");

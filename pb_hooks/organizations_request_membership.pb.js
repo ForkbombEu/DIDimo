@@ -4,31 +4,20 @@
 /** @typedef {import('./utils.js')} Utils */
 /** @typedef {import('./auditLogger.js')} AuditLogger */
 
-/**
- * INDEX
- * - Base hooks
- * - Email hooks
- */
-
-/* Base hooks */
-
-onRecordCreateRequest((e) => {
-    e.record?.set("status", "pending");
-    e.record?.set("reminders", 0);
-
-    e.next();
-}, "orgJoinRequests");
-
-// Cannot create join request if user is already member
+/* CRUD hooks for orgJoinRequest */
 
 onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    /** @type {string | undefined} */
-    const organizationId = e.record?.get("organization");
-    /** @type {string | undefined} */
-    const userId = e.record?.get("user");
+    // 0 - Base check
+
+    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
+
+    // 1 – Check if a membership already exists for that user and org
+
+    const organizationId = e.record.getString("organization");
+    const userId = e.record.getString("user");
 
     const authorization = utils.findFirstRecordByFilter(
         "orgAuthorizations",
@@ -38,51 +27,29 @@ onRecordCreateRequest((e) => {
     if (authorization)
         throw new BadRequestError(utils.errors.user_is_already_member);
 
-    e.next();
-}, "orgJoinRequests");
+    // 2 - Set default values for the record
 
-// Create orgAuthorization after accepting membership request
+    e.record?.set("status", "pending");
+    e.record?.set("reminders", 0);
 
-onRecordUpdateRequest((e) => {
-    e.next();
+    // 3 - Do the backend logic
 
-    /** @type {Utils} */
-    const utils = require(`${__hooks}/utils.js`);
-
-    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
-
-    const status = e.record.get("status");
-    if (status != "accepted") return;
-
-    const orgAuthorizationsCollection =
-        $app.findCollectionByNameOrId("orgAuthorizations");
-    if (!orgAuthorizationsCollection)
-        throw utils.createMissingDataError("orgAuthorizationsCollection");
-
-    const organizationId = e.record.get("organization");
-    const userId = e.record.get("user");
-
-    const memberRole = utils.getRoleByName("member");
-    const roleId = memberRole?.id;
-
-    const record = new Record(orgAuthorizationsCollection, {
-        user: userId,
-        organization: organizationId,
-        role: roleId,
-    });
-
-    $app.saveRecord(record);
-}, "orgJoinRequests");
-
-/* Email hooks - Notifications to Admins */
-
-onRecordCreateRequest((e) => {
     e.next();
 
-    /** @type {Utils} */
-    const utils = require(`${__hooks}/utils.js`);
+    // 4 - Audit log the fact
 
-    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    auditLogger(e).info(
+        "Created membership request",
+        "organizationId",
+        e.record?.get("organization"),
+        "requestId",
+        e.record?.id
+    );
+
+    // 5 - Notify the admins
 
     const organization = utils.getExpanded(e.record, "organization");
     if (!organization)
@@ -90,7 +57,6 @@ onRecordCreateRequest((e) => {
     const user = utils.getExpanded(e.record, "user");
     if (!user) throw utils.createMissingDataError("user of orgJoinRequest");
 
-    const organizationId = organization.id;
     const recipients = utils.getOrganizationAdminsAddresses(organizationId);
 
     for (const adminAddress of recipients) {
@@ -112,6 +78,122 @@ onRecordCreateRequest((e) => {
         }
     }
 }, "orgJoinRequests");
+
+//
+
+onRecordUpdateRequest((e) => {
+    // `orgJoinRequests` can be updated only by admins of the org
+    // This is expressed inside API rules
+
+    e.next();
+
+    /** @type {Utils} */
+    const utils = require(`${__hooks}/utils.js`);
+
+    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
+
+    const status = e.record.getString("status");
+
+    // 0 - Audit log
+
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    auditLogger(e).info(
+        "Updated membership request",
+        "organizationId",
+        e.record.getString("organization"),
+        "status",
+        status,
+        "requestId",
+        e.record.id
+    );
+
+    // 1 - Create orgAuthorization after if membership request is accepted
+
+    if (status == "accepted") {
+        const orgAuthorizationsCollection =
+            $app.findCollectionByNameOrId("orgAuthorizations");
+        if (!orgAuthorizationsCollection)
+            throw utils.createMissingDataError("orgAuthorizationsCollection");
+
+        const organizationId = e.record.getString("organization");
+        const userId = e.record.getString("user");
+
+        const memberRole = utils.getRoleByName("member");
+        const roleId = memberRole?.id;
+
+        const record = new Record(orgAuthorizationsCollection, {
+            user: userId,
+            organization: organizationId,
+            role: roleId,
+        });
+
+        $app.saveRecord(record);
+    }
+
+    // 2 - Notifying user about the change
+
+    if (status == "accepted" || status == "rejected") {
+        const organization = utils.getExpanded(e.record, "organization");
+        if (!organization)
+            throw utils.createMissingDataError(
+                "organization of orgJoinRequest"
+            );
+        const user = utils.getExpanded(e.record, "user");
+        if (!user) throw utils.createMissingDataError("user of orgJoinRequest");
+
+        const OrganizationName = organization.getString("name");
+        const userAddress = utils.getUserEmailAddressData(user);
+
+        const successEmail = utils.renderEmail("membership-request-accepted", {
+            OrganizationName,
+            UserName: userAddress.name ?? "User",
+            DashboardLink: utils.getOrganizationPageUrl(organization.id),
+            AppName: utils.getAppName(),
+        });
+
+        const rejectEmail = utils.renderEmail("membership-request-declined", {
+            OrganizationName,
+            UserName: userAddress.name ?? "User",
+            DashboardLink: utils.getAppUrl() + "/my/organizations",
+            AppName: utils.getAppName(),
+        });
+
+        const emailContent = status == "accepted" ? successEmail : rejectEmail;
+        utils.sendEmail({ to: [userAddress], ...emailContent });
+    }
+
+    // 3 - Finally, deleting the record
+
+    if (status == "accepted" || status == "rejected") {
+        $app.Delete(e.record);
+    }
+}, "orgJoinRequests");
+
+//
+
+onRecordDeleteRequest((e) => {
+    // `orgJoinRequests` can be deleted only by the creator of the request
+    // This is expressed inside API rules
+
+    e.next();
+
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    auditLogger(e).info(
+        "Deleted membership request",
+        "organizationId",
+        e.record?.getString("organization"),
+        "status",
+        e.record?.getString("status"),
+        "requestId",
+        e.record?.id
+    );
+}, "orgJoinRequests");
+
+//
 
 cronAdd("remind admins about join requests", "0 9 * * 1", () => {
     /** @type {Utils} */
@@ -160,125 +242,3 @@ cronAdd("remind admins about join requests", "0 9 * * 1", () => {
             }
         });
 });
-
-/* Email hooks - Notifications to Users */
-
-onRecordUpdateRequest((e) => {
-    e.next();
-
-    /** @type {Utils} */
-    const utils = require(`${__hooks}/utils.js`);
-
-    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
-
-    /** @type {string} */
-    const status = e.record.get("status");
-
-    const isRelevantChange = status == "accepted" || status == "rejected";
-    if (!isRelevantChange) return;
-
-    const organization = utils.getExpanded(e.record, "organization");
-    if (!organization)
-        throw utils.createMissingDataError("organization of orgJoinRequest");
-    const user = utils.getExpanded(e.record, "user");
-    if (!user) throw utils.createMissingDataError("user of orgJoinRequest");
-
-    /** @type {string} */
-    const OrganizationName = organization.get("name");
-    const userAddress = utils.getUserEmailAddressData(user);
-
-    /**
-     * @typedef {Object} EmailContent
-     * @property {string} subject
-     * @property {string} html
-     */
-
-    /** @type {EmailContent} */
-    const successEmail = utils.renderEmail("membership-request-accepted", {
-        OrganizationName,
-        UserName: userAddress.name ?? "User",
-        DashboardLink: utils.getOrganizationPageUrl(organization.id),
-        AppName: utils.getAppName(),
-    });
-
-    /** @type {EmailContent} */
-    const rejectEmail = utils.renderEmail("membership-request-declined", {
-        OrganizationName,
-        UserName: userAddress.name ?? "User",
-        DashboardLink: utils.getAppUrl() + "/my/organizations",
-        AppName: utils.getAppName(),
-    });
-
-    const emailContent = status == "accepted" ? successEmail : rejectEmail;
-    utils.sendEmail({ to: [userAddress], ...emailContent });
-}, "orgJoinRequests");
-
-/* Audit logs */
-
-onRecordCreateRequest((e) => {
-    e.next();
-
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
-
-    auditLogger(e).info(
-        "Created membership request",
-        "organizationId",
-        e.record?.get("organization"),
-        "requestId",
-        e.record?.id
-    );
-}, "orgJoinRequests");
-
-onRecordUpdateRequest((e) => {
-    e.next();
-
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
-
-    auditLogger(e).info(
-        "Updated membership request",
-        "organizationId",
-        e.record?.get("organization"),
-        "status",
-        e.record?.get("status"),
-        "requestId",
-        e.record?.id
-    );
-}, "orgJoinRequests");
-
-onRecordDeleteRequest((e) => {
-    e.next();
-
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
-
-    auditLogger(e).info(
-        "Deleted membership request",
-        "organizationId",
-        e.record?.get("organization"),
-        "status",
-        e.record?.get("status"),
-        "requestId",
-        e.record?.id
-    );
-}, "orgJoinRequests");
-
-/* IMPORTANT: This hook must be registered last */
-
-onRecordUpdateRequest((e) => {
-    e.next();
-
-    /** @type {Utils} */
-    const utils = require(`${__hooks}/utils.js`);
-
-    if (!e.record) throw utils.createMissingDataError("orgJoinRequest");
-
-    /** @type {string} */
-    const status = e.record.get("status");
-
-    const isRelevantChange = status == "accepted" || status == "rejected";
-    if (!isRelevantChange) return;
-
-    $app.Delete(e.record);
-}, "orgJoinRequests");

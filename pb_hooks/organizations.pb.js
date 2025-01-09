@@ -72,55 +72,19 @@ routerAdd("POST", "/organizations/verify-user-role", (e) => {
 
 /* Business logic hooks */
 
-// On Organization Create – Creating owner authorization
-
 onRecordCreateRequest((e) => {
-    e.next();
-
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
-    // Don't create orgAuthorization if organization is created from admin panel
-    if (utils.isAdminContext(e)) return;
+    // 0 - Backend logic
 
-    const userId = utils.getUserFromContext(e)?.id;
-    const organizationId = e.record?.id;
-
-    const ownerRole = utils.getRoleByName("owner");
-    const ownerRoleId = ownerRole?.id;
-
-    const collection = $app.findCollectionByNameOrId("orgAuthorizations");
-    const record = new Record(collection, {
-        organization: organizationId,
-        role: ownerRoleId,
-        user: userId,
-    });
-    $app.Save(record);
-
-    //
-
-    auditLogger(e).info(
-        "Created owner role for organization",
-        "organizationId",
-        e.record?.id,
-        "organizationName",
-        e.record?.get("name"),
-        "userId",
-        userId
-    );
-}, "organizations");
-
-/* Audit hooks */
-
-//  Log organization creation
-
-onRecordCreateRequest((e) => {
     e.next();
 
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
+    if (!e.record) throw utils.createMissingDataError("organization record");
+
+    // 1 - Audit logging
 
     auditLogger(e).info(
         "Created organization",
@@ -129,25 +93,41 @@ onRecordCreateRequest((e) => {
         "organizationName",
         e.record?.get("name")
     );
-}, "organizations");
 
-/* Email hooks */
+    if (!utils.isAdminContext(e)) return;
 
-// Send email after organization creation
-
-onRecordCreateRequest((e) => {
-    e.next();
-
-    /** @type {Utils} */
-    const utils = require(`${__hooks}/utils.js`);
-
-    if (!e.record) throw utils.createMissingDataError("organization");
+    // 2 - Creating owner `orgAuthorization` for user that crated the org
 
     const user = utils.getUserFromContext(e);
     if (!user) throw utils.createMissingDataError("user creating organization");
 
+    const organizationId = e.record.id;
+    const organizationName = e.record.getString("name");
+
+    const ownerRole = utils.getRoleByName("owner");
+    const ownerRoleId = ownerRole?.id;
+
+    const collection = $app.findCollectionByNameOrId("orgAuthorizations");
+    const record = new Record(collection, {
+        organization: organizationId,
+        role: ownerRoleId,
+        user: user.id,
+    });
+    $app.Save(record);
+
+    auditLogger(e).info(
+        "Created owner role for organization",
+        "organizationId",
+        e.record?.id,
+        "organizationName",
+        organizationName,
+        "userId",
+        user.id
+    );
+
+    // 3 - Finally, notifying user
+
     const userAddress = utils.getUserEmailAddressData(user);
-    const organizationName = e.record.get("name");
 
     const emailData = utils.renderEmail("new-organization", {
         OrganizationName: organizationName,

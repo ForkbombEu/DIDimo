@@ -13,7 +13,7 @@ export type FeatureFlags = Record<FeatureKeys, boolean>;
 export async function loadFeatureFlags(fetchFn = fetch): Promise<FeatureFlags> {
 	const flags: Partial<FeatureFlags> = {};
 
-	const list = await pb.collection('flags').getFullList({ requestKey: null, fetch: fetchFn });
+	const list = await pb.collection('features').getFullList({ requestKey: null, fetch: fetchFn });
 
 	for (const [key, name] of Object.entries(Features)) {
 		const feature = list.find((f) => f.name === name);
@@ -23,5 +23,7 @@ export async function loadFeatureFlags(fetchFn = fetch): Promise<FeatureFlags> {
 	if (browser) featureFlags.set(flags as FeatureFlags);
 	return flags as FeatureFlags;
 }
+
+//
 
 export * from './features-list.generated';
