@@ -94,7 +94,7 @@ onRecordCreateRequest((e) => {
         e.record?.get("name")
     );
 
-    if (!utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     // 2 - Creating owner `orgAuthorization` for user that crated the org
 
@@ -113,7 +113,7 @@ onRecordCreateRequest((e) => {
         role: ownerRoleId,
         user: user.id,
     });
-    $app.Save(record);
+    $app.save(record);
 
     auditLogger(e).info(
         "Created owner role for organization",
