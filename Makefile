@@ -5,6 +5,7 @@ ROOT_DIR		?= $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 BINARY_NAME 	?= $(PROJECT_NAME)
 SUBDIRS			?= ./...
 MAIN_SRC 		?= $(ROOT_DIR)/cmd/didimo/didimo.go
+DATA			?= $(ROOT_DIR)/pb_data
 WEBAPP			?= $(ROOT_DIR)/webapp
 GO_SRC 			:= $(wildcard **/*.go)
 UI_SRC			:= $(shell find $(WEBAPP)/src -type f \( -name '*.svelte' -o -name '*.js' -o -name '*.ts' -o -name '*.css' \) ! -name '*.generated.ts' ! -path 'webapp/src/modules/i18n/paraglide/*')
