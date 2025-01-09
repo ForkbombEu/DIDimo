@@ -158,15 +158,3 @@ help: ## Show this help.
 		if (/^[a-zA-Z_-]+:.*?##.*$$/) {printf "    ${YELLOW}%-20s${GREEN}%s${RESET}\n", $$1, $$2} \
 		else if (/^## .*$$/) {printf "  ${CYAN}%s${RESET}\n", substr($$1,4)} \
 		}' $(MAKEFILE_LIST)
-
-#
-
-DATA := $(ROOT_DIR)/pb_data
-
-purge: ## ⛔ Purge the database
-	@echo "⛔ Purge the database"
-	@rm -rf $(DATA)
-
-backend: 
-	@echo "⚙️ Running backend"
-	@go run cmd/didimo/didimo.go serve
