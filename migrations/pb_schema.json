@@ -1570,8 +1570,8 @@
     },
     {
         "id": "pbc_863811952",
-        "listRule": null,
-        "viewRule": null,
+        "listRule": "",
+        "viewRule": "",
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
@@ -1730,8 +1730,8 @@
     },
     {
         "id": "pbc_3643163317",
-        "listRule": null,
-        "viewRule": null,
+        "listRule": "",
+        "viewRule": "",
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
