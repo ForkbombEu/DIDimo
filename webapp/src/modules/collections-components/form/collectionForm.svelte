@@ -1,5 +1,5 @@
 <script lang="ts" generics="C extends CollectionName">
-	import type { SchemaField } from 'pocketbase';
+	import type { CollectionField } from 'pocketbase';
 	import { capitalize } from '@/utils/other';
 	import { getCollectionModel } from '@/pocketbase/collections-models';
 	import type { CollectionName } from '@/pocketbase/collections-models';
@@ -8,12 +8,15 @@
 	import { m } from '@/i18n';
 	import { Form } from '@/forms';
 	import { setupCollectionForm } from './collectionFormSetup';
-	import CollectionFormField, { type CollectionFormFieldProps } from './collectionFormField.svelte';
+	import CollectionFormField, {
+		type CollectionFormFieldProps
+	} from './collectionFormField.svelte';
 	import {
 		type CollectionFormMode,
 		type CollectionFormProps,
 		type FieldsOptions
 	} from './collectionFormTypes';
+	import { getCollectionFields } from '@/pocketbase/zod-schema';
 
 	/* Props and unpacking */
 
@@ -50,13 +53,13 @@
 	/* Fields */
 
 	const fieldsConfigs = $derived(
-		getCollectionModel(collection)
-			.schema.sort(createFieldConfigSorter(fieldsOrder))
+		getCollectionFields(collection)
+			.sort(createFieldConfigSorter(fieldsOrder))
 			.filter((config) => !excludeFields.includes(config.name))
 	);
 
 	function createFieldConfigSorter(order: string[] = []) {
-		return (a: SchemaField, b: SchemaField) => {
+		return (a: CollectionField, b: CollectionField) => {
 			const aIndex = order.indexOf(a.name);
 			const bIndex = order.indexOf(b.name);
 			if (aIndex === -1 && bIndex === -1) {
@@ -90,18 +93,18 @@
 	);
 </script>
 
-<Form {form} {hideRequiredIndicator} submitButton={submitButtonArea} {submitButtonContent}>
+<Form {form} {hideRequiredIndicator} submitButton={submitButtonArea}>
 	{#each fields as field}
 		<CollectionFormField {...field} />
 	{/each}
-</Form>
 
-{#snippet submitButtonContent()}
-	{#if buttonContent}
-		{@render buttonContent()}
-	{:else if formMode == 'edit'}
-		{m.Edit_record()}
-	{:else if formMode == 'create'}
-		{m.Create_record()}
-	{/if}
-{/snippet}
+	{#snippet submitButtonContent()}
+		{#if buttonContent}
+			{@render buttonContent()}
+		{:else if formMode == 'edit'}
+			{m.Edit_record()}
+		{:else if formMode == 'create'}
+			{m.Create_record()}
+		{/if}
+	{/snippet}
+</Form>

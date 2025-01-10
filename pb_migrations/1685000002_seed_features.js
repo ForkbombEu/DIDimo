@@ -2,7 +2,7 @@
 /// <reference path="../pb_data/types.d.ts" />
 
 /** @type {{name:string, envVariables?:Record<string,unknown>, active?:boolean}[]} */
-const flags = [
+const features = [
     {
         name: "keypairoom",
         envVariables: {
@@ -32,7 +32,7 @@ const flags = [
     {
         name: "webauthn",
         envVariables: {
-            DISPLAY_NAME: "DIDimo",
+            DISPLAY_NAME: "{{cookiecutter.project_name}}",
             RPID: "localhost",
             RPORIGINS: "http://localhost:5173",
         },
@@ -45,15 +45,15 @@ const flags = [
 //
 
 migrate((app) => {
-    const featuresCollection = app.findCollectionByNameOrId("flags");
+    const featuresCollection = app.findCollectionByNameOrId("features");
 
-    flags
+    features
         .map(
-            (flag) =>
+            (feature) =>
                 new Record(featuresCollection, {
-                    ...flag,
-                    active: flag.active ?? true,
-                }),
+                    ...feature,
+                    active: feature.active ?? true,
+                })
         )
-        .forEach((flagRecord) => app.save(flagRecord));
+        .forEach((featureRecord) => app.save(featureRecord));
 });

@@ -13,6 +13,8 @@
 /* Hooks */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -23,9 +25,24 @@ onRecordCreateRequest((e) => {
     invites.forEach((invite) => {
         invite.markAsNotNew();
         invite.set("user", e.record?.id);
-        $app.Save(invite);
+        $app.save(invite);
     });
 }, "users");
+
+onRecordDeleteRequest((e) => {
+    e.next();
+
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    auditLogger(e).info(
+        "Deleted organization invite",
+        "inviteId",
+        e.record?.id,
+        "organizationId",
+        e.record?.get("organization")
+    );
+});
 
 /* Routes */
 
@@ -41,7 +58,8 @@ routerAdd("POST", "/organizations/invites/accept", (c) => {
 
     /* -- Logic -- */
 
-    const orgAuthorizationsCollection = $app.findCollectionByNameOrId("orgAuthorizations");
+    const orgAuthorizationsCollection =
+        $app.findCollectionByNameOrId("orgAuthorizations");
 
     const organizationId = invite.get("organization");
 
@@ -50,8 +68,8 @@ routerAdd("POST", "/organizations/invites/accept", (c) => {
     authorization.set("role", utils.getRoleByName("member")?.id);
     authorization.set("organization", organizationId);
 
-    $app.Save(authorization);
-    $app.Delete(invite);
+    $app.save(authorization);
+    $app.delete(invite);
 
     auditLogger(c).info(
         "user_accepted_invite",
@@ -70,7 +88,7 @@ routerAdd("POST", "/organizations/invites/decline", (c) => {
 
     invite.markAsNotNew();
     invite.set("declined", true);
-    $app.Save(invite);
+    $app.save(invite);
 
     auditLogger(c).info(
         "user_accepted_invite",
@@ -81,7 +99,7 @@ routerAdd("POST", "/organizations/invites/decline", (c) => {
 
 //
 
-routerAdd("POST", "/organizations/invite", (c) => {
+routerAdd("POST", "/organizations/invite", (e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
     /** @type {AuditLogger} */
@@ -91,12 +109,11 @@ routerAdd("POST", "/organizations/invite", (c) => {
 
     /** @type {{organizationId: string | undefined, emails: string[] | undefined}} */
     // @ts-ignore
-    const data = $apis.requestInfo(c).data;
-    const { emails, organizationId } = data;
+    const { emails, organizationId } = e.requestInfo().body;
     if (!organizationId || !emails)
         throw utils.createMissingDataError("organizationId", "emails");
 
-    const actor = utils.getUserFromContext(c);
+    const actor = utils.getUserFromContext(e);
     const actorId = actor?.id;
     const actorName = actor?.get("name");
     if (!actorId) throw utils.createMissingDataError("userId");
@@ -146,7 +163,7 @@ routerAdd("POST", "/organizations/invite", (c) => {
             invite.set("organization", organizationId);
             invite.set("user_email", email);
             if (user) invite.set("user", user.id);
-            txApp.Save(invite);
+            txApp.save(invite);
 
             // Send email
 
@@ -188,7 +205,7 @@ routerAdd("POST", "/organizations/invite", (c) => {
             });
 
             if (!err) {
-                auditLogger(c).info(
+                auditLogger(e).info(
                     "invited_person_to_organization",
                     "organizationId",
                     organizationId,
@@ -200,9 +217,9 @@ routerAdd("POST", "/organizations/invite", (c) => {
             } else {
                 invite.markAsNotNew();
                 invite.set("failed_email_send", true);
-                txApp.Save(invite);
+                txApp.save(invite);
 
-                auditLogger(c).info(
+                auditLogger(e).info(
                     "failed_to_send_organization_invite",
                     "organizationId",
                     organizationId,
@@ -216,19 +233,4 @@ routerAdd("POST", "/organizations/invite", (c) => {
             }
         }
     });
-});
-
-/* */
-
-onRecordDeleteRequest((e) => {
-    /** @type {AuditLogger} */
-    const auditLogger = require(`${__hooks}/auditLogger.js`);
-
-    auditLogger(e).info(
-        "Deleted organization invite",
-        "inviteId",
-        e.record?.id,
-        "organizationId",
-        e.record?.get("organization")
-    );
 });

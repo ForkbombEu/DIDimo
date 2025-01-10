@@ -3,8 +3,8 @@
 /// <reference path="../pb_data/types.d.ts" />
 /** @typedef {import('./utils.js')} Utils */
 /** @typedef {import('./auditLogger.js')} AuditLogger */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgRolesResponse} OrgRole */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgRolesResponse} OrgRole */
 
 /**
  * INDEX
@@ -20,7 +20,7 @@ onRecordCreateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
@@ -44,6 +44,8 @@ onRecordCreateRequest((e) => {
             utils.errors.cant_create_role_higher_than_or_equal_to_yours
         );
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 // [UPDATE] Cannot update to/from a role higher than the user
@@ -52,7 +54,7 @@ onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel: requestingUserRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
@@ -91,6 +93,8 @@ onRecordUpdateRequest((e) => {
         throw new ForbiddenError(
             utils.errors.cant_edit_role_higher_than_or_equal_to_yours
         );
+
+    e.next();
 }, "orgAuthorizations");
 
 // [DELETE] Cannot delete an authorization with a level higher than or equal to yours
@@ -99,13 +103,13 @@ onRecordDeleteRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const { isSelf, userRoleLevel: requestingUserRoleLevel } =
         utils.getUserContextInOrgAuthorizationHookEvent(e);
 
     // If user requests delete for itself, it's fine
-    if (isSelf) return;
+    if (isSelf) e.next();
 
     // Getting role of authorization to delete
 
@@ -122,6 +126,8 @@ onRecordDeleteRequest((e) => {
         throw new ForbiddenError(
             utils.errors.cant_delete_role_higher_than_or_equal_to_yours
         );
+
+    e.next();
 }, "orgAuthorizations");
 
 // [DELETE] Cannot delete last owner role
@@ -130,11 +136,13 @@ onRecordDeleteRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     if (e.record && utils.isLastOwnerAuthorization(e.record)) {
         throw new BadRequestError(utils.errors.cant_edit_last_owner_role);
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 // [UPDATE] Cannot edit last owner role
@@ -143,7 +151,7 @@ onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (utils.isAdminContext(e)) return;
+    if (utils.isAdminContext(e)) e.next();
 
     const originalRecord = e.record?.original();
     // e.record is already the "modified" version, so it is not a "owner" role anymore
@@ -152,18 +160,22 @@ onRecordUpdateRequest((e) => {
     if (originalRecord && utils.isLastOwnerAuthorization(originalRecord)) {
         throw new BadRequestError(utils.errors.cant_delete_last_owner_role);
     }
+
+    e.next();
 }, "orgAuthorizations");
 
 /* Audit + Email hooks */
 
 onRecordCreateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const organization = utils.getExpanded(e.record, "organization");
     const user = utils.getExpanded(e.record, "user");
@@ -187,13 +199,15 @@ onRecordCreateRequest((e) => {
 }, "orgAuthorizations");
 
 onRecordUpdateRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const organization = utils.getExpanded(e.record, "organization");
     if (!organization) throw utils.createMissingDataError("organization");
@@ -250,13 +264,15 @@ onRecordUpdateRequest((e) => {
 }, "orgAuthorizations");
 
 onRecordDeleteRequest((e) => {
+    e.next();
+
     /** @type {AuditLogger} */
     const auditLogger = require(`${__hooks}/auditLogger.js`);
 
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
-    if (!e.record) return;
+    if (!e.record) throw utils.createMissingDataError("orgAuthorization");
 
     const record = e.record.original();
 
@@ -265,7 +281,6 @@ onRecordDeleteRequest((e) => {
 
     const user = utils.getExpanded(record, "user");
     const role = utils.getExpanded(record, "role");
-
     if (!user) throw utils.createMissingDataError("user of orgAuthorization");
     if (!role) throw utils.createMissingDataError("role of orgAuthorization");
 

@@ -10,7 +10,7 @@
 
 	let { organization, ...rest }: Props = $props();
 
-	let src = $derived(pb.files.getUrl(organization, organization.avatar ?? ''));
+	let src = $derived(pb.files.getURL(organization, organization.avatar ?? ''));
 	let fallback = $derived(organization.name.slice(0, 2));
 </script>
 

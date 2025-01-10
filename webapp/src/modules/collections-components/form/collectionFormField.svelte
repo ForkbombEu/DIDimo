@@ -1,9 +1,10 @@
 <script lang="ts" module>
-	import type { CollectionName, AnySchemaField } from '@/pocketbase/collections-models';
+	import type { CollectionName, AnyCollectionField } from '@/pocketbase/collections-models';
 	import type { FieldSnippet, RelationFieldOptions } from './collectionFormTypes';
+	import type { CollectionField as PbCollectionField } from 'pocketbase';
 
 	export type CollectionFormFieldProps<C extends CollectionName> = {
-		fieldConfig: AnySchemaField;
+		fieldConfig: PbCollectionField;
 		hidden?: boolean;
 		label?: string;
 		snippet?: FieldSnippet<C>;
@@ -36,8 +37,10 @@
 
 	//
 
-	const name = fieldConfig.name;
-	const multiple = isArrayField(fieldConfig);
+	const config = $derived(fieldConfig as AnyCollectionField);
+	const name = $derived(config.name);
+	const multiple = $derived(isArrayField(config));
+
 	const { form } = getFormContext();
 </script>
 
@@ -45,31 +48,31 @@
 	<!-- Nothing -->
 {:else if snippet}
 	{@render snippet({
-		form: form as SuperForm<CollectionFormData[C]>,
+		form: form as unknown as SuperForm<CollectionFormData[C]>,
 		field: name as FormPath<CollectionFormData[C]>
 	})}
-{:else if fieldConfig.type == 'text' || fieldConfig.type == 'url' || fieldConfig.type == 'date' || fieldConfig.type == 'email'}
-	<Field {form} {name} options={{ label, description, placeholder, type: fieldConfig.type }} />
-{:else if fieldConfig.type == 'number'}
+{:else if config.type == 'text' || config.type == 'url' || config.type == 'date' || config.type == 'email'}
+	<Field {form} {name} options={{ label, description, placeholder, type: config.type }} />
+{:else if config.type == 'number'}
 	<Field {form} {name} options={{ label, description, type: 'number', placeholder }} />
-{:else if fieldConfig.type == 'json'}
+{:else if config.type == 'json'}
 	<TextareaField {form} {name} options={{ label, description, placeholder }} />
-{:else if fieldConfig.type == 'bool'}
+{:else if config.type == 'bool'}
 	<CheckboxField {form} {name} options={{ label, description }} />
-{:else if fieldConfig.type == 'file'}
-	{@const accept = fieldConfig.options.mimeTypes?.join(',')}
+{:else if config.type == 'file'}
+	{@const accept = config.mimeTypes?.join(',')}
 	<FileField {form} {name} options={{ label, multiple, accept, placeholder }} />
-{:else if fieldConfig.type == 'select'}
-	{@const items = fieldConfig.options.values?.map((v) => ({ label: v, value: v }))}
+{:else if config.type == 'select'}
+	{@const items = config.values?.map((v) => ({ label: v, value: v }))}
 	<SelectField
 		{form}
 		{name}
 		options={{ label, items, type: multiple ? 'multiple' : 'single', description, placeholder }}
 	/>
-{:else if fieldConfig.type == 'editor'}
+{:else if config.type == 'editor'}
 	<TextareaField {form} {name} options={{ label, description, placeholder }} />
-{:else if fieldConfig.type == 'relation'}
-	{@const collectionName = getCollectionNameFromId(fieldConfig.options.collectionId!) as C}
+{:else if config.type == 'relation'}
+	{@const collectionName = getCollectionNameFromId(config.collectionId) as C}
 	<CollectionField
 		{form}
 		{name}

@@ -34,9 +34,6 @@
 	//
 
 	const showInviteModal = createToggleStore(false);
-	$effect(() => {
-		console.log($showInviteModal);
-	});
 </script>
 
 <OrganizationLayout org={organization}>
@@ -105,18 +102,27 @@
 											<Badge>{m.You()}</Badge>
 										{/if}
 										{#if role.name != OrgRoles.MEMBER}
-											<Badge variant="secondary">{capitalize(role.name)}</Badge>
+											<Badge variant="secondary"
+												>{capitalize(role.name)}</Badge
+											>
 										{/if}
 									</div>
 								</div>
 
 								{#snippet right()}
-									<ProtectedOrgUI orgId={organization.id} roles={['admin', 'owner']}>
+									<ProtectedOrgUI
+										orgId={organization.id}
+										roles={['admin', 'owner']}
+									>
 										<div class="space-x-1">
 											{#if userRole.level < role.level}
 												<RecordEdit {record}>
 													{#snippet button({ triggerAttributes })}
-														<Button variant="outline" size="sm" {...triggerAttributes}>
+														<Button
+															variant="outline"
+															size="sm"
+															{...triggerAttributes}
+														>
 															{m.Edit_role()}
 															<Icon src={Pencil} ml />
 														</Button>
@@ -125,7 +131,11 @@
 
 												<RecordDelete {record}>
 													{#snippet button({ triggerAttributes })}
-														<Button variant="outline" size="sm" {...triggerAttributes}>
+														<Button
+															variant="outline"
+															size="sm"
+															{...triggerAttributes}
+														>
 															{m.Remove()}
 															<Icon src={X} ml />
 														</Button>

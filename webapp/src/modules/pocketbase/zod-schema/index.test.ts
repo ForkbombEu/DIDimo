@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { createCollectionZodSchema } from '.';
-import type { CollectionFormData } from '@/pocketbase/types';
+import type { CollectionFormData, Data } from '@/pocketbase/types';
 import { getCollectionModel } from '@/pocketbase/collections-models';
 import { subYears, addYears, differenceInMilliseconds, addMilliseconds } from 'date-fns';
 
 //
+
+type ZTestFormData = Data<CollectionFormData['z_test_collection']>;
 
 describe('generated collection zod schema', () => {
 	const schema = createCollectionZodSchema('z_test_collection');
@@ -14,7 +16,7 @@ describe('generated collection zod schema', () => {
 		expect(parseResult.success).toBe(false);
 	});
 
-	const baseData: CollectionFormData['z_test_collection'] = {
+	const baseData: ZTestFormData = {
 		number_field: 3,
 		relation_field: 'generic-id',
 		text_field: 'sampletext',
@@ -29,7 +31,7 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('fails the validation for file with bad mimeType', () => {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			file_field: dummyFile('text/json')
 		};
@@ -41,7 +43,7 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('accepts empty string for optional url', () => {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			url_field: ''
 		};
@@ -50,7 +52,7 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('doesn`t accept url with bad domain', () => {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			url_field: 'https://miao.com'
 		};
@@ -61,7 +63,7 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('fails the regex test', () => {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			text_with_regex: 'abc 123-24'
 		};
@@ -71,15 +73,15 @@ describe('generated collection zod schema', () => {
 
 	// JSON Field Checks
 
-	const jsonField = getCollectionModel('z_test_collection').schema.find(
+	const jsonField = getCollectionModel('z_test_collection').fields.find(
 		(schemaField) => schemaField.type == 'json'
 	);
 	if (!jsonField) throw new Error('field not found');
-	const { maxSize: jsonMaxSize } = jsonField.options;
+	const { maxSize: jsonMaxSize } = jsonField;
 	if (!jsonMaxSize) throw new Error('missing json max size');
 
 	it('fails the json size check with a large JSON object', () => {
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			json_field: generateLargeJSONObject(jsonMaxSize * 1.5)
 		};
@@ -90,9 +92,9 @@ describe('generated collection zod schema', () => {
 	});
 
 	it('passes the json size check with a small JSON object', () => {
-		const jsonMaxSize = getCollectionModel('z_test_collection').schema[12].options.maxSize;
+		const jsonMaxSize = getCollectionModel('z_test_collection').fields[12].maxSize;
 		const jsonObject = generateLargeJSONObject(jsonMaxSize * 0.5);
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			json_field: jsonObject
 		};
@@ -102,17 +104,17 @@ describe('generated collection zod schema', () => {
 
 	// Date checks
 
-	const dateField = getCollectionModel('z_test_collection').schema.find(
+	const dateField = getCollectionModel('z_test_collection').fields.find(
 		(schemaField) => schemaField.type == 'date'
 	);
 	if (!dateField) throw new Error('field not found');
-	const { max: maxDate, min: minDate } = dateField.options;
+	const { max: maxDate, min: minDate } = dateField;
 	if (!maxDate || !minDate) throw new Error('missing min and max date');
 
 	it('fails the date check with a date earlier than minimum', () => {
 		const earlierDate = subYears(minDate, 10);
 
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			date_field: earlierDate.toISOString()
 		};
@@ -123,7 +125,7 @@ describe('generated collection zod schema', () => {
 	it('fails the date check with a date later than maximum', () => {
 		const laterDate = addYears(maxDate, 10);
 
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			date_field: laterDate.toISOString()
 		};
@@ -137,7 +139,7 @@ describe('generated collection zod schema', () => {
 
 		console.log(minDate, betweenDate.toISOString(), maxDate);
 
-		const data: CollectionFormData['z_test_collection'] = {
+		const data: ZTestFormData = {
 			...baseData,
 			date_field: betweenDate.toISOString()
 		};

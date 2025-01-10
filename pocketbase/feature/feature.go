@@ -131,6 +131,13 @@ func fetchDict(env string) (map[string]interface{}, error) {
 func newConfig(app core.App, feature string) (map[string]string, error) {
 	var envConfig map[string]string
 	record, err := app.FindFirstRecordByData("features", "name", feature)
+	if err != nil {
+		return envConfig, err
+	}
+	if record == nil {
+		return envConfig, fmt.Errorf("record not found for flag: %s", feature)
+	}
+
 	envString, err := record.Get("envVariables").(types.JSONRaw).MarshalJSON()
 	if err != nil {
 		return envConfig, err

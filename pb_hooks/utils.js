@@ -3,11 +3,11 @@
 /// <reference path="../pb_data/types.d.ts" />
 /// <reference path="./ambient.d.ts" />
 
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgRolesRecord} OrgRole */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
-/** @typedef {import("../../webapp/src/modules/pocketbase/types").UsersRecord} User */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgRolesRecord} OrgRole */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").OrgAuthorizationsRecord} OrgAuthorization */
+/** @typedef {import("../webapp/src/modules/pocketbase/types").UsersRecord} User */
 
-/** @typedef {Omit<mail.Address, "string">} Address */
+/** @typedef {MailerMessage["to"][number]} Address */
 
 //
 
@@ -68,7 +68,7 @@ function isLastOwnerAuthorization(orgAuthorization) {
 
     const ownerAuthorizations = findRecordsByFilter(
         "orgAuthorizations",
-        `organization="${organizationId}" && role="${ownerRoleId}"`,
+        `organization="${organizationId}" && role="${ownerRoleId}"`
     );
 
     return ownerAuthorizations.length == 1;
@@ -84,7 +84,7 @@ function getUserRole(userId, organizationId, app = $app) {
     const authorization = findFirstRecordByFilter(
         "orgAuthorizations",
         `user = "${userId}" && organization = "${organizationId}"`,
-        app,
+        app
     );
     if (!authorization) return undefined;
     return getExpanded(authorization, "role", app);
@@ -202,13 +202,11 @@ function getUserEmailAddressData(user) {
 function sendEmail(data) {
     try {
         const message = new MailerMessage({
-            // @ts-expect-error Missing string() object
             from: {
                 address:
                     data.from?.address ?? $app.settings().meta.senderAddress,
                 name: data.from?.name ?? $app.settings().meta.senderName,
             },
-            // @ts-expect-error Missing string() object
             to: Array.isArray(data.to) ? data.to : [data.to],
             subject: data.subject,
             html: data.html,
@@ -238,7 +236,7 @@ function getOrganizationAdminsAddresses(organizationId, app = $app) {
     const recipients = findRecordsByFilter(
         "orgAuthorizations",
         `organization.id = "${organizationId}" && ( role.name = "admin" || role.name = "owner" )`,
-        app,
+        app
     );
 
     return recipients
@@ -279,8 +277,7 @@ function getOrganizationMembersPageUrl(organizationId) {
 function runOrganizationInviteEndpointChecks(e) {
     /** @type {{inviteId: string | undefined}} */
     // @ts-ignore
-    const data = $apis.requestInfo(e).data;
-    const { inviteId } = data;
+    const { inviteId } = e.requestInfo().body;
     if (!inviteId || typeof inviteId != "string")
         throw createMissingDataError("inviteId");
 
@@ -336,7 +333,7 @@ const renderEmail = (name, data) => {
         "webapp",
         "static",
         "emails",
-        `${name}.html`,
+        `${String(name)}.html`
     );
     const html = $template
         .loadFiles(emailPath)

@@ -71,10 +71,16 @@
 					<PlainCard>
 						{record.expand?.organization?.name}
 						{#snippet right()}
-							<Button variant="outline" onclick={() => updateInvite(record.id, 'accept')}>
+							<Button
+								variant="outline"
+								onclick={() => updateInvite(record.id, 'accept')}
+							>
 								{m.accept_invite()}<Icon src={Check} ml />
 							</Button>
-							<Button variant="outline" onclick={() => updateInvite(record.id, 'decline')}>
+							<Button
+								variant="outline"
+								onclick={() => updateInvite(record.id, 'decline')}
+							>
 								{m.decline_invite()}<Icon src={X} ml />
 							</Button>
 						{/snippet}
@@ -100,7 +106,7 @@
 					{#each records as request}
 						{@const organization = request.expand?.organization}
 						{#if organization}
-							{@const avatarUrl = pb.files.getUrl(organization, organization.avatar)}
+							{@const avatarUrl = pb.files.getURL(organization, organization.avatar)}
 							<PlainCard>
 								{#snippet left()}
 									<Avatar src={avatarUrl}></Avatar>
@@ -135,7 +141,12 @@
 	<PageCard>
 		<SectionTitle title={m.Your_organizations()}>
 			{#snippet right()}
-				<Button size="sm" variant="outline" class="shrink-0 !px-4" href="/my/organizations/join">
+				<Button
+					size="sm"
+					variant="outline"
+					class="shrink-0 !px-4"
+					href="/my/organizations/join"
+				>
 					<span class="ml-1"> {m.Join_an_organization()} </span>
 					<Icon src={UserPlus} ml />
 				</Button>
@@ -170,7 +181,9 @@
 											<A href={`/my/organizations/${org.id}`}>{org.name}</A>
 										</Title>
 										{#if role.name == ADMIN || role.name == OWNER}
-											<Badge variant="secondary">{capitalize(role.name)}</Badge>
+											<Badge variant="secondary"
+												>{capitalize(role.name)}</Badge
+											>
 										{/if}
 									</div>
 									{#if org.description}
