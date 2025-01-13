@@ -132,6 +132,7 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(BINARY_NAME)
 	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
+	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
 	@echo "🧹 cleaned"
 
 tools:
