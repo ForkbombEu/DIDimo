@@ -1,4 +1,4 @@
-package hooks
+package pb
 
 import (
 	"bytes"
@@ -21,7 +21,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func Register(app *pocketbase.PocketBase) error {
+func RegisterHooks(app *pocketbase.PocketBase) error {
 	modelHandler := func(event string) func(e *core.RecordEvent) error {
 		return func(e *core.RecordEvent) error {
 			table := e.Record.TableName()
