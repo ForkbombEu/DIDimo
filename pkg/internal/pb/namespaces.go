@@ -13,7 +13,7 @@ import (
 	"go.temporal.io/sdk/client"
 )
 
-func DatabaseHooks(app *pocketbase.PocketBase) {
+func HookNamespaceOrgs(app *pocketbase.PocketBase) {
 	app.OnRecordAfterCreateSuccess("organizations").BindFunc(func(e *core.RecordEvent) error {
 		c, err := client.NewNamespaceClient(client.Options{})
 		if err != nil {
@@ -21,12 +21,9 @@ func DatabaseHooks(app *pocketbase.PocketBase) {
 		}
 		defer c.Close()
 
-		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
-		defer cancel()
-
-		err = c.Register(ctx, &workflowservice.RegisterNamespaceRequest{
+		err = c.Register(context.Background(), &workflowservice.RegisterNamespaceRequest{
 			Namespace:                        e.Record.Get("name").(string),
-			WorkflowExecutionRetentionPeriod: durationpb.New(24 * time.Hour),
+			WorkflowExecutionRetentionPeriod: durationpb.New(7 * 24 * time.Hour),
 		})
 
 		if err != nil {

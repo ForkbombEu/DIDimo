@@ -37,7 +37,7 @@ func Setup(app *pocketbase.PocketBase) {
 			}
 
 			return e.JSON(http.StatusOK, map[string]string{"hmac": hmac})
-		})
+		}).Bind(apis.RequireAuth())
 
 		se.Router.GET("/api/did", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
@@ -68,12 +68,12 @@ func Setup(app *pocketbase.PocketBase) {
 			}
 
 			return e.JSON(http.StatusOK, did)
-		})
+		}).Bind(apis.RequireAuth())
 
 		return se.Next()
 	})
 
-	pb.DatabaseHooks(app)
+	pb.HookNamespaceOrgs(app)
 	pb.Register(app)
 
 	// ** BAD LINE **
