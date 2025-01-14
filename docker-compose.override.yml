@@ -30,8 +30,10 @@ services:
     depends_on:
       - temporal
     environment:
+      - TEMPORAL_OPENAPI_ENABLED=true
+      - TEMPORAL_UI_ENABLED=true
       - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
+      # - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
     image: temporalio/ui:2.32.0
     ports:
       - 8080:8080
