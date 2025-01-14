@@ -1,4 +1,4 @@
-package webauthn
+package pb
 
 import (
 	"bytes"
@@ -112,15 +112,15 @@ func NewWebAuthnFromEnv(app *pocketbase.PocketBase) (*webauthn.WebAuthn, error) 
 	}
 
 	if envConfig.DisplayName == "" {
-		return nil, errors.New("Display name is empty")
+		return nil, errors.New("display name is empty")
 	}
 
 	if envConfig.RPId == "" {
-		return nil, errors.New("Relying party not set")
+		return nil, errors.New("relying party not set")
 	}
 
 	if envConfig.RPOrigin == "" {
-		return nil, errors.New("Relying party origin not set")
+		return nil, errors.New("relying party origin not set")
 	}
 
 	wconfig := &webauthn.Config{
@@ -329,7 +329,7 @@ func Register(app *pocketbase.PocketBase) error {
 			// note: in the future the below will be simplified to just: return api.AuthResponse(c, user)
 			token, tokenErr := userRecord.NewAuthToken()
 			if tokenErr != nil {
-				return errors.New("Failed to create user token")
+				return errors.New("failed to create user token")
 			}
 
 			return e.JSON(http.StatusOK, map[string]any{

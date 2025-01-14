@@ -1,4 +1,4 @@
-package did
+package pb
 
 import (
 	"bytes"
@@ -9,9 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/forkbombeu/didimo/pocketbase/feature"
-	"github.com/forkbombeu/didimo/pocketbase/zencode"
 )
 
 const clientTimeout = 10 * time.Second
@@ -34,14 +31,14 @@ type DidResult struct {
 // Clients and Transports are safe for concurrent use by multiple goroutines
 // and for efficiency should only be created once and re-used.
 // TODO: Look at https://mauricio.github.io/golang-proxies
-var client = &http.Client{
+var httpClient = &http.Client{
 	Timeout: clientTimeout,
 	CheckRedirect: func(req *http.Request, via []*http.Request) error {
 		return http.ErrUseLastResponse
 	},
 }
 
-func restroomRequest(conf *feature.DidConfig, contract string, body map[string]interface{}) (io.ReadCloser, error) {
+func restroomRequest(conf *DidConfig, contract string, body map[string]interface{}) (io.ReadCloser, error) {
 	url := *conf.DidURL
 	url.Path = fmt.Sprintf("/api/v1/sandbox/%s", contract)
 	datakeys, _ := json.Marshal(map[string]map[string]interface{}{
@@ -53,25 +50,25 @@ func restroomRequest(conf *feature.DidConfig, contract string, body map[string]i
 		return nil, err
 	}
 	req.Header.Set("Content-Type", "application/json")
-	res, err := client.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
 	return res.Body, nil
 }
 
-func didId(conf *feature.DidConfig, agent *DidAgent) string {
+func didId(conf *DidConfig, agent *DidAgent) string {
 	return fmt.Sprintf("did:dyne:%s:%s", conf.Spec, agent.EddsaPublicKey)
 }
 
-func GetDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
+func GetDid(conf *DidConfig, agent *DidAgent) (*DidResult, error) {
 	url := *conf.DidURL
 	url.Path = fmt.Sprintf("/dids/%s", didId(conf, agent))
 	req, err := http.NewRequest("GET", url.String(), nil)
 	if err != nil {
 		return nil, err
 	}
-	res, err := client.Do(req)
+	res, err := httpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +94,7 @@ func GetDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
 	return &result, nil
 }
 
-func RequestNewDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
+func RequestNewDid(conf *DidConfig, agent *DidAgent) (*DidResult, error) {
 	didRequest := map[string]interface{}{
 		"proof": map[string]interface{}{
 			"type":         "EcdsaSecp256k1Signature2019",
@@ -131,7 +128,7 @@ func RequestNewDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error)
 		didRequest[k] = v
 	}
 
-	did, err := zencode.PubkeysRequestSigned(didRequest)
+	did, err := PubkeysRequestSigned(didRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -156,7 +153,7 @@ func RequestNewDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error)
 	return &result, nil
 }
 
-func ClaimDid(conf *feature.DidConfig, agent *DidAgent) (*DidResult, error) {
+func ClaimDid(conf *DidConfig, agent *DidAgent) (*DidResult, error) {
 	did, err := GetDid(conf, agent)
 	if err == nil {
 		return did, nil
