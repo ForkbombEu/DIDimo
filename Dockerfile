@@ -15,6 +15,9 @@ RUN apk add --no-cache curl bash libstdc++
 
 RUN curl -fsSL https://bun.sh/install | bash && \
     ln -s /root/.bun/bin/bun /usr/local/bin/bun
+RUN curl -fsSL https://github.com/dyne/slangroom-exec/releases/latest/download/slangroom-exec-$(uname)-$(uname -m) -o /usr/bin/slangroom-exec && \
+    chmod +x /usr/bin/slangroom-exec
+
 
 WORKDIR /app
 

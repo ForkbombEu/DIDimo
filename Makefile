@@ -32,8 +32,7 @@ AIR 			?= $(GOBIN)/air
 # Submodules
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
-SLANGROOM 		= $(BIN)/slangroom-exec
-DEPS 			= mise wget git tmux upx temporal
+DEPS 			= slangroom-exec mise wget git tmux upx temporal
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
@@ -41,11 +40,6 @@ all: help
 
 $(BIN):
 	@mkdir $(BIN)
-
-$(SLANGROOM): | $(BIN)
-	@wget https://github.com/dyne/slangroom-exec/releases/latest/download/slangroom-exec-$(shell uname)-$(shell uname -m) -O $(SLANGROOM)
-	@chmod +x $(SLANGROOM)
-	@@echo "slangroom-exec 😎 installed"
 
 submodules:
 	git submodule update --recursive --init
@@ -75,7 +69,7 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(SLANGROOM) $(WEBENV) tools submodules ## 🚀 run in watch mode
+dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
@@ -97,7 +91,7 @@ purge: ## ⛔ Purge the database
 
 ## Deployment
 
-$(BINARY_NAME): $(GO_SRC) tools tidy submodules $(SLANGROOM) $(WEBENV)
+$(BINARY_NAME): $(GO_SRC) tools tidy submodules $(WEBENV)
 	@$(GOBUILD) -o $(BINARY_NAME) $(MAIN_SRC)
 
 $(WEBAPP)/build: $(UI_SRC)
