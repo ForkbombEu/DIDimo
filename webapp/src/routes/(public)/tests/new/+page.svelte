@@ -5,6 +5,7 @@
 	import { m } from '@/i18n';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+	import { pb } from '@/pocketbase';
 
 	//
 
