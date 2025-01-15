@@ -30,8 +30,8 @@
 			{/snippet}
 		</Topbar>
 
-		<div class="flex grow basis-1 flex-col items-center justify-center p-10">
-			<div class="w-[320px] space-y-6 md:w-[400px]">
+		<div class="flex grow basis-1 flex-col items-center justify-center">
+			<div class="w-[320px] space-y-6 p-8 md:w-[400px]">
 				{@render children?.()}
 			</div>
 		</div>
