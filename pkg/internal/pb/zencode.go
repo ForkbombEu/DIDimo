@@ -8,10 +8,10 @@ import (
 	slangroom "github.com/dyne/slangroom-exec/bindings/go"
 )
 
-//go:embed zenflows-crypto/src/keypairoomServer-6-7.zen
+//go:embed client_zencode/keypairoom/keypairoomServer-6-7.zen
 var KEYPAIROOM_ZENCODE string
 
-//go:embed zenflows-crypto/src/pubkeys-request-signed-02-24.zen
+//go:embed client_zencode/keypairoom/pubkeys-request-signed-02-24.zen
 var PUBKEYS_REQUEST_SIGNED_ZENCODE string
 
 func KeypairoomServer(conf *KeypairoomConfig, data map[string]interface{}) (string, error) {
