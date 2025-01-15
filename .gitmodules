@@ -2,15 +2,12 @@
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
-[submodule "webapp/zenflows-crypto"]
-	path = webapp/zenflows-crypto
-	url = https://github.com/interfacerproject/zenflows-crypto
 [submodule "webapp/client_zencode"]
 	path = webapp/client_zencode
 	url = https://github.com/ForkbombEu/client_zencode
 [submodule "webapp/src/lib/openid-vc-typescript-json-schema"]
 	path = webapp/src/lib/openid-vc-typescript-json-schema
 	url = https://github.com/ForkbombEu/openid-vc-typescript-json-schema
-[submodule "pkg/internal/pb/zenflows-crypto"]
-	path = pkg/internal/pb/zenflows-crypto
-	url = https://github.com/interfacerproject/zenflows-crypto
+[submodule "pkg/internal/pb/client_zencode"]
+	path = pkg/internal/pb/client_zencode
+	url = https://github.com/ForkbombEu/client_zencode
