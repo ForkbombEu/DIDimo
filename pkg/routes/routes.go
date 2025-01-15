@@ -2,9 +2,11 @@ package routes
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 
 	"github.com/forkbombeu/didimo/pkg/internal/pb"
 	"github.com/pocketbase/dbx"
@@ -16,9 +18,17 @@ import (
 )
 
 func Setup(app *pocketbase.PocketBase) {
+	routes := map[string]string{
+		"/workflows/{path...}":  getEnv("ADDRESS_TEMPORAL", "http://localhost:8080"),
+		"/monitoring/{path...}": getEnv("ADDRESS_GRAFANA", "http://localhost:8085"),
+		"/{path...}":            getEnv("ADDRESS_UI", "http://localhost:5100"),
+	}
+
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		se.Router.Any("/*", proxyHandler)
-		se.Router.Any("/", proxyHandler)
+		for path, target := range routes {
+			se.Router.Any(path, createReverseProxy(target))
+		}
+
 		se.Router.POST("/api/keypairoom-server", func(e *core.RequestEvent) error {
 			var body map[string]map[string]interface{}
 
@@ -88,11 +98,35 @@ func Setup(app *pocketbase.PocketBase) {
 	})
 }
 
-func proxyHandler(req *core.RequestEvent) error {
-	proxy := httputil.NewSingleHostReverseProxy(&url.URL{
-		Scheme: "http",
-		Host:   "localhost:5100",
-	})
-	proxy.ServeHTTP(req.Response, req.Request)
-	return nil
+func createReverseProxy(target string) func(r *core.RequestEvent) error {
+	return func(r *core.RequestEvent) error {
+		targetURL, err := url.Parse(target)
+		if err != nil {
+			return err
+		}
+		log.Printf("Proxying request: %s -> %s%s", r.Request.URL.Path, targetURL.String(), r.Request.URL.Path)
+
+		proxy := httputil.NewSingleHostReverseProxy(targetURL)
+		proxy.Director = func(req *http.Request) {
+			req.URL.Scheme = targetURL.Scheme
+			req.URL.Host = targetURL.Host
+			req.Header.Set("Host", targetURL.Host)
+			req.Header.Set("X-Forwarded-For", req.RemoteAddr)
+			if origin := req.Header.Get("Origin"); origin != "" {
+				req.Header.Set("Origin", origin)
+			}
+			if referer := req.Header.Get("Referer"); referer != "" {
+				req.Header.Set("Referer", referer)
+			}
+		}
+		proxy.ServeHTTP(r.Response, r.Request)
+		return nil
+	}
+}
+
+func getEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }
