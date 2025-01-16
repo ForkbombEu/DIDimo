@@ -1,7 +1,6 @@
 package routes
 
 import (
-	"encoding/json"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -16,48 +15,29 @@ import (
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 )
 
-func Setup(app *pocketbase.PocketBase) {
+func bindAppHooks(app core.App) {
 	routes := map[string]string{
 		"/workflows/{path...}":  getEnv("ADDRESS_TEMPORAL", "http://localhost:8080"),
 		"/monitoring/{path...}": getEnv("ADDRESS_GRAFANA", "http://localhost:8085"),
 		"/{path...}":            getEnv("ADDRESS_UI", "http://localhost:5100"),
 	}
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		for path, target := range routes {
 			se.Router.Any(path, createReverseProxy(target))
 		}
 
-		se.Router.POST("/api/keypairoom-server", func(e *core.RequestEvent) error {
-			var body map[string]map[string]interface{}
-
-			conf, err := pb.FetchKeypairoomConfig(app)
-			if err != nil {
-				return err
-			}
-
-			err = json.NewDecoder(e.Request.Body).Decode(&body)
-			if err != nil {
-				return err
-			}
-			hmac, err := pb.KeypairoomServer(conf, body["userData"])
-			if err != nil {
-				return err
-			}
-
-			return e.JSON(http.StatusOK, map[string]string{"hmac": hmac})
-		}).Bind(apis.RequireAuth())
+		se.Router.POST("/api/keypairoom-server", pb.KeypairoomServerHandler(app)).Bind(apis.RequireAuth())
 
 		se.Router.GET("/api/did", pb.DidHandler(app)).Bind(apis.RequireAuth())
 
 		return se.Next()
 	})
+}
+func Setup(app *pocketbase.PocketBase) {
 
+	bindAppHooks(app)
 	pb.HookNamespaceOrgs(app)
 	pb.Register(app)
-
-	// ** BAD LINE **
-	// hooks.Register(app)
 
 	jsvm.MustRegister(app, jsvm.Config{
 		HooksWatch: true,
@@ -66,8 +46,8 @@ func Setup(app *pocketbase.PocketBase) {
 		TemplateLang: migratecmd.TemplateLangJS,
 		Automigrate:  true,
 	})
-}
 
+}
 func createReverseProxy(target string) func(r *core.RequestEvent) error {
 	return func(r *core.RequestEvent) error {
 		targetURL, err := url.Parse(target)

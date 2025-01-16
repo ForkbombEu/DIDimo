@@ -22,7 +22,6 @@ import (
 	"net/url"
 
 	"github.com/pocketbase/dbx"
-	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 )
@@ -37,7 +36,7 @@ func ProxyHandler(req *core.RequestEvent) error {
 }
 
 // KeypairoomServerHandler handles the `/api/keypairoom-server` route.
-func KeypairoomServerHandler(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
+func KeypairoomServerHandler(app core.App) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
 		var body map[string]map[string]interface{}
 
@@ -60,7 +59,7 @@ func KeypairoomServerHandler(app *pocketbase.PocketBase) func(*core.RequestEvent
 }
 
 // DidHandler handles the `/api/did` route.
-func DidHandler(app *pocketbase.PocketBase) func(*core.RequestEvent) error {
+func DidHandler(app core.App) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
 		authRecord := e.Auth
 		if authRecord == nil {
