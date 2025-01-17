@@ -11,3 +11,4 @@ docs/.vitepress/cache/
 pb.env
 /didimo
 didimo-ui
+/.vscode

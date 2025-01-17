@@ -61,12 +61,8 @@ func KeypairoomServerHandler(app core.App) func(*core.RequestEvent) error {
 // DidHandler handles the `/api/did` route.
 func DidHandler(app core.App) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
-		authRecord := e.Auth
-		if authRecord == nil {
-			return apis.NewForbiddenError("Only auth records can access this endpoint", nil)
-		}
 
-		publicKeys, err := app.FindFirstRecordByFilter("users_public_keys", "owner = {:owner_id}", dbx.Params{"owner_id": authRecord.Id})
+		publicKeys, err := app.FindFirstRecordByFilter("users_public_keys", "owner = {:owner_id}", dbx.Params{"owner_id": e.Auth.Id})
 		if err != nil {
 			return apis.NewForbiddenError("Only users with public keys can access this endpoint", nil)
 		}
