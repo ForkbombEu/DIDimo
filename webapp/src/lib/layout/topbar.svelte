@@ -20,7 +20,7 @@
 	{#snippet right()}
 		{#if $featureFlags.AUTH}
 			<div class="space-x-2">
-				<Button variant="default" href="/tests/new">{m.Start_a_new_test()}</Button>
+				<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
 				{#if $currentUser}
 					<UserNav />
 				{:else}

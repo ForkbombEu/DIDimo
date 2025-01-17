@@ -21,7 +21,7 @@
 	</div>
 </PageTop>
 
-<PageContent class="bg-muted" contentClass="space-y-12">
+<PageContent class="bg-secondary" contentClass="space-y-12">
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_solutions()}</T>

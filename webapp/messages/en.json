@@ -254,5 +254,9 @@
 	"Proudly_developed_by_ForkBomb_BV": "Proudly developed by ForkBomb BV",
 	"Upload_a_new_compliance_test": "Upload a new compliance test",
 	"Upload_test": "Upload test",
-	"Services": "Services"
+	"Services": "Services",
+	"Start_a_new_compliance_check": "Start a new compliance check",
+	"Start_check": "Start check",
+	"Start_a_new_check": "Start a new check",
+	"Credential_issuer_URL": "Credential issuer URL"
 }
