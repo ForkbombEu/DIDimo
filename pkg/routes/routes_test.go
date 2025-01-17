@@ -9,7 +9,7 @@ import (
 	"github.com/pocketbase/pocketbase/tests"
 )
 
-const testDataDir = "./../../testdata/test_pb_data"
+const testDataDir = "./../../fixtures/test_pb_data"
 
 func generateToken(collectionNameOrId string, email string) (string, error) {
 	app, err := tests.NewTestApp(testDataDir)

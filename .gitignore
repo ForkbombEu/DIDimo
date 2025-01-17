@@ -12,3 +12,4 @@ pb.env
 /didimo
 didimo-ui
 /.vscode
+/fixtures/test_pb_data/auxiliary.db
