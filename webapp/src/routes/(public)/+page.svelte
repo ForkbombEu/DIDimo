@@ -1,8 +1,10 @@
 <script lang="ts">
 	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
+	import PageGrid from '$lib/layout/pageGrid.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
+	import { CollectionManager } from '@/collections-components';
 	import T from '@/components/ui-custom/t.svelte';
 	import { Button } from '@/components/ui/button';
 	import { m } from '@/i18n';
@@ -25,13 +27,23 @@
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_solutions()}</T>
-			<Button variant="default" href="/">{m.All_solutions()}</Button>
+			<Button variant="default" href="/services">{m.All_solutions()}</Button>
 		</div>
-		<div class="flex flex-col gap-6 sm:flex-row md:gap-8">
-			<ServiceCard />
-			<ServiceCard />
-			<ServiceCard class="hidden lg:block" />
-		</div>
+		<PageGrid>
+			{@const MAX_ITEMS = 3}
+			<CollectionManager
+				collection="services"
+				queryOptions={{ perPage: MAX_ITEMS }}
+				hide={['pagination']}
+			>
+				{#snippet records({ records })}
+					{#each records as service, i}
+						{@const isLast = i == MAX_ITEMS - 1}
+						<ServiceCard {service} class={isLast ? 'hidden lg:block' : ''} />
+					{/each}
+				{/snippet}
+			</CollectionManager>
+		</PageGrid>
 	</div>
 
 	<div class="space-y-6">
@@ -39,11 +51,11 @@
 			<T tag="h3">{m.Find_credentials()}</T>
 			<Button variant="default" href="/">{m.All_credentials()}</Button>
 		</div>
-		<div class="flex flex-col gap-6 sm:flex-row md:gap-8">
+		<PageGrid>
 			<CredentialCard class="grow basis-1" />
 			<CredentialCard class="grow basis-1" />
 			<CredentialCard class="hidden grow basis-1 lg:block" />
-		</div>
+		</PageGrid>
 	</div>
 
 	<div class="space-y-6">

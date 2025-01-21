@@ -258,5 +258,8 @@
 	"Start_a_new_compliance_check": "Start a new compliance check",
 	"Start_check": "Start check",
 	"Start_a_new_check": "Start a new check",
-	"Credential_issuer_URL": "Credential issuer URL"
+	"Credential_issuer_URL": "Credential issuer URL",
+	"Find_identity_solutions": "Find identity solutions",
+	"Service_name": "Service name:",
+	"Claim_service": "Claim service"
 }

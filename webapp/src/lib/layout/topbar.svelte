@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { AppLogo } from '@/brand';
 	import { Button } from '@/components/ui/button';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
@@ -13,6 +12,7 @@
 		<!-- <AppLogo /> -->
 		<Button variant="link" href="/">{m.Getting_started()}</Button>
 		<Button variant="link" href="/">{m.Tests()}</Button>
+		<Button variant="link" href="/services">{m.Services()}</Button>
 		<Button variant="link" href="/">{m.Apps()}</Button>
 		<Button variant="link" href="/">{m.Credentials()}</Button>
 	{/snippet}
