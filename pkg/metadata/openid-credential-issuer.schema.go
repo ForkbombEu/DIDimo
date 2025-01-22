@@ -53,10 +53,10 @@ const CryptographicBindingMethodsSupportedElemDidEbsi CryptographicBindingMethod
 const CryptographicBindingMethodsSupportedElemDidJwk CryptographicBindingMethodsSupportedElem = "did:jwk"
 const CryptographicBindingMethodsSupportedElemDidKey CryptographicBindingMethodsSupportedElem = "did:key"
 const CryptographicBindingMethodsSupportedElemDidWeb CryptographicBindingMethodsSupportedElem = "did:web"
-const CryptographicBindingMethodsSupportedElemJwk CryptographicBindingMethodsSupportedElem = "jwk"
+const CryptographicBindingMethodsSupportedElemJWK CryptographicBindingMethodsSupportedElem = "JWK"
 
 var enumValues_CryptographicBindingMethodsSupportedElem = []interface{}{
-	"jwk",
+	"JWK",
 	"did",
 	"did:web",
 	"did:ebsi",

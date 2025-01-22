@@ -18,7 +18,6 @@ func main() {
 		Short: "Fetch and parse .well-known credential issuer metadata",
 		Args:  cobra.ExactArgs(1), // Ensure exactly one positional argument is provided
 		RunE: func(cmd *cobra.Command, args []string) error {
-			// Get the mandatory URL argument
 			url := args[0]
 
 			// Fetch metadata
@@ -27,11 +26,11 @@ func main() {
 				return fmt.Errorf("error fetching metadata: %v", err)
 			}
 
-			// Determine the output writer
 			var writer io.Writer
-			if outputFile == "" || outputFile == "stdout" {
+			switch outputFile {
+			case "", "stdout":
 				writer = os.Stdout
-			} else {
+			default:
 				file, err := os.Create(outputFile)
 				if err != nil {
 					return fmt.Errorf("error creating file: %v", err)
@@ -41,7 +40,7 @@ func main() {
 			}
 
 			// Output metadata
-			if err := metadata.Output(issuerMetadata, writer); err != nil {
+			if err := metadata.PrintJSON(issuerMetadata, writer); err != nil {
 				return fmt.Errorf("error writing metadata: %v", err)
 			}
 

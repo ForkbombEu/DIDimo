@@ -43,7 +43,7 @@ func FetchURL(baseURL string) (*OpenidCredentialIssuerSchemaJson, error) {
 }
 
 // Output metadata to the provided writer
-func Output(metadata *OpenidCredentialIssuerSchemaJson, writer io.Writer) error {
+func PrintJSON(metadata *OpenidCredentialIssuerSchemaJson, writer io.Writer) error {
 	var enc *json.Encoder
 
 	// Note: this check will fail if running inside Goland (and
