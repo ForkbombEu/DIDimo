@@ -11,18 +11,15 @@ import (
 
 //go:generate go run  github.com/atombender/go-jsonschema@latest   -p metadata ../../schemas/openid-credential-issuer.schema.json -o ../../pkg/metadata/openid-credential-issuer.schema.go
 func main() {
-	var (
-		url        string
-		outputFile string
-	)
+	var outputFile string
 
 	rootCmd := &cobra.Command{
-		Use:   "credimi",
+		Use:   "credimi [url]",
 		Short: "Fetch and parse .well-known credential issuer metadata",
+		Args:  cobra.ExactArgs(1), // Ensure exactly one positional argument is provided
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if url == "" {
-				return fmt.Errorf("error: URL is required")
-			}
+			// Get the mandatory URL argument
+			url := args[0]
 
 			// Fetch metadata
 			issuerMetadata, err := metadata.FetchURL(url)
@@ -52,9 +49,7 @@ func main() {
 		},
 	}
 
-	rootCmd.Flags().StringVarP(&url, "url", "u", "", "The URL of the credential issuer (required)")
 	rootCmd.Flags().StringVarP(&outputFile, "output", "o", "", "Output destination (e.g., stdout or file path)")
-	rootCmd.MarkFlagRequired("url")
 
 	// Execute the root command
 	if err := rootCmd.Execute(); err != nil {
