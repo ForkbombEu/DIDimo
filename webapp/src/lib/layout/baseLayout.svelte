@@ -8,7 +8,7 @@
 
 <div class="flex min-h-screen flex-col">
 	<Topbar />
-	<div class="grow">
+	<div class="flex grow flex-col">
 		{@render children()}
 	</div>
 	<Footer />

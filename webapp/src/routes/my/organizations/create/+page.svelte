@@ -24,7 +24,7 @@
 				labels: {
 					name: m.Organization_name(),
 					description: m.Short_description(),
-					avatar: m.Avatar()
+					logo: m.Avatar()
 				}
 			}}
 			onSuccess={(record) => {
