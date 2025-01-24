@@ -5,8 +5,10 @@ go 1.23
 require (
 	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20241219141704-b961cab9047b
 	github.com/go-webauthn/webauthn v0.11.2
+	github.com/neilotoole/jsoncolor v0.7.1
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.24.3
+	github.com/spf13/cobra v1.8.1
 	go.temporal.io/api v1.43.1
 	go.temporal.io/sdk v1.31.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
@@ -71,14 +73,12 @@ require (
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
-	github.com/neilotoole/jsoncolor v0.7.1 // indirect
 	github.com/nexus-rpc/sdk-go v0.1.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/remyoudompheng/bigfft v0.0.0-20230129092748-24d4a6f8daec // indirect
 	github.com/robfig/cron v1.2.0 // indirect
 	github.com/spf13/cast v1.7.1 // indirect
-	github.com/spf13/cobra v1.8.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/stretchr/testify v1.10.0 // indirect
