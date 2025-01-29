@@ -49,6 +49,7 @@ type CryptographicBindingMethodsSupportedElem string
 const CryptographicBindingMethodsSupportedElemCoseKey CryptographicBindingMethodsSupportedElem = "cose_key"
 const CryptographicBindingMethodsSupportedElemDid CryptographicBindingMethodsSupportedElem = "did"
 const CryptographicBindingMethodsSupportedElemDidDyne CryptographicBindingMethodsSupportedElem = "did:dyne"
+const CryptographicBindingMethodsSupportedElemDidDyneSandboxSignroom CryptographicBindingMethodsSupportedElem = "did:dyne:sandbox.signroom"
 const CryptographicBindingMethodsSupportedElemDidEbsi CryptographicBindingMethodsSupportedElem = "did:ebsi"
 const CryptographicBindingMethodsSupportedElemDidJwk CryptographicBindingMethodsSupportedElem = "did:jwk"
 const CryptographicBindingMethodsSupportedElemDidKey CryptographicBindingMethodsSupportedElem = "did:key"
@@ -64,6 +65,7 @@ var enumValues_CryptographicBindingMethodsSupportedElem = []interface{}{
 	"did:ebsi",
 	"did:jwk",
 	"did:dyne",
+	"did:dyne:sandbox.signroom",
 	"did:key",
 	"cose_key",
 }
