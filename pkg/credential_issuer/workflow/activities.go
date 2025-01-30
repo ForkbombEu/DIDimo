@@ -3,6 +3,7 @@ package workflow
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
 	"path/filepath"
 	"runtime"
@@ -25,7 +26,7 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 	if err != nil {
 		logger.Warn("Error fetching credential issuer, retrying", "error", err)
 		// Always retry the activity
-		return nil, temporal.NewApplicationError("Error fetching credential issuer, will retry", "RetryableError", err)
+		return nil, temporal.NewApplicationError(fmt.Sprintf("Error fetching credential issuer: %v. Retry", err), "RetryableError", err)
 	}
 
 	logger.Info("Successfully fetched credential issuer metadata")
@@ -47,7 +48,7 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 	// Attempt to open the database
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		logger.Warn("Failed to open database, retrying StoreCredentialsActivity", "error", err)
+		logger.Warn(fmt.Sprintf("Failed to open database : %v, retrying StoreCredentialsActivity", err), "error", err)
 		return temporal.NewApplicationError("Failed to open database", "RetryStoreCredentials", err)
 	}
 	defer db.Close()
@@ -86,7 +87,7 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 		)
 		if err != nil {
 			logger.Warn("SQL execution failed, restarting from FetchCredentialIssuerActivity", "error", err)
-			return temporal.NewApplicationError("Database query failed", "RestartFromFetch", err)
+			return temporal.NewApplicationError(fmt.Sprintf("Database query failed: %v", err), "RestartFromFetch", err)
 		}
 
 		logger.Info("Successfully stored credential issuer data")
