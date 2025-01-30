@@ -3,6 +3,7 @@ package credentialissuer
 import (
 	"fmt"
 	"io"
+	"log"
 	"strings"
 
 	metadata "github.com/forkbombeu/didimo/pkg/internal/metadata"
@@ -13,12 +14,12 @@ var credentialIssuerEndpoint string = "/.well-known/openid-credential-issuer"
 // FetchCredentialIssuer fetches the metadata for a credential issuer and handles specific errors, including 404 status.
 func FetchCredentialIssuer(baseURL string) (*OpenidCredentialIssuerSchemaJson, error) {
 	if strings.HasPrefix(baseURL, "http://") {
-		// Return an error if the URL uses HTTP
-		return nil, fmt.Errorf("HTTP is not supported, only HTTPS allowed for the credential issuer URL")
+		// Print a warning instead of returning an error
+		log.Printf("WARNING: HTTP is not supported, only HTTPS is allowed for the credential issuer URL")
 	}
 
 	// Ensure the base URL is in a valid format (https)
-	if !strings.HasPrefix(baseURL, "https://") {
+	if !strings.HasPrefix(baseURL, "https://") && !strings.HasPrefix(baseURL, "http://") {
 		baseURL = "https://" + baseURL
 	}
 
