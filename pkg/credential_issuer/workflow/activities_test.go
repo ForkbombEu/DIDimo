@@ -142,3 +142,134 @@ func TestStoreCredentialsActivity(t *testing.T) {
 	assert.NoError(t, err, "Expected no error when querying test database")
 	assert.Equal(t, 1, count, "Expected exactly one credential stored in the database")
 }
+
+func TestFetchCredentialIssuersActivity(t *testing.T) {
+	testCases := []struct {
+		name         string
+		mockResponse string
+		expectError  bool
+	}{
+		{
+			name:         "Valid Response",
+			mockResponse: wellKnownJSON,
+			expectError:  false,
+		},
+		{
+			name:         "Invalid JSON",
+			mockResponse: `invalid-json`,
+			expectError:  true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testSuite := &testsuite.WorkflowTestSuite{}
+			env := testSuite.NewTestActivityEnvironment()
+			env.RegisterActivity(FetchCredentialIssuerActivity)
+
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				fmt.Fprint(w, tc.mockResponse)
+			}))
+			defer server.Close()
+
+			val, err := env.ExecuteActivity(FetchCredentialIssuerActivity, server.URL)
+			if tc.expectError {
+				assert.Error(t, err, "Expected an error")
+				return
+			}
+
+			assert.NoError(t, err, "Did not expect an error")
+
+			var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
+			err = val.Get(&issuerData)
+			assert.NoError(t, err, "Expected no error when retrieving activity result")
+		})
+	}
+}
+
+func TestStoreCredentialssActivity(t *testing.T) {
+	testCases := []struct {
+		name         string
+		mockData     string
+		dbPath       string
+		expectError  bool
+		expectedRows int
+	}{
+		{
+			name:         "Valid Data",
+			mockData:     wellKnownJSON,
+			expectError:  false,
+			expectedRows: 1,
+		},
+		{
+			name:         "Invalid JSON",
+			mockData:     `{invalid-json}`,
+			expectError:  true,
+			expectedRows: 0,
+		},
+		{
+			name:         "Fail to Open DB",
+			mockData:     wellKnownJSON,
+			dbPath:       "/invalid/path/to/db.sqlite", // Simulate a non-writable or non-existent path
+			expectError:  true,
+			expectedRows: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			testSuite := &testsuite.WorkflowTestSuite{}
+			env := testSuite.NewTestActivityEnvironment()
+			env.RegisterActivity(StoreCredentialsActivity)
+
+			dbPath := tc.dbPath
+			var tempFile *os.File
+			var err error
+
+			// Only create a temp file if no custom path is set (to simulate DB failure)
+			if dbPath == "" {
+				tempFile, err = os.CreateTemp("", "test_db_*.sqlite")
+				assert.NoError(t, err, "Expected no error creating temp file")
+				defer os.Remove(tempFile.Name())
+				dbPath = tempFile.Name()
+			}
+
+			db, err := sql.Open("sqlite", dbPath)
+			assert.NoError(t, err, "Expected no error opening database")
+			defer db.Close()
+
+			_, err = db.Exec(`
+				CREATE TABLE credentials (
+					format TEXT,
+					issuer_name TEXT,
+					name TEXT,
+					locale TEXT,
+					logo TEXT
+				);
+			`)
+			if !tc.expectError {
+				assert.NoError(t, err, "Expected no error creating test database schema")
+			}
+
+			var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
+			err = json.Unmarshal([]byte(tc.mockData), &issuerData)
+			if tc.expectError && tc.dbPath == "" {
+				assert.Error(t, err, "Expected JSON unmarshalling error")
+				return
+			}
+
+			_, err = env.ExecuteActivity(StoreCredentialsActivity, &issuerData, dbPath)
+			if tc.expectError {
+				assert.Error(t, err, "Expected an error from StoreCredentialsActivity")
+				return
+			}
+
+			assert.NoError(t, err, "Did not expect an error from StoreCredentialsActivity")
+
+			var count int
+			err = db.QueryRow(`SELECT COUNT(*) FROM credentials`).Scan(&count)
+			assert.NoError(t, err, "Expected no error querying database")
+			assert.Equal(t, tc.expectedRows, count, "Unexpected row count in credentials table")
+		})
+	}
+}
