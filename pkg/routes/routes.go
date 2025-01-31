@@ -37,6 +37,7 @@ func Setup(app *pocketbase.PocketBase) {
 
 	bindAppHooks(app)
 	pb.HookNamespaceOrgs(app)
+	pb.HookCredentialWorkflow(app)
 	pb.Register(app)
 
 	jsvm.MustRegister(app, jsvm.Config{

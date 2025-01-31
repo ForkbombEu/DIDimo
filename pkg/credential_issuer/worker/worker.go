@@ -18,7 +18,7 @@ func main() {
 	defer c.Close()
 
 	// Create a worker that listens to a task queue
-	w := worker.New(c, "CredimiTaskQueue", worker.Options{})
+	w := worker.New(c, "CredentialsTaskQueue", worker.Options{})
 
 	// Register the workflow and activities
 	w.RegisterWorkflow(workflow.CredentialWorkflow)
