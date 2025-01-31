@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
@@ -14,17 +15,17 @@ type WorkflowInput struct {
 	BaseURL string // Base URL for the credential issuer
 }
 
-// CredimiWorkflow validates the schema, parses metadata, and prints it.
-func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) error {
+// CredentialWorkflow validates the schema, parses metadata, and prints it.
+func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, error) {
 	logger := workflow.GetLogger(ctx)
-	logger.Info("Starting Credential Workflow")
+	logger.Info("Starting Credential Workflow", "BaseURL", input.BaseURL)
 
 	// Define retry policy
 	retryPolicy := &temporal.RetryPolicy{
 		InitialInterval:    time.Second * 5,
 		BackoffCoefficient: 2.0,
 		MaximumInterval:    time.Minute,
-		MaximumAttempts:    0, // Infinite retries
+		MaximumAttempts:    0,
 	}
 
 	ao := workflow.ActivityOptions{
@@ -34,40 +35,33 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) error {
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	for {
-		var issuerData *credentialissuer.OpenidCredentialIssuerSchemaJson
-		err := workflow.ExecuteActivity(ctx, FetchCredentialIssuerActivity, input.BaseURL).Get(ctx, &issuerData)
-		if err != nil {
-			logger.Error("FetchCredentialIssuerActivity failed, retrying", "error", err)
-			continue // Restart from FetchCredentialIssuerActivity
-		}
-
-		for {
-			err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, getDBPath()).Get(ctx, nil)
-			if err != nil {
-				var appErr *temporal.ApplicationError
-				if errors.As(err, &appErr) {
-					errType := appErr.Type()
-					logger.Warn("StoreCredentialsActivity failed", "errorType", errType, "error", err)
-
-					if errType == "RetryStoreCredentials" {
-						// Retry only StoreCredentialsActivity
-						continue
-					} else if errType == "RestartFromFetch" {
-						// Restart from FetchCredentialIssuerActivity
-						break
-					}
-				}
-			}
-
-			// If StoreCredentialsActivity succeeds, break the loop
-			break
-		}
-
-		// If everything succeeds, exit workflow loop
-		break
+	// Fetch credential issuer
+	var issuerData *credentialissuer.OpenidCredentialIssuerSchemaJson
+	err := workflow.ExecuteActivity(ctx, FetchCredentialIssuerActivity, input.BaseURL).Get(ctx, &issuerData)
+	if err != nil {
+		logger.Error("FetchCredentialIssuerActivity failed", "error", err)
+		return "", err
 	}
 
-	logger.Info("Credential Workflow completed successfully")
-	return nil
+	dbPath := getDBPath()
+
+	// Store credentials
+	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, dbPath).Get(ctx, nil)
+	if err != nil {
+		var appErr *temporal.ApplicationError
+		if errors.As(err, &appErr) {
+			errType := appErr.Type()
+			logger.Warn("StoreCredentialsActivity failed", "errorType", errType, "error", err)
+
+			if errType == "RestartFromFetch" {
+				logger.Warn("Restarting workflow from FetchCredentialIssuerActivity")
+				return "", workflow.NewContinueAsNewError(ctx, CredentialWorkflow, input)
+			}
+		}
+		return "", err
+	}
+
+	successMessage := fmt.Sprintf("Credentials Workflow completed successfully for URL: %s", input.BaseURL)
+	logger.Info(successMessage)
+	return successMessage, nil
 }
