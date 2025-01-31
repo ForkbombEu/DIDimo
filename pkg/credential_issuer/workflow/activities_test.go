@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -92,18 +91,10 @@ func TestFetchCredentialIssuerActivity(t *testing.T) {
 
 	// Register the mock activity function
 	env.RegisterActivity(FetchCredentialIssuerActivity)
-	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, wellKnownJSON)
 	}))
 	defer server.Close()
-
-	originalTransport := http.DefaultTransport
-
-	http.DefaultTransport = &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-
-	defer func() { http.DefaultTransport = originalTransport }()
 
 	val, err := env.ExecuteActivity(FetchCredentialIssuerActivity, server.URL)
 	assert.NoError(t, err, "Expected no error from FetchCredentialIssuerActivity")

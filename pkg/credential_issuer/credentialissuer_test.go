@@ -1,7 +1,6 @@
 package credentialissuer
 
 import (
-	"crypto/tls"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -72,22 +71,11 @@ func TestFetchURL(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Create a mock TLS server
-			server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(tt.statusCode)
 				fmt.Fprint(w, tt.serverResponse)
 			}))
 			defer server.Close()
-
-			// Save the original transport to restore after the test
-			originalTransport := http.DefaultTransport
-
-			// Create a custom transport with TLS verification disabled
-			http.DefaultTransport = &http.Transport{
-				TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-			}
-
-			// Ensure the original transport is restored after the test
-			defer func() { http.DefaultTransport = originalTransport }()
 
 			// Call FetchCredentialIssuer
 			metadata, err := FetchCredentialIssuer(server.URL)
