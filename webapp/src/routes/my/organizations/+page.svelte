@@ -106,7 +106,7 @@
 					{#each records as request}
 						{@const organization = request.expand?.organization}
 						{#if organization}
-							{@const avatarUrl = pb.files.getURL(organization, organization.avatar)}
+							{@const avatarUrl = pb.files.getURL(organization, organization.logo)}
 							<PlainCard>
 								{#snippet left()}
 									<Avatar src={avatarUrl}></Avatar>
