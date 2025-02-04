@@ -5,11 +5,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/forkbombeu/didimo/pkg/metadata"
+	crIss "github.com/forkbombeu/didimo/pkg/credential_issuer"
 	"github.com/spf13/cobra"
 )
 
-//go:generate go run  github.com/atombender/go-jsonschema@latest   -p metadata ../../schemas/openid-credential-issuer.schema.json -o ../../pkg/metadata/openid-credential-issuer.schema.go
+//go:generate go run  github.com/atombender/go-jsonschema@latest   -p credentialissuer ../../schemas/openid-credential-issuer.schema.json -o ../../pkg/credential_issuer/openid-credential-issuer.schema.go
 func main() {
 	var outputFile string
 
@@ -21,7 +21,7 @@ func main() {
 			url := args[0]
 
 			// Fetch metadata
-			issuerMetadata, err := metadata.FetchURL(url)
+			issuerMetadata, err := crIss.FetchCredentialIssuer(url)
 			if err != nil {
 				return fmt.Errorf("error fetching metadata: %v", err)
 			}
@@ -40,7 +40,7 @@ func main() {
 			}
 
 			// Output metadata
-			if err := metadata.PrintJSON(issuerMetadata, writer); err != nil {
+			if err := crIss.PrintCredentialIssuer(issuerMetadata, writer); err != nil {
 				return fmt.Errorf("error writing metadata: %v", err)
 			}
 
