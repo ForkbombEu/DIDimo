@@ -4,8 +4,8 @@ layout: home
 
 hero:
   name: "DIDimo"
-  tagline: "Master the complexities of SSI identity solutions with DIDimo: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem."
-  text: "Streamline identity compliance effortlessly."
+  tagline: "The go-to platform for testing, validating, and ensuring EUDI-ARF compliance of wallet, issuers, relying parties, using multiple testing suites."
+  text: "EUDI-ARF 1.5 §7, \nwallet certification: \nWe are ready."
   image:
    src: https://raw.githubusercontent.com/ForkbombEu/DIDimo/main/docs/images/logo/didimo_logo_fingerprint_emblem.png
   actions:
