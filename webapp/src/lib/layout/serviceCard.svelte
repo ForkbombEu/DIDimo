@@ -48,9 +48,8 @@
 	});
 </script>
 
-<a
-	href="/services/{service.id}"
-	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all hover:-translate-y-2 hover:ring-2 {className}"
+<div
+	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all {className}"
 >
 	<div class="space-y-4">
 		<div class="space-y-1">
@@ -68,4 +67,12 @@
 			{service.updated.split(' ').at(0)}
 		</T>
 	</div>
+</div>
+
+<!-- <a
+	href="/services/{service.id}"
+	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all hover:-translate-y-2 hover:ring-2 {className}"
+>
+	<- OLD CONTAINER ->
 </a>
+ -->
