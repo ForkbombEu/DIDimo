@@ -15,6 +15,7 @@
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
 	import { pb } from '@/pocketbase';
 	import { Collections, ServicesCountryOptions, type ServicesResponse } from '@/pocketbase/types';
+	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 
@@ -57,6 +58,14 @@
 	});
 
 	let formSuccess = $state(false);
+
+	//
+
+	let formHighlight = $state(false);
+
+	onMount(() => {
+		// TODO (start animation on scroll)
+	});
 </script>
 
 {#if !$featureFlags.DEMO}
@@ -145,8 +154,8 @@
 	</div>
 </PageContent>
 
-<PageContent class="border-y-2 border-y-primary" contentClass="!space-y-8">
-	<div id="waitlist">
+<PageContent class="border-y-primaryborder-y-2" contentClass="!space-y-8">
+	<div id="waitlist" class="scroll-mt-20">
 		<T tag="h2" class="text-balance">
 			{m._Stay_Ahead_in_Digital_Identity_Compliance_Join_Our_Early_Access_List()}
 		</T>
