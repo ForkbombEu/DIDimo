@@ -59,15 +59,17 @@
 	let formSuccess = $state(false);
 </script>
 
-<div class="flex justify-end px-6 pt-4">
-	<LanguageSelect flagsOnly>
-		{#snippet trigger({ triggerAttributes, language })}
-			<Button variant="outline" class="w-14 text-2xl" {...triggerAttributes}>
-				{language.flag}
-			</Button>
-		{/snippet}
-	</LanguageSelect>
-</div>
+{#if !$featureFlags.DEMO}
+	<div class="flex justify-end px-6 pt-4">
+		<LanguageSelect flagsOnly>
+			{#snippet trigger({ triggerAttributes, language })}
+				<Button variant="outline" class="w-14 text-2xl" {...triggerAttributes}>
+					{language.flag}
+				</Button>
+			{/snippet}
+		</LanguageSelect>
+	</div>
+{/if}
 <PageTop>
 	<div class="space-y-2">
 		<T tag="h1" class="text-balance">{m.Find_and_test_identity_solutions_with_ease()}</T>
@@ -75,12 +77,12 @@
 			{m.Didimo_is_your_trusted_source_for_compliance_verification()}
 		</T>
 	</div>
-	{#if !$featureFlags.DEMO}
-		<div class="flex gap-4">
-			<Button variant="default" href="/tests/new">{m.Start_a_new_test()}</Button>
-			<Button variant="secondary">{m.See_how_it_works()}</Button>
-		</div>
-	{/if}
+	<div class="flex gap-4">
+		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/tests/new'}
+			>{m.Start_a_new_test()}</Button
+		>
+		<Button variant="secondary">{m.See_how_it_works()}</Button>
+	</div>
 </PageTop>
 
 <PageContent class="bg-secondary" contentClass="space-y-12">
@@ -143,8 +145,8 @@
 	</div>
 </PageContent>
 
-<PageContent class="border-y-primary border-y-2" contentClass="!space-y-8">
-	<div>
+<PageContent class="border-y-2 border-y-primary" contentClass="!space-y-8">
+	<div id="waitlist">
 		<T tag="h2" class="text-balance">
 			{m._Stay_Ahead_in_Digital_Identity_Compliance_Join_Our_Early_Access_List()}
 		</T>

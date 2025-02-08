@@ -7,26 +7,32 @@
 	import UserNav from './userNav.svelte';
 </script>
 
-<BaseTopbar class="bg-card border-none">
+<BaseTopbar class="border-none bg-card">
 	{#snippet left()}
 		<!-- <AppLogo /> -->
-		<Button variant="link" href="/">{m.Getting_started()}</Button>
-		<Button variant="link" href="/">{m.Tests()}</Button>
-		<Button variant="link" href="/services">{m.Services()}</Button>
-		<Button variant="link" href="/">{m.Apps()}</Button>
-		<Button variant="link" href="/">{m.Credentials()}</Button>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}
+			>{m.Getting_started()}</Button
+		>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Tests()}</Button>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Services()}</Button>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Apps()}</Button>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}
+			>{m.Credentials()}</Button
+		>
 	{/snippet}
 
 	{#snippet right()}
-		{#if $featureFlags.AUTH}
-			<div class="space-x-2">
-				<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
-				{#if $currentUser}
-					<UserNav />
-				{:else}
-					<Button variant="link" href="/login">{m.Login()}</Button>
-				{/if}
-			</div>
+		{#if !$featureFlags.DEMO}
+			{#if $featureFlags.AUTH}
+				<div class="space-x-2">
+					<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
+					{#if $currentUser}
+						<UserNav />
+					{:else}
+						<Button variant="link" href="/login">{m.Login()}</Button>
+					{/if}
+				</div>
+			{/if}
 		{/if}
 	{/snippet}
 </BaseTopbar>
