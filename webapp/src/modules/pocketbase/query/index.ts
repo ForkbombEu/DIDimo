@@ -167,6 +167,10 @@ export class PocketbaseQuery<C extends CollectionName, E extends ExpandQueryOpti
 			.getList(currentPage, perPage, this.pocketbaseListOptions);
 	}
 
+	getOne(id: string): Promise<QueryResponse<C, E>> {
+		return pb.collection(this.collection).getOne(id, this.pocketbaseListOptions);
+	}
+
 	// Utils
 
 	sortBy(sortOption: SortOption) {

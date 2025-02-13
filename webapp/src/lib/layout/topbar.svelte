@@ -12,21 +12,21 @@
 		<!-- <AppLogo /> -->
 		<Button variant="link" href="/">{m.Getting_started()}</Button>
 		<Button variant="link" href="/">{m.Tests()}</Button>
-		<Button variant="link" href="/services">{m.Services()}</Button>
+		<Button variant="link" href="/providers">{m.Services()}</Button>
 		<Button variant="link" href="/">{m.Apps()}</Button>
 		<Button variant="link" href="/credentials">{m.Credentials()}</Button>
 	{/snippet}
 
 	{#snippet right()}
-		{#if $featureFlags.AUTH}
-			<div class="space-x-2">
-				<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
+		<div class="space-x-2">
+			<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
+			{#if $featureFlags.AUTH}
 				{#if $currentUser}
 					<UserNav />
 				{:else}
 					<Button variant="link" href="/login">{m.Login()}</Button>
 				{/if}
-			</div>
-		{/if}
+			{/if}
+		</div>
 	{/snippet}
 </BaseTopbar>

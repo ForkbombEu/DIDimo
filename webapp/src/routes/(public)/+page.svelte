@@ -27,7 +27,7 @@
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_solutions()}</T>
-			<Button variant="default" href="/services">{m.All_solutions()}</Button>
+			<Button variant="default" href="/providers">{m.All_solutions()}</Button>
 		</div>
 		<PageGrid>
 			{@const MAX_ITEMS = 3}

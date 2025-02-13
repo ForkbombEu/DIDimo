@@ -49,7 +49,7 @@
 </script>
 
 <a
-	href="/services/{service.id}"
+	href="/providers/{service.id}"
 	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all hover:-translate-y-2 hover:ring-2 {className}"
 >
 	<div class="space-y-4">
