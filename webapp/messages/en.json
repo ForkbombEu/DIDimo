@@ -261,5 +261,7 @@
 	"Credential_issuer_URL": "Credential issuer URL",
 	"Find_identity_solutions": "Find identity solutions",
 	"Service_name": "Service name:",
-	"Claim_service": "Claim service"
+	"Claim_service": "Claim service",
+	"Find_credential_attributes": "Find credential attributes",
+	"Specification": "Specification"
 }

@@ -14,7 +14,7 @@
 		<Button variant="link" href="/">{m.Tests()}</Button>
 		<Button variant="link" href="/services">{m.Services()}</Button>
 		<Button variant="link" href="/">{m.Apps()}</Button>
-		<Button variant="link" href="/">{m.Credentials()}</Button>
+		<Button variant="link" href="/credentials">{m.Credentials()}</Button>
 	{/snippet}
 
 	{#snippet right()}

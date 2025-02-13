@@ -41,6 +41,27 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 		}
 
 		log.Default().Printf("Workflow completed successfully: %s\n", result)
+
+		// Part of the code for Giovanni
+		// TODO - Not the real implementation should be removed in future
+
+		relatedID := e.Record.Id
+		providers, err := app.FindCollectionByNameOrId("services")
+		if err != nil {
+			return err
+		}
+
+		newRecord := core.NewRecord(providers)
+		newRecord.Set("credential_issuers", relatedID)
+		newRecord.Set("name", "TestName")
+		// Save the new record in providers
+		if err := app.Save(newRecord); err != nil {
+			log.Println("Failed to create related record:", err)
+			return err
+		}
+
+		log.Println("Successfully created related record in services")
+
 		return e.Next()
 	})
 }

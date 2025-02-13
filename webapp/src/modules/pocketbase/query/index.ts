@@ -45,6 +45,7 @@ export type PocketbaseQueryOptions<C extends CollectionName, E extends ExpandQue
 	filter: string;
 	exclude: RecordIdString[];
 	search: string;
+	searchFields: (keyof CollectionResponses[C])[];
 	sort: SortOption;
 	// TODO - Improve type safety with keyof CollectionResponses[C] (currently it does not work cause of svelte issue)
 	// TODO - Improve to handle multiple sorts
@@ -92,6 +93,14 @@ export class PocketbaseQuery<C extends CollectionName, E extends ExpandQueryOpti
 					.fields.filter((field) =>
 						allowedFieldTypes.includes(field.type as SchemaFieldType)
 					)
+					.filter((field) => {
+						if (this.options.searchFields) {
+							return this.options.searchFields.includes(
+								field.name as keyof CollectionResponses[C]
+							);
+						}
+						return true;
+					})
 					.map((field) => field.name);
 				if (this.collection == 'users') fieldNames.push('email');
 				return fieldNames.map((f) => `${f} ~ "${searchText}"`).join(' || ');
