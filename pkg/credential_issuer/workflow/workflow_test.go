@@ -14,7 +14,7 @@ func Test_Workflow(t *testing.T) {
 
 	// Mock activity implementation
 	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(nil, nil)
-	env.OnActivity(StoreCredentialsActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	env.OnActivity(StoreCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 
 	env.ExecuteWorkflow(CredentialWorkflow, WorkflowInput{BaseURL: "example@test.com"})
 

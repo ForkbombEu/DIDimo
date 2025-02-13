@@ -85,65 +85,7 @@ var wellKnownJSON = `{
   }
 }`
 
-func TestFetchCredentialIssuerActivity(t *testing.T) {
-	testSuite := &testsuite.WorkflowTestSuite{}
-	env := testSuite.NewTestActivityEnvironment()
-
-	// Register the mock activity function
-	env.RegisterActivity(FetchCredentialIssuerActivity)
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, wellKnownJSON)
-	}))
-	defer server.Close()
-
-	val, err := env.ExecuteActivity(FetchCredentialIssuerActivity, server.URL)
-	assert.NoError(t, err, "Expected no error from FetchCredentialIssuerActivity")
-
-	// Retrieve result
-	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
-	err = val.Get(&issuerData)
-	assert.NoError(t, err, "Expected no error when retrieving activity result")
-
-}
-
-// TestStoreCredentialsActivity tests StoreCredentialsActivity using an in-memory SQLite database
-func TestStoreCredentialsActivity(t *testing.T) {
-	testSuite := &testsuite.WorkflowTestSuite{}
-	env := testSuite.NewTestActivityEnvironment()
-	env.RegisterActivity(StoreCredentialsActivity)
-	tempFile, err := os.CreateTemp("", "test_db_*.sqlite")
-	assert.NoError(t, err, "Expected no error creating temp file")
-	defer os.Remove(tempFile.Name()) // Ensure the file is deleted after the test
-
-	// Open the SQLite database file
-	db, err := sql.Open("sqlite", tempFile.Name())
-	assert.NoError(t, err, "Expected no error when opening in-memory database")
-	defer db.Close()
-
-	_, err = db.Exec(`
-        CREATE TABLE credentials (
-            format TEXT,
-            issuer_name TEXT,
-            name TEXT,
-            locale TEXT,
-            logo TEXT
-        );
-    `)
-	assert.NoError(t, err, "Expected no error when creating test database schema")
-	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
-	err = json.Unmarshal([]byte(wellKnownJSON), &issuerData)
-	assert.NoError(t, err, "Expected no error when parse json")
-
-	_, err = env.ExecuteActivity(StoreCredentialsActivity, &issuerData, tempFile.Name())
-	assert.NoError(t, err, "Expected no error from StoreCredentialsActivity")
-
-	var count int
-	err = db.QueryRow(`SELECT COUNT(*) FROM credentials`).Scan(&count)
-	assert.NoError(t, err, "Expected no error when querying test database")
-	assert.Equal(t, 1, count, "Expected exactly one credential stored in the database")
-}
-
-func TestFetchCredentialIssuersActivity(t *testing.T) {
+func TestFetchCredentialsIssuerActivity(t *testing.T) {
 	testCases := []struct {
 		name         string
 		mockResponse string
@@ -187,7 +129,7 @@ func TestFetchCredentialIssuersActivity(t *testing.T) {
 	}
 }
 
-func TestStoreCredentialssActivity(t *testing.T) {
+func TestStoreCredentialsActivity(t *testing.T) {
 	testCases := []struct {
 		name         string
 		mockData     string
@@ -244,7 +186,8 @@ func TestStoreCredentialssActivity(t *testing.T) {
 					issuer_name TEXT,
 					name TEXT,
 					locale TEXT,
-					logo TEXT
+					logo TEXT,
+					credential_issuer TEXT
 				);
 			`)
 			if !tc.expectError {
@@ -258,7 +201,7 @@ func TestStoreCredentialssActivity(t *testing.T) {
 				return
 			}
 
-			_, err = env.ExecuteActivity(StoreCredentialsActivity, &issuerData, dbPath)
+			_, err = env.ExecuteActivity(StoreCredentialsActivity, &issuerData, "Test_Issuer", dbPath)
 			if tc.expectError {
 				assert.Error(t, err, "Expected an error from StoreCredentialsActivity")
 				return

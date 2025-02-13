@@ -34,7 +34,7 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 }
 
 // StoreCredentialsActivity inserts credential issuer data into the Pocketbase database
-func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.OpenidCredentialIssuerSchemaJson, dbPath string) error {
+func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.OpenidCredentialIssuerSchemaJson, issuerID, dbPath string) error {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Storing credential issuer data into database")
 
@@ -75,8 +75,9 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
             issuer_name, 
             name, 
             locale,
-            logo
-        ) VALUES (?, ?, ?, ?, ?);`
+            logo,
+			credential_issuer
+        ) VALUES (?, ?, ?, ?, ?, ?);`
 
 		_, err = db.ExecContext(ctx, insertSQL,
 			cred.Format,
@@ -84,6 +85,7 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 			credName,
 			credLocale,
 			credLogo,
+			issuerID,
 		)
 		if err != nil {
 			logger.Warn("SQL execution failed, restarting from FetchCredentialIssuerActivity", "error", err)
