@@ -12,7 +12,8 @@ import (
 
 // WorkflowInput defines the input for the Temporal workflow.
 type WorkflowInput struct {
-	BaseURL string // Base URL for the credential issuer
+	BaseURL  string // Base URL for the credential issuer
+	IssuerID string // ID of the credentials issuer from PB
 }
 
 // CredentialWorkflow validates the schema, parses metadata, and prints it.
@@ -46,7 +47,7 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	dbPath := getDBPath()
 
 	// Store credentials
-	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, dbPath).Get(ctx, nil)
+	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, input.IssuerID, dbPath).Get(ctx, nil)
 	if err != nil {
 		var appErr *temporal.ApplicationError
 		if errors.As(err, &appErr) {

@@ -187,7 +187,7 @@ func TestStoreCredentialsActivity(t *testing.T) {
 					name TEXT,
 					locale TEXT,
 					logo TEXT,
-					credential_issuers TEXT
+					credential_issuer TEXT
 				);
 			`)
 			if !tc.expectError {
