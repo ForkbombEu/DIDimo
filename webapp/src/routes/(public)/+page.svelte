@@ -49,12 +49,22 @@
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_credentials()}</T>
-			<Button variant="default" href="/">{m.All_credentials()}</Button>
+			<Button variant="default" href="/credentials">{m.All_credentials()}</Button>
 		</div>
 		<PageGrid>
-			<CredentialCard class="grow basis-1" />
-			<CredentialCard class="grow basis-1" />
-			<CredentialCard class="hidden grow basis-1 lg:block" />
+			{@const MAX_ITEMS = 3}
+			<CollectionManager
+				collection="credentials"
+				queryOptions={{ perPage: MAX_ITEMS }}
+				hide={['pagination']}
+			>
+				{#snippet records({ records })}
+					{#each records as credential, i}
+						{@const isLast = i == MAX_ITEMS - 1}
+						<CredentialCard {credential} class={isLast ? 'hidden lg:block' : ''} />
+					{/each}
+				{/snippet}
+			</CollectionManager>
 		</PageGrid>
 	</div>
 

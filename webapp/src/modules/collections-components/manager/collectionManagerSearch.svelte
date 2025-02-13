@@ -14,5 +14,10 @@
 
 <div class="flex gap-2">
 	<Input bind:value={searchText} placeholder={m.Search()} />
-	<IconButton onclick={() => manager.clearSearch()} />
+	<IconButton
+		onclick={() => {
+			manager.clearSearch();
+			searchText = '';
+		}}
+	/>
 </div>

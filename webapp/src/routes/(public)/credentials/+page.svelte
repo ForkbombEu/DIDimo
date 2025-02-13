@@ -8,22 +8,24 @@
 	import { m } from '@/i18n';
 </script>
 
-<CollectionManager collection="credentials">
-	{#snippet top({ Search })}
-		<PageTop>
-			<T tag="h1">{m.Find_credential_attributes()}</T>
+<div class="bg-secondary grow">
+	<CollectionManager collection="credentials" queryOptions={{ searchFields: ['name'] }}>
+		{#snippet top({ Search })}
+			<PageTop>
+				<T tag="h1">{m.Find_credential_attributes()}</T>
 
-			<Search />
-		</PageTop>
-	{/snippet}
+				<Search />
+			</PageTop>
+		{/snippet}
 
-	{#snippet records({ records })}
-		<PageContent class="bg-secondary">
-			<PageGrid>
-				{#each records as record}
-					<CredentialCard credential={record} />
-				{/each}
-			</PageGrid>
-		</PageContent>
-	{/snippet}
-</CollectionManager>
+		{#snippet records({ records })}
+			<PageContent class="bg-secondary grow">
+				<PageGrid>
+					{#each records as record (record.id)}
+						<CredentialCard credential={record} />
+					{/each}
+				</PageGrid>
+			</PageContent>
+		{/snippet}
+	</CollectionManager>
+</div>

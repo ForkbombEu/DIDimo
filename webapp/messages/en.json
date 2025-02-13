@@ -263,5 +263,6 @@
 	"Service_name": "Service name:",
 	"Claim_service": "Claim service",
 	"Find_credential_attributes": "Find credential attributes",
-	"Specification": "Specification"
+	"Specification": "Specification",
+	"No_credentials_found": "No credentials found"
 }

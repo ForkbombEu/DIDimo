@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Card } from '@/components/ui/card';
 	import { m } from '@/i18n';
 	import type { CredentialsResponse } from '@/pocketbase/types';
 
@@ -13,11 +12,11 @@
 	const { credential, class: className = '' }: Props = $props();
 
 	const properties = {
-		[m.Issuer()]: 'credential_issuer',
+		[m.Issuer()]: credential.issuer_name,
 		[m.Duration()]: 'credential_duration',
 		[m.Specification()]: 'credential_specification',
 		[m.Category()]: 'credential_category',
-		[m.Format()]: 'credential_format'
+		[m.Format()]: credential.format
 	};
 </script>
 
