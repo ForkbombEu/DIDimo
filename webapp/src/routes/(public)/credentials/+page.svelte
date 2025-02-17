@@ -5,7 +5,9 @@
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import { CollectionManager } from '@/collections-components';
 	import T from '@/components/ui-custom/t.svelte';
+	import { Button } from '@/components/ui/button';
 	import { m } from '@/i18n';
+	import * as Sheet from '@/components/ui/sheet/index.js';
 </script>
 
 <CollectionManager collection="credentials" queryOptions={{ searchFields: ['name'] }}>
@@ -13,7 +15,20 @@
 		<PageTop>
 			<T tag="h1">{m.Find_credential_attributes()}</T>
 
-			<Search />
+			<Search class="border-primary bg-secondary" />
+
+			<Sheet.Root>
+				<Sheet.Trigger>Open</Sheet.Trigger>
+				<Sheet.Content>
+					<Sheet.Header>
+						<Sheet.Title>Are you sure absolutely sure?</Sheet.Title>
+						<Sheet.Description>
+							This action cannot be undone. This will permanently delete your account
+							and remove your data from our servers.
+						</Sheet.Description>
+					</Sheet.Header>
+				</Sheet.Content>
+			</Sheet.Root>
 		</PageTop>
 	{/snippet}
 

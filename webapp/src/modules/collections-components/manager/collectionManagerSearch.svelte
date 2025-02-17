@@ -4,6 +4,16 @@
 	import { Input } from '@/components/ui/input';
 	import { m } from '@/i18n';
 	import { Debounced } from 'runed';
+	import { Button } from '@/components/ui/button';
+	import Icon from '@/components/ui-custom/icon.svelte';
+	import { X } from 'lucide-svelte';
+	import { String } from 'effect';
+
+	type Props = {
+		class?: string;
+	};
+
+	let { class: className }: Props = $props();
 
 	const { manager } = $derived(getCollectionManagerContext());
 
@@ -12,12 +22,18 @@
 	$effect(() => manager.search(deboucedSearch.current));
 </script>
 
-<div class="flex gap-2">
-	<Input bind:value={searchText} placeholder={m.Search()} />
-	<IconButton
-		onclick={() => {
-			manager.clearSearch();
-			searchText = '';
-		}}
-	/>
+<div class="relative flex">
+	<Input bind:value={searchText} placeholder={m.Search()} class={className} />
+	{#if String.isString(searchText)}
+		<Button
+			onclick={() => {
+				manager.clearSearch();
+				searchText = '';
+			}}
+			class="absolute right-1 top-1 size-8"
+			variant="ghost"
+		>
+			<Icon src={X} size="" />
+		</Button>
+	{/if}
 </div>

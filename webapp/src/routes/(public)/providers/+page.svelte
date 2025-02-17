@@ -12,7 +12,7 @@
 	{#snippet top({ Search })}
 		<PageTop>
 			<T tag="h1">{m.Find_identity_solutions()}</T>
-			<Search />
+			<Search class="border-primary bg-secondary" />
 		</PageTop>
 	{/snippet}
 
