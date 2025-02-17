@@ -12,3 +12,4 @@ pb.env
 didimo-ui
 /.vscode
 /fixtures/test_pb_data/auxiliary.db
+/pkg/OpenID4VP/stepci/node_modules
