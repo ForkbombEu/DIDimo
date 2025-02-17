@@ -54,6 +54,7 @@
 		>;
 		emptyState: Snippet<[{ EmptyState: typeof EmptyState }]>;
 		top: Snippet<[{ Search: typeof Search; Header: typeof Header }]>;
+		contentWrapper: Snippet<[children: () => ReturnType<Snippet>]>;
 	};
 
 	type Options = {
@@ -82,6 +83,7 @@
 		top,
 		records,
 		emptyState,
+		contentWrapper,
 		...rest
 	}: Props = $props();
 
@@ -121,27 +123,34 @@
 </script>
 
 {@render top?.({ Search, Header })}
+{@render (contentWrapper ?? defaultContentWrapper)(content)}
 
-{#if manager.loadingError}
-	<EmptyState
-		title={m.Error()}
-		description={m.Some_error_occurred_while_loading_records_()}
-		icon={MessageCircleWarning}
-	/>
-{:else if manager.records.length > 0}
-	{@render records?.({ records: manager.records, Card, Table, Pagination })}
+{#snippet defaultContentWrapper(children: () => ReturnType<Snippet>)}
+	{@render children()}
+{/snippet}
 
-	{#if !hide.includes('pagination')}
-		<Pagination class="mt-6" />
+{#snippet content()}
+	{#if manager.loadingError}
+		<EmptyState
+			title={m.Error()}
+			description={m.Some_error_occurred_while_loading_records_()}
+			icon={MessageCircleWarning}
+		/>
+	{:else if manager.records.length > 0}
+		{@render records?.({ records: manager.records, Card, Table, Pagination })}
+
+		{#if !hide.includes('pagination')}
+			<Pagination class="mt-6" />
+		{/if}
+	{:else if manager.queryOptions.search && manager.records.length === 0}
+		<EmptyState title={m.No_records_found()} icon={SearchIcon} />
+	{:else if emptyState}
+		{@render emptyState({ EmptyState })}
+	{:else if !hide.includes('empty_state')}
+		<EmptyState
+			title={m.No_items_here()}
+			description={m.Start_by_adding_a_record_to_this_collection_()}
+			icon={FolderIcon}
+		/>
 	{/if}
-{:else if manager.queryOptions.search && manager.records.length === 0}
-	<EmptyState title={m.No_records_found()} icon={SearchIcon} />
-{:else if emptyState}
-	{@render emptyState({ EmptyState })}
-{:else if !hide.includes('empty_state')}
-	<EmptyState
-		title={m.No_items_here()}
-		description={m.Start_by_adding_a_record_to_this_collection_()}
-		icon={FolderIcon}
-	/>
-{/if}
+{/snippet}

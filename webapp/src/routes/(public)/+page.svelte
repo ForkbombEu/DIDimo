@@ -61,7 +61,7 @@
 				{#snippet records({ records })}
 					{#each records as credential, i}
 						{@const isLast = i == MAX_ITEMS - 1}
-						<CredentialCard {credential} class={isLast ? 'hidden lg:block' : ''} />
+						<CredentialCard {credential} class={isLast ? 'hidden lg:flex' : ''} />
 					{/each}
 				{/snippet}
 			</CollectionManager>

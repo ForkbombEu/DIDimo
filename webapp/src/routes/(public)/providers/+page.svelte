@@ -8,23 +8,25 @@
 	import { m } from '@/i18n';
 </script>
 
-<div class="bg-secondary grow">
-	<CollectionManager collection="services" queryOptions={{ expand: ['credential_issuers'] }}>
-		{#snippet top({ Search })}
-			<PageTop>
-				<T tag="h1">{m.Find_identity_solutions()}</T>
-				<Search />
-			</PageTop>
-		{/snippet}
+<CollectionManager collection="services" queryOptions={{ expand: ['credential_issuers'] }}>
+	{#snippet top({ Search })}
+		<PageTop>
+			<T tag="h1">{m.Find_identity_solutions()}</T>
+			<Search />
+		</PageTop>
+	{/snippet}
 
-		{#snippet records({ records })}
-			<PageContent>
-				<PageGrid>
-					{#each records as service}
-						<ServiceCard {service} class="grow" />
-					{/each}
-				</PageGrid>
-			</PageContent>
-		{/snippet}
-	</CollectionManager>
-</div>
+	{#snippet contentWrapper(children)}
+		<PageContent class="bg-secondary grow">
+			{@render children()}
+		</PageContent>
+	{/snippet}
+
+	{#snippet records({ records })}
+		<PageGrid>
+			{#each records as service}
+				<ServiceCard {service} class="grow" />
+			{/each}
+		</PageGrid>
+	{/snippet}
+</CollectionManager>
