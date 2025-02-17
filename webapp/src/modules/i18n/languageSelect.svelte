@@ -9,10 +9,13 @@
 
 	type Props = {
 		contentClass?: string;
-		trigger?: Snippet<[LanguageSelectTriggerSnippetProps & { triggerAttributes: GenericRecord }]>;
+		trigger?: Snippet<
+			[LanguageSelectTriggerSnippetProps & { triggerAttributes: GenericRecord }]
+		>;
+		flagsOnly?: boolean;
 	};
 
-	const { contentClass = '', trigger: triggerSnippet }: Props = $props();
+	const { contentClass = '', trigger: triggerSnippet, flagsOnly }: Props = $props();
 </script>
 
 <Popover.Root>
@@ -46,9 +49,11 @@
 						<span class="text-2xl">
 							{flag}
 						</span>
-						<span>
-							{name}
-						</span>
+						{#if !flagsOnly}
+							<span>
+								{name}
+							</span>
+						{/if}
 					</Button>
 				{/each}
 			</Popover.Content>

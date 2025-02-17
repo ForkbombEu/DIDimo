@@ -40,6 +40,10 @@ const features = [
     {
         name: "oauth",
     },
+    {
+        name: "demo",
+        active: false,
+    },
 ];
 
 //
