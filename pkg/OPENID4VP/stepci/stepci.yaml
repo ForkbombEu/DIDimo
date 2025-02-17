@@ -1,0 +1,234 @@
+version: "1.0"
+
+components:
+  token:
+    bearer:
+      token: ${{secrets.token}}
+
+tests:
+  example:
+    steps:
+      - name: Create Test Plan
+        http:
+
+          method: POST
+          url: "https://www.certification.openid.net/api/plan"
+          params:
+            planName: "oid4vp-id2-wallet-test-plan"
+            variant: "{\"credential_format\":\"sd_jwt_vc\",\"client_id_scheme\":\"did\",\"request_method\":\"request_uri_signed\",\"response_mode\":\"direct_post\"}"
+          auth:  
+            $ref: "#/components/token"
+          headers:
+            accept: "application/json"
+            Content-Type: "application/json"
+          json:
+            alias: "TEST_from_rest"
+            description: "TEST FROM StepCI Workflow"
+            server:
+              authorization_endpoint: "openid-vc://"
+            client:
+              client_id: "did:web:app.altme.io:issuer"
+              presentation_definition:
+                id: "two_sd_jwt"
+                input_descriptors:
+                  - id: "pid_credential"
+                    constraints:
+                      fields:
+                        - path: ["$.vct"]
+                          filter:
+                            type: "string"
+                            const: "urn:eu.europa.ec.eudi:pid:1"
+                    format:
+                      vc+sd-jwt:
+                        kb-jwt_alg_values: ["ES256", "ES256K", "EdDSA"]
+                        sd-jwt_alg_values: ["ES256", "ES256K", "EdDSA"]
+              jwks:
+                keys:
+                  - kty: "EC"
+                    alg: "ES256"
+                    crv: "P-256"
+                    d: "GSbo9TpmGaLgxxO6RNx6QnvcfykQJS7vUVgTe8vy9W0"
+                    x: "m5uKsE35t3sP7gjmirUewufx2Gt2n6J7fSW68apB2Lo"
+                    y: "-V54TpMI8RbpB40hbAocIjnaHX5WP6NHjWkHfdCSAyU"
+          captures:
+            plan_id:
+              jsonpath: $.id
+          check:
+            status: 201
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                id:
+                  type: string
+                modules:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      testModule:
+                        type: string
+                      variant:
+                        type: object
+                        additionalProperties: true
+                      instances:
+                        type: array
+                        items:
+                          type: object
+                    required:
+                      - testModule
+                      - variant
+                      - instances
+              required:
+                - name
+                - id
+                - modules
+
+      - name: Start Test Runner
+        http:
+          method: POST
+          url: "https://www.certification.openid.net/api/runner"
+          auth:  
+            $ref: "#/components/token"
+          params:
+            test: "oid4vp-id2-wallet-happy-flow-no-state"
+            plan: "5PiKcv1iuiM7x"
+            variant: "{}"
+          headers:
+            accept: "application/json"
+            Content-Type: "application/json"
+          captures:
+            id:
+              jsonpath: $.id
+
+          check:
+            status: 201
+            schema:
+            type: object
+            properties:
+              name:
+                type: string
+              id:
+                type: string
+              url:
+                type: string
+                format: uri
+            required:
+              - name
+              - id
+              - url
+
+      
+      - name: Get Runner Info
+        http:
+          method: GET
+          url: "https://www.certification.openid.net/api/runner/${{captures.id}}"
+          auth:  
+            $ref: "#/components/token"
+          check:
+            status: 200
+            schema:
+              type: object
+              properties:
+                owner:
+                  type: object
+                  properties:
+                    sub:
+                      type: string
+                    iss:
+                      type: string
+                      format: uri
+                  required:
+                    - sub
+                    - iss
+                created:
+                  type: string
+                  format: date-time
+                browser:
+                  type: object
+                  properties:
+                    browserApiRequests:
+                      type: array
+                      items:
+                        type: object
+                    urls:
+                      type: array
+                      items:
+                        type: string
+                        format: uri
+                    show_qr_code:
+                      type: boolean
+                    visited:
+                      type: array
+                      items:
+                        type: object
+                    visitedUrlsWithMethod:
+                      type: array
+                      items:
+                        type: object
+                    runners:
+                      type: array
+                      items:
+                        type: object
+                    urlsWithMethod:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          url:
+                            type: string
+                            format: uri
+                          method:
+                            type: string
+                        required:
+                          - url
+                          - method
+                  required:
+                    - browserApiRequests
+                    - urls
+                    - show_qr_code
+                    - visited
+                    - visitedUrlsWithMethod
+                    - runners
+                    - urlsWithMethod
+                name:
+                  type: string
+                exposed:
+                  type: object
+                  properties:
+                    response_uri:
+                      type: string
+                      format: uri
+                    state:
+                      type: string
+                      nullable: true
+                    nonce:
+                      type: string
+                    client_id:
+                      type: string
+                  required:
+                    - response_uri
+                    - nonce
+                    - client_id
+                id:
+                  type: string
+                error:
+                  type: string
+                  nullable: true
+                updated:
+                  type: string
+                  format: date-time
+              required:
+                - owner
+                - created
+                - browser
+                - name
+                - exposed
+                - id
+                - updated
+          captures:
+            result:
+              jsonpath: $.browser.urls[0]
+
+

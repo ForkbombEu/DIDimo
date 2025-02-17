@@ -1,0 +1,39 @@
+[0m[31m❌ Workflow failed. Here are the details:
+[0m
+[0m[31m🔴 Step Failed: Get Runner Info[0m
+[0m[31m  🌍 URL: https://www.certification.openid.net/api/runner/WcdA3mwjINJoOHm[0m
+[0m[31m  📡 Method: GET[0m
+[0m[31m  ✅ Expected: 200[0m
+[0m[31m  ❌ Received: 200[0m
+[0m[31m  📩 Response:[0m
+[0m[31m    - Status: 200 OK[0m
+[0m[31m    - Headers: {
+  "date": "Mon, 10 Feb 2025 15:02:25 GMT",
+  "x-content-type-options": "nosniff",
+  "x-xss-protection": "0",
+  "cache-control": "no-cache, no-store, max-age=0, must-revalidate",
+  "pragma": "no-cache",
+  "expires": "0",
+  "strict-transport-security": "max-age=31536000 ; includeSubDomains",
+  "x-frame-options": "DENY",
+  "content-type": "application/json;charset=UTF-8",
+  "keep-alive": "timeout=5, max=100",
+  "connection": "Keep-Alive",
+  "transfer-encoding": "chunked",
+  "server": "Apache"
+}[0m
+[0m[1m38 |[0m             console[0m[3m[1m.error[0m([0m[32m`    - Headers: [0m${JSON[0m[3m[1m.stringify[0m(step.response.headers, [0m[33mnull[0m, [0m[33m2[0m)}[0m[32m`[0m)[0m[2m;[0m
+[0m[1m39 |[0m             [0m[35mtry[0m {
+[0m[1m40 |[0m                 [0m[35mconst[0m responseJson = JSON[0m[3m[1m.parse[0m(responseBody)[0m[2m;[0m
+[0m[1m41 |[0m                 console.error(`  📩 Response Body (JSON):\n${JSON.stringify(responseJson, null, 2)}`);
+[0m[1m42 |[0m               } [0m[35mcatch[0m (error) {
+[0m[1m43 |[0m                 console.error(`  📩 Response Body (Raw Text):\n${responseBody}`);
+                                                                     [31m[1m^[0m
+[0m[31mReferenceError[0m[2m:[0m [1mCan't find variable: responseBody[0m
+[0m      [2mat [0m[0m[36m/Users/filippotrotter/DIDimo/pkg/OPENID4VP/stepci/runStepCI.js[0m[2m:[0m[33m43[0m[2m:[33m65[0m
+[0m      [2mat [0m[0m[1m[3mforEach[0m[2m ([0m[0m[36m[0m[33m1[0m[2m:[33m11[0m[2m)[0m
+[0m      [2mat [0m[0m[36m/Users/filippotrotter/DIDimo/pkg/OPENID4VP/stepci/runStepCI.js[0m[2m:[0m[33m27[0m[2m:[33m18[0m
+[0m      [2mat [0m[0m[1m[3mforEach[0m[2m ([0m[0m[36m[0m[33m1[0m[2m:[33m11[0m[2m)[0m
+[0m      [2mat [0m[0m[36m/Users/filippotrotter/DIDimo/pkg/OPENID4VP/stepci/runStepCI.js[0m[2m:[0m[33m26[0m[2m:[33m11[0m
+[0m
+[2mBun v1.1.40 (macOS arm64)[0m

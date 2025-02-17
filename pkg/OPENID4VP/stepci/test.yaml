@@ -1,0 +1,10 @@
+version: 1
+tests:
+  example:
+    steps:
+      - name: GET request
+        http:
+          url: https://httpbin.org/status/200
+          method: GET
+          check:
+            status: 400
