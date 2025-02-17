@@ -4,7 +4,9 @@
 	import { setupComponentPocketbaseSubscriptions } from '@/pocketbase/subscriptions';
 	import {
 		setCollectionManagerContext,
-		type CollectionManagerContext
+		type CollectionManagerContext,
+		type Filter,
+		type FilterGroup
 	} from './collectionManagerContext';
 
 	// Logic - Types
@@ -28,6 +30,7 @@
 	import Pagination from './collectionManagerPagination.svelte';
 	import Search from './collectionManagerSearch.svelte';
 	import Header from './collectionManagerHeader.svelte';
+	import Filters from './collectionManagerFilters.svelte';
 
 	// UI
 	import { m } from '@/i18n';
@@ -53,7 +56,7 @@
 			]
 		>;
 		emptyState: Snippet<[{ EmptyState: typeof EmptyState }]>;
-		top: Snippet<[{ Search: typeof Search; Header: typeof Header }]>;
+		top: Snippet<[{ Search: typeof Search; Header: typeof Header; Filters: typeof Filters }]>;
 		contentWrapper: Snippet<[children: () => ReturnType<Snippet>]>;
 	};
 
@@ -73,7 +76,11 @@
 		formFieldsOptions: Partial<FieldsOptions<C>>;
 		createFormFieldsOptions: Partial<FieldsOptions<C>>;
 		editFormFieldsOptions: Partial<FieldsOptions<C>>;
+
+		filters: (Filter | FilterGroup)[];
 	};
+
+	//
 
 	const {
 		collection,
@@ -84,6 +91,7 @@
 		records,
 		emptyState,
 		contentWrapper,
+		filters = [],
 		...rest
 	}: Props = $props();
 
@@ -93,6 +101,7 @@
 
 	const context = $derived<CollectionManagerContext<C, Expand>>({
 		manager,
+		filters,
 		formsOptions: {
 			base: {
 				uiOptions: rest.formUIOptions,
@@ -122,7 +131,7 @@
 	});
 </script>
 
-{@render top?.({ Search, Header })}
+{@render top?.({ Search, Header, Filters })}
 {@render (contentWrapper ?? defaultContentWrapper)(content)}
 
 {#snippet defaultContentWrapper(children: () => ReturnType<Snippet>)}
