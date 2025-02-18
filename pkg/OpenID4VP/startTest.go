@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
@@ -12,8 +13,13 @@ import (
 )
 
 func main() {
-	// Initialize the Temporal client using Dial (recommended method)
-	c, err := client.Dial(client.Options{})
+	hostPort := os.Getenv("TEMPORAL_ADDRESS")
+	if hostPort == "" {
+		hostPort = "localhost:7233"
+	}
+	c, err := client.Dial(client.Options{
+		HostPort: hostPort,
+	})
 	if err != nil {
 		log.Fatalln("Unable to create client", err)
 	}

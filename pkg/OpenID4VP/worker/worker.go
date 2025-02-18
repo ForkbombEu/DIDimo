@@ -1,15 +1,25 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"os"
 
-	"github.com/forkbombeu/didimo/pkg/OPENID4VP/workflow"
+	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
 
 func main() {
-	c, err := client.Dial(client.Options{})
+	hostPort := os.Getenv("TEMPORAL_ADDRESS")
+	fmt.Println("Port:", hostPort)
+	if hostPort == "" {
+		hostPort = "localhost:7233"
+	}
+
+	c, err := client.Dial(client.Options{
+		HostPort: hostPort,
+	})
 	if err != nil {
 		log.Fatalf("Failed to connect to Temporal: %v", err)
 	}

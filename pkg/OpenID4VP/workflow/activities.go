@@ -6,9 +6,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"os"
 	"os/exec"
 
-	"github.com/forkbombeu/didimo/pkg/OPENID4VP/testdata"
+	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
 	qrcode "github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"
@@ -18,18 +19,25 @@ import (
 // GenerateYAML generates a YAML file based on provided variant and jsonPayload
 func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testdata.JSONPayload, filePath string) error {
 
-	testPlanResponseSchema, err := stepci.ConvertJSONToMap("schemas/OpenID4VPTest/responses/create_test_plan.json")
+	// Fetch paths from environment variables
+	schemasPath := os.Getenv("SCHEMAS_PATH")
+	if schemasPath == "" {
+		return fmt.Errorf("SCHEMAS_PATH environment variable not set")
+	}
+
+	testPlanResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/create_test_plan.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	startRunnerResponseSchema, err := stepci.ConvertJSONToMap("schemas/OpenID4VPTest/responses/start_runner.json")
+	startRunnerResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/start_runner.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	getInfoResponseSchema, err := stepci.ConvertJSONToMap("schemas/OpenID4VPTest/responses/get_info.json")
+	getInfoResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/get_info.json", schemasPath))
 	if err != nil {
 		return err
 	}
+
 	steps := []stepci.Step{
 		{
 			Name: "Create Test Plan",
@@ -140,8 +148,14 @@ func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testd
 
 // RunStepCIJSProgram executes the JavaScript program and returns a generic JSON response.
 func RunStepCIJSProgramActivity(ctx context.Context, yamlFilePath, token string) (map[string]any, error) {
+
+	// Fetch paths from environment variables
+	runStepCIPath := os.Getenv("RUN_STEPCI_PATH")
+	if runStepCIPath == "" {
+		return nil, fmt.Errorf("RUN_STEPCI_PATH environment variable not set")
+	}
 	// Set up the command
-	cmd := exec.CommandContext(ctx, "bun", "run", "pkg/OpenID4VP/stepci/runStepCI.js", "-p", yamlFilePath, "-s", "token="+token)
+	cmd := exec.CommandContext(ctx, "bun", "run", runStepCIPath, "-p", yamlFilePath, "-s", "token="+token)
 
 	// Capture output
 	output, err := cmd.CombinedOutput()

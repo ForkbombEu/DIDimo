@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/forkbombeu/didimo/pkg/OPENID4VP/testdata"
+	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
