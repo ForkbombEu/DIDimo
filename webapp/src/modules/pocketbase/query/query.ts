@@ -21,7 +21,7 @@ export type PocketbaseQueryOptions<
 	expand: Expand;
 	perPage: number;
 	filter: MaybeArray<string>;
-	search: MaybeArray<SearchFilter<Field<C>>>;
+	search: MaybeArray<SearchFilter<Field<C> | string>>;
 	searchFields: Field<C>[];
 	exclude: MaybeArray<ExcludeFilter>;
 	sort: MaybeArray<SortOption<Field<C>>>;
@@ -201,20 +201,27 @@ export function buildPocketbaseQuery<
 		(f) => f.name
 	) as Field<C>[];
 
+	const baseSearchFields =
+		query.searchFields && query.searchFields.length > 0
+			? query.searchFields
+			: allCollectionFields;
+
 	const filter = [
 		...ensureArray(options.filter),
 		...ensureArray(options.exclude).map(buildExcludeFilter),
 		...ensureArray(options.search)
 			.map((searchFilter) => {
+				console.log(searchFilter);
 				if (typeof searchFilter == 'string')
 					return {
 						text: searchFilter,
-						fields: query.searchFields ?? allCollectionFields
+						fields: baseSearchFields
 					};
 				else return searchFilter;
 			})
 			.map(buildSearchFilter)
 	]
+
 		.map((f) => `(${f})`)
 		.join(' && ');
 

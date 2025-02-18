@@ -33,12 +33,16 @@ export interface PocketbaseQueryRunners<
 	getOne(id: string): Promise<PocketbaseQueryResponse<C, E>>;
 }
 
+export type PocketbaseQueryRunnersOptions = {
+	pocketbase?: Pocketbase;
+} & PocketbaseListOptions;
+
 export function createPocketbaseQueryRunners<
 	C extends CollectionName,
 	E extends PocketbaseQueryExpandOption<C> = never
 >(
 	query: PocketbaseQuery<C, E>,
-	options: { pocketbase?: Pocketbase } & PocketbaseListOptions = {}
+	options: PocketbaseQueryRunnersOptions = {}
 ): PocketbaseQueryRunners<C, E> {
 	const { collection } = query;
 

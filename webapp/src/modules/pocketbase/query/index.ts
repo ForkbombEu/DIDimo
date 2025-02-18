@@ -7,6 +7,7 @@ export {
 
 export {
 	createPocketbaseQueryRunners,
+	type PocketbaseQueryResponse,
 	type PocketbaseQueryRunners,
-	type PocketbaseQueryResponse
+	type PocketbaseQueryRunnersOptions
 } from './runner';

@@ -10,7 +10,7 @@
 
 	async function init() {
 		const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
-		await pb.admins.authWithPassword('admin@example.org', 'adminadmin');
+		await pb.collection('_superusers').authWithPassword('admin@example.org', 'adminadmin');
 		return pb;
 	}
 </script>
@@ -24,7 +24,9 @@
 				'users_public_keys_via_owner',
 				'webauthnCredentials_via_user',
 				'orgAuthorizations_via_user'
-			],
+			]
+		}}
+		queryRunnersOptions={{
 			pocketbase: pb
 		}}
 	>
@@ -45,7 +47,9 @@
 		collection="orgAuthorizations"
 		queryOptions={{
 			perPage: 6,
-			expand: ['role'],
+			expand: ['role']
+		}}
+		queryRunnersOptions={{
 			pocketbase: pb
 		}}
 	>

@@ -5,7 +5,8 @@ import {
 	type PocketbaseQueryOptions,
 	type PocketbaseQueryExpandOption,
 	type PocketbaseQueryResponse,
-	PocketbaseQueryOptionsEditor
+	PocketbaseQueryOptionsEditor,
+	type PocketbaseQueryRunnersOptions
 } from '@/pocketbase/query';
 import type { RecordIdString } from '@/pocketbase/types';
 import type { ClientResponseError, RecordService } from 'pocketbase';
@@ -20,24 +21,28 @@ export class CollectionManager<
 	recordService: RecordService<PocketbaseQueryResponse<C, E>>;
 
 	private queryOptions: PocketbaseQueryOptions<C, E> = $state({});
-	private rootQueryOptions: PocketbaseQueryOptions<C, E> = {};
 
 	query = $derived.by(
-		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.rootQueryOptions)
+		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.options.query)
 	);
 	private queryRunners = $derived.by(() =>
-		createPocketbaseQueryRunners({
-			collection: this.collection,
-			...this.query.getMergedOptions()
-		})
+		createPocketbaseQueryRunners(
+			{
+				collection: this.collection,
+				...this.query.getMergedOptions()
+			},
+			this.options.queryRunners
+		)
 	);
 
 	constructor(
 		public readonly collection: C,
-		rootQueryOptions: PocketbaseQueryOptions<C, E>
+		private readonly options: {
+			query: PocketbaseQueryOptions<C, E>;
+			queryRunners: PocketbaseQueryRunnersOptions;
+		}
 	) {
 		this.recordService = pb.collection(collection);
-		this.rootQueryOptions = rootQueryOptions;
 
 		$effect(() => {
 			this.loadRecords();

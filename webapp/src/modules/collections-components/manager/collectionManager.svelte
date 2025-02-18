@@ -16,7 +16,8 @@
 	import type {
 		PocketbaseQueryExpandOption,
 		PocketbaseQueryOptions,
-		PocketbaseQueryResponse
+		PocketbaseQueryResponse,
+		PocketbaseQueryRunnersOptions
 	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import type {
@@ -65,7 +66,10 @@
 
 	type Options = {
 		queryOptions: PocketbaseQueryOptions<C, E>;
+		queryRunnersOptions: PocketbaseQueryRunnersOptions;
+		filters: (Filter | FilterGroup)[];
 		subscribe: 'off' | 'expanded_collections' | CollectionName[];
+
 		hide: ('empty_state' | 'pagination')[];
 
 		formUIOptions: CollectionFormUIOptions;
@@ -79,8 +83,6 @@
 		formFieldsOptions: Partial<FieldsOptions<C>>;
 		createFormFieldsOptions: Partial<FieldsOptions<C>>;
 		editFormFieldsOptions: Partial<FieldsOptions<C>>;
-
-		filters: (Filter | FilterGroup)[];
 	};
 
 	//
@@ -88,6 +90,7 @@
 	const {
 		collection,
 		queryOptions = {},
+		queryRunnersOptions = {},
 		hide = [],
 		subscribe = 'expanded_collections',
 		top,
@@ -100,7 +103,12 @@
 
 	//
 
-	const manager = $derived(new CollectionManager(collection, queryOptions));
+	const manager = $derived(
+		new CollectionManager(collection, {
+			query: queryOptions,
+			queryRunners: queryRunnersOptions
+		})
+	);
 
 	const context = $derived<CollectionManagerContext<C, E>>({
 		manager,

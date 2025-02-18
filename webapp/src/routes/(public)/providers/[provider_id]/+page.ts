@@ -1,7 +1,8 @@
-import { PbQuery } from '@/pocketbase/query/index.js';
+import { createPocketbaseQueryRunners } from '@/pocketbase/query/index.js';
 
 export const load = async ({ params }) => {
-	const provider = await new PocketbaseQuery('services', {
+	const provider = await createPocketbaseQueryRunners({
+		collection: 'services',
 		expand: ['credential_issuers']
 	}).getOne(params.provider_id);
 
