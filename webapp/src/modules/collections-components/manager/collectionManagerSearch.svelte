@@ -13,9 +13,10 @@
 
 	type Props = {
 		class?: string;
+		containerClass?: string;
 	};
 
-	let { class: className }: Props = $props();
+	let { class: className, containerClass = '' }: Props = $props();
 
 	const { manager } = getCollectionManagerContext();
 
@@ -27,7 +28,7 @@
 	});
 </script>
 
-<div class="relative flex">
+<div class="relative flex {containerClass}">
 	<Input bind:value={searchText} placeholder={m.Search()} class={className} />
 	{#if String.isString(searchText)}
 		<Button

@@ -32,9 +32,9 @@
 	{#snippet top({ Header, Search, Filters })}
 		<Header />
 
-		<div class="mb-4 mt-4">
-			<Search />
-			<Filters />
+		<div class="mb-4 mt-4 flex gap-4">
+			<Search containerClass="grow" />
+			<Filters modalType="sheet" />
 		</div>
 	{/snippet}
 
