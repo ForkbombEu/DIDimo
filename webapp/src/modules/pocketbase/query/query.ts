@@ -1,201 +1,155 @@
-import type { RecordFullListOptions, RecordListOptions } from 'pocketbase';
-import type { Simplify } from 'type-fest';
 import { String } from 'effect';
-import type Pocketbase from 'pocketbase';
 
 import type { KeyOf } from '@/utils/types';
-import { pb } from '@/pocketbase';
 import { getCollectionModel, type CollectionName } from '@/pocketbase/collections-models';
 import type { CollectionExpands, CollectionResponses, RecordIdString } from '@/pocketbase/types';
+import { ensureArray, type MaybeArray } from '@/utils/other';
+import type { PocketbaseListOptions } from './utils';
 
-//
+/* Utils */
 
-export class PocketbaseQuery<
+type Field<C extends CollectionName> = KeyOf<CollectionResponses[C]>;
+
+/* Query */
+
+export type PocketbaseQueryExpandOption<C extends CollectionName> = KeyOf<CollectionExpands[C]>[];
+
+export type PocketbaseQueryOptions<
 	C extends CollectionName,
-	Expand extends CollectionExpand<C> = never,
-	Field extends string = keyof CollectionResponses[C] & string
+	Expand extends PocketbaseQueryExpandOption<C> = never
+> = Partial<{
+	expand: Expand;
+	perPage: number;
+	filter: MaybeArray<string>;
+	search: MaybeArray<SearchFilter<Field<C>>>;
+	searchFields: Field<C>[];
+	exclude: MaybeArray<ExcludeFilter>;
+	sort: MaybeArray<SortOption<Field<C>>>;
+}>;
+
+export type PocketbaseQuery<
+	C extends CollectionName,
+	Expand extends PocketbaseQueryExpandOption<C> = never
+> = PocketbaseQueryOptions<C, Expand> & {
+	collection: C;
+};
+
+/* Editor */
+
+export class PocketbaseQueryOptionsEditor<
+	C extends CollectionName,
+	Expand extends PocketbaseQueryExpandOption<C> = never
 > {
 	constructor(
-		public readonly collection: C,
-		private readonly init: Partial<{
-			expand: Expand;
-			perPage: number;
-			filters: string[] | string;
-			search: SearchFilter<Field> | BaseSearchFilter<Field>[];
-			searchFields: Field[];
-			exclude: ExcludeFilter | ExcludeFilter[];
-			sort: SortOption<Field> | SortOption<Field>[];
-			pb: Pocketbase;
-			fetch: typeof fetch;
-		}>
+		private options: PocketbaseQueryOptions<C, Expand>,
+		private rootOptions: PocketbaseQueryOptions<C, Expand> = {}
 	) {}
 
-	//
-
-	private perPage: number | undefined = undefined;
-
-	withPagination(perPage: number) {
-		this.perPage = perPage;
-		return this;
+	getMergedOptions(): PocketbaseQueryOptions<C, Expand> {
+		return {
+			// @ts-expect-error Not relevant type error
+			expand: [...ensureArray(this.rootOptions.expand), ...ensureArray(this.options.expand)],
+			perPage: this.options.perPage ?? this.rootOptions.perPage,
+			filter: [...ensureArray(this.rootOptions.filter), ...ensureArray(this.options.filter)],
+			search: [...ensureArray(this.rootOptions.search), ...ensureArray(this.options.search)],
+			searchFields: [
+				...ensureArray(this.rootOptions.searchFields),
+				...ensureArray(this.options.searchFields)
+			],
+			exclude: [
+				...ensureArray(this.rootOptions.exclude),
+				...ensureArray(this.options.exclude)
+			],
+			sort: [
+				...ensureSortOptionArray(this.rootOptions.sort),
+				...ensureSortOptionArray(this.options.sort)
+			]
+		};
 	}
 
 	//
 
-	private baseFilters: string[] = [];
+	withPagination(perPage: number) {
+		this.options.perPage = perPage;
+		return this;
+	}
+
+	getPageSize() {
+		return this.options.perPage;
+	}
+
+	hasPagination() {
+		return Boolean(this.getMergedOptions().perPage);
+	}
+
+	//
 
 	addFilter(filter: string) {
-		this.baseFilters.push(filter);
+		this.options.filter = [...ensureArray(this.options.filter), filter];
 		return this;
 	}
 
 	setFilters(filters: string | string[]) {
-		this.baseFilters = Array.isArray(filters) ? filters : [filters];
+		this.options.filter = ensureArray(filters);
 		return this;
-	}
-
-	private getAllBaseFilters() {
-		const allBaseFilters = [];
-		if (typeof this.init.filters == 'string') allBaseFilters.push(this.init.filters);
-		else if (Array.isArray(this.init.filters)) allBaseFilters.push(...this.init.filters);
-		allBaseFilters.push(...this.baseFilters);
-		return allBaseFilters;
 	}
 
 	//
 
-	private searchFilters: BaseSearchFilter[] = [];
-
-	addSearch(text: string, searchFields: Field[] | undefined = undefined) {
-		const fields = searchFields ?? this.init.searchFields ?? this.getAllSearchFields();
-
-		this.searchFilters.push({ text, fields });
+	addSearch(search: SearchFilter<Field<C>>) {
+		this.options.search = [...ensureArray(this.options.search), search];
 		return this;
 	}
 
-	setSearch(text: string, searchFields: Field[] | undefined = undefined) {
-		this.searchFilters = [];
-		return this.addSearch(text, searchFields);
+	setSearch(search: SearchFilter<Field<C>>) {
+		this.options.search = ensureArray(search);
+		return this;
 	}
 
-	private getAllSearchFields() {
-		return getCollectionModel(this.collection).fields.map((f) => f.name);
+	clearSearch() {
+		this.options.search = [];
+		return this;
 	}
 
-	private getAllSearchFilters() {
-		const allSearchFilters: BaseSearchFilter[] = [];
-		if (this.init.search) {
-			if (typeof this.init.search == 'string')
-				allSearchFilters.push({
-					text: this.init.search,
-					fields: this.getAllSearchFields()
-				});
-			else if ('text' in this.init.search) allSearchFilters.push(this.init.search);
-			else if (Array.isArray(this.init.search)) allSearchFilters.push(...this.init.search);
-		}
-		allSearchFilters.push(...this.searchFilters);
-		return allSearchFilters;
+	hasSearch() {
+		return ensureArray(this.getMergedOptions().search).length > 0;
 	}
 
 	//
 
-	private excludeFilters: ExcludeFilter[][] = [];
-
-	addExclude(exclude: ExcludeFilter[]) {
-		this.excludeFilters.push(exclude);
+	addExclude(exclude: ExcludeFilter | ExcludeFilter[]) {
+		this.options.exclude = [...ensureArray(this.options.exclude), ...ensureArray(exclude)];
 		return this;
-	}
-
-	private getAllExcludeFilters() {
-		const allExcludeFilters = [];
-		if (typeof this.init.exclude == 'string') allExcludeFilters.push(this.init.exclude);
-		else if (Array.isArray(this.init.exclude)) allExcludeFilters.push(...this.init.exclude);
-		allExcludeFilters.push(...this.excludeFilters.flat());
-		return allExcludeFilters;
 	}
 
 	//
 
-	private sorts: SortOption[] = [];
-
-	addSort(field: Field, order: SortOrder) {
-		this.sorts.push([field, order]);
+	addSort(field: Field<C>, order: SortOrder) {
+		this.options.sort = [...ensureSortOptionArray(this.options.sort), [field, order]];
 		return this;
 	}
 
-	setSort(field: Field, order: SortOrder) {
-		this.sorts = [];
-		return this.addSort(field, order);
+	setSort(field: Field<C>, order: SortOrder) {
+		this.options.sort = [[field, order]];
+		return this;
 	}
 
-	flipSort(index = 0) {
-		const sortToChange = this.sorts.at(index);
+	flipSort(sort: SortOption<Field<C>>) {
+		const sorts = ensureSortOptionArray(this.options.sort);
+		const sortToChange = sorts.find((s) => s[0] == sort[0] && s[1] == sort[1]);
 		if (!sortToChange) return this;
-		this.sorts[index] = [sortToChange[0], sortToChange[1] == 'ASC' ? 'DESC' : 'ASC'];
+		const index = sorts.indexOf(sortToChange);
+		sorts[index] = [sortToChange[0], sortToChange[1] == 'ASC' ? 'DESC' : 'ASC'];
+		this.options.sort = sorts;
 		return this;
 	}
 
-	private getAllSorts() {
-		const allSorts: SortOption[] = [];
-		if (this.init.sort) {
-			if (this.init.sort.length == 2 && this.init.sort.every((v) => !Array.isArray(v))) {
-				allSorts.push(this.init.sort as SortOption);
-			} else {
-				allSorts.push(...(this.init.sort as SortOption[]));
-			}
-		}
-		allSorts.push(...this.sorts);
-		return allSorts;
+	hasSort(field: Field<C> | string) {
+		return ensureArray(this.getMergedOptions().sort).some((s) => s[0] == field);
 	}
 
-	//
-
-	private getAllFilters() {
-		const allFilters = [
-			...this.getAllBaseFilters(),
-			...this.getAllSearchFilters().map(buildSearchFilter),
-			...this.getAllExcludeFilters().map(buildExcludeFilter)
-		];
-		return allFilters.filter(String.isNonEmpty).join(' && ');
-	}
-
-	buildOptions(): PocketbaseListOptions {
-		const options: PocketbaseListOptions = {
-			perPage: this.perPage ?? this.init.perPage
-		};
-
-		if (this.init.expand && this.init.expand.length > 0)
-			options.expand = this.init.expand.join(',');
-		if (this.getAllSorts().length > 0)
-			options.sort = this.getAllSorts().map(buildSortOption).join(',');
-		if (String.isNonEmpty(this.getAllFilters())) options.filter = this.getAllFilters();
-
-		return options;
-	}
-
-	//
-
-	get pb() {
-		return this.init.pb ?? pb;
-	}
-
-	getList(page: number = 0) {
-		return this.pb
-			.collection(this.collection)
-			.getList<
-				QueryResponse<C, Expand>
-			>(page, this.perPage ?? this.init.perPage ?? 10, this.buildOptions());
-	}
-
-	getFullList() {
-		return this.pb
-			.collection(this.collection)
-			.getFullList<QueryResponse<C, Expand>>(this.buildOptions());
-	}
-
-	getOne(id: string): Promise<QueryResponse<C, Expand>> {
-		return this.pb
-			.collection(this.collection)
-			.getOne<QueryResponse<C, Expand>>(id, this.buildOptions());
+	getSort(field: Field<C> | string) {
+		return ensureArray(this.getMergedOptions().sort).find((s) => s[0] == field);
 	}
 }
 
@@ -234,22 +188,68 @@ function buildSortOption<T extends string>(sortOption: SortOption<T>) {
 	return (sortOption[1] == 'ASC' ? '+' : '-') + sortOption[0];
 }
 
-//
+/* Build */
 
-type PocketbaseListOptions = Simplify<RecordFullListOptions & RecordListOptions>;
-
-//
-
-export type CollectionExpand<C extends CollectionName> = KeyOf<CollectionExpands[C]>[];
-
-type ResolveCollectionExpand<C extends CollectionName, E extends CollectionExpand<C>> = Partial<
-	Pick<CollectionExpands[C], E[number]>
->;
-
-export type QueryResponse<
+export function buildPocketbaseQuery<
 	C extends CollectionName,
-	Expand extends CollectionExpand<C> = never
-> = CollectionResponses[C] &
-	Simplify<{
-		expand?: ResolveCollectionExpand<C, Expand>;
-	}>;
+	Expand extends PocketbaseQueryExpandOption<C>
+>(query: PocketbaseQuery<C, Expand>): PocketbaseListOptions {
+	const { collection, ...options } = query;
+	//
+
+	const allCollectionFields = getCollectionModel(collection).fields.map(
+		(f) => f.name
+	) as Field<C>[];
+
+	const filter = [
+		...ensureArray(options.filter),
+		...ensureArray(options.exclude).map(buildExcludeFilter),
+		...ensureArray(options.search)
+			.map((searchFilter) => {
+				if (typeof searchFilter == 'string')
+					return {
+						text: searchFilter,
+						fields: query.searchFields ?? allCollectionFields
+					};
+				else return searchFilter;
+			})
+			.map(buildSearchFilter)
+	]
+		.map((f) => `(${f})`)
+		.join(' && ');
+
+	//
+
+	const sort = ensureSortOptionArray(options.sort).map(buildSortOption).join(',');
+
+	const expand = ensureArray(options.expand).join(',');
+
+	//
+
+	const listOptions: PocketbaseListOptions = {};
+
+	if (options.perPage) listOptions.perPage = options.perPage;
+	if (String.isNonEmpty(expand)) listOptions.expand = expand;
+	if (String.isNonEmpty(filter)) listOptions.filter = filter;
+	if (String.isNonEmpty(sort)) listOptions.sort = sort;
+
+	return listOptions;
+}
+
+/* Utils */
+
+function isSortOption(unknown: unknown): unknown is SortOption<string> {
+	return (
+		Array.isArray(unknown) &&
+		unknown.length == 2 &&
+		typeof unknown[0] == 'string' &&
+		(unknown[1] == 'ASC' || unknown[1] == 'DESC')
+	);
+}
+
+function ensureSortOptionArray<T extends string = string>(
+	unknown: MaybeArray<SortOption<T>>
+): SortOption<T>[] {
+	if (isSortOption(unknown)) return [unknown];
+	else return ensureArray(unknown);
+}

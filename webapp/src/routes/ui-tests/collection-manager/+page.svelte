@@ -13,7 +13,7 @@
 				{
 					name: 'Self relation has Select B',
 					id: 'has_relation_of_select_b',
-					expression: "self_reation.select_field = 'b'"
+					expression: "self_relation.select_field = 'b'"
 				}
 			]
 		}
@@ -25,7 +25,8 @@
 	{filters}
 	queryOptions={{
 		expand: ['relation_field'],
-		perPage: 6
+		perPage: 6,
+		sort: ['self_relation', 'ASC']
 	}}
 >
 	{#snippet top({ Header, Search, Filters })}

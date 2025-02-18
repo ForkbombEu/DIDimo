@@ -1,4 +1,7 @@
-<script lang="ts" generics="C extends CollectionName, Expand extends ExpandQueryOption<C> = never">
+<script
+	lang="ts"
+	generics="C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
+>
 	// Logic
 	import { CollectionManager } from './collectionManager.svelte.js';
 	import { setupComponentPocketbaseSubscriptions } from '@/pocketbase/subscriptions';
@@ -11,9 +14,9 @@
 
 	// Logic - Types
 	import type {
-		ExpandQueryOption,
+		PocketbaseQueryExpandOption,
 		PocketbaseQueryOptions,
-		QueryResponse
+		PocketbaseQueryResponse
 	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import type {
@@ -48,7 +51,7 @@
 		records: Snippet<
 			[
 				{
-					records: QueryResponse<C, Expand>[];
+					records: PocketbaseQueryResponse<C, E>[];
 					Card: typeof Card;
 					Table: typeof Table;
 					Pagination: typeof Pagination;
@@ -61,7 +64,7 @@
 	};
 
 	type Options = {
-		queryOptions: Partial<PocketbaseQueryOptions<C, Expand>>;
+		queryOptions: PocketbaseQueryOptions<C, E>;
 		subscribe: 'off' | 'expanded_collections' | CollectionName[];
 		hide: ('empty_state' | 'pagination')[];
 
@@ -99,7 +102,7 @@
 
 	const manager = $derived(new CollectionManager(collection, queryOptions));
 
-	const context = $derived<CollectionManagerContext<C, Expand>>({
+	const context = $derived<CollectionManagerContext<C, E>>({
 		manager,
 		filters,
 		formsOptions: {
@@ -151,7 +154,7 @@
 		{#if !hide.includes('pagination')}
 			<Pagination class="mt-6" />
 		{/if}
-	{:else if manager.queryOptions.search && manager.records.length === 0}
+	{:else if manager.query.hasSearch() && manager.records.length === 0}
 		<EmptyState title={m.No_records_found()} icon={SearchIcon} />
 	{:else if emptyState}
 		{@render emptyState({ EmptyState })}

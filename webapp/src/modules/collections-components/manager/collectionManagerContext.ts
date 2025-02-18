@@ -1,6 +1,6 @@
 import type { CollectionFormOptions } from '@/collections-components/form';
 import type { CollectionName } from '@/pocketbase/collections-models';
-import type { ExpandQueryOption } from '@/pocketbase/query';
+import type { PocketbaseQueryExpandOption } from '@/pocketbase/query';
 import { CollectionManager } from './collectionManager.svelte.js';
 import { setupDerivedContext } from '@/utils/svelte-context';
 import { z } from 'zod';
@@ -26,7 +26,7 @@ export type FilterGroup = z.infer<typeof FilterGroupSchema>;
 
 export type CollectionManagerContext<
 	C extends CollectionName = never,
-	Expand extends ExpandQueryOption<C> = never
+	Expand extends PocketbaseQueryExpandOption<C> = never
 > = {
 	manager: CollectionManager<C, Expand>;
 	filters: (Filter | FilterGroup)[];

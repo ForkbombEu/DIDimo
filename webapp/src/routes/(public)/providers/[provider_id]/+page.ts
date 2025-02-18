@@ -1,4 +1,4 @@
-import { PocketbaseQuery } from '@/pocketbase/query/index.js';
+import { PbQuery } from '@/pocketbase/query/index.js';
 
 export const load = async ({ params }) => {
 	const provider = await new PocketbaseQuery('services', {

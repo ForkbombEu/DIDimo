@@ -26,7 +26,7 @@
 	} from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import UserAvatar from '@/components/ui-custom/userAvatar.svelte';
-	import { PocketbaseQuery } from '@/pocketbase/query';
+	import { PbQuery } from '@/pocketbase/query';
 	import SidebarLink from '@/components/layout/sidebar/sidebarLink.svelte';
 	import SidebarGroup from '@/components/layout/sidebar/sidebarGroup.svelte';
 	import SidebarItemIcon from '@/components/layout/sidebar/sidebarItemIcon.svelte';
@@ -61,7 +61,12 @@
 			<Sidebar.GroupContent>
 				<Sidebar.Menu>
 					<SidebarLink href="/my" title={m.Home()} icon={Home} />
-					<SidebarLink href="/my/notifications" title={m.notifications()} icon={Inbox} disabled />
+					<SidebarLink
+						href="/my/notifications"
+						title={m.notifications()}
+						icon={Inbox}
+						disabled
+					/>
 				</Sidebar.Menu>
 			</Sidebar.GroupContent>
 		</Sidebar.Group>
@@ -71,14 +76,20 @@
 				<Sidebar.GroupLabel>{m.organizations()}</Sidebar.GroupLabel>
 				<Sidebar.GroupContent class="space-y-1">
 					<Sidebar.Menu>
-						<SidebarLink href="/my/organizations" title={m.My_organizations()} icon={SquareStack} />
+						<SidebarLink
+							href="/my/organizations"
+							title={m.My_organizations()}
+							icon={SquareStack}
+						/>
 					</Sidebar.Menu>
 
 					{#await authorizationsQuery.getFullList() then authorizations}
 						{#each authorizations as authorization}
 							{@const organization = authorization.expand?.organization!}
 							{@const role = authorization.expand?.role!}
-							{@const active = page.url.pathname.includes(`/my/organizations/${organization.id}`)}
+							{@const active = page.url.pathname.includes(
+								`/my/organizations/${organization.id}`
+							)}
 							<SidebarGroup {active}>
 								{#snippet trigger()}
 									<SidebarItemIcon>
@@ -88,7 +99,10 @@
 								{/snippet}
 
 								{#snippet content()}
-									{@const links = createOrganizationLinks(organization.id, role.name as OrgRole)}
+									{@const links = createOrganizationLinks(
+										organization.id,
+										role.name as OrgRole
+									)}
 
 									{#each links as link}
 										<SidebarLink {...link} sub />
@@ -140,7 +154,10 @@
 							{/snippet}
 						</Popover.Trigger>
 
-						<Popover.Content side="top" class="w-[--bits-popover-anchor-width] space-y-0.5 p-1">
+						<Popover.Content
+							side="top"
+							class="w-[--bits-popover-anchor-width] space-y-0.5 p-1"
+						>
 							<Button
 								variant="ghost"
 								size="sm"

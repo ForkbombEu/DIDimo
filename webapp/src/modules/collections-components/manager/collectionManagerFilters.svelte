@@ -6,9 +6,13 @@
 		FilterGroupSchema
 	} from './collectionManagerContext';
 
-	const { filters } = getCollectionManagerContext();
+	const { filters, manager } = getCollectionManagerContext();
 
 	let selectedFilters = $state<Filter[]>([]);
+
+	$effect(() => {
+		manager.query.setFilters(selectedFilters.map((f) => f.expression));
+	});
 </script>
 
 <ul>

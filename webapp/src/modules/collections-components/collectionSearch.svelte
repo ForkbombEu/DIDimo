@@ -1,5 +1,13 @@
-<script lang="ts" generics="C extends CollectionName, Expand extends ExpandQueryOption<C> = never">
-	import { type ExpandQueryOption, type QueryResponse, PocketbaseQuery } from '@/pocketbase/query';
+<script
+	lang="ts"
+	generics="C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
+>
+	import {
+		type PocketbaseQueryResponse,
+		type PocketbaseQueryExpandOption,
+		type PocketbaseQueryOptions,
+		createPocketbaseQueryRunners
+	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import { createRecordDisplay } from './utils';
 	import Search from '@/components/ui-custom/search.svelte';
@@ -8,7 +16,7 @@
 
 	//
 
-	type Props = CollectionInputProps<C, Expand>;
+	type Props = CollectionInputProps<C, E>;
 
 	let {
 		collection,
@@ -24,11 +32,16 @@
 
 	//
 
-	type SearchFn = SearchFunction<QueryResponse<C, Expand>>;
+	type SearchFn = SearchFunction<PocketbaseQueryResponse<C, E>>;
 
 	const searchFunction: SearchFn = $derived(async function (text: string | undefined) {
-		const query = new PocketbaseQuery(collection, { ...queryOptions, search: text });
-		const records = await query.getFullList();
+		const query: PocketbaseQueryOptions<C, E> = { ...queryOptions, search: text };
+
+		const runners = createPocketbaseQueryRunners(
+			{ collection, ...query },
+			{ requestKey: null }
+		);
+		const records = await runners.getFullList();
 
 		return records.map((item) => ({
 			value: item,
