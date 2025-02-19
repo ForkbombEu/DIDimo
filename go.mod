@@ -5,14 +5,17 @@ go 1.23
 require (
 	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20241219141704-b961cab9047b
 	github.com/go-webauthn/webauthn v0.11.2
+	github.com/google/uuid v1.6.0
 	github.com/neilotoole/jsoncolor v0.7.1
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.24.3
 	github.com/spf13/cobra v1.8.1
+	github.com/stretchr/testify v1.10.0
 	go.temporal.io/api v1.43.1
 	go.temporal.io/sdk v1.31.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	google.golang.org/protobuf v1.36.2
+	modernc.org/sqlite v1.34.4
 )
 
 require (
@@ -61,7 +64,6 @@ require (
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/google/go-tpm v0.9.3 // indirect
 	github.com/google/pprof v0.0.0-20241210010833-40e02aabc2ad // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.14.1 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.25.1 // indirect
@@ -81,7 +83,6 @@ require (
 	github.com/spf13/cast v1.7.1 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.5.2 // indirect
-	github.com/stretchr/testify v1.10.0 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.opencensus.io v0.24.0 // indirect
 	gocloud.dev v0.40.0 // indirect
@@ -104,7 +105,6 @@ require (
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.8.1 // indirect
-	modernc.org/sqlite v1.34.4 // indirect
 	modernc.org/strutil v1.2.1 // indirect
 	modernc.org/token v1.1.0 // indirect
 )
