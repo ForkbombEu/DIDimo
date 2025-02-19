@@ -3,31 +3,37 @@
 	import { getCollectionManagerContext } from './collectionManagerContext';
 	import { Input } from '@/components/ui/input';
 	import { m } from '@/i18n';
-	import { Debounced } from 'runed';
+	import { Debounced, watch } from 'runed';
 	import { Button } from '@/components/ui/button';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { X } from 'lucide-svelte';
 	import { String } from 'effect';
 
+	//
+
 	type Props = {
 		class?: string;
+		containerClass?: string;
 	};
 
-	let { class: className }: Props = $props();
+	let { class: className, containerClass = '' }: Props = $props();
 
-	const { manager } = $derived(getCollectionManagerContext());
+	const { manager } = getCollectionManagerContext();
 
 	let searchText = $state('');
 	const deboucedSearch = new Debounced(() => searchText, 500);
-	$effect(() => manager.search(deboucedSearch.current));
+
+	$effect(() => {
+		manager.query.setSearch(deboucedSearch.current);
+	});
 </script>
 
-<div class="relative flex">
+<div class="relative flex {containerClass}">
 	<Input bind:value={searchText} placeholder={m.Search()} class={className} />
 	{#if String.isString(searchText)}
 		<Button
 			onclick={() => {
-				manager.clearSearch();
+				manager.query.clearSearch();
 				searchText = '';
 			}}
 			class="absolute right-1 top-1 size-8"

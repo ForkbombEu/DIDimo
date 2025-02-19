@@ -1,17 +1,23 @@
-<script lang="ts" generics="C extends CollectionName, Expand extends ExpandQueryOption<C> = never">
+<script
+	lang="ts"
+	generics="C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
+>
 	// Logic
 	import { CollectionManager } from './collectionManager.svelte.js';
 	import { setupComponentPocketbaseSubscriptions } from '@/pocketbase/subscriptions';
 	import {
 		setCollectionManagerContext,
-		type CollectionManagerContext
+		type CollectionManagerContext,
+		type Filter,
+		type FilterGroup
 	} from './collectionManagerContext';
 
 	// Logic - Types
 	import type {
-		ExpandQueryOption,
+		PocketbaseQueryExpandOption,
 		PocketbaseQueryOptions,
-		QueryResponse
+		PocketbaseQueryResponse,
+		PocketbaseQueryAgentOptions
 	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import type {
@@ -28,6 +34,7 @@
 	import Pagination from './collectionManagerPagination.svelte';
 	import Search from './collectionManagerSearch.svelte';
 	import Header from './collectionManagerHeader.svelte';
+	import Filters from './collectionManagerFilters.svelte';
 
 	// UI
 	import { m } from '@/i18n';
@@ -45,7 +52,7 @@
 		records: Snippet<
 			[
 				{
-					records: QueryResponse<C, Expand>[];
+					records: PocketbaseQueryResponse<C, E>[];
 					Card: typeof Card;
 					Table: typeof Table;
 					Pagination: typeof Pagination;
@@ -53,13 +60,16 @@
 			]
 		>;
 		emptyState: Snippet<[{ EmptyState: typeof EmptyState }]>;
-		top: Snippet<[{ Search: typeof Search; Header: typeof Header }]>;
+		top: Snippet<[{ Search: typeof Search; Header: typeof Header; Filters: typeof Filters }]>;
 		contentWrapper: Snippet<[children: () => ReturnType<Snippet>]>;
 	};
 
 	type Options = {
-		queryOptions: Partial<PocketbaseQueryOptions<C, Expand>>;
+		queryOptions: PocketbaseQueryOptions<C, E>;
+		queryAgentOptions: PocketbaseQueryAgentOptions;
+		filters: (Filter | FilterGroup)[];
 		subscribe: 'off' | 'expanded_collections' | CollectionName[];
+
 		hide: ('empty_state' | 'pagination')[];
 
 		formUIOptions: CollectionFormUIOptions;
@@ -75,24 +85,34 @@
 		editFormFieldsOptions: Partial<FieldsOptions<C>>;
 	};
 
+	//
+
 	const {
 		collection,
 		queryOptions = {},
+		queryAgentOptions = {},
 		hide = [],
 		subscribe = 'expanded_collections',
 		top,
 		records,
 		emptyState,
 		contentWrapper,
+		filters = [],
 		...rest
 	}: Props = $props();
 
 	//
 
-	const manager = $derived(new CollectionManager(collection, queryOptions));
+	const manager = $derived(
+		new CollectionManager(collection, {
+			query: queryOptions,
+			queryAgent: queryAgentOptions
+		})
+	);
 
-	const context = $derived<CollectionManagerContext<C, Expand>>({
+	const context = $derived<CollectionManagerContext<C, E>>({
 		manager,
+		filters,
 		formsOptions: {
 			base: {
 				uiOptions: rest.formUIOptions,
@@ -122,7 +142,7 @@
 	});
 </script>
 
-{@render top?.({ Search, Header })}
+{@render top?.({ Search, Header, Filters })}
 {@render (contentWrapper ?? defaultContentWrapper)(content)}
 
 {#snippet defaultContentWrapper(children: () => ReturnType<Snippet>)}
@@ -142,7 +162,7 @@
 		{#if !hide.includes('pagination')}
 			<Pagination class="mt-6" />
 		{/if}
-	{:else if manager.queryOptions.search && manager.records.length === 0}
+	{:else if manager.query.hasSearch() && manager.records.length === 0}
 		<EmptyState title={m.No_records_found()} icon={SearchIcon} />
 	{:else if emptyState}
 		{@render emptyState({ EmptyState })}

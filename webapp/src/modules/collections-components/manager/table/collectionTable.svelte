@@ -1,4 +1,4 @@
-<script lang="ts" generics="Response extends CollectionResponses[CollectionName]">
+<script lang="ts" generics="Response extends object">
 	import { m } from '@/i18n';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import type { CollectionResponses } from '@/pocketbase/types';
@@ -56,7 +56,8 @@
 	</Table.Header>
 
 	<Table.Body>
-		{#each records as record}
+		{#each records as untypedRecord}
+			{@const record = untypedRecord as CollectionResponses[CollectionName]}
 			<Table.Row class="hover:bg-inherit">
 				{#if !hide.includes('select')}
 					<Table.Cell class="py-2">
@@ -66,14 +67,14 @@
 
 				{#each fields as field}
 					<Table.Cell>
-						{record[field]}
+						{untypedRecord[field]}
 					</Table.Cell>
 				{/each}
 
-				{@render row?.({ record, Td: Table.Cell })}
+				{@render row?.({ record: untypedRecord, Td: Table.Cell })}
 
 				<Table.Cell class="py-2">
-					{@render actions?.({ record })}
+					{@render actions?.({ record: untypedRecord })}
 
 					{#if !hide.includes('edit')}
 						<RecordEdit {record}>
