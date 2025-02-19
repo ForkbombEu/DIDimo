@@ -16,7 +16,6 @@ REUSE.toml
 tmp
 webapp/.dockerignore
 webapp/.editorconfig
-webapp/.npmrc
 webapp/.prettierignore
 webapp/.prettierrc
 webapp/.svelte-kit

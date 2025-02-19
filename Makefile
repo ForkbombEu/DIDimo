@@ -108,7 +108,7 @@ $(BINARY_NAME)-ui: $(UI_SRC)
 	cd $(WEBAPP) && bun i && bun run bin; \
 	kill $$PID;
 
-docker: $(BINARY_NAME) $(WEBAPP)/build ## 🐳 run docker with all the infrastructure services
+docker: ## 🐳 run docker with all the infrastructure services
 	docker compose up --build
 
 ## Misc
