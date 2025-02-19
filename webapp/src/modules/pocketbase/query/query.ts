@@ -94,6 +94,19 @@ export class PocketbaseQueryOptionsEditor<
 		return this;
 	}
 
+	removeFilter(filter: string) {
+		this.options.filter = ensureArray(this.options.filter).filter((f) => f !== filter);
+		return this;
+	}
+
+	hasFilter(filter: string) {
+		return ensureArray(this.options.filter).includes(filter);
+	}
+
+	getFilters() {
+		return this.options.filter;
+	}
+
 	//
 
 	addSearch(search: SearchFilter<Field<C>>) {

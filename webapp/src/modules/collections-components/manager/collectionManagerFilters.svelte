@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { buttonVariants } from '@/components/ui/button';
+	import { Button, buttonVariants, type ButtonVariant } from '@/components/ui/button';
 	import {
 		getCollectionManagerContext,
 		type Filter,
@@ -8,28 +8,43 @@
 	} from './collectionManagerContext';
 	import * as Popover from '@/components/ui/popover/index.js';
 	import * as Sheet from '@/components/ui/sheet/index.js';
+	import { Checkbox } from '@/components/ui/checkbox';
+	import { Label } from '@/components/ui/label';
+	import T from '@/components/ui-custom/t.svelte';
+	import type { Snippet } from 'svelte';
+	import type { GenericRecord } from '@/utils/types';
 
 	//
 
 	type Props = {
 		modalType?: 'popover' | 'sheet';
+		triggerVariant?: ButtonVariant;
+		children: Snippet;
+		beforeFilters?: Snippet;
+		afterFilters?: Snippet;
+		trigger?: Snippet<[{ props: GenericRecord }]>;
 	};
 
-	let { modalType = 'popover' }: Props = $props();
+	let {
+		children,
+		modalType = 'popover',
+		triggerVariant = 'outline',
+		beforeFilters,
+		afterFilters,
+		trigger
+	}: Props = $props();
 
 	const { filters, manager } = getCollectionManagerContext();
-
-	// TODO - Use manager.query as source for the selected filters
-	let selectedFilters = $state<Filter[]>([]);
-
-	$effect(() => {
-		manager.query.setFilters(selectedFilters.map((f) => f.expression));
-	});
 </script>
 
 {#if modalType === 'popover'}
 	<Popover.Root>
-		<Popover.Trigger class={buttonVariants({ variant: 'outline' })}>Open</Popover.Trigger>
+		<Popover.Trigger class={buttonVariants({ variant: triggerVariant })}>
+			{#snippet child({ props })}
+				{@render childSnippet(props)}
+			{/snippet}
+		</Popover.Trigger>
+
 		<Popover.Content class="w-80">
 			{@render content()}
 		</Popover.Content>
@@ -38,22 +53,21 @@
 
 {#if modalType === 'sheet'}
 	<Sheet.Root>
-		<Sheet.Trigger>Open</Sheet.Trigger>
+		<Sheet.Trigger class={buttonVariants({ variant: triggerVariant })}>
+			{#snippet child({ props })}
+				{@render childSnippet(props)}
+			{/snippet}
+		</Sheet.Trigger>
+
 		<Sheet.Content>
-			<Sheet.Header>
-				<Sheet.Title>Are you sure absolutely sure?</Sheet.Title>
-				<Sheet.Description>
-					This action cannot be undone. This will permanently delete your account and
-					remove your data from our servers.
-				</Sheet.Description>
-			</Sheet.Header>
 			{@render content()}
 		</Sheet.Content>
 	</Sheet.Root>
 {/if}
 
 {#snippet content()}
-	<ul>
+	{@render beforeFilters?.()}
+	<ul class="space-y-4">
 		{#each filters as filterData}
 			{@const filter = FilterSchema.safeParse(filterData)}
 			{@const filterGroup = FilterGroupSchema.safeParse(filterData)}
@@ -63,8 +77,8 @@
 					{@render filterInput(filter.data)}
 				</li>
 			{:else if filterGroup.success}
-				<ul>
-					<li>{filterGroup.data.name}</li>
+				<ul class="space-y-2">
+					<li><T>{filterGroup.data.name}</T></li>
 					{#each filterGroup.data.filters as filter}
 						<li>
 							{@render filterInput(filter)}
@@ -74,11 +88,34 @@
 			{/if}
 		{/each}
 	</ul>
+	{@render afterFilters?.()}
 {/snippet}
 
 {#snippet filterInput(f: Filter)}
-	<label>
-		<input type="checkbox" name={f.id} id={f.id} value={f} bind:group={selectedFilters} />
-		{f.name}
-	</label>
+	<div class="flex items-center gap-2">
+		<Checkbox
+			name={f.id}
+			id={f.id}
+			value={f.expression}
+			checked={manager.query.hasFilter(f.expression)}
+			onCheckedChange={(v) => {
+				if (v) {
+					manager.query.addFilter(f.expression);
+				} else {
+					manager.query.removeFilter(f.expression);
+				}
+			}}
+		/>
+		<Label for={f.id} class="text-md">{f.name}</Label>
+	</div>
+{/snippet}
+
+{#snippet childSnippet(props: GenericRecord)}
+	{#if trigger}
+		{@render trigger({ props })}
+	{:else}
+		<Button {...props} variant={triggerVariant}>
+			{@render children()}
+		</Button>
+	{/if}
 {/snippet}

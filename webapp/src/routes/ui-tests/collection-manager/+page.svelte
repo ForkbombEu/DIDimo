@@ -34,7 +34,8 @@
 
 		<div class="mb-4 mt-4 flex gap-4">
 			<Search containerClass="grow" />
-			<Filters modalType="sheet" />
+			<Filters modalType="sheet">Filters in sheet</Filters>
+			<Filters modalType="popover">Filters in popover</Filters>
 		</div>
 	{/snippet}
 
