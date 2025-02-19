@@ -1,14 +1,15 @@
 import fs from 'fs';
 import path from 'node:path';
-import { formatCode, GENERATED, initAdminPocketbase, logCodegenResult } from '@/utils/codegen';
+import { formatCode, GENERATED, openDb, logCodegenResult } from '@/utils/codegen';
+import type { OrgRolesRecord } from '@/pocketbase/types';
 
 //
 
 const TYPE_NAME = 'OrgRole';
 const OBJECT_NAME = `${TYPE_NAME}s`;
 
-const pb = await initAdminPocketbase();
-const rolesRecords = await pb.collection('orgRoles').getFullList();
+const db = await openDb();
+const rolesRecords = (await db.all('SELECT * FROM orgRoles')) as OrgRolesRecord[];
 const rolesEntries = rolesRecords.map((r) => `${r.name.toUpperCase()}: '${r.name}'`);
 
 const code = `
