@@ -112,6 +112,9 @@ build: $(BINARY_NAME) $(BINARY_NAME)-ui
 	upx --best --lzma $(BINARY_NAME)
 	@echo "📦 Done!"
 
+predeployment: $(BINARY_NAME) $(WEBAPP)/build
+	@echo "🥳 you made it, you can deploy"
+
 docker: $(BINARY_NAME) $(WEBAPP)/build ## 🐳 run docker with all the infrastructure services
 	docker compose up --build
 
