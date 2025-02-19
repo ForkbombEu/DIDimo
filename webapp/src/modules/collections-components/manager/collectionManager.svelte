@@ -17,7 +17,7 @@
 		PocketbaseQueryExpandOption,
 		PocketbaseQueryOptions,
 		PocketbaseQueryResponse,
-		PocketbaseQueryRunnersOptions
+		PocketbaseQueryAgentOptions
 	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import type {
@@ -66,7 +66,7 @@
 
 	type Options = {
 		queryOptions: PocketbaseQueryOptions<C, E>;
-		queryRunnersOptions: PocketbaseQueryRunnersOptions;
+		queryAgentOptions: PocketbaseQueryAgentOptions;
 		filters: (Filter | FilterGroup)[];
 		subscribe: 'off' | 'expanded_collections' | CollectionName[];
 
@@ -90,7 +90,7 @@
 	const {
 		collection,
 		queryOptions = {},
-		queryRunnersOptions = {},
+		queryAgentOptions = {},
 		hide = [],
 		subscribe = 'expanded_collections',
 		top,
@@ -106,7 +106,7 @@
 	const manager = $derived(
 		new CollectionManager(collection, {
 			query: queryOptions,
-			queryRunners: queryRunnersOptions
+			queryAgent: queryAgentOptions
 		})
 	);
 

@@ -26,7 +26,7 @@
 				'orgAuthorizations_via_user'
 			]
 		}}
-		queryRunnersOptions={{
+		queryAgentOptions={{
 			pocketbase: pb
 		}}
 	>
@@ -49,7 +49,7 @@
 			perPage: 6,
 			expand: ['role']
 		}}
-		queryRunnersOptions={{
+		queryAgentOptions={{
 			pocketbase: pb
 		}}
 	>

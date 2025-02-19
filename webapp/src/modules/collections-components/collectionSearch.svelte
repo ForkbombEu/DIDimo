@@ -6,7 +6,7 @@
 		type PocketbaseQueryResponse,
 		type PocketbaseQueryExpandOption,
 		type PocketbaseQueryOptions,
-		createPocketbaseQueryRunners
+		createPocketbaseQueryAgent
 	} from '@/pocketbase/query';
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import { createRecordDisplay } from './utils';
@@ -37,10 +37,7 @@
 	const searchFunction: SearchFn = $derived(async function (text: string | undefined) {
 		const query: PocketbaseQueryOptions<C, E> = { ...queryOptions, search: text };
 
-		const runners = createPocketbaseQueryRunners(
-			{ collection, ...query },
-			{ requestKey: null }
-		);
+		const runners = createPocketbaseQueryAgent({ collection, ...query }, { requestKey: null });
 		const records = await runners.getFullList();
 
 		return records.map((item) => ({

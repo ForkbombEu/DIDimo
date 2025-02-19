@@ -1,12 +1,12 @@
 import { pb } from '@/pocketbase';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import {
-	createPocketbaseQueryRunners,
+	createPocketbaseQueryAgent,
 	type PocketbaseQueryOptions,
 	type PocketbaseQueryExpandOption,
 	type PocketbaseQueryResponse,
 	PocketbaseQueryOptionsEditor,
-	type PocketbaseQueryRunnersOptions
+	type PocketbaseQueryAgentOptions
 } from '@/pocketbase/query';
 import type { RecordIdString } from '@/pocketbase/types';
 import type { ClientResponseError, RecordService } from 'pocketbase';
@@ -25,13 +25,13 @@ export class CollectionManager<
 	query = $derived.by(
 		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.options.query)
 	);
-	private queryRunners = $derived.by(() =>
-		createPocketbaseQueryRunners(
+	private queryAgent = $derived.by(() =>
+		createPocketbaseQueryAgent(
 			{
 				collection: this.collection,
 				...this.query.getMergedOptions()
 			},
-			this.options.queryRunners
+			this.options.queryAgent
 		)
 	);
 
@@ -39,7 +39,7 @@ export class CollectionManager<
 		public readonly collection: C,
 		private readonly options: {
 			query: PocketbaseQueryOptions<C, E>;
-			queryRunners: PocketbaseQueryRunnersOptions;
+			queryAgent: PocketbaseQueryAgentOptions;
 		}
 	) {
 		this.recordService = pb.collection(collection);
@@ -59,11 +59,11 @@ export class CollectionManager<
 	async loadRecords() {
 		try {
 			if (this.query.hasPagination()) {
-				const result = await this.queryRunners.getList(this.currentPage);
+				const result = await this.queryAgent.getList(this.currentPage);
 				this.totalItems = result.totalItems;
 				this.records = result.items;
 			} else {
-				this.records = await this.queryRunners.getFullList();
+				this.records = await this.queryAgent.getFullList();
 			}
 		} catch (e) {
 			this.loadingError = e as ClientResponseError;

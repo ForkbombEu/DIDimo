@@ -24,7 +24,7 @@ export type PocketbaseQueryResponse<
 
 /* Query runners */
 
-export interface PocketbaseQueryRunners<
+export interface PocketbaseQueryAgent<
 	C extends CollectionName,
 	E extends PocketbaseQueryExpandOption<C> = never
 > {
@@ -33,17 +33,17 @@ export interface PocketbaseQueryRunners<
 	getOne(id: string): Promise<PocketbaseQueryResponse<C, E>>;
 }
 
-export type PocketbaseQueryRunnersOptions = {
+export type PocketbaseQueryAgentOptions = {
 	pocketbase?: Pocketbase;
 } & PocketbaseListOptions;
 
-export function createPocketbaseQueryRunners<
+export function createPocketbaseQueryAgent<
 	C extends CollectionName,
 	E extends PocketbaseQueryExpandOption<C> = never
 >(
 	query: PocketbaseQuery<C, E>,
-	options: PocketbaseQueryRunnersOptions = {}
-): PocketbaseQueryRunners<C, E> {
+	options: PocketbaseQueryAgentOptions = {}
+): PocketbaseQueryAgent<C, E> {
 	const { collection } = query;
 
 	const pbOptions: PocketbaseListOptions = {

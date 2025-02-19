@@ -6,7 +6,7 @@
 		type PocketbaseQueryResponse,
 		type PocketbaseQueryExpandOption,
 		type PocketbaseQueryOptions,
-		createPocketbaseQueryRunners
+		createPocketbaseQueryAgent
 	} from '@/pocketbase/query';
 
 	import type { CollectionName } from '@/pocketbase/collections-models';
@@ -54,7 +54,7 @@
 	//
 
 	const loadRecords = $derived(function () {
-		const runners = createPocketbaseQueryRunners({ collection, ...queryOptions });
+		const runners = createPocketbaseQueryAgent({ collection, ...queryOptions });
 		runners.getFullList().then((res) => (records = res));
 	});
 

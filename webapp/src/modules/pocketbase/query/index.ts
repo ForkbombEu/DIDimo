@@ -6,8 +6,8 @@ export {
 } from './query';
 
 export {
-	createPocketbaseQueryRunners,
+	createPocketbaseQueryAgent,
 	type PocketbaseQueryResponse,
-	type PocketbaseQueryRunners,
-	type PocketbaseQueryRunnersOptions
-} from './runner';
+	type PocketbaseQueryAgent,
+	type PocketbaseQueryAgentOptions
+} from './agent';
