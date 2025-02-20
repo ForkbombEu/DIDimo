@@ -6,6 +6,8 @@ require (
 	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20241219141704-b961cab9047b
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/google/uuid v1.6.0
+	github.com/joho/godotenv v1.5.1
+	github.com/mocktools/go-smtp-mock v1.10.0
 	github.com/neilotoole/jsoncolor v0.7.1
 	github.com/pocketbase/dbx v1.11.0
 	github.com/pocketbase/pocketbase v0.24.3
@@ -13,11 +15,11 @@ require (
 	github.com/stretchr/testify v1.10.0
 	github.com/yeqown/go-qrcode/v2 v2.2.5
 	github.com/yeqown/go-qrcode/writer/standard v1.2.5
-	github.com/yeqown/go-qrcode/writer/terminal v1.1.2
 	go.temporal.io/api v1.43.1
 	go.temporal.io/sdk v1.31.0
 	golang.org/x/exp v0.0.0-20250106191152-7588d65b2ba8
 	google.golang.org/protobuf v1.36.2
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.34.4
 )
@@ -78,12 +80,10 @@ require (
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/mattn/go-colorable v0.1.14 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
-	github.com/mattn/go-runewidth v0.0.9 // indirect
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nexus-rpc/sdk-go v0.1.0 // indirect
-	github.com/nsf/termbox-go v1.1.1 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
@@ -110,6 +110,7 @@ require (
 	google.golang.org/genproto/googleapis/api v0.0.0-20250106144421-5f5ef82da422 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250106144421-5f5ef82da422 // indirect
 	google.golang.org/grpc v1.69.4 // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	modernc.org/gc/v3 v3.0.0-20250105121824-520be1a3aee6 // indirect
 	modernc.org/libc v1.55.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

@@ -5,7 +5,9 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 
@@ -13,13 +15,25 @@ import (
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
 	qrcode "github.com/yeqown/go-qrcode/v2"
 	"github.com/yeqown/go-qrcode/writer/standard"
-	"github.com/yeqown/go-qrcode/writer/terminal"
+	"gopkg.in/gomail.v2"
 )
+
+// EmailConfig holds the email configuration details
+type EmailConfig struct {
+	SMTPHost      string
+	SMTPPort      int
+	Username      string
+	Password      string
+	SenderEmail   string
+	ReceiverEmail string
+	Subject       string
+	Body          string
+	Attachments   map[string][]byte
+}
 
 // GenerateYAML generates a YAML file based on provided variant and jsonPayload
 func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testdata.JSONPayload, filePath string) error {
 
-	// Fetch paths from environment variables
 	schemasPath := os.Getenv("SCHEMAS_PATH")
 	if schemasPath == "" {
 		return fmt.Errorf("SCHEMAS_PATH environment variable not set")
@@ -148,16 +162,14 @@ func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testd
 
 // RunStepCIJSProgram executes the JavaScript program and returns a generic JSON response.
 func RunStepCIJSProgramActivity(ctx context.Context, yamlFilePath, token string) (map[string]any, error) {
-
-	// Fetch paths from environment variables
 	runStepCIPath := os.Getenv("RUN_STEPCI_PATH")
 	if runStepCIPath == "" {
 		return nil, fmt.Errorf("RUN_STEPCI_PATH environment variable not set")
 	}
+
 	// Set up the command
 	cmd := exec.CommandContext(ctx, "bun", "run", runStepCIPath, "-p", yamlFilePath, "-s", "token="+token)
 
-	// Capture output
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return nil, fmt.Errorf("error executing JS program: %w\nOutput: %s", err, string(output))
@@ -183,6 +195,9 @@ func (w *writeCloserWrapper) Close() error {
 
 // GenerateQRCodeActivity takes a URL and returns a base64-encoded QR code.
 func GenerateQRCodeActivity(ctx context.Context, url string) (string, error) {
+	if url == "" {
+		return "", errors.New("URL cannot be empty")
+	}
 
 	qr, err := qrcode.New(url)
 	if err != nil {
@@ -203,20 +218,35 @@ func GenerateQRCodeActivity(ctx context.Context, url string) (string, error) {
 	return qrBase64, nil
 }
 
-func PrintQRCodeACtivity(ctx context.Context, url string) error {
+// SendQRCodeEmailActivity sends an email with the QR code as an attachment.
+func SendMailActivity(ctx context.Context, config EmailConfig) error {
 
-	qr, err := qrcode.New(url)
-	if err != nil {
-		return fmt.Errorf("failed to create QR code: %w", err)
+	// Create email message
+	m := gomail.NewMessage()
+	m.SetHeader("From", config.SenderEmail)
+	m.SetHeader("To", config.ReceiverEmail)
+	m.SetHeader("Subject", config.Subject)
+	m.SetBody("text/plain", config.Body)
+	for filename, attachedBytes := range config.Attachments {
+		attached := gomail.SetCopyFunc(func(w io.Writer) error {
+			_, err := w.Write(attachedBytes)
+			return err
+		},
+		)
+		m.Attach(filename, attached)
 	}
 
-	// Create a terminal writer to print the QR code to the terminal
-	tw := terminal.New()
+	// Send email
+	d := gomail.NewDialer(
+		config.SMTPHost,
+		config.SMTPPort,
+		config.Username,
+		config.Password,
+	)
 
-	// Write the QR code to the terminal
-	err = qr.Save(tw)
-	if err != nil {
-		return fmt.Errorf("failed to print QR code to terminal: %w", err)
+	if err := d.DialAndSend(m); err != nil {
+		return fmt.Errorf("failed to send email: %w", err)
 	}
+
 	return nil
 }

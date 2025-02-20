@@ -1,18 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
+	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
 
 func main() {
+	godotenv.Load()
 	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	fmt.Println("Port:", hostPort)
 	if hostPort == "" {
 		hostPort = "localhost:7233"
 	}
@@ -31,7 +31,7 @@ func main() {
 	w.RegisterActivity(workflow.GenerateYAMLActivity)
 	w.RegisterActivity(workflow.RunStepCIJSProgramActivity)
 	w.RegisterActivity(workflow.GenerateQRCodeActivity)
-	w.RegisterActivity(workflow.PrintQRCodeACtivity)
+	w.RegisterActivity(workflow.SendMailActivity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {

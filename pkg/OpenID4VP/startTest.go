@@ -9,10 +9,13 @@ import (
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	"github.com/google/uuid"
+	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
 )
 
 func main() {
+
+	godotenv.Load()
 	hostPort := os.Getenv("TEMPORAL_ADDRESS")
 	if hostPort == "" {
 		hostPort = "localhost:7233"
@@ -75,6 +78,7 @@ func main() {
 				},
 			},
 		},
+		UserMail: "userTest@example.org",
 	}
 
 	// Define the options for the workflow

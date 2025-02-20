@@ -1,8 +1,10 @@
 package workflow
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
@@ -14,6 +16,7 @@ import (
 type WorkflowInput struct {
 	Variant     string
 	JSONPayload testdata.JSONPayload
+	UserMail    string
 }
 
 // OpenIDTestWorkflow starts and waits for user input
@@ -34,7 +37,10 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	}
 	ctx = workflow.WithActivityOptions(ctx, ao)
 
-	token := "jgpr3AEU5FnmaLhzvk53BBZShu/sGRKOsH9XBPuQpcEELqKoU63VOdh+piMtSshF9dRHYC+OXkjjHwRoLYJXzw=="
+	token := os.Getenv("TOKEN")
+	if token == "" {
+		return "", fmt.Errorf("TOKEN environment variable not set")
+	}
 
 	// Create a temporary file to pass to GenerateYAML
 	tempFile, err := os.CreateTemp("", "generated-*.yaml")
@@ -63,12 +69,50 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 		logger.Error("Failed to generate QR code", "error", err)
 		return "", fmt.Errorf("failed to generate QR code: %w", err)
 	}
-	err = workflow.ExecuteActivity(ctx, PrintQRCodeACtivity, response["result"]).Get(ctx, nil)
+
+	qrBytes, err := base64.StdEncoding.DecodeString(qrBase64)
 	if err != nil {
-		logger.Error("Failed to print QR code to terminal", "error", err)
+		return "", fmt.Errorf("error decoding QR code: %w", err)
+	}
+
+	SMTPHost := os.Getenv("SMTP_HOST")
+	if SMTPHost == "" {
+		return "", fmt.Errorf("SMTP_HOST environment variable not set")
+	}
+	SMTPPortString := os.Getenv("SMTP_PORT")
+	if SMTPPortString == "" {
+		return "", fmt.Errorf("SMTP_PORT environment variable not set")
+	}
+	SMTPPort, err := strconv.Atoi(SMTPPortString)
+	if err != nil {
+		return "", fmt.Errorf("SMTP_PORT environment variable not an integer")
+	}
+	username := os.Getenv("MAIL_USERNAME")
+
+	password := os.Getenv("MAIL_USERNAME")
+
+	sender := os.Getenv("MAIL_SENDER")
+	if sender == "" {
+		return "", fmt.Errorf("MAIL_SENDER environment variable not set")
+	}
+	emailConfig := EmailConfig{
+		SMTPHost:      SMTPHost,
+		SMTPPort:      SMTPPort,
+		Username:      username,
+		Password:      password,
+		SenderEmail:   sender,
+		ReceiverEmail: input.UserMail,
+		Subject:       "Test QR Code Email",
+		Body:          "Here is your QR code from Mailpit.",
+		Attachments: map[string][]byte{
+			"qrcode.png": qrBytes, // Attach qrPNG as a gomail.FileSetting
+		},
+	}
+	err = workflow.ExecuteActivity(ctx, SendMailActivity, emailConfig).Get(ctx, nil)
+	if err != nil {
+		logger.Error("Failed to send mail to user ", "error", err)
 		return "", fmt.Errorf("failed to print QR code to terminal: %w", err)
 	}
 
-	logger.Info("QR Code printed successfully!")
 	return "Worflow completed successfully", nil
 }
