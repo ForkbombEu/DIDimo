@@ -16,9 +16,17 @@ func main() {
 	var outputFile string
 
 	rootCmd := &cobra.Command{
-		Use:   "credimi [url]",
-		Short: "Fetch and parse .well-known credential issuer metadata",
-		Args:  cobra.ExactArgs(1), // Ensure exactly one positional argument is provided
+		Use: "credimi [url]",
+		Short: "\033[38;2;255;100;0m      dP oo       dP oo                     \033[0m\n" +
+			"\033[38;2;255;71;43m      88          88                        \033[0m\n" +
+			"\033[38;2;255;43;86m.d888b88 dP .d888b88 dP 88d8b.d8b. .d8888b. \033[0m\n" +
+			"\033[38;2;255;14;129m88'  `88 88 88'  `88 88 88'`88'`88 88'  `88 \033[0m\n" +
+			"\033[38;2;236;0;157m88.  .88 88 88.  .88 88 88  88  88 88.  .88 \033[0m\n" +
+			"\033[38;2;197;0;171m`88888P8 dP `88888P8 dP dP  dP  dP `88888P' \033[0m\n" +
+			"\033[38;2;159;0;186m                                             \033[0m\n" +
+			"                   \033[48;2;0;0;139m\033[38;2;255;255;255m           :(){ :|:& };: \033[0m\n" +
+			"                   \033[48;2;0;0;139m\033[38;2;255;255;255m by The Forkbomb Company \033[0m\n",
+		Args: cobra.ExactArgs(1), // Ensure exactly one positional argument is provided
 		RunE: func(cmd *cobra.Command, args []string) error {
 			url := args[0]
 
@@ -77,12 +85,6 @@ func OpenID4VPTestCommand() *cobra.Command {
 			var input OpenID4VP.OpenID4VPTestInputFile
 			if err := json.NewDecoder(file).Decode(&input); err != nil {
 				return fmt.Errorf("error parsing JSON file: %v", err)
-			}
-			// Debug print: pretty-print the parsed JSON payload as JSON
-			if jsonBytes, err := json.MarshalIndent(input.Form, "", "  "); err == nil {
-				fmt.Printf("DEBUG: JSON Payload:\n%s\n", string(jsonBytes))
-			} else {
-				fmt.Printf("DEBUG: Error marshalling JSON payload: %v\n", err)
 			}
 			// Start the workflow using the parsed JSON and the user email.
 			return OpenID4VP.StartWorkflow(input, userMail)
