@@ -18,8 +18,8 @@ func TestGenerateYAMLActivity(t *testing.T) {
 	env := ts.NewTestActivityEnvironment()
 	env.RegisterActivity(GenerateYAMLActivity)
 
-	// Define mock JSON payload
-	mockJSONPayload := testdata.JSONPayload{
+	// Define mock Form
+	mockForm := testdata.Form{
 		Alias:       "MOCK_ALIAS",
 		Description: "Mock description for testing",
 		Server: testdata.Server{
@@ -70,21 +70,21 @@ func TestGenerateYAMLActivity(t *testing.T) {
 	testCases := []struct {
 		name          string
 		variant       string
-		jsonPayload   testdata.JSONPayload
+		Form          testdata.Form
 		setupEnv      func()
 		expectedError bool
 	}{
 		{
 			name:          "Success Valid input",
 			variant:       "testVariant",
-			jsonPayload:   mockJSONPayload,
+			Form:          mockForm,
 			setupEnv:      func() { os.Setenv("SCHEMAS_PATH", "../../../schemas") },
 			expectedError: false,
 		},
 		{
 			name:          "Failure  Missing SCHEMAS_PATH",
 			variant:       "testVariant",
-			jsonPayload:   mockJSONPayload,
+			Form:          mockForm,
 			setupEnv:      func() { os.Unsetenv("SCHEMAS_PATH") },
 			expectedError: true,
 		},
@@ -98,7 +98,7 @@ func TestGenerateYAMLActivity(t *testing.T) {
 			require.NoError(t, err, "Failed to create temporary YAML file")
 			defer os.Remove(tmpFile.Name())
 
-			_, err = env.ExecuteActivity(GenerateYAMLActivity, tc.variant, tc.jsonPayload, tmpFile.Name())
+			_, err = env.ExecuteActivity(GenerateYAMLActivity, tc.variant, tc.Form, tmpFile.Name())
 			if tc.expectedError {
 				require.Error(t, err, "Expected an error but did not receive one")
 				return

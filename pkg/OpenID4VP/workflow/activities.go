@@ -31,8 +31,8 @@ type EmailConfig struct {
 	Attachments   map[string][]byte
 }
 
-// GenerateYAML generates a YAML file based on provided variant and jsonPayload
-func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testdata.JSONPayload, filePath string) error {
+// GenerateYAML generates a YAML file based on provided variant and form
+func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.Form, filePath string) error {
 
 	schemasPath := os.Getenv("SCHEMAS_PATH")
 	if schemasPath == "" {
@@ -69,7 +69,7 @@ func GenerateYAMLActivity(ctx context.Context, variant string, jsonPayload testd
 					"accept":       "application/json",
 					"Content-Type": "application/json",
 				},
-				JSON: jsonPayload,
+				JSON: form,
 				Captures: map[string]struct {
 					JSONPath string `yaml:"jsonpath"`
 				}{

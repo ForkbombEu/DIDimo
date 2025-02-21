@@ -14,9 +14,9 @@ import (
 )
 
 type WorkflowInput struct {
-	Variant     string
-	JSONPayload testdata.JSONPayload
-	UserMail    string
+	Variant  string
+	Form     testdata.Form
+	UserMail string
 }
 
 // OpenIDTestWorkflow starts and waits for user input
@@ -51,7 +51,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	defer os.Remove(tempFile.Name()) // Ensure the temp file is cleaned up after workflow execution
 
 	// Pass the temporary file path to the GenerateYAML activity
-	err = workflow.ExecuteActivity(ctx, GenerateYAMLActivity, input.Variant, input.JSONPayload, tempFile.Name()).Get(ctx, nil)
+	err = workflow.ExecuteActivity(ctx, GenerateYAMLActivity, input.Variant, input.Form, tempFile.Name()).Get(ctx, nil)
 	if err != nil {
 		logger.Error("GenerateYAML failed", "error", err)
 		return "", err
