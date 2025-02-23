@@ -6,7 +6,7 @@ import { EXPORT_TYPE, formatCode, GENERATED, logCodegenResult, SEPARATOR } from 
 import { pipe, Array as A, Record } from 'effect';
 import { capitalize, merge } from 'lodash';
 import JsonToTS from 'json-to-ts';
-import pb_schema from '$admin/migrations/pb_schema.json';
+import pb_schema from '../../../../../migrations/pb_schema.json';
 
 /* Setup */
 

@@ -4,7 +4,7 @@ import prettier from 'prettier';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-import dbPath from '$admin/pb_data/data.db?url';
+import dbPath from '../../../../pb_data/data.db?url';
 
 //
 
