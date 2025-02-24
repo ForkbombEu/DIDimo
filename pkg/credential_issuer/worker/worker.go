@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 
@@ -11,7 +12,13 @@ import (
 
 func main() {
 	// Create a Temporal client
-	c, err := client.Dial(client.Options{})
+	hostPort := os.Getenv("TEMPORAL_ADDRESS")
+	if hostPort == "" {
+		hostPort = "localhost:7233"
+	}
+	c, err := client.Dial(client.Options{
+		HostPort: hostPort,
+	})
 	if err != nil {
 		log.Fatalf("Unable to create Temporal client: %v", err)
 	}
