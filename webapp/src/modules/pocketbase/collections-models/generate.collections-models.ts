@@ -2,22 +2,15 @@ import { type CollectionModel } from 'pocketbase';
 import fs from 'fs';
 import 'dotenv/config';
 import path from 'node:path';
-import {
-	EXPORT_TYPE,
-	formatCode,
-	GENERATED,
-	initAdminPocketbase,
-	logCodegenResult,
-	SEPARATOR
-} from '@/utils/codegen';
+import { EXPORT_TYPE, formatCode, GENERATED, logCodegenResult, SEPARATOR } from '@/utils/codegen';
 import { pipe, Array as A, Record } from 'effect';
 import { capitalize, merge } from 'lodash';
 import JsonToTS from 'json-to-ts';
+import pb_schema from '../../../../../migrations/pb_schema.json';
 
 /* Setup */
 
-const pb = await initAdminPocketbase();
-const models = await pb.collections.getFullList();
+const models = pb_schema as CollectionModel[];
 
 /* Codegen */
 

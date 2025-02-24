@@ -1,8 +1,19 @@
-import type { TypedPocketBase } from '@/pocketbase/types';
-import PocketBase from 'pocketbase';
 import 'dotenv/config';
-import assert from 'node:assert';
 import prettier from 'prettier';
+
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
+
+import dbPath from '../../../../pb_data/data.db?url';
+
+//
+
+export function openDb() {
+	return open({
+		filename: dbPath,
+		driver: sqlite3.Database
+	});
+}
 
 //
 
@@ -11,17 +22,6 @@ export const EXPORT_TYPE = 'export type ';
 export const SEPARATOR = '/* ------------------ */';
 
 //
-
-export async function initAdminPocketbase() {
-	const { PB_ADMIN_USER, PB_ADMIN_PASS, PUBLIC_POCKETBASE_URL } = process.env;
-	assert(PB_ADMIN_USER);
-	assert(PB_ADMIN_PASS);
-	assert(PUBLIC_POCKETBASE_URL);
-
-	const pb = new PocketBase(PUBLIC_POCKETBASE_URL) as TypedPocketBase;
-	await pb.collection('_superusers').authWithPassword(PB_ADMIN_USER, PB_ADMIN_PASS);
-	return pb;
-}
 
 export async function formatCode(
 	code: string,
