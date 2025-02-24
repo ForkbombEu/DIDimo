@@ -22,19 +22,24 @@
 			})
 		),
 		onSubmit: async ({ form }) => {
-			const { name, standard, json, email } = form.data;
+			try {
+				const { name, standard, json, email } = form.data;
 
-			// /pkg/internal/pb/workflow.go
-			const { message } = await pb.send('/api/openid4vp-test', {
-				body: {
-					input: json,
-					user_mail: email,
-					workflow_id: standard,
-					test_name: name
-				}
-			});
+				// /pkg/internal/pb/workflow.go
+				const result = await pb.send('/api/openid4vp-test', {
+					body: {
+						input: json,
+						user_mail: email,
+						workflow_id: standard,
+						tesst_name: name
+					}
+				});
+				console.log(result);
 
-			result = message;
+				// result = message;
+			} catch (e) {
+				console.log(e);
+			}
 		}
 	});
 </script>
