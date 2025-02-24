@@ -20,7 +20,7 @@
 <div class="mx-auto max-w-xl space-y-12 px-8 py-12">
 	<T tag="h1">{m.Start_a_new_compliance_check()}</T>
 
-	<div>
+	<div class="space-y-2">
 		<T>{m.What_do_you_want_to_check()}</T>
 		<div class="flex gap-4">
 			{@render TestOptionButton('credential_issuer')}
@@ -44,7 +44,7 @@
 	{@const isSelected = currentTestSubject == subject}
 	<button
 		class={[
-			'bg-secondary ring-primary flex grow basis-1 rounded-lg p-4 hover:ring-2',
+			'bg-secondary ring-primary relative flex grow basis-1 rounded-lg p-4 hover:ring-2',
 			{ 'ring-2': isSelected }
 		]}
 		onclick={select}
@@ -52,7 +52,7 @@
 		{testSubjectsLabels[subject]}
 
 		{#if isSelected}
-			<CheckCircle2 />
+			<CheckCircle2 class="absolute right-2 top-2" />
 		{/if}
 	</button>
 {/snippet}

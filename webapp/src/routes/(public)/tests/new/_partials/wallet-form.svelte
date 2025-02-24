@@ -46,7 +46,12 @@
 
 <Form {form} hideRequiredIndicator>
 	<Field {form} name="name" options={{ type: 'text', label: m.Wallet_name() }} />
-	<CollectionField {form} name="standard" collection="standards" />
+	<CollectionField
+		{form}
+		name="standard"
+		collection="standards"
+		options={{ displayFields: ['name'] }}
+	/>
 	<TextareaField {form} name="json"></TextareaField>
 
 	<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
