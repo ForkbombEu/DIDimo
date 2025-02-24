@@ -8,6 +8,8 @@
 	import { CollectionField } from '@/collections-components';
 	import T from '@/components/ui-custom/t.svelte';
 
+	import t from './test.json';
+
 	//
 
 	let result = $state<string>();
@@ -21,14 +23,21 @@
 				email: z.string().email()
 			})
 		),
+		initialData: {
+			name: 'Wallet test',
+			standard: '1t3b72qh3vx0cpb',
+			email: 'pin@gmail.com',
+			json: JSON.stringify(t, null, 4)
+		},
 		onSubmit: async ({ form }) => {
 			try {
 				const { name, standard, json, email } = form.data;
 
 				// /pkg/internal/pb/workflow.go
 				const result = await pb.send('/api/openid4vp-test', {
+					method: 'POST',
 					body: {
-						input: json,
+						input: JSON.parse(json),
 						user_mail: email,
 						workflow_id: standard,
 						tesst_name: name
