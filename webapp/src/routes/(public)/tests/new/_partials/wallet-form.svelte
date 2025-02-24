@@ -1,15 +1,16 @@
 <script lang="ts">
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field, TextareaField } from '@/forms/fields';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { pb } from '@/pocketbase';
-	import type { CredentialIssuersRecord, Data, ServicesRecord } from '@/pocketbase/types';
-	import { nanoid } from 'nanoid';
 	import { CollectionField } from '@/collections-components';
+	import T from '@/components/ui-custom/t.svelte';
 
 	//
+
+	let result = $state<string>();
 
 	const form = createForm({
 		adapter: zod(
@@ -22,16 +23,18 @@
 		),
 		onSubmit: async ({ form }) => {
 			const { name, standard, json, email } = form.data;
-			const credentialIssuer = await pb.send('/api/openid4vp-test', {
+
+			// /pkg/internal/pb/workflow.go
+			const { message } = await pb.send('/api/openid4vp-test', {
 				body: {
-					// TODO
+					input: json,
+					user_mail: email,
+					workflow_id: standard,
+					test_name: name
 				}
 			});
-			// const service = await pb.collection('services').create({
-			// 	name: nanoid(5),
-			// 	credential_issuers: [credentialIssuer.id]
-			// } satisfies Data<ServicesRecord>);
-			// goto(`/services/${service.id}`);
+
+			result = message;
 		}
 	});
 </script>
@@ -41,11 +44,16 @@
 	<CollectionField {form} name="standard" collection="standards" />
 	<TextareaField {form} name="json"></TextareaField>
 
-	<div class="">
+	<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
+		<T>{m.Send_the_results_to_this_email()}</T>
 		<Field {form} name="email" options={{ type: 'email' }} />
 	</div>
 
 	{#snippet submitButton()}
 		<SubmitButton class="flex w-full">{m.Start_check()}</SubmitButton>
 	{/snippet}
+
+	{#if result}
+		{result}
+	{/if}
 </Form>

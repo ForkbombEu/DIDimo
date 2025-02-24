@@ -3,6 +3,7 @@
 	import { m } from '@/i18n';
 	import CredentialIssuerForm from './_partials/credential-issuer-form.svelte';
 	import WalletForm from './_partials/wallet-form.svelte';
+	import { CheckCircle2 } from 'lucide-svelte';
 
 	//
 
@@ -16,8 +17,8 @@
 	let currentTestSubject = $state<TestSubject>();
 </script>
 
-<div class="mx-auto max-w-xl px-8 py-12">
-	<T tag="h1" class="mb-12">{m.Start_a_new_compliance_check()}</T>
+<div class="mx-auto max-w-xl space-y-12 px-8 py-12">
+	<T tag="h1">{m.Start_a_new_compliance_check()}</T>
 
 	<div>
 		<T>{m.What_do_you_want_to_check()}</T>
@@ -27,11 +28,13 @@
 		</div>
 	</div>
 
-	{#if currentTestSubject == 'credential_issuer'}
-		<CredentialIssuerForm />
-	{:else if currentTestSubject == 'wallet'}
-		<WalletForm />
-	{/if}
+	<div>
+		{#if currentTestSubject == 'credential_issuer'}
+			<CredentialIssuerForm />
+		{:else if currentTestSubject == 'wallet'}
+			<WalletForm />
+		{/if}
+	</div>
 </div>
 
 {#snippet TestOptionButton(subject: TestSubject)}
@@ -47,5 +50,9 @@
 		onclick={select}
 	>
 		{testSubjectsLabels[subject]}
+
+		{#if isSelected}
+			<CheckCircle2 />
+		{/if}
 	</button>
 {/snippet}
