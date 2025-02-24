@@ -71,7 +71,7 @@ func AddOpenID4VPTestEndpoint(app *pocketbase.PocketBase) {
 		se.Router.POST("/api/openid4vp-test", func(e *core.RequestEvent) error {
 			var req OpenID4VPRequest
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
-				return apis.NewBadRequestError("invalid JSON input", err)
+				return apis.NewBadRequestError("invalid JSONE input", err)
 			}
 
 			// Start the workflow
@@ -83,7 +83,7 @@ func AddOpenID4VPTestEndpoint(app *pocketbase.PocketBase) {
 			return e.JSON(http.StatusOK, map[string]string{
 				"message": "Workflow started successfully",
 			})
-		}).Bind(apis.RequireAuth())
+		})
 		return se.Next()
 	})
 }
