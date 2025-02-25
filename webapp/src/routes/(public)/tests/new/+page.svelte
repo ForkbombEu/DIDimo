@@ -52,7 +52,7 @@
 		{testSubjectsLabels[subject]}
 
 		{#if isSelected}
-			<CheckCircle2 class="absolute right-2 top-2" />
+			<CheckCircle2 class="absolute right-1 top-1" />
 		{/if}
 	</button>
 {/snippet}
