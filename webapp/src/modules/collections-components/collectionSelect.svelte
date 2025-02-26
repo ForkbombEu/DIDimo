@@ -1,5 +1,14 @@
-<script lang="ts" generics="C extends CollectionName, Expand extends ExpandQueryOption<C> = never">
-	import { type ExpandQueryOption, PocketbaseQuery, type QueryResponse } from '@/pocketbase/query';
+<script
+	lang="ts"
+	generics="C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
+>
+	import {
+		type PocketbaseQueryResponse,
+		type PocketbaseQueryExpandOption,
+		type PocketbaseQueryOptions,
+		createPocketbaseQueryAgent
+	} from '@/pocketbase/query';
+
 	import type { CollectionName } from '@/pocketbase/collections-models';
 	import { setupComponentPocketbaseSubscriptions } from '@/pocketbase/subscriptions';
 	import type { RecordIdString } from '@/pocketbase/types';
@@ -9,7 +18,7 @@
 
 	//
 
-	type Props = CollectionInputProps<C, Expand>;
+	type Props = CollectionInputProps<C, E>;
 
 	let {
 		collection,
@@ -25,7 +34,7 @@
 
 	//
 
-	type Record = QueryResponse<C, Expand>;
+	type Record = PocketbaseQueryResponse<C, E>;
 
 	let records = $state<Record[]>([]);
 	let recordId = $state<RecordIdString | undefined>();
@@ -45,8 +54,8 @@
 	//
 
 	const loadRecords = $derived(function () {
-		const query = new PocketbaseQuery(collection, queryOptions);
-		query.getFullList().then((res) => (records = res));
+		const runners = createPocketbaseQueryAgent({ collection, ...queryOptions });
+		runners.getFullList().then((res) => (records = res));
 	});
 
 	$effect(() => {
