@@ -10,16 +10,12 @@ docker-compose*
 Dockerfile*
 docs
 LICENSES
-Makefile
 Procfile*
 README.md
 REUSE.toml
 tmp
 webapp/.dockerignore
 webapp/.editorconfig
-webapp/.env
-webapp/.gitignore
-webapp/.npmrc
 webapp/.prettierignore
 webapp/.prettierrc
 webapp/.svelte-kit
@@ -27,7 +23,6 @@ webapp/.vscode
 webapp/Dockerfile
 webapp/e2e
 webapp/eslint.config.js
-webapp/messages
 webapp/node_modules
 webapp/playwright.config.ts
 webapp/README.md

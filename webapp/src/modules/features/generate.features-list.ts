@@ -1,14 +1,16 @@
 import fs from 'fs';
 import path from 'node:path';
-import { formatCode, GENERATED, initAdminPocketbase, logCodegenResult } from '@/utils/codegen';
+import { formatCode, GENERATED, openDb, logCodegenResult } from '@/utils/codegen';
+import type { FeaturesRecord } from '@/pocketbase/types';
 
 //
+
+const db = await openDb();
 
 const TYPE_NAME = 'Feature';
 const OBJECT_NAME = `${TYPE_NAME}s`;
 
-const pb = await initAdminPocketbase();
-const featuresRecords = await pb.collection('features').getFullList();
+const featuresRecords = (await db.all('SELECT * FROM features')) as FeaturesRecord[];
 const featuresEntries = featuresRecords.map((f) => `${f.name.toUpperCase()}: '${f.name}'`);
 
 const code = `

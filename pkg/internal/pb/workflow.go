@@ -3,6 +3,7 @@ package pb
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	"github.com/google/uuid"
@@ -14,7 +15,14 @@ import (
 
 func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 	app.OnRecordAfterCreateSuccess("credential_issuers").BindFunc(func(e *core.RecordEvent) error {
-		c, err := client.Dial(client.Options{})
+
+		hostPort := os.Getenv("TEMPORAL_ADDRESS")
+		if hostPort == "" {
+			hostPort = "localhost:7233"
+		}
+		c, err := client.Dial(client.Options{
+			HostPort: hostPort,
+		})
 		if err != nil {
 			log.Fatalln("Unable to create client", err)
 		}

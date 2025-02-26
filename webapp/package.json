@@ -93,6 +93,9 @@
 		"nanoid": "^5.0.8",
 		"pocketbase": "0.25",
 		"runed": "^0.15.3",
+		"scrollama": "^3.2.0",
+		"sqlite": "^5.1.1",
+		"sqlite3": "^5.1.7",
 		"svelte-loading-spinners": "^0.3.6",
 		"type-fest": "^4.26.1",
 		"zenroom": "^4.45.3"
