@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"os"
 	"testing"
@@ -439,39 +438,6 @@ tests:
 				err = json.Unmarshal([]byte(tc.expectedJSON), &expected)
 				require.NoError(t, err, "Failed to unmarshal JSON")
 				require.Equal(t, expected, result)
-			}
-		})
-	}
-}
-func TestGenerateQRCodeActivity(t *testing.T) {
-	var ts testsuite.WorkflowTestSuite
-	env := ts.NewTestActivityEnvironment()
-	env.RegisterActivity(GenerateQRCodeActivity)
-
-	testCases := []struct {
-		name          string
-		url           string
-		expectedError bool
-	}{
-		{"Success Valid URL", "https://example.com", false},
-		{"Failure Empty URL", "", true},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			var qrCode string
-			future, err := env.ExecuteActivity(GenerateQRCodeActivity, tc.url)
-
-			if tc.expectedError {
-				require.Error(t, err, "Expected an error but got none")
-			} else {
-				require.NoError(t, err)
-				err := future.Get(&qrCode)
-				require.NoError(t, err)
-				require.NotEmpty(t, qrCode, "QR Code should not be empty")
-				decoded, decodeErr := base64.StdEncoding.DecodeString(qrCode)
-				require.NoError(t, decodeErr, "QR Code output is not valid base64")
-				require.NotEmpty(t, decoded, "Decoded QR Code should not be empty")
 			}
 		})
 	}

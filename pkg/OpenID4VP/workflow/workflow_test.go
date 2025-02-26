@@ -19,7 +19,6 @@ func Test_Workflow(t *testing.T) {
 	// Mock activity implementation
 	env.OnActivity(GenerateYAMLActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	env.OnActivity(RunStepCIJSProgramActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
-	env.OnActivity(GenerateQRCodeActivity, mock.Anything, mock.Anything).Return("", nil)
 	env.OnActivity(SendMailActivity, mock.Anything, mock.Anything).Return(nil)
 	env.ExecuteWorkflow(OpenIDTestWorkflow, WorkflowInput{Variant: "test", UserMail: "user@example.org"})
 

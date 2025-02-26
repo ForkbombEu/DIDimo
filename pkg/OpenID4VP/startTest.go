@@ -21,7 +21,7 @@ type OpenID4VPTestInputFile struct {
 }
 
 // startWorkflow starts the Temporal workflow
-func StartWorkflow(input OpenID4VPTestInputFile, userMail string) error {
+func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error {
 	// Load environment variables.
 	godotenv.Load()
 	hostPort := os.Getenv("TEMPORAL_ADDRESS")
@@ -46,6 +46,7 @@ func StartWorkflow(input OpenID4VPTestInputFile, userMail string) error {
 		Variant:  variantStr,
 		Form:     input.Form,
 		UserMail: userMail,
+		AppURL:   appURL,
 	}
 
 	// Define workflow options.
@@ -55,18 +56,10 @@ func StartWorkflow(input OpenID4VPTestInputFile, userMail string) error {
 	}
 
 	// Start the workflow execution.
-	workflowRun, err := c.ExecuteWorkflow(context.Background(), workflowOptions, workflow.OpenIDTestWorkflow, workflowInput)
+	_, err = c.ExecuteWorkflow(context.Background(), workflowOptions, workflow.OpenIDTestWorkflow, workflowInput)
 	if err != nil {
 		return fmt.Errorf("failed to start workflow: %v", err)
 	}
 
-	// Wait for the workflow result.
-	var result string
-	if err := workflowRun.Get(context.Background(), &result); err != nil {
-		return fmt.Errorf("failed to get workflow result: %v", err)
-	}
-
-	// Print the result.
-	fmt.Printf("Workflow result: %s\n", result)
 	return nil
 }

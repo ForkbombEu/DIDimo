@@ -1,11 +1,8 @@
 package workflow
 
 import (
-	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"os"
@@ -13,8 +10,6 @@ import (
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
-	qrcode "github.com/yeqown/go-qrcode/v2"
-	"github.com/yeqown/go-qrcode/writer/standard"
 	"gopkg.in/gomail.v2"
 )
 
@@ -184,41 +179,7 @@ func RunStepCIJSProgramActivity(ctx context.Context, yamlFilePath, token string)
 	return result, nil
 }
 
-type writeCloserWrapper struct {
-	*bytes.Buffer
-}
-
-// Close is a no-op to satisfy io.WriteCloser
-func (w *writeCloserWrapper) Close() error {
-	return nil
-}
-
-// GenerateQRCodeActivity takes a URL and returns a base64-encoded QR code.
-func GenerateQRCodeActivity(ctx context.Context, url string) (string, error) {
-	if url == "" {
-		return "", errors.New("URL cannot be empty")
-	}
-
-	qr, err := qrcode.New(url)
-	if err != nil {
-		return "", fmt.Errorf("failed to create QR code: %w", err)
-	}
-
-	// Use a buffer to store the PNG output
-	var buf bytes.Buffer
-	w := standard.NewWithWriter(&writeCloserWrapper{&buf}) // Use custom wrapper
-
-	// Encode and write QR code to buffer
-	if err := qr.Save(w); err != nil {
-		return "", fmt.Errorf("failed to generate QR code image: %w", err)
-	}
-
-	// Convert to base64 string
-	qrBase64 := base64.StdEncoding.EncodeToString(buf.Bytes())
-	return qrBase64, nil
-}
-
-// SendQRCodeEmailActivity sends an email with the QR code as an attachment.
+// SendMailActivity sends an email
 func SendMailActivity(ctx context.Context, config EmailConfig) error {
 
 	// Create email message
@@ -226,7 +187,7 @@ func SendMailActivity(ctx context.Context, config EmailConfig) error {
 	m.SetHeader("From", config.SenderEmail)
 	m.SetHeader("To", config.ReceiverEmail)
 	m.SetHeader("Subject", config.Subject)
-	m.SetBody("text/plain", config.Body)
+	m.SetBody("text/html", config.Body)
 	for filename, attachedBytes := range config.Attachments {
 		attached := gomail.SetCopyFunc(func(w io.Writer) error {
 			_, err := w.Write(attachedBytes)
