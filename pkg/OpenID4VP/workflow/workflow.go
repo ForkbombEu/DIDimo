@@ -89,7 +89,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	if sender == "" {
 		return "", fmt.Errorf("MAIL_SENDER environment variable not set")
 	}
-	baseURL := input.AppURL + "/wallet-test"
+	baseURL := input.AppURL + "/tests/wallet"
 	u, err := url.Parse(baseURL)
 	if err != nil {
 		return "", fmt.Errorf("unexpected error parsing URL: %v", err)

@@ -118,7 +118,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 		se.Router.POST("/wallet-test/notify-failure", func(e *core.RequestEvent) error {
 			var request struct {
-				WorkflowID string `json:"workflowID"`
+				WorkflowID string `json:"workflow_id"`
 				Reason     string `json:"reason"`
 			}
 			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {

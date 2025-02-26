@@ -92,6 +92,7 @@
 		"mjml": "^4.15.3",
 		"nanoid": "^5.0.8",
 		"pocketbase": "0.25",
+		"qrcode-generator": "^1.4.4",
 		"runed": "^0.15.3",
 		"scrollama": "^3.2.0",
 		"sqlite": "^5.1.1",

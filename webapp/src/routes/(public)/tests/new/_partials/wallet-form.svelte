@@ -9,10 +9,12 @@
 	import T from '@/components/ui-custom/t.svelte';
 
 	import t from './test.json';
+	import Alert from '@/components/ui-custom/alert.svelte';
+	import { Button } from '@/components/ui/button';
 
 	//
 
-	let result = $state<string>();
+	let workflowStarted = $state<boolean>();
 
 	const form = createForm({
 		adapter: zod(
@@ -25,54 +27,68 @@
 		),
 		initialData: {
 			name: 'Wallet test',
-			standard: 'w742h03qg7c606i',
+			standard: '9g0blea2dj37ph1',
 			email: 'pin@gmail.com',
 			json: JSON.stringify(t, null, 4)
 		},
 		onSubmit: async ({ form }) => {
-			try {
-				const { name, standard, json, email } = form.data;
+			const { name, standard, json, email } = form.data;
 
-				// /pkg/internal/pb/workflow.go
-				const result = await pb.send('/api/openid4vp-test', {
-					method: 'POST',
-					body: {
-						input: JSON.parse(json),
-						user_mail: email,
-						workflow_id: standard,
-						tesst_name: name
-					}
-				});
-				console.log(result);
+			// /pkg/internal/pb/workflow.go
+			// Result type should be `{started:boolean}`
+			const result: { started: boolean } = await pb.send('/api/openid4vp-test', {
+				method: 'POST',
+				body: {
+					input: JSON.parse(json),
+					user_mail: email,
+					workflow_id: standard,
+					tesst_name: name
+				}
+			});
 
-				// result = message;
-			} catch (e) {
-				console.log(e);
-			}
+			workflowStarted = result.started;
 		}
 	});
+
+	const { form: formData } = form;
 </script>
 
-<Form {form} hideRequiredIndicator>
-	<Field {form} name="name" options={{ type: 'text', label: m.Wallet_name() }} />
-	<CollectionField
-		{form}
-		name="standard"
-		collection="standards"
-		options={{ displayFields: ['name'] }}
-	/>
-	<TextareaField {form} name="json"></TextareaField>
+{#if !workflowStarted}
+	<Form {form} hideRequiredIndicator>
+		<Field {form} name="name" options={{ type: 'text', label: m.Wallet_name() }} />
+		<CollectionField
+			{form}
+			name="standard"
+			collection="standards"
+			options={{ displayFields: ['name'] }}
+		/>
+		<TextareaField {form} name="json" />
 
-	<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
-		<T>{m.Send_the_results_to_this_email()}</T>
-		<Field {form} name="email" options={{ type: 'email' }} />
-	</div>
+		<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
+			<Field {form} name="email" options={{ type: 'email' }} />
+			<T>{m.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email()}</T>
+		</div>
 
-	{#snippet submitButton()}
-		<SubmitButton class="flex w-full">{m.Start_check()}</SubmitButton>
-	{/snippet}
+		{#snippet submitButton()}
+			<SubmitButton class="flex w-full">{m.Start_check()}</SubmitButton>
+		{/snippet}
+	</Form>
+{:else}
+	<Alert variant="info">
+		<T class="mb-2">{m.The_test_has_started_successfully()}</T>
+		<T>{m.Next_steps()}</T>
+		<ul class="list-inside list-disc pl-1">
+			<li>{m.Open_your_email({ email: $formData.email })}</li>
+			<li>{m.Follow_the_instructions_to_continue_with_the_compliance_check()}</li>
+		</ul>
+	</Alert>
 
-	{#if result}
-		{result}
-	{/if}
-</Form>
+	<Button
+		class="mt-4 w-full"
+		onclick={() => {
+			workflowStarted = false;
+		}}
+	>
+		{m.Start_a_new_check()}
+	</Button>
+{/if}
