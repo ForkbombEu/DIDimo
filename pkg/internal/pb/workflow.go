@@ -93,8 +93,8 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
 			}
 
-			return e.JSON(http.StatusOK, map[string]string{
-				"message": "Workflow started successfully",
+			return e.JSON(http.StatusOK, map[string]bool{
+				"started": true,
 			})
 		})
 
