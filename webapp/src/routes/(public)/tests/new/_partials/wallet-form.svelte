@@ -25,7 +25,7 @@
 		),
 		initialData: {
 			name: 'Wallet test',
-			standard: '1t3b72qh3vx0cpb',
+			standard: 'w742h03qg7c606i',
 			email: 'pin@gmail.com',
 			json: JSON.stringify(t, null, 4)
 		},
