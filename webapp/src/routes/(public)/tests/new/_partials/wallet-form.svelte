@@ -42,7 +42,7 @@
 					input: JSON.parse(json),
 					user_mail: email,
 					workflow_id: standard,
-					tesst_name: name
+					test_name: name
 				}
 			});
 
