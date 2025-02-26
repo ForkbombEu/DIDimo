@@ -18,6 +18,7 @@
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 
 	const fakeService: ServicesResponse = {
 		id: 'das',

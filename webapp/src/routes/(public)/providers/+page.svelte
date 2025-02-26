@@ -3,7 +3,7 @@
 	import PageGrid from '$lib/layout/pageGrid.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
-	import { CollectionManager } from '@/collections-components';
+	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import * as Sheet from '@/components/ui/sheet';
@@ -31,7 +31,7 @@
 	{/snippet}
 
 	{#snippet contentWrapper(children)}
-		<PageContent class="bg-secondary grow">
+		<PageContent class="grow bg-secondary">
 			{@render children()}
 		</PageContent>
 	{/snippet}
