@@ -8,13 +8,5 @@
     "editor.quickSuggestions": {
         "strings": "on"
     },
-    "go.goroot": "/Users/giovanniabbatepaolo/.local/share/mise/installs/go/1.23.4",
-    "debug.javascript.defaultRuntimeExecutable": {
-        "pwa-node": "/Users/giovanniabbatepaolo/.local/share/mise/shims/node"
-    },
-    "go.alternateTools": {
-        "go": "/Users/giovanniabbatepaolo/.local/share/mise/shims/go",
-        "dlv": "/Users/giovanniabbatepaolo/.local/share/mise/shims/dlv"
-    },
     "explorer.sortOrder": "filesFirst"
 }
