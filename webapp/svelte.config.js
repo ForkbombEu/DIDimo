@@ -16,7 +16,7 @@ const config = {
 			$lib: './src/lib',
 			'@': './src/modules',
 			$zencode: './client_zencode',
-			$admin: '../'
+			$admin: '../../'
 		},
 		version: {
 			name: process.env.npm_package_version
