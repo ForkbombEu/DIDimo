@@ -1,68 +1,39 @@
 <script lang="ts">
+	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Card } from '@/components/ui/card';
 	import { m } from '@/i18n';
-
-	type Credential = {
-		name: string;
-		issuer: string;
-		duration: string;
-		category: string;
-		format: string;
-		logo?: string;
-	};
+	import type { CredentialsResponse } from '@/pocketbase/types';
 
 	type Props = {
-		credential?: Credential;
+		credential: CredentialsResponse;
 		class?: string;
 	};
 
-	const { credential = defaultCredential(), class: className = '' }: Props = $props();
+	const { credential, class: className = '' }: Props = $props();
 
-	function defaultCredential(): Credential {
-		return {
-			name: "Driver's License",
-			issuer: 'Didimo',
-			duration: '1 year',
-			category: 'Identity',
-			format: 'Digital',
-
-			logo:
-				Math.random() > 0.5
-					? 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/LEGO_logo.svg/2048px-LEGO_logo.svg.png'
-					: undefined
-		};
-	}
+	const properties = {
+		[m.Issuer()]: credential.issuer_name,
+		[m.Duration()]: 'credential_duration',
+		[m.Specification()]: 'credential_specification',
+		[m.Category()]: 'credential_category',
+		[m.Format()]: credential.format
+	};
 </script>
 
-<Card class="border-primary flex flex-col justify-between space-y-6 rounded-xl p-6 {className}">
-	<div class="flex items-center space-x-4">
+<a
+	href="/credentials/{credential.id}"
+	class="bg-card text-card-foreground border-primary ring-primary flex flex-col gap-6 rounded-xl border p-6 shadow-sm transition-transform hover:-translate-y-2 hover:ring-2 {className}"
+>
+	<div class="flex items-center gap-2">
 		{#if credential.logo}
-			<img src={credential.logo} alt={credential.name} class="size-14 rounded-lg border" />
-		{:else}
-			<div class="flex size-14 items-center justify-center rounded-lg border bg-gray-100">
-				<p class="font-semibold uppercase">{credential.name.slice(0, 2)}</p>
-			</div>
+			<Avatar src={credential.logo} class="!rounded-sm" hideIfLoadingError />
 		{/if}
-		<T tag="h4">{credential.name}</T>
+		<T class="font-semibold">{credential.name}</T>
 	</div>
 
-	<div class="grid grid-cols-2">
-		<div>
-			<small>{m.Issuer()}:</small>
-			<small class="text-muted-foreground font-semibold">{credential.issuer}</small>
-		</div>
-		<div>
-			<small>{m.Duration()}:</small>
-			<small class="text-muted-foreground font-semibold">{credential.duration}</small>
-		</div>
-		<div>
-			<small>{m.Category()}:</small>
-			<small class="text-muted-foreground font-semibold">{credential.category}</small>
-		</div>
-		<div>
-			<small>{m.Format()}:</small>
-			<small class="text-muted-foreground font-semibold">{credential.format}</small>
-		</div>
+	<div class="space-y-1">
+		{#each Object.entries(properties) as [key, value]}
+			<T class="text-sm text-slate-400">{key}: <span class="text-primary">{value}</span></T>
+		{/each}
 	</div>
-</Card>
+</a>

@@ -1,7 +1,11 @@
 {
-  "tailwindCSS.classAttributes": ["class", "className", "contentClass"],
-  "editor.quickSuggestions": {
-    "strings": "on"
-  },
-  "go.goroot": "/Users/giovanniabbatepaolo/.local/share/mise/installs/go/1.23.4"
+    "tailwindCSS.classAttributes": [
+        "class",
+        "className",
+        "contentClass",
+        "containerClass"
+    ],
+    "editor.quickSuggestions": {
+        "strings": "on"
+    }
 }

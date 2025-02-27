@@ -14,9 +14,9 @@
 			>{m.Getting_started()}</Button
 		>
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Tests()}</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Services()}</Button>
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/providers'}>{m.Services()}</Button>
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Apps()}</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}
 			>{m.Credentials()}</Button
 		>
 	{/snippet}

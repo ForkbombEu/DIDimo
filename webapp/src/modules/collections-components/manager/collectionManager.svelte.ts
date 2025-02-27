@@ -1,12 +1,14 @@
 import { pb } from '@/pocketbase';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import {
-	PocketbaseQuery,
-	type ExpandQueryOption,
+	createPocketbaseQueryAgent,
 	type PocketbaseQueryOptions,
-	type QueryResponse
+	type PocketbaseQueryExpandOption,
+	type PocketbaseQueryResponse,
+	PocketbaseQueryOptionsEditor,
+	type PocketbaseQueryAgentOptions
 } from '@/pocketbase/query';
-import type { CollectionResponses, RecordIdString } from '@/pocketbase/types';
+import type { RecordIdString } from '@/pocketbase/types';
 import type { ClientResponseError, RecordService } from 'pocketbase';
 import { Array } from 'effect';
 
@@ -14,61 +16,63 @@ import { Array } from 'effect';
 
 export class CollectionManager<
 	C extends CollectionName,
-	Expand extends ExpandQueryOption<C> = never
+	E extends PocketbaseQueryExpandOption<C> = never
 > {
-	collection: C;
-	recordService: RecordService<CollectionResponses[C]>;
+	recordService: RecordService<PocketbaseQueryResponse<C, E>>;
 
-	records = $state<QueryResponse<C, Expand>[]>([]);
-	currentPage = $state(1);
-	totalItems = $state(0);
-	loadingError = $state<ClientResponseError>();
+	private queryOptions: PocketbaseQueryOptions<C, E> = $state({});
 
-	queryOptions = $state<Partial<PocketbaseQueryOptions<C, Expand>>>({});
-	query = $derived.by(() => {
-		return new PocketbaseQuery(this.collection, this.queryOptions);
-	});
+	query = $derived.by(
+		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.options.query)
+	);
+	private queryAgent = $derived.by(() =>
+		createPocketbaseQueryAgent(
+			{
+				collection: this.collection,
+				...this.query.getMergedOptions()
+			},
+			this.options.queryAgent
+		)
+	);
 
-	selectedRecords = $state<RecordIdString[]>([]);
-
-	//
-
-	constructor(collection: C, queryOptions: Partial<PocketbaseQueryOptions<C, Expand>> = {}) {
-		this.collection = collection;
+	constructor(
+		public readonly collection: C,
+		private readonly options: {
+			query: PocketbaseQueryOptions<C, E>;
+			queryAgent: PocketbaseQueryAgentOptions;
+		}
+	) {
 		this.recordService = pb.collection(collection);
-		this.queryOptions = queryOptions;
 
 		$effect(() => {
 			this.loadRecords();
 		});
 	}
 
+	/* Data loading */
+
+	records = $state<PocketbaseQueryResponse<C, E>[]>([]);
+	currentPage = $state(1);
+	totalItems = $state(0);
+	loadingError = $state<ClientResponseError>();
+
 	async loadRecords() {
-		const hasPagination = Boolean(this.queryOptions.perPage);
 		try {
-			if (hasPagination) {
-				const result = await this.query.getList(this.currentPage);
+			if (this.query.hasPagination()) {
+				const result = await this.queryAgent.getList(this.currentPage);
 				this.totalItems = result.totalItems;
 				this.records = result.items;
 			} else {
-				this.records = await this.query.getFullList();
+				this.records = await this.queryAgent.getFullList();
 			}
 		} catch (e) {
 			this.loadingError = e as ClientResponseError;
 		}
 	}
 
-	/* Search */
-
-	search(text: string) {
-		this.queryOptions.search = text;
-	}
-
-	clearSearch() {
-		this.queryOptions.search = undefined;
-	}
-
 	/* Selection */
+
+	selectedRecords = $state<RecordIdString[]>([]);
 
 	areAllRecordsSelected() {
 		return this.records.every((r) => this.selectedRecords.includes(r.id));

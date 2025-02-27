@@ -13,7 +13,7 @@
 	//
 
 	const { manager } = $derived(getCollectionManagerContext());
-	const perPage = $derived(manager.queryOptions.perPage);
+	const perPage = $derived(manager.query.getPageSize());
 	const show = $derived(perPage && manager.totalItems > perPage);
 </script>
 
@@ -35,7 +35,6 @@
 							<Pagination.Ellipsis />
 						</Pagination.Item>
 					{:else}
-						<!-- <Pagination.Item isVisible={currentPage == page.value}> -->
 						<Pagination.Item>
 							<Pagination.Link {page} isActive={currentPage == page.value}>
 								{page.value}
