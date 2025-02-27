@@ -9,6 +9,9 @@ services:
       - ADDRESS_TEMPORAL=http://temporal-ui:8080
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
+      - PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090/
+      - PB_ADMIN_USER=admin@example.org
+      - PB_ADMIN_PASS=adminadmin
       - PORT=5100
     volumes:
       - ./pb_data/:/pb_data
