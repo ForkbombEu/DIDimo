@@ -83,6 +83,7 @@
 		"zod": "^3.24.1"
 	},
 	"dependencies": {
+		"@codemirror/lang-json": "^6.0.1",
 		"@inlang/paraglide-sveltekit": "^0.15.5",
 		"@melt-ui/svelte": "^0.86.0",
 		"@types/node": "^22.10.2",
@@ -97,7 +98,9 @@
 		"scrollama": "^3.2.0",
 		"sqlite": "^5.1.1",
 		"sqlite3": "^5.1.7",
+		"svelte-codemirror-editor": "^1.4.1",
 		"svelte-loading-spinners": "^0.3.6",
+		"thememirror": "^2.0.1",
 		"type-fest": "^4.26.1",
 		"zenroom": "^4.45.3"
 	}

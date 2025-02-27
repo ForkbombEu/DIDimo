@@ -5,5 +5,15 @@ import CheckboxField from './checkboxField.svelte';
 import TextareaField from './textareaField.svelte';
 import SelectField from './selectField.svelte';
 import DateField from './dateField.svelte';
+import CodeEditorField from './codeEditorField.svelte';
 
-export { Field, FileField, SwitchField, CheckboxField, TextareaField, SelectField, DateField };
+export {
+	Field,
+	FileField,
+	SwitchField,
+	CheckboxField,
+	TextareaField,
+	SelectField,
+	DateField,
+	CodeEditorField
+};

@@ -1,7 +1,6 @@
 <script lang="ts">
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import Button from '@/components/ui/button/button.svelte';
 	import TextareaField from '@/forms/fields/textareaField.svelte';
 	import { Form, SubmitButton, createForm } from '@/forms';
 	import { QrCode } from '@/qr';
@@ -10,41 +9,62 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { pb } from '@/pocketbase/index.js';
 	import Alert from '@/components/ui-custom/alert.svelte';
+	import { Label } from '@/components/ui/label';
+	import { MediaQuery } from 'svelte/reactivity';
+
+	//
 
 	let { data } = $props();
 
-	let result = $state();
+	let pageStatus = $state<'fresh' | 'success' | 'already_answered'>('fresh');
 
 	const successForm = createForm({
 		adapter: zod(z.object({})),
 		onSubmit: async () => {
-			const result = await pb.send('/wallet-test/confirm-success', {
+			await pb.send('/wallet-test/confirm-success', {
 				method: 'POST',
 				body: {
 					workflow_id: data.workflowId
 				}
 			});
-			console.log('success', result);
+			pageStatus = 'success';
+		},
+		onError: ({ setFormError, errorMessage }) => {
+			handleErrorMessage(errorMessage, setFormError);
 		}
 	});
 
 	const failureForm = createForm({
-		adapter: zod(z.object({ reason: z.string() })),
+		adapter: zod(z.object({ reason: z.string().min(3) })),
 		onSubmit: async ({
 			form: {
 				data: { reason }
 			}
 		}) => {
-			const result = await pb.send('/wallet-test/notify-failure', {
+			await pb.send('/wallet-test/notify-failure', {
 				method: 'POST',
 				body: {
 					workflow_id: data.workflowId,
 					reason: reason
 				}
 			});
-			console.log('failure', result);
+			pageStatus = 'success';
+		},
+		onError: ({ setFormError, errorMessage }) => {
+			handleErrorMessage(errorMessage, setFormError);
 		}
 	});
+
+	function handleErrorMessage(message: string, errorFallback: () => void) {
+		const lowercased = message.toLowerCase();
+		if (lowercased.includes('signal') && lowercased.includes('failed'))
+			pageStatus = 'already_answered';
+		else errorFallback();
+	}
+
+	//
+
+	const sm = new MediaQuery('min-width: 640px');
 </script>
 
 <PageContent>
@@ -66,32 +86,46 @@
 		<div class="step-container">
 			{@render Step(3, 'Confirm the result')}
 
-			{#if !result}
-				<div class="ml-16 flex flex-col gap-8 sm:flex-row">
+			<div class="ml-16 flex flex-col gap-8 sm:flex-row">
+				{#if pageStatus == 'fresh'}
 					<div class="grow basis-1">
 						<Form form={successForm}>
 							{#snippet submitButton()}
-								<SubmitButton class="w-full bg-green-600 hover:bg-green-700">
-									All good!
-								</SubmitButton>
+								<div class="space-y-2">
+									<Label for="success">If the test succeeded:</Label>
+									<SubmitButton
+										id="success"
+										class="w-full bg-green-600 hover:bg-green-700"
+									>
+										Confirm test success
+									</SubmitButton>
+								</div>
 							{/snippet}
 						</Form>
 					</div>
 
+					<Separator orientation={sm.current ? 'vertical' : 'horizontal'} />
+
 					<div class="grow basis-1">
-						<Form form={failureForm} hideRequiredIndicator>
-							<TextareaField form={failureForm} name="reason" />
+						<Form form={failureForm} hideRequiredIndicator class="space-y-2">
+							<TextareaField
+								form={failureForm}
+								name="reason"
+								options={{ label: 'If something went wrong, please tell us what:' }}
+							/>
 							{#snippet submitButton()}
 								<SubmitButton class="w-full bg-red-600 hover:bg-red-700">
-									There was an issue!
+									Notify issue
 								</SubmitButton>
 							{/snippet}
 						</Form>
 					</div>
-				</div>
-			{:else}
-				<Alert variant="info">Your response was submitted!</Alert>
-			{/if}
+				{:else if pageStatus == 'success'}
+					<Alert variant="info">Your response was submitted! Thanks :)</Alert>
+				{:else if pageStatus == 'already_answered'}
+					<Alert variant="info">This test was already confirmed</Alert>
+				{/if}
+			</div>
 		</div>
 	</div>
 </PageContent>

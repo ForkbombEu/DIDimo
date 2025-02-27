@@ -11,6 +11,8 @@
 	import t from './test.json';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { Button } from '@/components/ui/button';
+	import CodeEditor from '@/components/ui-custom/codeEditor.svelte';
+	import CodeEditorField from '@/forms/fields/codeEditorField.svelte';
 
 	//
 
@@ -62,7 +64,8 @@
 			collection="standards"
 			options={{ displayFields: ['name'] }}
 		/>
-		<TextareaField {form} name="json" />
+
+		<CodeEditorField {form} name="json" options={{ lang: 'json', maxHeight: 400 }} />
 
 		<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
 			<Field {form} name="email" options={{ type: 'email' }} />
