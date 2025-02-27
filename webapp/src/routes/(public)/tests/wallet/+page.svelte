@@ -74,8 +74,14 @@
 		<div class="step-container">
 			{@render Step(1, 'Scan this QR with the wallet app to start the check')}
 
-			<div class="bg-primary/10 ml-16 mt-4 flex items-center justify-center rounded-md p-2">
+			<div
+				class="bg-primary/10 ml-16 mt-4 flex flex-col items-center justify-center rounded-md p-2 sm:flex-row"
+			>
 				<QrCode src={data.qrContent} class="size-40 rounded-sm" />
+
+				<p class="text-primary max-w-sm break-all p-4 font-mono text-xs hover:underline">
+					{data.qrContent}
+				</p>
 			</div>
 		</div>
 
