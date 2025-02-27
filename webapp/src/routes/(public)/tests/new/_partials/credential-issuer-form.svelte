@@ -17,6 +17,7 @@
 			})
 		),
 		onSubmit: async ({ form }) => {
+			// note: use npm:out-of-character to clean the url if needed
 			const { url } = form.data;
 
 			const credentialIssuer = await pb
