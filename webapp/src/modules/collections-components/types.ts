@@ -1,5 +1,9 @@
 import type { CollectionName } from '@/pocketbase/collections-models';
-import type { ExpandQueryOption, PocketbaseQueryOptions, QueryResponse } from '@/pocketbase/query';
+import type {
+	PocketbaseQueryOptions,
+	PocketbaseQueryResponse,
+	PocketbaseQueryExpandOption
+} from '@/pocketbase/query';
 import type { CollectionRecords } from '@/pocketbase/types';
 import type { RecordPresenter } from './utils';
 import type { ControlAttrs } from 'formsnap';
@@ -8,22 +12,22 @@ import type { ControlAttrs } from 'formsnap';
 
 export type CollectionInputRecordProps<
 	C extends CollectionName,
-	Expand extends ExpandQueryOption<C> = never
+	E extends PocketbaseQueryExpandOption<C> = never
 > = {
-	queryOptions?: Partial<PocketbaseQueryOptions<C, Expand>>;
+	queryOptions?: Partial<PocketbaseQueryOptions<C, E>>;
 	displayFields?: (keyof CollectionRecords[C])[] | undefined;
-	displayFn?: RecordPresenter<QueryResponse<C, Expand>> | undefined;
+	displayFn?: RecordPresenter<PocketbaseQueryResponse<C, E>> | undefined;
 };
 
 export type CollectionInputProps<
 	C extends CollectionName,
-	Expand extends ExpandQueryOption<C> = never
+	E extends PocketbaseQueryExpandOption<C> = never
 > = {
 	collection: C;
 	disabled?: boolean;
 	label?: string | undefined;
 	placeholder?: string | undefined;
-	onSelect?: (record: QueryResponse<C, Expand>) => void;
+	onSelect?: (record: PocketbaseQueryResponse<C, E>) => void;
 	clearValueOnSelect?: boolean;
 	controlAttrs?: ControlAttrs;
-} & CollectionInputRecordProps<C, Expand>;
+} & CollectionInputRecordProps<C, E>;

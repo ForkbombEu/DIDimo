@@ -19,7 +19,7 @@ export function createOrganizationLinks(
 		},
 		{
 			title: m.Services(),
-			href: base('/services'),
+			href: base('/providers'),
 			icon: Network
 		},
 		{

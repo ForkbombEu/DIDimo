@@ -1,6 +1,12 @@
 {
-  "tailwindCSS.classAttributes": ["class", "className", "contentClass"],
-  "editor.quickSuggestions": {
-    "strings": "on"
-  }
+    "tailwindCSS.classAttributes": [
+        "class",
+        "className",
+        "contentClass",
+        "containerClass"
+    ],
+    "editor.quickSuggestions": {
+        "strings": "on"
+    },
+    "explorer.sortOrder": "filesFirst"
 }

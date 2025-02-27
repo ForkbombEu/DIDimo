@@ -48,9 +48,9 @@
 	});
 </script>
 
-<div
-	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all {className}"
->
+<a
+	href="/providers/{service.id}"
+	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all hover:-translate-y-2 hover:ring-2 {className}">
 	<div class="space-y-4">
 		<div class="space-y-1">
 			<T tag="small" class="text-primary block">{serviceType}</T>
@@ -67,7 +67,7 @@
 			{service.updated.split(' ').at(0)}
 		</T>
 	</div>
-</div>
+</a>
 
 <!-- <a
 	href="/services/{service.id}"

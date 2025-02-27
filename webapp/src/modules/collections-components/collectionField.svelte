@@ -1,13 +1,13 @@
 <script module lang="ts">
 	import type { GenericRecord } from '@/utils/types';
 	import type { CollectionName } from '@/pocketbase/collections-models';
-	import type { ExpandQueryOption, QueryResponse } from '@/pocketbase/query';
+	import type { PocketbaseQueryExpandOption, PocketbaseQueryResponse } from '@/pocketbase/query';
 
 	export type CollectionFieldModeProp = { mode?: 'search' | 'select' };
 
 	export type CollectionFieldOptions<
 		C extends CollectionName,
-		Expand extends ExpandQueryOption<C>
+		Expand extends PocketbaseQueryExpandOption<C>
 	> = {
 		multiple?: boolean;
 	} & CollectionFieldModeProp &
@@ -17,7 +17,7 @@
 
 <script
 	lang="ts"
-	generics="Data extends GenericRecord, C extends CollectionName, Expand extends ExpandQueryOption<C> = never"
+	generics="Data extends GenericRecord, C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
 >
 	import { m } from '@/i18n';
 	import { ensureArray, maybeArrayIsValue } from '@/utils/other';
@@ -43,7 +43,7 @@
 		form: SuperForm<Data>;
 		name: FormPath<Data>;
 		collection: C;
-		options?: CollectionFieldOptions<C, Expand>;
+		options?: CollectionFieldOptions<C, E>;
 	}
 
 	const { form, name, collection, options = {} }: Props = $props();
@@ -62,7 +62,7 @@
 
 	const valueProxy = $derived(fieldProxy(form, name)) as Writable<string | string[] | undefined>;
 
-	function fetchRecord(collection: C, id: string): Promise<QueryResponse<C, Expand>> {
+	function fetchRecord(collection: C, id: string): Promise<PocketbaseQueryResponse<C, E>> {
 		return pb.collection(collection).getOne(id, { requestKey: null });
 	}
 
@@ -85,7 +85,10 @@
 		{#snippet children({ props })}
 			<Component
 				{collection}
-				queryOptions={{ ...queryOptions, exclude: [...exclude, ...ensureArray($valueProxy)] }}
+				queryOptions={{
+					...queryOptions,
+					exclude: [...exclude, ...ensureArray($valueProxy)]
+				}}
 				displayFn={presenter}
 				displayFields={options.displayFields}
 				onSelect={(record) => {

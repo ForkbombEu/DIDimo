@@ -18,6 +18,7 @@
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 
 	const fakeService: ServicesResponse = {
 		id: 'das',
@@ -104,7 +105,7 @@
 					{m.All_solutions()}
 				</Button>
 			{:else}
-				<Button variant="default" href="/services">
+				<Button variant="default" href="/providers">
 					{m.All_solutions()}
 				</Button>
 			{/if}
@@ -134,22 +135,28 @@
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_credentials()}</T>
-
 			{#if $featureFlags.DEMO}
 				<Button variant="default" disabled class="select-none blur">
 					{m.All_credentials()}
 				</Button>
 			{:else}
-				<Button variant="default" href="/services">
-					{m.All_credentials()}
-				</Button>
+				<Button variant="default" href="/credentials">{m.All_credentials()}</Button>
 			{/if}
 		</div>
-
-		<PageGrid class="select-none blur-sm">
-			<CredentialCard class="grow basis-1" />
-			<CredentialCard class="grow basis-1" />
-			<CredentialCard class="hidden grow basis-1 lg:block" />
+		<PageGrid>
+			{@const MAX_ITEMS = 3}
+			<CollectionManager
+				collection="credentials"
+				queryOptions={{ perPage: MAX_ITEMS }}
+				hide={['pagination']}
+			>
+				{#snippet records({ records })}
+					{#each records as credential, i}
+						{@const isLast = i == MAX_ITEMS - 1}
+						<CredentialCard {credential} class={isLast ? 'hidden lg:flex' : ''} />
+					{/each}
+				{/snippet}
+			</CollectionManager>
 		</PageGrid>
 	</div>
 </PageContent>

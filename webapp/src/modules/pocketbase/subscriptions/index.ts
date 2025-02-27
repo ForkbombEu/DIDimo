@@ -1,4 +1,4 @@
-import type { ExpandQueryOption } from '@/pocketbase/query';
+import type { PocketbaseQueryExpandOption } from '@/pocketbase/query';
 import {
 	getCollectionModel,
 	getCollectionNameFromId,
@@ -21,7 +21,7 @@ type SubscriptionCallback<C extends CollectionName, R = CollectionResponses[C]> 
 export function setupComponentPocketbaseSubscriptions<C extends CollectionName>(init: {
 	collection: C;
 	callback: () => MaybePromise<void>;
-	expandOption?: ExpandQueryOption<C>;
+	expandOption?: PocketbaseQueryExpandOption<C>;
 	other?: CollectionName[];
 }) {
 	const { collection, callback, expandOption = [], other = [] } = init;
@@ -47,7 +47,7 @@ function setupComponentSubscription<C extends CollectionName>(
 
 function getRelatedCollectionsFromExpandOption<C extends CollectionName>(
 	collection: C,
-	expand: ExpandQueryOption<C>
+	expand: PocketbaseQueryExpandOption<C>
 ): CollectionName[] {
 	const INVERSE_RELATION_KEY = '_via_';
 

@@ -7,7 +7,7 @@ import type {
 	RecordIdString,
 	CollectionRelatedCollections as Related
 } from '@/pocketbase/types';
-import type { ExpandQueryOption } from '@/pocketbase/query';
+import type { PocketbaseQueryExpandOption } from '@/pocketbase/query';
 import type { GenericRecord, KeyOf, MaybePromise } from '@/utils/types';
 import type { Snippet } from 'svelte';
 import type { FormPath, SuperForm } from 'sveltekit-superforms';
@@ -57,7 +57,7 @@ export type FieldsOptions<C extends CollectionName, R = CollectionFormData[C]> =
 };
 
 export type RelationFieldOptions<C extends CollectionName> = CollectionFieldModeProp &
-	CollectionInputRecordProps<C, ExpandQueryOption<C>>;
+	CollectionInputRecordProps<C, PocketbaseQueryExpandOption<C>>;
 
 export type FieldSnippet<C extends CollectionName, T = CollectionFormData[C]> = Snippet<
 	[{ form: SuperForm<T & GenericRecord>; field: FormPath<T & GenericRecord> }]

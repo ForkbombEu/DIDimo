@@ -1,5 +1,4 @@
 <script lang="ts" generics="T">
-	import { DEFAULT_SORT_ORDER } from '@/pocketbase/query';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { Button } from '@/components/ui/button';
 	import { getCollectionManagerContext } from '../collectionManagerContext';
@@ -15,16 +14,16 @@
 
 	let { field, label = undefined }: Props = $props();
 
-	const { manager } = $derived(getCollectionManagerContext());
+	const { manager } = getCollectionManagerContext();
 
-	const sortState = $derived(manager.query.sortOption);
-	const isSortField = $derived(sortState[0] == field);
+	const isSortField = $derived(manager.query.hasSort(field));
+	const sort = $derived(manager.query.getSort(field));
 
 	async function handleClick() {
 		if (!isSortField) {
-			manager.query.sortBy([field, DEFAULT_SORT_ORDER]);
-		} else {
-			manager.query.flipSort();
+			manager.query.setSort(field, 'ASC');
+		} else if (sort) {
+			manager.query.flipSort(sort);
 		}
 	}
 </script>
@@ -38,7 +37,10 @@
 			class="{isSortField ? 'visible' : 'invisible'} size-6 group-hover:visible"
 			onclick={handleClick}
 		>
-			<Icon src={!isSortField ? ArrowUp : sortState[1] == 'DESC' ? ArrowDown : ArrowUp} size={14} />
+			<Icon
+				src={!isSortField ? ArrowUp : sort?.[1] == 'DESC' ? ArrowDown : ArrowUp}
+				size={14}
+			/>
 		</Button>
 	</div>
 </Head>

@@ -24,12 +24,12 @@
 				.collection('credential_issuers')
 				.create({ url } satisfies Data<CredentialIssuersRecord>);
 
-			const service = await pb.collection('services').create({
+			const provider = await pb.collection('services').create({
 				name: nanoid(5),
 				credential_issuers: [credentialIssuer.id]
 			} satisfies Data<ServicesRecord>);
 
-			goto(`/services/${service.id}`);
+			goto(`/providers/${provider.id}`);
 		}
 	});
 </script>

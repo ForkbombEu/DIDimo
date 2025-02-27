@@ -7,7 +7,7 @@
 	<CollectionSearch
 		collection="z_test_collection"
 		onSelect={(record) => console.log(record)}
-		queryOptions={{ expand: ['relation_multi_field'] }}
+		queryOptions={{ expand: ['relation_multi_field'], searchFields: ['text_field'] }}
 		displayFn={(record) => record.text_field}
 	/>
 
