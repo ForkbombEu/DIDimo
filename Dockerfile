@@ -10,8 +10,12 @@ RUN --mount=type=cache,target=/gomod-cache --mount=type=cache,target=/go-cache \
     go build -o didimo cmd/didimo/didimo.go
 
 FROM debian:12-slim
-RUN apt update
-RUN apt install -y build-essential make bash curl git tmux wget ca-certificates
+RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
+    --mount=target=/var/cache/apt,type=cache,sharing=locked \
+    rm -f /etc/apt/apt.conf.d/docker-clean \
+    && apt-get update \
+    && apt-get -y --no-install-recommends install \
+        build-essential make bash curl git tmux wget ca-certificates
 WORKDIR /app
 
 COPY . ./
