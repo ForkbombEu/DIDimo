@@ -69,7 +69,7 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
+dev: $(WEBENV) tools submodules kill-pocketbase ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
@@ -154,3 +154,7 @@ help: ## Show this help.
 		if (/^[a-zA-Z_-]+:.*?##.*$$/) {printf "    ${YELLOW}%-20s${GREEN}%s${RESET}\n", $$1, $$2} \
 		else if (/^## .*$$/) {printf "  ${CYAN}%s${RESET}\n", substr($$1,4)} \
 		}' $(MAKEFILE_LIST)
+
+kill-pocketbase: ## 🔪 Kill any running PocketBase instance
+	@echo "Killing any existing PocketBase instance..."
+	@-lsof -ti:8090 | xargs kill -9 2>/dev/null || true
