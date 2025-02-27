@@ -5,7 +5,7 @@
     "email": "info@forkbomb.com"
   },
   "description": "Your trustworthy compliance checker for decentralized identity solutions",
-  "version": "0.0.1",
+  "version": "0.0.100",
   "type": "module",
   "engines": {
     "node": ">=17",
