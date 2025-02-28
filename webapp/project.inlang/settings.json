@@ -13,5 +13,12 @@
 		"pathPattern": "./messages/{languageTag}.json"
 	},
 	"sourceLanguageTag": "en",
-	"languageTags": ["en", "it", "de", "fr", "da", "pt-br"]
+	"languageTags": [
+		"en",
+		"it",
+		"de",
+		"fr",
+		"da",
+		"pt-br"
+	]
 }

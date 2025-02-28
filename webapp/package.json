@@ -12,9 +12,9 @@
 		"pnpm": ">=8"
 	},
 	"scripts": {
-		"predev": "bun run generate:definitions",
-		"dev": "vite dev",
-		"prebuild": "bun run generate:definitions",
+    "predev": "bun run svelte-kit sync && bun run generate:definitions",
+    "dev": "vite dev",
+    "prebuild": "bun run svelte-kit sync && bun run generate:definitions",
 		"build": "vite build",
 		"bin": "bun run build && bun build --compile --minify-whitespace --minify-syntax --target bun --outfile didimo-ui ./build/index.js",
 		"preview": "vite preview --port 5100",
