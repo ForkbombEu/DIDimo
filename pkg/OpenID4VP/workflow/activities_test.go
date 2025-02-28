@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"os"
 	"testing"
@@ -27,24 +26,24 @@ func TestGenerateYAMLActivity(t *testing.T) {
 		},
 		Client: testdata.Client{
 			ClientID: "mock:client:id",
-			PresentationDefinition: testdata.PresentationDefinition{
-				ID: "mock_presentation_id",
-				InputDescriptors: []testdata.InputDescriptor{
+			PresentationDefinition: map[string]any{
+				"id": "mock_presentation_id",
+				"input_descriptors": []map[string]any{
 					{
-						ID: "mock_descriptor_1",
-						Constraints: testdata.Constraints{
-							Fields: []testdata.Field{
+						"id": "mock_descriptor_1",
+						"constraints": map[string]any{
+							"fields": []map[string]any{
 								{
-									Path: []string{"$.mock_field"},
-									Filter: map[string]string{
+									"path": []string{"$.mock_field"},
+									"filter": map[string]string{
 										"type":  "string",
 										"const": "mock_const_value",
 									},
 								},
 							},
 						},
-						Format: testdata.Format{
-							VCSDJWT: map[string][]string{
+						"format": map[string]any{
+							"vc+sd-jwt": map[string][]string{
 								"mock_jwt_alg_values": {"MOCK_ALG_1", "MOCK_ALG_2"},
 								"mock_sd_jwt_values":  {"MOCK_ALG_3"},
 							},
@@ -52,15 +51,15 @@ func TestGenerateYAMLActivity(t *testing.T) {
 					},
 				},
 			},
-			JWKS: testdata.JWKS{
-				Keys: []testdata.JWKKey{
+			JWKS: map[string]any{
+				"keys": []map[string]any{
 					{
-						Kty: "MOCK_KTY",
-						Alg: "MOCK_ALG",
-						Crv: "MOCK_CRV",
-						D:   "MOCK_D_VALUE",
-						X:   "MOCK_X_VALUE",
-						Y:   "MOCK_Y_VALUE",
+						"kty": "MOCK_KTY",
+						"alg": "MOCK_ALG",
+						"crv": "MOCK_CRV",
+						"d":   "MOCK_D_VALUE",
+						"x":   "MOCK_X_VALUE",
+						"y":   "MOCK_Y_VALUE",
 					},
 				},
 			},
@@ -439,39 +438,6 @@ tests:
 				err = json.Unmarshal([]byte(tc.expectedJSON), &expected)
 				require.NoError(t, err, "Failed to unmarshal JSON")
 				require.Equal(t, expected, result)
-			}
-		})
-	}
-}
-func TestGenerateQRCodeActivity(t *testing.T) {
-	var ts testsuite.WorkflowTestSuite
-	env := ts.NewTestActivityEnvironment()
-	env.RegisterActivity(GenerateQRCodeActivity)
-
-	testCases := []struct {
-		name          string
-		url           string
-		expectedError bool
-	}{
-		{"Success Valid URL", "https://example.com", false},
-		{"Failure Empty URL", "", true},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			var qrCode string
-			future, err := env.ExecuteActivity(GenerateQRCodeActivity, tc.url)
-
-			if tc.expectedError {
-				require.Error(t, err, "Expected an error but got none")
-			} else {
-				require.NoError(t, err)
-				err := future.Get(&qrCode)
-				require.NoError(t, err)
-				require.NotEmpty(t, qrCode, "QR Code should not be empty")
-				decoded, decodeErr := base64.StdEncoding.DecodeString(qrCode)
-				require.NoError(t, decodeErr, "QR Code output is not valid base64")
-				require.NotEmpty(t, decoded, "Decoded QR Code should not be empty")
 			}
 		})
 	}

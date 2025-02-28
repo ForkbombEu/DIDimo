@@ -7,6 +7,5 @@
     ],
     "editor.quickSuggestions": {
         "strings": "on"
-    },
-    "explorer.sortOrder": "filesFirst"
+    }
 }

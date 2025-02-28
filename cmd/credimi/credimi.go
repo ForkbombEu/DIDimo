@@ -86,8 +86,9 @@ func OpenID4VPTestCommand() *cobra.Command {
 			if err := json.NewDecoder(file).Decode(&input); err != nil {
 				return fmt.Errorf("error parsing JSON file: %v", err)
 			}
+			appURL := os.Getenv("APP_URL")
 			// Start the workflow using the parsed JSON and the user email.
-			return OpenID4VP.StartWorkflow(input, userMail)
+			return OpenID4VP.StartWorkflow(input, userMail, appURL)
 		},
 	}
 

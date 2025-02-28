@@ -11,9 +11,20 @@ export default defineConfig({
 		})
 	],
 
+	optimizeDeps: {
+		exclude: [
+			'svelte-codemirror-editor',
+			'codemirror',
+			'@codemirror/language-javascript',
+			'@codemirror/lang-json',
+			'thememirror'
+		]
+	},
+
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
+
 	server: {
 		port: Number(process.env.PORT) || 5100,
 		open: `http://localhost:8090/`

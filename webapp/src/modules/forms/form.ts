@@ -20,10 +20,18 @@ export type CreateFormProps<Data extends GenericRecord> = {
 	options?: FormOptions<Data>;
 	onSubmit?: SubmitFunction<Data>;
 	initialData?: Partial<Data>;
+	onError?: (payload: { error: unknown; errorMessage: string; setFormError: () => void }) => void;
 };
 
 export function createForm<Data extends GenericRecord>(props: CreateFormProps<Data>) {
-	const { adapter, initialData = {} as Partial<Data>, options = {}, onSubmit = () => {} } = props;
+	const {
+		adapter,
+		initialData = {} as Partial<Data>,
+		options = {},
+		onSubmit = () => {},
+		onError
+	} = props;
+
 	const form = defaults(initialData, adapter);
 	return superForm(form, {
 		SPA: true,
@@ -36,7 +44,12 @@ export function createForm<Data extends GenericRecord>(props: CreateFormProps<Da
 			try {
 				if (event.form.valid) await onSubmit(event);
 			} catch (e) {
-				setError(event.form, getExceptionMessage(e));
+				const errorMessage = getExceptionMessage(e);
+				const setFormError = () => {
+					setError(event.form, errorMessage);
+				};
+				if (onError) onError({ error: e, errorMessage, setFormError });
+				else setFormError();
 			}
 		},
 		...options
