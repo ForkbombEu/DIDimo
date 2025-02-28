@@ -46,7 +46,6 @@ WORKDIR webapp
 RUN bun i
 RUN bun run build
 
-EXPOSE 8090
 ENV PORT=5100
 
 CMD ["/app/entry.sh"]

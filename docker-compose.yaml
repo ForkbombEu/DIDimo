@@ -1,17 +1,4 @@
 services:
-  didimo:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - ADDRESS_TEMPORAL=http://temporal-ui:8080
-      - ADDRESS_GRAFANA=http://grafana:8085
-      - ADDRESS_UI=http://localhost:5100
-      - SERVICE_FQDN_POCKETBASE_8090
-      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
-      - PORT=5100
-    volumes:
-      - ./pb_data/:/pb_data
   temporal:
     depends_on:
       - postgresql
@@ -97,3 +84,16 @@ services:
       POSTGRES_PASSWORD: d
       POSTGRES_USER: d
     image: postgres:13
+  didimo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ADDRESS_TEMPORAL=http://temporal-ui:8080
+      - ADDRESS_GRAFANA=http://grafana:8085
+      - ADDRESS_UI=http://localhost:5100
+      - SERVICE_FQDN_DIDIMO_8090
+      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
+      - PORT=5100
+    volumes:
+      - ./pb_data/:/pb_data
