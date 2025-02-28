@@ -3,15 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "8090:8090"
     environment:
       - ADDRESS_TEMPORAL=http://temporal-ui:8080
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
+      - SERVICE_FQDN_POCKETBASE_8090
       - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
-      - PB_ADMIN_USER=admin@example.org
-      - PB_ADMIN_PASS=adminadmin
       - PORT=5100
     volumes:
       - ./pb_data/:/pb_data
