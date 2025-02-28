@@ -7,10 +7,6 @@
   "description": "Your trustworthy compliance checker for decentralized identity solutions",
   "version": "0.0.1",
   "type": "module",
-  "engines": {
-    "node": ">=20",
-    "pnpm": ">=8"
-  },
   "scripts": {
     "predev": "bun run svelte-kit sync && bun run generate:definitions",
     "dev": "vite dev",
