@@ -1,16 +1,12 @@
 {
-  "name": "DIDimo - webapp",
+  "name": "Didimo UI",
   "author": {
-    "name": "Forkbomb",
-    "email": "info@forkbomb.com"
+    "name": "Forkbomb B.V.",
+    "email": "info@forkbomb.eu"
   },
   "description": "Your trustworthy compliance checker for decentralized identity solutions",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "type": "module",
-  "engines": {
-    "node": ">=17",
-    "pnpm": ">=8"
-  },
   "scripts": {
     "predev": "bun run svelte-kit sync && bun run generate:definitions",
     "dev": "vite dev",
