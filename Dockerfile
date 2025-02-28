@@ -41,6 +41,7 @@ COPY ./scripts/entry.sh /app/entry.sh
 COPY ./.certs/mailpit+3.pem /usr/local/share/ca-certificates/mailpit.crt
 RUN cat /usr/local/share/ca-certificates/mailpit.crt >> /etc/ssl/certs/ca-certificates.crt
 RUN /app/didimo migrate
+ENV PUBLIC_POCKETBASE_URL=$COOLIFY_URL
 WORKDIR webapp
 RUN bun i
 RUN bun run build
