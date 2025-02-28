@@ -1,8 +1,22 @@
 services:
+  didimo:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ADDRESS_TEMPORAL=http://temporal-ui:8080
+      - ADDRESS_GRAFANA=http://grafana:8085
+      - ADDRESS_UI=http://localhost:5100
+      - SERVICE_FQDN_DIDIMO_8090
+      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
+      - PORT=5100
+    volumes:
+      - ./pb_data/:/pb_data
   temporal:
     depends_on:
       - postgresql
     environment:
+      - SERVICE_FQDN_TEMPORAL_7233
       - DB=postgres12
       - DB_PORT=5432
       - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
@@ -23,18 +37,17 @@ services:
     depends_on:
       - temporal
     environment:
+      - SERVICE_FQDN_TEMPORALUI_8080
       - TEMPORAL_OPENAPI_ENABLED=true
       - TEMPORAL_UI_ENABLED=true
       - TEMPORAL_ADDRESS=temporal:7233
       - TEMPORAL_UI_PUBLIC_PATH=/workflows
       # - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
     image: temporalio/ui:2.32.0
-    ports:
-      - 8080:8080
   prometheus:
     image: prom/prometheus
-    ports:
-      - 9090:9090
+    environment:
+      - SERVICE_FQDN_PROMETHEUS_9090
     volumes:
       - type: bind
         source: ./deployment/prometheus/config.yml
@@ -42,6 +55,7 @@ services:
   grafana:
     build: './deployment/grafana'
     environment:
+      - SERVICE_FQDN_GRAFANA_8085
       - GF_AUTH_DISABLE_LOGIN_FORM=true
       - GF_AUTH_ANONYMOUS_ENABLED=true
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
@@ -53,8 +67,6 @@ services:
       - GF_SECURITY_CONTENT_SECURITY_POLICY=false
       - GF_SERVER_HTTP_PORT=8085
       - GF_SECURITY_ACTIONS_ALLOW_POST_URL=/*
-    ports:
-      - 8085:8085
     volumes:
       - type: bind
         source: ./deployment/grafana/provisioning/datasources
@@ -68,6 +80,7 @@ services:
       - 8025:8025
       - 1025:1025
     environment:
+      - SERVICE_FQDN_MAILPIT_8085
       - MP_MAX_MESSAGES=5000
       - MP_SMTP_AUTH_ACCEPT_ANY=true
       - MP_SMTP_AUTH_ALLOW_INSECURE=true
@@ -84,16 +97,3 @@ services:
       - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
       - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES:-d}
     image: postgres:13
-  didimo:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    environment:
-      - ADDRESS_TEMPORAL=http://temporal-ui:8080
-      - ADDRESS_GRAFANA=http://grafana:8085
-      - ADDRESS_UI=http://localhost:5100
-      - SERVICE_FQDN_DIDIMO_8090
-      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
-      - PORT=5100
-    volumes:
-      - ./pb_data/:/pb_data
