@@ -37,8 +37,6 @@ RUN wget 'https://temporal.download/cli/archive/latest?platform=linux&arch=amd64
 RUN tar xf $TARFILE
 RUN rm $TARFILE
 RUN mv temporal /usr/local/bin
-ENV POCKETBASE_URL=http://127.0.0.1:8090
-ENV PUBLIC_POCKETBASE_URL=http://127.0.0.1:8090
 COPY ./scripts/entry.sh /app/entry.sh
 COPY ./.certs/mailpit+3.pem /usr/local/share/ca-certificates/mailpit.crt
 RUN cat /usr/local/share/ca-certificates/mailpit.crt >> /etc/ssl/certs/ca-certificates.crt
