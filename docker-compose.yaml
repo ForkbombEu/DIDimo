@@ -1,14 +1,16 @@
 services:
   didimo:
+    depends_on:
+      - temporal
     build:
       context: .
       dockerfile: Dockerfile
     environment:
-      - ADDRESS_TEMPORAL=http://temporal-ui:8080
-      - ADDRESS_GRAFANA=http://grafana:8085
-      - ADDRESS_UI=http://localhost:5100
       - SERVICE_FQDN_DIDIMO_8090
-      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
+      - ADDRESS_TEMPORAL=${SERVICE_FQDN_TEMPORALUI_8080:-http://temporal-ui:8080}
+      - ADDRESS_GRAFANA=${SERVICE_FQDN_GRAFANA_8085:-http://grafana:8085}
+      - ADDRESS_UI=http://localhost:5100
+      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://localhost:8090}
       - PORT=5100
     volumes:
       - ./pb_data/:/pb_data
