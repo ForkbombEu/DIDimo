@@ -12,11 +12,6 @@ services:
       - PORT=5100
     volumes:
       - ./pb_data/:/pb_data
-  postgresql:
-    environment:
-      POSTGRES_PASSWORD: d
-      POSTGRES_USER: d
-    image: postgres:13
   temporal:
     depends_on:
       - postgresql
@@ -97,3 +92,8 @@ services:
     restart: unless-stopped
     environment:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
+  postgresql:
+    environment:
+      POSTGRES_PASSWORD: d
+      POSTGRES_USER: d
+    image: postgres:13
