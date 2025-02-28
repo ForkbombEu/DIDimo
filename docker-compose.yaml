@@ -5,8 +5,8 @@ services:
     environment:
       - DB=postgres12
       - DB_PORT=5432
-      - POSTGRES_USER=d
-      - POSTGRES_PWD=d
+      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
+      - POSTGRES_PWD=${SERVICE_PASSWORD_POSTGRES:-d}
       - POSTGRES_SEEDS=postgresql
       - PROMETHEUS_ENDPOINT=0.0.0.0:8000
     image: temporalio/auto-setup:1.21.1
@@ -68,11 +68,11 @@ services:
       - 8025:8025
       - 1025:1025
     environment:
-      MP_MAX_MESSAGES: 5000
-      MP_SMTP_AUTH_ACCEPT_ANY: true
-      MP_SMTP_AUTH_ALLOW_INSECURE: true
-      MP_SMTP_TLS_CERT: /certs/mailpit+3.pem
-      MP_SMTP_TLS_KEY: /certs/mailpit+3-key.pem
+      - MP_MAX_MESSAGES=5000
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_TLS_CERT=/certs/mailpit+3.pem
+      - MP_SMTP_TLS_KEY=/certs/mailpit+3-key.pem
   thirdparty:
     build: deployment/thirdparty-simulator
     command: thirdparty-simulator api
@@ -81,8 +81,8 @@ services:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
   postgresql:
     environment:
-      POSTGRES_PASSWORD: d
-      POSTGRES_USER: d
+      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES:-d}
     image: postgres:13
   didimo:
     build:
