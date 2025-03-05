@@ -75,3 +75,28 @@ func (m *CustomClaimMapper) getUserOrganizations(userID string) ([]string, error
 	return orgNames, nil
 
 }
+
+// ONLY FOR TEST
+type myClaimMapper struct{}
+
+func NewMyClaimMapper(_ *config.Config) authorization.ClaimMapper {
+	return &myClaimMapper{}
+}
+
+func (c myClaimMapper) GetClaims(authInfo *authorization.AuthInfo) (*authorization.Claims, error) {
+	claims := authorization.Claims{}
+
+	if authInfo.TLSConnection != nil {
+		// Add claims based on client's TLS certificate
+		claims.Subject = authInfo.TLSSubject.CommonName
+	}
+	if authInfo.AuthToken != "" {
+		// Extract claims from the auth token and translate them into Temporal roles for the caller
+		// Here we'll simply hardcode some as an example
+		claims.System = authorization.RoleWriter // cluster-level admin
+		claims.Namespaces = make(map[string]authorization.Role)
+		claims.Namespaces["foo"] = authorization.RoleReader // caller has a reader role for the "foo" namespace
+	}
+
+	return &claims, nil
+}
