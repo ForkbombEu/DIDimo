@@ -1,20 +1,7 @@
-persistence:
-  defaultStore: cass-default
-  visibilityStore: cass-visibility
-  numHistoryShards: 4
-  datastores:
-    cass-default:
-      cassandra:
-        hosts: "127.0.0.1"
-        keyspace: "temporal"
-    cass-visibility:
-      cassandra:
-        hosts: "127.0.0.1"
-        keyspace: "temporal_visibility"
 global:
   membership:
     maxJoinDuration: 30s
-    broadcastAddress: "127.0.0.1"
+    broadcastAddress: "0.0.0.0"
   pprof:
     port: 7936
 
@@ -26,7 +13,7 @@ services:
       bindOnLocalHost: true
     metrics:
       statsd:
-        hostPort: "127.0.0.1:8125"
+        hostPort: "temporal:8125"
         prefix: "temporal"
 
   matching:
@@ -36,7 +23,7 @@ services:
       bindOnLocalHost: true
     metrics:
       statsd:
-        hostPort: "127.0.0.1:8125"
+        hostPort: "temporal:8125"
         prefix: "temporal"
 
   history:
@@ -46,7 +33,7 @@ services:
       bindOnLocalHost: true
     metrics:
       statsd:
-        hostPort: "127.0.0.1:8125"
+        hostPort: "temporal:8125"
         prefix: "temporal"
 
   worker:
@@ -56,7 +43,7 @@ services:
       bindOnLocalHost: true
     metrics:
       statsd:
-        hostPort: "127.0.0.1:8125"
+        hostPort: "temporal:8125"
         prefix: "temporal"
 
 clusterMetadata:

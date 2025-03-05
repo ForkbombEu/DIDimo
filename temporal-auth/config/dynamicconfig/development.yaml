@@ -1,3 +1,0 @@
-frontend.throttledLogRPS:
-- value: 20
-  constraints: {}
