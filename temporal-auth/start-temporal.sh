@@ -13,4 +13,4 @@ if [[ -n ${SERVICES} ]]; then
     for i in $SERVICES; do flags+=("--service=$i"); done
 fi
 
-exec temporal-server --env docker start "${flags[@]}"
+exec /usr/local/bin/temporal --env docker start "${flags[@]}"
