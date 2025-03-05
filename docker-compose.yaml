@@ -9,7 +9,9 @@ services:
       - POSTGRES_PWD=${SERVICE_PASSWORD_POSTGRES:-d}
       - POSTGRES_SEEDS=postgresql
       - PROMETHEUS_ENDPOINT=0.0.0.0:8000
-    image: temporalio/auto-setup:1.21.1
+    build:
+      context: ./temporal-server
+      dockerfile: Dockerfile
   temporal-admin-tools:
     depends_on:
       - temporal
@@ -31,12 +33,6 @@ services:
     image: temporalio/ui:2.32.0
     ports:
       - 8080:8080
-  temporal-auth:
-    depends_on:
-      - temporal
-    build:
-      context: ./temporal-auth
-      dockerfile: Dockerfile
   prometheus:
     image: prom/prometheus
     ports:
