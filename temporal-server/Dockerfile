@@ -30,4 +30,5 @@ COPY --from=builder /usr/local/bin/temporal /usr/local/bin/
 RUN        mkdir -p /etc/temporal /etc/temporal/schema
 COPY --from=builder /etc/temporal /etc/temporal
 COPY --from=builder /src/temporal/schema /etc/temporal/schema
+COPY --from=builder /src/temporal/docker/config_template.yaml /etc/temporal/config/
 CMD ["./entrypoint.sh"]
