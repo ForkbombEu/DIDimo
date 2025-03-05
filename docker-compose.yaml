@@ -31,6 +31,12 @@ services:
     image: temporalio/ui:2.32.0
     ports:
       - 8080:8080
+  temporal-auth:
+    depends_on:
+      - temporal
+    build:
+      context: ./temporal-auth
+      dockerfile: Dockerfile
   prometheus:
     image: prom/prometheus
     ports:
