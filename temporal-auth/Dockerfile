@@ -18,7 +18,8 @@ RUN --mount=type=cache,target=/gomod-cache --mount=type=cache,target=/go-cache \
 RUN mkdir -p      /etc/temporal \
     && mv config /etc/temporal/  \
     && mv *.sh  /etc/temporal/
-CMD ["/etc/temporal/entrypoint.sh"]
+RUN apk add git
+RUN git clone --depth 1 https://github.com/temporalio/temporal/
 
 FROM alpine:latest AS temporal-server
 WORKDIR /etc/temporal
@@ -26,6 +27,7 @@ RUN apk upgrade --no-cache \
     && apk add --no-cache ca-certificates tzdata bash curl
 COPY --from=builder /usr/local/bin/dockerize /usr/local/bin/
 COPY --from=builder /usr/local/bin/temporal /usr/local/bin/
-RUN        mkdir -p /etc/temporal
+RUN        mkdir -p /etc/temporal /etc/temporal/schema
 COPY --from=builder /etc/temporal /etc/temporal
+COPY --from=builder /src/temporal/schema /etc/temporal/schema
 CMD ["./entrypoint.sh"]
