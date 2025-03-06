@@ -47,7 +47,7 @@ export function createPocketbaseQueryAgent<
 	const { collection } = query;
 
 	const pbOptions: PocketbaseListOptions = {
-		options,
+		...options,
 		...buildPocketbaseQuery(query)
 	};
 

@@ -176,7 +176,8 @@ type BaseSearchFilter<T extends string = string> = {
 type SearchFilter<T extends string = string> = BaseSearchFilter<T> | string;
 
 function buildSearchFilter(filter: BaseSearchFilter) {
-	return filter.fields.map((f) => `${f} ~ ${QUOTE}${filter.text}${QUOTE}`).join(' || ');
+	const search = filter.fields.map((f) => `${f} ~ ${QUOTE}${filter.text}${QUOTE}`).join(' || ');
+	return `(${search})`;
 }
 
 //
@@ -220,7 +221,6 @@ export function buildPocketbaseQuery<
 		...ensureArray(options.exclude).map(buildExcludeFilter),
 		...ensureArray(options.search)
 			.map((searchFilter) => {
-				console.log(searchFilter);
 				if (typeof searchFilter == 'string')
 					return {
 						text: searchFilter,
@@ -229,10 +229,7 @@ export function buildPocketbaseQuery<
 				else return searchFilter;
 			})
 			.map(buildSearchFilter)
-	]
-
-		.map((f) => `(${f})`)
-		.join(' && ');
+	].join(' && ');
 
 	//
 
@@ -246,7 +243,7 @@ export function buildPocketbaseQuery<
 
 	if (options.perPage) listOptions.perPage = options.perPage;
 	if (String.isNonEmpty(expand)) listOptions.expand = expand;
-	if (String.isNonEmpty(filter)) listOptions.filter = filter;
+	if (String.isNonEmpty(filter)) listOptions.filter = `(${filter})`;
 	if (String.isNonEmpty(sort)) listOptions.sort = sort;
 
 	return listOptions;
