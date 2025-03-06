@@ -10,7 +10,7 @@
 	import * as Sheet from '@/components/ui/sheet/index.js';
 </script>
 
-<CollectionManager collection="credentials" queryOptions={{ searchFields: ['name'] }}>
+<CollectionManager collection="credentials" queryOptions={{ searchFields: ['name'], perPage: 20 }}>
 	{#snippet top({ Search })}
 		<PageTop>
 			<T tag="h1">{m.Find_credential_attributes()}</T>

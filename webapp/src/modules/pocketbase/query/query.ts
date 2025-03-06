@@ -75,11 +75,11 @@ export class PocketbaseQueryOptionsEditor<
 	}
 
 	getPageSize() {
-		return this.options.perPage;
+		return this.getMergedOptions().perPage;
 	}
 
 	hasPagination() {
-		return Boolean(this.getMergedOptions().perPage);
+		return Boolean(this.getPageSize());
 	}
 
 	//
@@ -101,10 +101,6 @@ export class PocketbaseQueryOptionsEditor<
 
 	hasFilter(filter: string) {
 		return ensureArray(this.options.filter).includes(filter);
-	}
-
-	getFilters() {
-		return this.options.filter;
 	}
 
 	//

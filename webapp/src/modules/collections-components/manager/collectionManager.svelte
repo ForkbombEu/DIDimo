@@ -100,7 +100,6 @@
 		filters = [],
 		...rest
 	}: Props = $props();
-
 	//
 
 	const manager = $derived(

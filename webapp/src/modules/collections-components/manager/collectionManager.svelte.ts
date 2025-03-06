@@ -20,28 +20,32 @@ export class CollectionManager<
 > {
 	recordService: RecordService<PocketbaseQueryResponse<C, E>>;
 
-	private queryOptions: PocketbaseQueryOptions<C, E> = $state({});
-
+	private rootQueryOptions: PocketbaseQueryOptions<C, E> = $state({});
+	private currentQueryOptions: PocketbaseQueryOptions<C, E> = $state({});
 	query = $derived.by(
-		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.options.query)
+		() => new PocketbaseQueryOptionsEditor(this.currentQueryOptions, this.rootQueryOptions)
 	);
+
+	private queryAgentOptions: PocketbaseQueryAgentOptions = $state({});
 	private queryAgent = $derived.by(() =>
 		createPocketbaseQueryAgent(
 			{
 				collection: this.collection,
 				...this.query.getMergedOptions()
 			},
-			this.options.queryAgent
+			this.queryAgentOptions
 		)
 	);
 
 	constructor(
 		public readonly collection: C,
-		private readonly options: {
+		options: {
 			query: PocketbaseQueryOptions<C, E>;
 			queryAgent: PocketbaseQueryAgentOptions;
 		}
 	) {
+		this.rootQueryOptions = options.query;
+		this.queryAgentOptions = options.queryAgent;
 		this.recordService = pb.collection(collection);
 
 		$effect(() => {
