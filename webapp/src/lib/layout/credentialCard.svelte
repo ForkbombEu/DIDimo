@@ -3,6 +3,7 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import type { CredentialsResponse } from '@/pocketbase/types';
+	import { emojiFlag } from '@/utils/emoji-flag';
 
 	type Props = {
 		credential: CredentialsResponse;
@@ -13,10 +14,12 @@
 
 	const properties = {
 		[m.Issuer()]: credential.issuer_name,
-		[m.Duration()]: 'credential_duration',
-		[m.Specification()]: 'credential_specification',
-		[m.Category()]: 'credential_category',
-		[m.Format()]: credential.format
+		// [m.Duration()]: 'credential_duration',
+		// [m.Specification()]: 'credential_specification',
+		// [m.Category()]: 'credential_category',
+		[m.Format()]: credential.format,
+		[m.Locale()]: credential.locale.toUpperCase()
+		// [m.Locale()]: `${emojiFlag(credential.locale.trim())} ${credential.locale.toUpperCase()}`
 	};
 </script>
 

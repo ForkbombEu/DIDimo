@@ -287,5 +287,7 @@
 	"Next_steps": "Next steps:",
 	"Open_your_email": "Open your email ({email})",
 	"Follow_the_instructions_to_continue_with_the_compliance_check": "Follow the instructions to continue with the compliance check.",
-	"We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email": "We will send the instructions for proceeding with the test to this email."
+	"We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email": "We will send the instructions for proceeding with the test to this email.",
+	"Locale": "Locale",
+	"filters": "Filters"
 }
