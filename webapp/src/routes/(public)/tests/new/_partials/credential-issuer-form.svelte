@@ -29,7 +29,7 @@
 				credential_issuers: [credentialIssuer.id]
 			} satisfies Data<ServicesRecord>);
 
-			goto(`/services/${service.id}`);
+			goto(`/providers/${service.id}`);
 		}
 	});
 </script>
