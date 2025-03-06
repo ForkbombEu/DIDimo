@@ -12,7 +12,6 @@
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
 	import { m } from '@/i18n';
-	import LanguageSelect from '@/i18n/languageSelect.svelte';
 	import { pb } from '@/pocketbase';
 	import {
 		Collections,
@@ -93,15 +92,7 @@
 </script>
 
 {#if $featureFlags.DEMO}
-	<div class="flex justify-end px-6 pt-4">
-		<LanguageSelect flagsOnly>
-			{#snippet trigger({ triggerAttributes, language })}
-				<Button variant="outline" class="w-14 text-2xl" {...triggerAttributes}>
-					{language.flag}
-				</Button>
-			{/snippet}
-		</LanguageSelect>
-	</div>
+	<div class="flex justify-end px-6 pt-4"></div>
 {/if}
 
 <PageTop>
