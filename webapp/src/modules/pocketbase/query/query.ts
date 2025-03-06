@@ -10,6 +10,15 @@ import type { PocketbaseListOptions } from './utils';
 
 type Field<C extends CollectionName> = KeyOf<CollectionResponses[C]>;
 
+//
+
+export type FilterMode = '||' | '&&';
+
+export type CompoundFilter = { id: string; expressions: string[]; mode: FilterMode };
+// Sometimes we need to update the filter expression from the UI, so we need to keep the id
+
+type Filter = string | CompoundFilter;
+
 /* Query */
 
 export type PocketbaseQueryExpandOption<C extends CollectionName> = KeyOf<CollectionExpands[C]>[];
@@ -20,7 +29,7 @@ export type PocketbaseQueryOptions<
 > = Partial<{
 	expand: Expand;
 	perPage: number;
-	filter: MaybeArray<string>;
+	filter: MaybeArray<Filter>;
 	search: MaybeArray<SearchFilter<Field<C> | string>>;
 	searchFields: Field<C>[];
 	exclude: MaybeArray<ExcludeFilter>;
@@ -84,23 +93,58 @@ export class PocketbaseQueryOptionsEditor<
 
 	//
 
-	addFilter(filter: string) {
-		this.options.filter = [...ensureArray(this.options.filter), filter];
-		return this;
-	}
-
-	setFilters(filters: string | string[]) {
+	setFilters(filters: Filter | Filter[]) {
 		this.options.filter = ensureArray(filters);
 		return this;
 	}
 
-	removeFilter(filter: string) {
-		this.options.filter = ensureArray(this.options.filter).filter((f) => f !== filter);
+	getFilterById(id: string): CompoundFilter | undefined {
+		return ensureArray(this.options.filter).find((f) => typeof f === 'object' && f.id == id) as
+			| CompoundFilter
+			| undefined;
+	}
+
+	addFilter(filter: string, id?: string, mode?: FilterMode) {
+		if (!id) {
+			this.options.filter = [...ensureArray(this.options.filter), filter];
+		} else {
+			const existingFilter = this.getFilterById(id);
+			if (existingFilter) {
+				existingFilter.expressions.push(filter);
+			} else {
+				this.options.filter = [
+					...ensureArray(this.options.filter),
+					{ id, expressions: [filter], mode: mode ?? '&&' }
+				];
+			}
+		}
 		return this;
 	}
 
-	hasFilter(filter: string) {
-		return ensureArray(this.options.filter).includes(filter);
+	removeFilter(expression: string, id?: string) {
+		if (!id) {
+			this.options.filter = ensureArray(this.options.filter).filter((f) => f !== expression);
+		} else {
+			const existingFilter = this.getFilterById(id);
+			if (!existingFilter) return this;
+			existingFilter.expressions = existingFilter.expressions.filter((e) => e !== expression);
+			if (existingFilter.expressions.length == 0) {
+				this.options.filter = ensureArray(this.options.filter).filter(
+					(f) => typeof f === 'object' && f.id !== id
+				);
+			}
+		}
+		return this;
+	}
+
+	hasFilter(expression: string, id?: string) {
+		if (!id) {
+			return ensureArray(this.options.filter).includes(expression);
+		} else {
+			return ensureArray(this.options.filter).some(
+				(f) => typeof f === 'object' && f.id == id && f.expressions.includes(expression)
+			);
+		}
 	}
 
 	//
@@ -217,7 +261,12 @@ export function buildPocketbaseQuery<
 			: allCollectionFields;
 
 	const filter = [
-		...ensureArray(options.filter),
+		...ensureArray(options.filter)
+			.filter((f) => typeof f == 'string' || f.expressions.length > 0)
+			.map((f) => {
+				if (typeof f == 'string') return f;
+				else return `(${f.expressions.join(f.mode)})`;
+			}),
 		...ensureArray(options.exclude).map(buildExcludeFilter),
 		...ensureArray(options.search)
 			.map((searchFilter) => {

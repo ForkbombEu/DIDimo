@@ -12,6 +12,8 @@
 	const filters: FilterGroup[] = [
 		{
 			name: m.Format(),
+			id: 'format',
+			mode: '||',
 			filters: Object.entries(CredentialsFormatOptions).map(([key, value]) => ({
 				name: value,
 				id: value,
