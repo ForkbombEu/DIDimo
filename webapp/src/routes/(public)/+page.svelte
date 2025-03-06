@@ -14,7 +14,13 @@
 	import { m } from '@/i18n';
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
 	import { pb } from '@/pocketbase';
-	import { Collections, ServicesCountryOptions, type ServicesResponse } from '@/pocketbase/types';
+	import {
+		Collections,
+		ServicesCountryOptions,
+		CredentialsFormatOptions,
+		type CredentialsResponse,
+		type ServicesResponse
+	} from '@/pocketbase/types';
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
@@ -28,12 +34,29 @@
 		credential_issuers: [],
 		description: 'Lorem ipsum',
 		external_links: [],
+		wallets: [],
 		legal_entity: 'ForkbombEu',
 		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
 		name: 'Test credential issuer',
 		owner: 'id',
 		collectionId: '',
 		collectionName: Collections.Services
+	};
+
+	const fakeCredential: CredentialsResponse = {
+		id: 'das',
+		created: '2024-12-12',
+		updated: '2024-12-12',
+		credential_issuer: 'das',
+		description: 'Lorem ipsum',
+		format: CredentialsFormatOptions['jwt_​​vc_​​​json'],
+		issuer_name: 'das',
+		logo: 'das',
+		name: 'das',
+		locale: 'en',
+		type: 'plc',
+		collectionId: '',
+		collectionName: Collections.Credentials
 	};
 
 	const schema = z.object({
@@ -69,7 +92,7 @@
 	});
 </script>
 
-{#if !$featureFlags.DEMO}
+{#if $featureFlags.DEMO}
 	<div class="flex justify-end px-6 pt-4">
 		<LanguageSelect flagsOnly>
 			{#snippet trigger({ triggerAttributes, language })}
@@ -80,6 +103,7 @@
 		</LanguageSelect>
 	</div>
 {/if}
+
 <PageTop>
 	<div class="space-y-2">
 		<T tag="h1" class="text-balance">{m.Find_and_test_identity_solutions_with_ease()}</T>
@@ -88,9 +112,9 @@
 		</T>
 	</div>
 	<div class="flex gap-4">
-		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/tests/new'}
-			>{m.Start_a_new_test()}</Button
-		>
+		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/tests/new'}>
+			{m.Start_a_new_test()}
+		</Button>
 		<Button variant="secondary">{m.See_how_it_works()}</Button>
 	</div>
 </PageTop>
@@ -111,25 +135,29 @@
 			{/if}
 		</div>
 
-		<PageGrid class="select-none blur-sm">
-			<ServiceCard service={fakeService} class="grow basis-1" />
-			<ServiceCard service={fakeService} class="grow basis-1" />
-			<ServiceCard service={fakeService} class="hidden grow basis-1 lg:block" />
-			<!--
-				{@const MAX_ITEMS = 3}
+		{#if $featureFlags.DEMO}
+			<PageGrid class="select-none blur-sm">
+				<ServiceCard service={fakeService} class="grow basis-1" />
+				<ServiceCard service={fakeService} class="grow basis-1" />
+				<ServiceCard service={fakeService} class="hidden grow basis-1 lg:block" />
+			</PageGrid>
+		{:else}
+			{@const MAX_ITEMS = 3}
 			<CollectionManager
 				collection="services"
 				queryOptions={{ perPage: MAX_ITEMS }}
 				hide={['pagination']}
 			>
 				{#snippet records({ records })}
-					{#each records as service, i}
-						{@const isLast = i == MAX_ITEMS - 1}
-						<ServiceCard {service} class={isLast ? 'hidden lg:block' : ''} />
-					{/each}
+					<PageGrid>
+						{#each records as service, i}
+							{@const isLast = i == MAX_ITEMS - 1}
+							<ServiceCard {service} class={isLast ? 'hidden lg:block' : ''} />
+						{/each}
+					</PageGrid>
 				{/snippet}
-			</CollectionManager> -->
-		</PageGrid>
+			</CollectionManager>
+		{/if}
 	</div>
 
 	<div class="space-y-6">
@@ -143,7 +171,13 @@
 				<Button variant="default" href="/credentials">{m.All_credentials()}</Button>
 			{/if}
 		</div>
-		<PageGrid>
+		{#if $featureFlags.DEMO}
+			<PageGrid class="select-none blur-sm">
+				<CredentialCard credential={fakeCredential} class="grow basis-1" />
+				<CredentialCard credential={fakeCredential} class="grow basis-1" />
+				<CredentialCard credential={fakeCredential} class="hidden grow basis-1 lg:block" />
+			</PageGrid>
+		{:else}
 			{@const MAX_ITEMS = 3}
 			<CollectionManager
 				collection="credentials"
@@ -151,13 +185,15 @@
 				hide={['pagination']}
 			>
 				{#snippet records({ records })}
-					{#each records as credential, i}
-						{@const isLast = i == MAX_ITEMS - 1}
-						<CredentialCard {credential} class={isLast ? 'hidden lg:flex' : ''} />
-					{/each}
+					<PageGrid>
+						{#each records as credential, i}
+							{@const isLast = i == MAX_ITEMS - 1}
+							<CredentialCard {credential} class={isLast ? 'hidden lg:flex' : ''} />
+						{/each}
+					</PageGrid>
 				{/snippet}
 			</CollectionManager>
-		</PageGrid>
+		{/if}
 	</div>
 </PageContent>
 
