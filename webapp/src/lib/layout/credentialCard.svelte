@@ -3,7 +3,6 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import type { CredentialsResponse } from '@/pocketbase/types';
-	import { emojiFlag } from '@/utils/emoji-flag';
 
 	type Props = {
 		credential: CredentialsResponse;

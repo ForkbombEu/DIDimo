@@ -48,7 +48,7 @@
 		updated: '2024-12-12',
 		credential_issuer: 'das',
 		description: 'Lorem ipsum',
-		format: CredentialsFormatOptions['jwt_​​vc_​​​json'],
+		format: CredentialsFormatOptions['jwt_vc_json'],
 		issuer_name: 'das',
 		logo: 'das',
 		name: 'das',
