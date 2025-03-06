@@ -34,7 +34,7 @@ export class CollectionManager<
 					collection: this.collection,
 					...this.query.getMergedOptions()
 				},
-				this.queryAgentOptions
+				{ ...this.queryAgentOptions, requestKey: null }
 			)
 	);
 
@@ -61,7 +61,15 @@ export class CollectionManager<
 	totalItems = $state(0);
 	loadingError = $state<ClientResponseError>();
 
+	private previousFilter: string | undefined;
+
 	async loadRecords() {
+		const currentFilter = this.queryAgent.listOptions.filter;
+		if (this.previousFilter !== currentFilter) {
+			this.currentPage = 1;
+			this.previousFilter = currentFilter;
+		}
+
 		try {
 			if (this.query.hasPagination()) {
 				const result = await this.queryAgent.getList(this.currentPage);
@@ -71,6 +79,7 @@ export class CollectionManager<
 				this.records = await this.queryAgent.getFullList();
 			}
 		} catch (e) {
+			console.error(e);
 			this.loadingError = e as ClientResponseError;
 		}
 	}
