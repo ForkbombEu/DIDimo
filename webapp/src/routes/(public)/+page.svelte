@@ -137,9 +137,12 @@
 
 		{#if $featureFlags.DEMO}
 			<PageGrid class="select-none blur-sm">
-				<ServiceCard service={fakeService} class="grow basis-1" />
-				<ServiceCard service={fakeService} class="grow basis-1" />
-				<ServiceCard service={fakeService} class="hidden grow basis-1 lg:block" />
+				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
+				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
+				<ServiceCard
+					service={fakeService}
+					class="pointer-events-none hidden grow basis-1 lg:block"
+				/>
 			</PageGrid>
 		{:else}
 			{@const MAX_ITEMS = 3}
@@ -173,9 +176,18 @@
 		</div>
 		{#if $featureFlags.DEMO}
 			<PageGrid class="select-none blur-sm">
-				<CredentialCard credential={fakeCredential} class="grow basis-1" />
-				<CredentialCard credential={fakeCredential} class="grow basis-1" />
-				<CredentialCard credential={fakeCredential} class="hidden grow basis-1 lg:block" />
+				<CredentialCard
+					credential={fakeCredential}
+					class="pointer-events-none grow basis-1"
+				/>
+				<CredentialCard
+					credential={fakeCredential}
+					class="pointer-events-none grow basis-1"
+				/>
+				<CredentialCard
+					credential={fakeCredential}
+					class="pointer-events-none hidden grow basis-1 lg:block"
+				/>
 			</PageGrid>
 		{:else}
 			{@const MAX_ITEMS = 3}
