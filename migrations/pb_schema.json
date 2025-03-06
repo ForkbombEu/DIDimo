@@ -1181,8 +1181,8 @@
     },
     {
         "id": "pbc_183765882",
-        "listRule": null,
-        "viewRule": null,
+        "listRule": "",
+        "viewRule": "",
         "createRule": null,
         "updateRule": null,
         "deleteRule": null,
@@ -1212,12 +1212,7 @@
                 "required": false,
                 "system": false,
                 "type": "select",
-                "values": [
-                    "jwt_​​vc_​​​json",
-                    "mso_​​mdoc",
-                    "vc+sd-​​jwt",
-                    "ldp_​​vc"
-                ]
+                "values": ["jwt_vc_json", "mso_mdoc", "vc+sd-jwt", "ldp_vc"]
             },
             {
                 "autogeneratePattern": "",
