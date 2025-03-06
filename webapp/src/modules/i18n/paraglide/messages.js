@@ -7301,6 +7301,214 @@ export const Request_sent_ = (params = {}, options = {}) => {
  * @returns {string}
  */
 /* @__NO_SIDE_EFFECTS__ */
+export const Wallet_name = (params = {}, options = {}) => {
+	return {
+		da: da.Wallet_name,
+		de: de.Wallet_name,
+		en: en.Wallet_name,
+		fr: fr.Wallet_name,
+		it: it.Wallet_name,
+		"pt-br": pt_br.Wallet_name
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const What_do_you_want_to_check = (params = {}, options = {}) => {
+	return {
+		da: da.What_do_you_want_to_check,
+		de: de.What_do_you_want_to_check,
+		en: en.What_do_you_want_to_check,
+		fr: fr.What_do_you_want_to_check,
+		it: it.What_do_you_want_to_check,
+		"pt-br": pt_br.What_do_you_want_to_check
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Send_the_results_to_this_email = (params = {}, options = {}) => {
+	return {
+		da: da.Send_the_results_to_this_email,
+		de: de.Send_the_results_to_this_email,
+		en: en.Send_the_results_to_this_email,
+		fr: fr.Send_the_results_to_this_email,
+		it: it.Send_the_results_to_this_email,
+		"pt-br": pt_br.Send_the_results_to_this_email
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const The_test_has_started_successfully = (params = {}, options = {}) => {
+	return {
+		da: da.The_test_has_started_successfully,
+		de: de.The_test_has_started_successfully,
+		en: en.The_test_has_started_successfully,
+		fr: fr.The_test_has_started_successfully,
+		it: it.The_test_has_started_successfully,
+		"pt-br": pt_br.The_test_has_started_successfully
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Next_steps = (params = {}, options = {}) => {
+	return {
+		da: da.Next_steps,
+		de: de.Next_steps,
+		en: en.Next_steps,
+		fr: fr.Next_steps,
+		it: it.Next_steps,
+		"pt-br": pt_br.Next_steps
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{ email: NonNullable<unknown> }} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Open_your_email = (params , options = {}) => {
+	return {
+		da: da.Open_your_email,
+		de: de.Open_your_email,
+		en: en.Open_your_email,
+		fr: fr.Open_your_email,
+		it: it.Open_your_email,
+		"pt-br": pt_br.Open_your_email
+	}[options.languageTag ?? languageTag()](params)
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Follow_the_instructions_to_continue_with_the_compliance_check = (params = {}, options = {}) => {
+	return {
+		da: da.Follow_the_instructions_to_continue_with_the_compliance_check,
+		de: de.Follow_the_instructions_to_continue_with_the_compliance_check,
+		en: en.Follow_the_instructions_to_continue_with_the_compliance_check,
+		fr: fr.Follow_the_instructions_to_continue_with_the_compliance_check,
+		it: it.Follow_the_instructions_to_continue_with_the_compliance_check,
+		"pt-br": pt_br.Follow_the_instructions_to_continue_with_the_compliance_check
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email = (params = {}, options = {}) => {
+	return {
+		da: da.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email,
+		de: de.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email,
+		en: en.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email,
+		fr: fr.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email,
+		it: it.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email,
+		"pt-br": pt_br.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email
+	}[options.languageTag ?? languageTag()]()
+}
+
+
+
+/**
+ * This message has been compiled by [inlang paraglide](https://inlang.com/m/gerre34r/library-inlang-paraglideJs).
+ *
+ * - Don't edit the message's code. Use [Sherlock (VS Code extension)](https://inlang.com/m/r7kp499g/app-inlang-ideExtension),
+ *   the [web editor](https://inlang.com/m/tdozzpar/app-inlang-finkLocalizationEditor) instead, or edit the translation files manually.
+ * 
+ * - The params are NonNullable<unknown> because the inlang SDK does not provide information on the type of a param (yet).
+ * 
+ * @param {{}} params
+ * @param {{ languageTag?: "en" | "it" | "de" | "fr" | "da" | "pt-br" }} options
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
 export const _Document_signed_successfully = (params = {}, options = {}) => {
 	return {
 		da: da._Document_signed_successfully,

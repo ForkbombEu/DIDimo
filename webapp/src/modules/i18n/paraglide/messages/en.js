@@ -2252,6 +2252,70 @@ export const Request_sent_ = () => `Request sent! ✨`
 
 
 /**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Wallet_name = () => `Wallet name`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const What_do_you_want_to_check = () => `What do you want to check?`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Send_the_results_to_this_email = () => `Send the results to this email:`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const The_test_has_started_successfully = () => `The test has started successfully!`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Next_steps = () => `Next steps:`
+
+
+/**
+ * @param {{ email: NonNullable<unknown> }} params
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Open_your_email = (params) => `Open your email (${params.email})`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const Follow_the_instructions_to_continue_with_the_compliance_check = () => `Follow the instructions to continue with the compliance check.`
+
+
+/**
+ * 
+ * @returns {string}
+ */
+/* @__NO_SIDE_EFFECTS__ */
+export const We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email = () => `We will send the instructions for proceeding with the test to this email.`
+
+
+/**
  * Failed to resolve message _Document_signed_successfully for languageTag "en". 
  * @returns {string}
  */

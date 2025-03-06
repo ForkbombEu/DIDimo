@@ -942,6 +942,22 @@ export { Thanks_for_your_interest_We_will_write_to_you_soon } from "./en.js"
 
 export { Request_sent_ } from "./en.js"
 
+export { Wallet_name } from "./en.js"
+
+export { What_do_you_want_to_check } from "./en.js"
+
+export { Send_the_results_to_this_email } from "./en.js"
+
+export { The_test_has_started_successfully } from "./en.js"
+
+export { Next_steps } from "./en.js"
+
+export { Open_your_email } from "./en.js"
+
+export { Follow_the_instructions_to_continue_with_the_compliance_check } from "./en.js"
+
+export { We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email } from "./en.js"
+
 /**
  * 
  * @returns {string}
