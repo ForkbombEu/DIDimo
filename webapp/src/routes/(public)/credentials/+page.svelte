@@ -29,9 +29,11 @@
 	{#snippet top({ Search, Filters })}
 		<PageTop>
 			<T tag="h1">{m.Find_credential_attributes()}</T>
-			<div>
-				<Search class="border-primary bg-secondary" />
-				<Filters>{m.filters()}</Filters>
+			<div class="flex items-center gap-2">
+				<Search class="border-primary bg-secondary" containerClass="grow" />
+				<Filters>
+					{m.filters()}
+				</Filters>
 			</div>
 		</PageTop>
 	{/snippet}

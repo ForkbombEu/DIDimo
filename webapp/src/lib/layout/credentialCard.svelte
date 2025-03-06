@@ -3,6 +3,7 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import type { CredentialsResponse } from '@/pocketbase/types';
+	import { String } from 'effect';
 
 	type Props = {
 		credential: CredentialsResponse;
@@ -11,15 +12,14 @@
 
 	const { credential, class: className = '' }: Props = $props();
 
-	const properties = {
-		[m.Issuer()]: credential.issuer_name,
-		// [m.Duration()]: 'credential_duration',
-		// [m.Specification()]: 'credential_specification',
-		// [m.Category()]: 'credential_category',
-		[m.Format()]: credential.format,
-		[m.Locale()]: credential.locale.toUpperCase()
-		// [m.Locale()]: `${emojiFlag(credential.locale.trim())} ${credential.locale.toUpperCase()}`
-	};
+	const properties: Record<string, string> = {};
+	if (isValid(credential.issuer_name)) properties[m.Issuer()] = credential.issuer_name;
+	if (isValid(credential.format)) properties[m.Format()] = credential.format;
+	if (isValid(credential.locale)) properties[m.Locale()] = credential.locale.toUpperCase();
+
+	function isValid(value: string) {
+		return String.isNonEmpty(value.trim());
+	}
 </script>
 
 <a
