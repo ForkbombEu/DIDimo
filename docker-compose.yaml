@@ -1,17 +1,47 @@
 services:
   temporal:
-    depends_on:
-      - postgresql
     environment:
       - DB=postgres12
       - DB_PORT=5432
-      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
-      - POSTGRES_PWD=${SERVICE_PASSWORD_POSTGRES:-d}
       - POSTGRES_SEEDS=postgresql
-      - PROMETHEUS_ENDPOINT=0.0.0.0:8000
+      - POSTGRES_USER=temporal
+      - POSTGRES_PWD=temporal
+      - POSTGRES_TLS_ENABLED=false
+      - POSTGRES_TLS_DISABLE_HOST_VERIFICATION=true
+      - SQL_TLS_ENABLED=false
+      - SQL_HOST_VERIFICATION=true
+      - DYNAMIC_CONFIG_FILE_PATH=config/dynamicconfig/didimo.yaml
+      - TEMPORAL_ADDRESS=localhost:7233
+    # image: temporalio/auto-setup:latest
     build:
       context: ./temporal-server
       dockerfile: Dockerfile
+    ports:
+      - 7233:7233
+    volumes:
+      - ./temporal-server/config/dynamicconfig/:/etc/temporal/config/dynamicconfig
+
+  temporal-ui:
+    container_name: temporal-ui
+    restart: unless-stopped
+    depends_on:
+      - temporal
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+      - TEMPORAL_CORS_ORIGINS=http://localhost:3000
+      - TEMPORAL_CSRF_COOKIE_INSECURE=true
+    image: temporalio/ui:latest
+    ports:
+      - 8082:8080
+
+  postgresql:
+    environment:
+      - POSTGRES_USER=temporal
+      - POSTGRES_PASSWORD=temporal
+    command: postgres -c 'max_connections=200'
+    image: postgres:13
+    ports:
+      - 5432:5432
   temporal-admin-tools:
     depends_on:
       - temporal
@@ -21,18 +51,6 @@ services:
     image: temporalio/admin-tools:1.21.1
     stdin_open: true
     tty: true
-  temporal-ui:
-    depends_on:
-      - temporal
-    environment:
-      - TEMPORAL_OPENAPI_ENABLED=true
-      - TEMPORAL_UI_ENABLED=true
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_UI_PUBLIC_PATH=/workflows
-      # - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
-    image: temporalio/ui:2.32.0
-    ports:
-      - 8080:8080
   prometheus:
     image: prom/prometheus
     ports:
@@ -81,11 +99,6 @@ services:
     restart: unless-stopped
     environment:
       - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-  postgresql:
-    environment:
-      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
-      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES:-d}
-    image: postgres:13
   didimo:
     build:
       context: .

@@ -35,8 +35,7 @@ import (
 )
 
 func main() {
-
-	cfg, err := config.LoadConfig("development", "./config", "")
+	cfg, err := config.LoadConfig("development", "/etc/temporal/config", "")
 	if err != nil {
 		log.Fatal(err)
 	}
