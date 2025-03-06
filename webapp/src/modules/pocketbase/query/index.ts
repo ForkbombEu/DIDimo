@@ -6,8 +6,7 @@ export {
 } from './query';
 
 export {
-	createPocketbaseQueryAgent,
 	type PocketbaseQueryResponse,
-	type PocketbaseQueryAgent,
+	PocketbaseQueryAgent,
 	type PocketbaseQueryAgentOptions
 } from './agent';

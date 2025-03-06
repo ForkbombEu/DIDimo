@@ -1,12 +1,12 @@
 import { pb } from '@/pocketbase';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import {
-	createPocketbaseQueryAgent,
 	type PocketbaseQueryOptions,
 	type PocketbaseQueryExpandOption,
 	type PocketbaseQueryResponse,
 	PocketbaseQueryOptionsEditor,
-	type PocketbaseQueryAgentOptions
+	type PocketbaseQueryAgentOptions,
+	PocketbaseQueryAgent
 } from '@/pocketbase/query';
 import type { RecordIdString } from '@/pocketbase/types';
 import type { ClientResponseError, RecordService } from 'pocketbase';
@@ -27,14 +27,15 @@ export class CollectionManager<
 	);
 
 	private queryAgentOptions: PocketbaseQueryAgentOptions = $state({});
-	private queryAgent = $derived.by(() =>
-		createPocketbaseQueryAgent(
-			{
-				collection: this.collection,
-				...this.query.getMergedOptions()
-			},
-			this.queryAgentOptions
-		)
+	private queryAgent = $derived.by(
+		() =>
+			new PocketbaseQueryAgent(
+				{
+					collection: this.collection,
+					...this.query.getMergedOptions()
+				},
+				this.queryAgentOptions
+			)
 	);
 
 	constructor(

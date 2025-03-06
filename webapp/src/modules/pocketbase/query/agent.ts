@@ -1,7 +1,5 @@
 import type { Simplify } from 'type-fest';
-import type { ListResult } from 'pocketbase';
 import type Pocketbase from 'pocketbase';
-
 import type { CollectionResponses, CollectionExpands } from '@/pocketbase/types';
 import {
 	buildPocketbaseQuery,
@@ -22,41 +20,46 @@ export type PocketbaseQueryResponse<
 		expand?: Partial<Pick<CollectionExpands[C], E[number]>>;
 	}>;
 
-/* Query runners */
-
-export interface PocketbaseQueryAgent<
-	C extends CollectionName,
-	E extends PocketbaseQueryExpandOption<C> = never
-> {
-	getList(page: number): Promise<ListResult<PocketbaseQueryResponse<C, E>>>;
-	getFullList(): Promise<PocketbaseQueryResponse<C, E>[]>;
-	getOne(id: string): Promise<PocketbaseQueryResponse<C, E>>;
-}
+/* Query agent */
 
 export type PocketbaseQueryAgentOptions = {
 	pocketbase?: Pocketbase;
 } & PocketbaseListOptions;
 
-export function createPocketbaseQueryAgent<
+export class PocketbaseQueryAgent<
 	C extends CollectionName,
 	E extends PocketbaseQueryExpandOption<C> = never
->(
-	query: PocketbaseQuery<C, E>,
-	options: PocketbaseQueryAgentOptions = {}
-): PocketbaseQueryAgent<C, E> {
-	const { collection } = query;
+> {
+	private pocketbase: Pocketbase;
+	readonly collection: C;
+	readonly listOptions: PocketbaseListOptions;
 
-	const pbOptions: PocketbaseListOptions = {
-		...options,
-		...buildPocketbaseQuery(query)
-	};
+	constructor(query: PocketbaseQuery<C, E>, options: PocketbaseQueryAgentOptions = {}) {
+		this.collection = query.collection;
+		this.pocketbase = options.pocketbase ?? pb;
+		this.listOptions = {
+			...options,
+			...buildPocketbaseQuery(query)
+		};
+	}
 
-	const pocketbase = options.pocketbase ?? pb;
+	getOne(id: string) {
+		return this.pocketbase
+			.collection(this.collection)
+			.getOne<PocketbaseQueryResponse<C, E>>(id, this.listOptions);
+	}
 
-	return {
-		getOne: (id: string) => pocketbase.collection(collection).getOne(id, pbOptions),
-		getFullList: () => pocketbase.collection(collection).getFullList(pbOptions),
-		getList: (page: number) =>
-			pocketbase.collection(collection).getList(page, pbOptions.perPage, pbOptions)
-	};
+	getFullList() {
+		return this.pocketbase
+			.collection(this.collection)
+			.getFullList<PocketbaseQueryResponse<C, E>>(this.listOptions);
+	}
+
+	getList(page: number) {
+		return this.pocketbase
+			.collection(this.collection)
+			.getList<
+				PocketbaseQueryResponse<C, E>
+			>(page, this.listOptions.perPage, this.listOptions);
+	}
 }

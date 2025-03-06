@@ -26,7 +26,7 @@
 	} from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import UserAvatar from '@/components/ui-custom/userAvatar.svelte';
-	import { createPocketbaseQueryAgent } from '@/pocketbase/query';
+	import { PocketbaseQueryAgent } from '@/pocketbase/query';
 	import SidebarLink from '@/components/layout/sidebar/sidebarLink.svelte';
 	import SidebarGroup from '@/components/layout/sidebar/sidebarGroup.svelte';
 	import SidebarItemIcon from '@/components/layout/sidebar/sidebarItemIcon.svelte';
@@ -36,7 +36,7 @@
 
 	//
 
-	const authorizationsQuery = createPocketbaseQueryAgent({
+	const authorizationsQuery = new PocketbaseQueryAgent({
 		collection: 'orgAuthorizations',
 		filter: `user = "${pb.authStore.record!.id}"`,
 		expand: ['organization', 'role']
