@@ -1,7 +1,7 @@
-import { createPocketbaseQueryAgent } from '@/pocketbase/query/index.js';
+import { PocketbaseQueryAgent } from '@/pocketbase/query/index.js';
 
 export const load = async ({ params }) => {
-	const provider = await createPocketbaseQueryAgent({
+	const provider = await new PocketbaseQueryAgent({
 		collection: 'services',
 		expand: ['credential_issuers']
 	}).getOne(params.provider_id);

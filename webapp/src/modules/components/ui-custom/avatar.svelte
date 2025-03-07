@@ -29,7 +29,7 @@
 	}
 </script>
 
-{#if !(loadingError && hideIfLoadingError)}
+{#if src && !(loadingError && hideIfLoadingError)}
 	<Avatar.Root {...rest} class={cn(rest.class, 'overflow-hidden')}>
 		{#if src}
 			<Avatar.Image {src} alt={alt ?? m.Avatar()} />

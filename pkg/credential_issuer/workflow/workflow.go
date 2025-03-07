@@ -26,7 +26,7 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 		InitialInterval:    time.Second * 5,
 		BackoffCoefficient: 2.0,
 		MaximumInterval:    time.Minute,
-		MaximumAttempts:    0,
+		MaximumAttempts:    5,
 	}
 
 	ao := workflow.ActivityOptions{

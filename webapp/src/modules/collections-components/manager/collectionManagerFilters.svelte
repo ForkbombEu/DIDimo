@@ -3,8 +3,7 @@
 	import {
 		getCollectionManagerContext,
 		type Filter,
-		FilterSchema,
-		FilterGroupSchema
+		type FilterGroup
 	} from './collectionManagerContext';
 	import * as Popover from '@/components/ui/popover/index.js';
 	import * as Sheet from '@/components/ui/sheet/index.js';
@@ -13,6 +12,9 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import type { Snippet } from 'svelte';
 	import type { GenericRecord } from '@/utils/types';
+	import { m } from '@/i18n';
+	import { ensureArray } from '@/utils/other';
+	import type { FilterMode } from '@/pocketbase/query/query';
 
 	//
 
@@ -68,45 +70,37 @@
 {#snippet content()}
 	{@render beforeFilters?.()}
 	<ul class="space-y-4">
-		{#each filters as filterData}
-			{@const filter = FilterSchema.safeParse(filterData)}
-			{@const filterGroup = FilterGroupSchema.safeParse(filterData)}
-
-			{#if filter.success}
-				<li>
-					{@render filterInput(filter.data)}
-				</li>
-			{:else if filterGroup.success}
-				<ul class="space-y-2">
-					<li><T>{filterGroup.data.name}</T></li>
-					{#each filterGroup.data.filters as filter}
-						<li>
-							{@render filterInput(filter)}
-						</li>
-					{/each}
-				</ul>
-			{/if}
+		{#each ensureArray(filters) as filterGroup}
+			<ul class="space-y-2">
+				<li><T class="font-bold">{filterGroup.name ?? m.filters()}</T></li>
+				{#each filterGroup.filters as filter}
+					<li>
+						{@render FilterInput(filter, filterGroup.id, filterGroup.mode)}
+					</li>
+				{/each}
+			</ul>
 		{/each}
 	</ul>
+
 	{@render afterFilters?.()}
 {/snippet}
 
-{#snippet filterInput(f: Filter)}
+{#snippet FilterInput(f: Filter, id: string, mode: FilterMode)}
 	<div class="flex items-center gap-2">
 		<Checkbox
-			name={f.id}
-			id={f.id}
+			id={f.name}
+			name={f.name}
 			value={f.expression}
-			checked={manager.query.hasFilter(f.expression)}
+			checked={manager.query.hasFilter(f.expression, id)}
 			onCheckedChange={(v) => {
 				if (v) {
-					manager.query.addFilter(f.expression);
+					manager.query.addFilter(f.expression, id, mode);
 				} else {
-					manager.query.removeFilter(f.expression);
+					manager.query.removeFilter(f.expression, id);
 				}
 			}}
 		/>
-		<Label for={f.id} class="text-md">{f.name}</Label>
+		<Label for={f.name} class="text-md hover:cursor-pointer">{f.name}</Label>
 	</div>
 {/snippet}
 

@@ -1,12 +1,12 @@
 import { pb } from '@/pocketbase';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import {
-	createPocketbaseQueryAgent,
 	type PocketbaseQueryOptions,
 	type PocketbaseQueryExpandOption,
 	type PocketbaseQueryResponse,
 	PocketbaseQueryOptionsEditor,
-	type PocketbaseQueryAgentOptions
+	type PocketbaseQueryAgentOptions,
+	PocketbaseQueryAgent
 } from '@/pocketbase/query';
 import type { RecordIdString } from '@/pocketbase/types';
 import type { ClientResponseError, RecordService } from 'pocketbase';
@@ -20,28 +20,33 @@ export class CollectionManager<
 > {
 	recordService: RecordService<PocketbaseQueryResponse<C, E>>;
 
-	private queryOptions: PocketbaseQueryOptions<C, E> = $state({});
-
+	private rootQueryOptions: PocketbaseQueryOptions<C, E> = $state({});
+	private currentQueryOptions: PocketbaseQueryOptions<C, E> = $state({});
 	query = $derived.by(
-		() => new PocketbaseQueryOptionsEditor(this.queryOptions, this.options.query)
+		() => new PocketbaseQueryOptionsEditor(this.currentQueryOptions, this.rootQueryOptions)
 	);
-	private queryAgent = $derived.by(() =>
-		createPocketbaseQueryAgent(
-			{
-				collection: this.collection,
-				...this.query.getMergedOptions()
-			},
-			this.options.queryAgent
-		)
+
+	private queryAgentOptions: PocketbaseQueryAgentOptions = $state({});
+	private queryAgent = $derived.by(
+		() =>
+			new PocketbaseQueryAgent(
+				{
+					collection: this.collection,
+					...this.query.getMergedOptions()
+				},
+				{ ...this.queryAgentOptions, requestKey: null }
+			)
 	);
 
 	constructor(
 		public readonly collection: C,
-		private readonly options: {
+		options: {
 			query: PocketbaseQueryOptions<C, E>;
 			queryAgent: PocketbaseQueryAgentOptions;
 		}
 	) {
+		this.rootQueryOptions = options.query;
+		this.queryAgentOptions = options.queryAgent;
 		this.recordService = pb.collection(collection);
 
 		$effect(() => {
@@ -56,7 +61,15 @@ export class CollectionManager<
 	totalItems = $state(0);
 	loadingError = $state<ClientResponseError>();
 
+	private previousFilter: string | undefined;
+
 	async loadRecords() {
+		const currentFilter = this.queryAgent.listOptions.filter;
+		if (this.previousFilter !== currentFilter) {
+			this.currentPage = 1;
+			this.previousFilter = currentFilter;
+		}
+
 		try {
 			if (this.query.hasPagination()) {
 				const result = await this.queryAgent.getList(this.currentPage);
@@ -66,6 +79,7 @@ export class CollectionManager<
 				this.records = await this.queryAgent.getFullList();
 			}
 		} catch (e) {
+			console.error(e);
 			this.loadingError = e as ClientResponseError;
 		}
 	}

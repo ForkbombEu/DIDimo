@@ -20,7 +20,7 @@ export type PocketbaseQueryOptions<
 > = Partial<{
 	expand: Expand;
 	perPage: number;
-	filter: MaybeArray<string>;
+	filter: MaybeArray<Filter>;
 	search: MaybeArray<SearchFilter<Field<C> | string>>;
 	searchFields: Field<C>[];
 	exclude: MaybeArray<ExcludeFilter>;
@@ -75,36 +75,67 @@ export class PocketbaseQueryOptionsEditor<
 	}
 
 	getPageSize() {
-		return this.options.perPage;
+		return this.getMergedOptions().perPage;
 	}
 
 	hasPagination() {
-		return Boolean(this.getMergedOptions().perPage);
+		return Boolean(this.getPageSize());
 	}
 
 	//
 
-	addFilter(filter: string) {
-		this.options.filter = [...ensureArray(this.options.filter), filter];
-		return this;
-	}
-
-	setFilters(filters: string | string[]) {
+	setFilters(filters: Filter | Filter[]) {
 		this.options.filter = ensureArray(filters);
 		return this;
 	}
 
-	removeFilter(filter: string) {
-		this.options.filter = ensureArray(this.options.filter).filter((f) => f !== filter);
+	getFilterById(id: string): CompoundFilter | undefined {
+		return ensureArray(this.options.filter).find((f) => typeof f === 'object' && f.id == id) as
+			| CompoundFilter
+			| undefined;
+	}
+
+	addFilter(filter: string, id?: string, mode?: FilterMode) {
+		if (!id) {
+			this.options.filter = [...ensureArray(this.options.filter), filter];
+		} else {
+			const existingFilter = this.getFilterById(id);
+			if (existingFilter) {
+				existingFilter.expressions.push(filter);
+			} else {
+				this.options.filter = [
+					...ensureArray(this.options.filter),
+					{ id, expressions: [filter], mode: mode ?? '&&' }
+				];
+			}
+		}
 		return this;
 	}
 
-	hasFilter(filter: string) {
-		return ensureArray(this.options.filter).includes(filter);
+	removeFilter(expression: string, id?: string) {
+		if (!id) {
+			this.options.filter = ensureArray(this.options.filter).filter((f) => f !== expression);
+		} else {
+			const existingFilter = this.getFilterById(id);
+			if (!existingFilter) return this;
+			existingFilter.expressions = existingFilter.expressions.filter((e) => e !== expression);
+			if (existingFilter.expressions.length == 0) {
+				this.options.filter = ensureArray(this.options.filter).filter(
+					(f) => typeof f === 'object' && f.id !== id
+				);
+			}
+		}
+		return this;
 	}
 
-	getFilters() {
-		return this.options.filter;
+	hasFilter(expression: string, id?: string) {
+		if (!id) {
+			return ensureArray(this.options.filter).includes(expression);
+		} else {
+			return ensureArray(this.options.filter).some(
+				(f) => typeof f === 'object' && f.id == id && f.expressions.includes(expression)
+			);
+		}
 	}
 
 	//
@@ -166,9 +197,23 @@ export class PocketbaseQueryOptionsEditor<
 	}
 }
 
-//
+/* Filters */
 
 const QUOTE = "'";
+
+//
+
+export type FilterMode = '||' | '&&';
+
+export type CompoundFilter = { id: string; expressions: string[]; mode: FilterMode };
+// Sometimes we need to update the filter expression from the UI, so we need to keep the id
+
+type Filter = string | CompoundFilter;
+
+function buildFilter(filter: Filter) {
+	if (typeof filter == 'string') return filter;
+	else return `(${filter.expressions.join(filter.mode)})`;
+}
 
 //
 
@@ -180,7 +225,8 @@ type BaseSearchFilter<T extends string = string> = {
 type SearchFilter<T extends string = string> = BaseSearchFilter<T> | string;
 
 function buildSearchFilter(filter: BaseSearchFilter) {
-	return filter.fields.map((f) => `${f} ~ ${QUOTE}${filter.text}${QUOTE}`).join(' || ');
+	const search = filter.fields.map((f) => `${f} ~ ${QUOTE}${filter.text}${QUOTE}`).join(' || ');
+	return `(${search})`;
 }
 
 //
@@ -220,11 +266,14 @@ export function buildPocketbaseQuery<
 			: allCollectionFields;
 
 	const filter = [
-		...ensureArray(options.filter),
 		...ensureArray(options.exclude).map(buildExcludeFilter),
+
+		...ensureArray(options.filter)
+			.filter((f) => typeof f == 'string' || f.expressions.length > 0)
+			.map(buildFilter),
+
 		...ensureArray(options.search)
 			.map((searchFilter) => {
-				console.log(searchFilter);
 				if (typeof searchFilter == 'string')
 					return {
 						text: searchFilter,
@@ -233,10 +282,7 @@ export function buildPocketbaseQuery<
 				else return searchFilter;
 			})
 			.map(buildSearchFilter)
-	]
-
-		.map((f) => `(${f})`)
-		.join(' && ');
+	].join(' && ');
 
 	//
 
@@ -250,7 +296,7 @@ export function buildPocketbaseQuery<
 
 	if (options.perPage) listOptions.perPage = options.perPage;
 	if (String.isNonEmpty(expand)) listOptions.expand = expand;
-	if (String.isNonEmpty(filter)) listOptions.filter = filter;
+	if (String.isNonEmpty(filter)) listOptions.filter = `(${filter})`;
 	if (String.isNonEmpty(sort)) listOptions.sort = sort;
 
 	return listOptions;

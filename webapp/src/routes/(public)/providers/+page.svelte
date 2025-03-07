@@ -14,24 +14,11 @@
 		<PageTop>
 			<T tag="h1">{m.Find_identity_solutions()}</T>
 			<Search class="border-primary bg-secondary" />
-
-			<Sheet.Root>
-				<Sheet.Trigger>Open</Sheet.Trigger>
-				<Sheet.Content>
-					<Sheet.Header>
-						<Sheet.Title>Are you sure absolutely sure?</Sheet.Title>
-						<Sheet.Description>
-							This action cannot be undone. This will permanently delete your account
-							and remove your data from our servers.
-						</Sheet.Description>
-					</Sheet.Header>
-				</Sheet.Content>
-			</Sheet.Root>
 		</PageTop>
 	{/snippet}
 
 	{#snippet contentWrapper(children)}
-		<PageContent class="grow bg-secondary">
+		<PageContent class="bg-secondary grow">
 			{@render children()}
 		</PageContent>
 	{/snippet}

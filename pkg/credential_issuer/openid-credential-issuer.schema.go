@@ -6,6 +6,22 @@ import "encoding/json"
 import "fmt"
 import "reflect"
 
+type CredentialDefinition struct {
+	// CredentialSubject corresponds to the JSON schema field "credentialSubject".
+	CredentialSubject CredentialDefinitionCredentialSubject `json:"credentialSubject,omitempty" yaml:"credentialSubject,omitempty" mapstructure:"credentialSubject,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type []string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type CredentialDefinitionCredentialSubject map[string]struct {
+	// Display corresponds to the JSON schema field "display".
+	Display []DisplayElem `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
+
+	// Mandatory corresponds to the JSON schema field "mandatory".
+	Mandatory *bool `json:"mandatory,omitempty" yaml:"mandatory,omitempty" mapstructure:"mandatory,omitempty"`
+}
+
 type CredentialSigningAlgValuesSupportedElem string
 
 const CredentialSigningAlgValuesSupportedElemES256 CredentialSigningAlgValuesSupportedElem = "ES256"
@@ -94,9 +110,6 @@ type DisplayElem struct {
 	// Locale corresponds to the JSON schema field "locale".
 	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
 
-	// Logo corresponds to the JSON schema field "logo".
-	Logo *DisplayElemLogo `json:"logo,omitempty" yaml:"logo,omitempty" mapstructure:"logo,omitempty"`
-
 	// Name corresponds to the JSON schema field "name".
 	Name string `json:"name" yaml:"name" mapstructure:"name"`
 }
@@ -124,6 +137,35 @@ func (j *DisplayElemLogo) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*j = DisplayElemLogo(plain)
+	return nil
+}
+
+type DisplayElem_1 struct {
+	// Locale corresponds to the JSON schema field "locale".
+	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
+
+	// Logo corresponds to the JSON schema field "logo".
+	Logo *DisplayElemLogo `json:"logo,omitempty" yaml:"logo,omitempty" mapstructure:"logo,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *DisplayElem_1) UnmarshalJSON(b []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in DisplayElem_1: required")
+	}
+	type Plain DisplayElem_1
+	var plain Plain
+	if err := json.Unmarshal(b, &plain); err != nil {
+		return err
+	}
+	*j = DisplayElem_1(plain)
 	return nil
 }
 
@@ -218,6 +260,10 @@ func (j *OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance) UnmarshalJSON(
 }
 
 type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupported map[string]struct {
+	// CredentialDefinition corresponds to the JSON schema field
+	// "credential_definition".
+	CredentialDefinition *CredentialDefinition `json:"credential_definition,omitempty" yaml:"credential_definition,omitempty" mapstructure:"credential_definition,omitempty"`
+
 	// CredentialSigningAlgValuesSupported corresponds to the JSON schema field
 	// "credential_signing_alg_values_supported".
 	CredentialSigningAlgValuesSupported []CredentialSigningAlgValuesSupportedElem `json:"credential_signing_alg_values_supported,omitempty" yaml:"credential_signing_alg_values_supported,omitempty" mapstructure:"credential_signing_alg_values_supported,omitempty"`
@@ -227,7 +273,7 @@ type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupported map[strin
 	CryptographicBindingMethodsSupported []CryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty" yaml:"cryptographic_binding_methods_supported,omitempty" mapstructure:"cryptographic_binding_methods_supported,omitempty"`
 
 	// Display corresponds to the JSON schema field "display".
-	Display []DisplayElem `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
+	Display []DisplayElem_1 `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
 
 	// Format corresponds to the JSON schema field "format".
 	Format string `json:"format" yaml:"format" mapstructure:"format"`

@@ -271,7 +271,7 @@
 	"Test_results": "Test results",
 	"Compatible_verifiers": "Compatible verifiers",
 	"Issuers": "Issuers",
-	"OpenID_Issuance_URL": "OpenID Issuance URL:",
+	"OpenID_Issuance_URL": "OpenID Issuance URL",
 	"_Stay_Ahead_in_Digital_Identity_Compliance_Join_Our_Early_Access_List": "🚀 Stay Ahead in Digital Identity Compliance – Join Our Early Access List!",
 	"Be_the_first_to_explore_DIDimo_the_ultimate_compliance_testing_tool_for_decentralized_identity_Get_exclusive_updates_early_access_and_a_direct_line_to_our_team_": "Be the first to explore DIDimo, the ultimate compliance testing tool for decentralized identity. Get exclusive updates, early access, and a direct line to our team.",
 	"Join_the_Waitlist": "Join the Waitlist",
@@ -287,5 +287,7 @@
 	"Next_steps": "Next steps:",
 	"Open_your_email": "Open your email ({email})",
 	"Follow_the_instructions_to_continue_with_the_compliance_check": "Follow the instructions to continue with the compliance check.",
-	"We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email": "We will send the instructions for proceeding with the test to this email."
+	"We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email": "We will send the instructions for proceeding with the test to this email.",
+	"Locale": "Locale",
+	"filters": "Filters"
 }
