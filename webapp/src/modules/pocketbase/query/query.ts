@@ -10,15 +10,6 @@ import type { PocketbaseListOptions } from './utils';
 
 type Field<C extends CollectionName> = KeyOf<CollectionResponses[C]>;
 
-//
-
-export type FilterMode = '||' | '&&';
-
-export type CompoundFilter = { id: string; expressions: string[]; mode: FilterMode };
-// Sometimes we need to update the filter expression from the UI, so we need to keep the id
-
-type Filter = string | CompoundFilter;
-
 /* Query */
 
 export type PocketbaseQueryExpandOption<C extends CollectionName> = KeyOf<CollectionExpands[C]>[];
@@ -206,9 +197,23 @@ export class PocketbaseQueryOptionsEditor<
 	}
 }
 
-//
+/* Filters */
 
 const QUOTE = "'";
+
+//
+
+export type FilterMode = '||' | '&&';
+
+export type CompoundFilter = { id: string; expressions: string[]; mode: FilterMode };
+// Sometimes we need to update the filter expression from the UI, so we need to keep the id
+
+type Filter = string | CompoundFilter;
+
+function buildFilter(filter: Filter) {
+	if (typeof filter == 'string') return filter;
+	else return `(${filter.expressions.join(filter.mode)})`;
+}
 
 //
 
@@ -261,13 +266,12 @@ export function buildPocketbaseQuery<
 			: allCollectionFields;
 
 	const filter = [
+		...ensureArray(options.exclude).map(buildExcludeFilter),
+
 		...ensureArray(options.filter)
 			.filter((f) => typeof f == 'string' || f.expressions.length > 0)
-			.map((f) => {
-				if (typeof f == 'string') return f;
-				else return `(${f.expressions.join(f.mode)})`;
-			}),
-		...ensureArray(options.exclude).map(buildExcludeFilter),
+			.map(buildFilter),
+
 		...ensureArray(options.search)
 			.map((searchFilter) => {
 				if (typeof searchFilter == 'string')
