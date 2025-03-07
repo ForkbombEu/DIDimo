@@ -10,6 +10,7 @@
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
+	import { currentUser } from '@/pocketbase/index.js';
 
 	let { data } = $props();
 	const { provider } = $derived(data);
@@ -50,7 +51,11 @@
 			<T class="text-sm">{m.Provider_name()}</T>
 			<T tag="h1">{provider.name}</T>
 		</div>
-		<Button size="sm">{m.Claim_service()}</Button>
+		{#if $currentUser}
+			<Button size="sm">Claim provider</Button>
+		{:else}
+			<Button size="sm" href="/login" variant="outline">Login to claim provider</Button>
+		{/if}
 	</div>
 </PageTop>
 
@@ -78,7 +83,10 @@
 							{@render CircledNumber(index + 1)}
 							<div class="space-y-1">
 								<InfoBox label={m.OpenID_Issuance_URL()}>
-									<a href={issuer.url} class=" block" target="_blank">
+									<a
+										href="/credential-issuers/{issuer.id}"
+										class="hover:underline"
+									>
 										{issuer.url}
 									</a>
 								</InfoBox>

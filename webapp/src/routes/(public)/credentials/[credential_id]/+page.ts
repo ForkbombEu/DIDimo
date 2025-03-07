@@ -1,11 +1,10 @@
-import type { CredentialConfiguration } from '$lib/types/openid.js';
-import { pb } from '@/pocketbase';
-import type { CredentialsResponse } from '@/pocketbase/types/index.generated.js';
+import { PocketbaseQueryAgent } from '@/pocketbase/query/agent.js';
 
 export const load = async ({ params }) => {
-	const credential = await pb
-		.collection('credentials')
-		.getOne<CredentialsResponse<CredentialConfiguration>>(params.credential_id);
+	const credential = await new PocketbaseQueryAgent({
+		collection: 'credentials',
+		expand: ['credential_issuer']
+	}).getOne(params.credential_id);
 
 	return {
 		credential

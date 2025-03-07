@@ -5,6 +5,7 @@
 	import PageIndex from '$lib/layout/pageIndex.svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
+	import type { CredentialConfiguration } from '$lib/types/openid.js';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n/index.js';
@@ -29,10 +30,10 @@
 		// 	anchor: 'compatible_apps',
 		// 	label: 'Compatible apps'
 		// },
-		compatible_issuers: {
+		compatible_issuer: {
 			icon: FolderCheck,
-			anchor: 'compatible_issuers',
-			label: 'Compatible issuers'
+			anchor: 'compatible_issuer',
+			label: 'Compatible issuer'
 		}
 		// test_results: {
 		// 	icon: ScanEye,
@@ -41,7 +42,13 @@
 		// }
 	} satisfies Record<string, IndexItem>;
 
-	const credentialSubject = $derived(credential.json?.credential_definition?.credentialSubject);
+	const credentialConfiguration = $derived(
+		credential.json as CredentialConfiguration | undefined
+	);
+	const credentialSubject = $derived(
+		credentialConfiguration?.credential_definition?.credentialSubject
+	);
+	const credentialIssuer = $derived(credential.expand?.credential_issuer);
 </script>
 
 <PageTop>
@@ -63,23 +70,30 @@
 				title={sections.credential_properties.label}
 				id={sections.credential_properties.anchor}
 			/>
+
 			<div class="flex gap-6">
 				<InfoBox label="Issuer" value={credential.issuer_name} />
 				<InfoBox label="Format" value={credential.format} />
 				<InfoBox label="Locale" value={credential.locale} />
 			</div>
-			<InfoBox label="Description" value={credential.description} />
-			<InfoBox label="Type" value={credential.type} />
+
 			<div class="flex gap-6">
 				<InfoBox
 					label="Signing algorithms supported"
-					value={credential.json?.credential_signing_alg_values_supported?.join(', ')}
+					value={credentialConfiguration?.credential_signing_alg_values_supported?.join(
+						', '
+					)}
 				/>
 				<InfoBox
 					label="Cryptographic binding methods supported"
-					value={credential.json?.cryptographic_binding_methods_supported?.join(', ')}
+					value={credentialConfiguration?.cryptographic_binding_methods_supported?.join(
+						', '
+					)}
 				/>
 			</div>
+
+			<InfoBox label="Description" value={credential.description} />
+			<InfoBox label="Type" value={credential.type} />
 		</div>
 
 		<div class="space-y-6">
@@ -91,8 +105,9 @@
 			{#if credentialSubject}
 				<InfoBox
 					label="Type"
-					value={credential.json?.credential_definition?.type?.join(', ')}
+					value={credentialConfiguration?.credential_definition?.type?.join(', ')}
 				/>
+
 				<div class="grid grid-cols-[auto_auto_auto] gap-3">
 					{#each Object.entries(credentialSubject) as [key, value]}
 						<InfoBox label="Property">
@@ -132,9 +147,17 @@
 
 		<div>
 			<PageHeader
-				title={sections.compatible_issuers.label}
-				id={sections.compatible_issuers.anchor}
+				title={sections.compatible_issuer.label}
+				id={sections.compatible_issuer.anchor}
 			/>
+
+			{#if credentialIssuer}
+				<InfoBox label="OpenID issuance URL">
+					<a href="/credential-issuers/{credentialIssuer.id}" class="hover:underline">
+						{credentialIssuer.url}
+					</a>
+				</InfoBox>
+			{/if}
 		</div>
 
 		<!-- <div>
