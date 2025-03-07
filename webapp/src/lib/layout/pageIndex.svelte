@@ -9,14 +9,16 @@
 </script>
 
 <script lang="ts">
-	interface Props {
-		sections: IndexItem[];
-	}
+	import type { HTMLAttributes } from 'svelte/elements';
 
-	let { sections }: Props = $props();
+	type Props = {
+		sections: IndexItem[];
+	} & HTMLAttributes<HTMLUListElement>;
+
+	let { sections, class: className, ...props }: Props = $props();
 </script>
 
-<ul class="space-y-4">
+<ul class="space-y-4 {className}" {...props}>
 	{#each sections as section}
 		<li>
 			<a href={`#${section.anchor}`} class="flex items-center gap-2 hover:underline">

@@ -4,18 +4,25 @@
 
 	type Props = {
 		label?: string;
-		children: Snippet;
+		value?: string;
+		children?: Snippet;
 	};
 
-	let { label, children }: Props = $props();
+	let { label, children, value }: Props = $props();
 </script>
 
-<div class="space-y-1">
-	{#if label}
-		<T class="text-sm">{label}:</T>
-	{/if}
+{#if value || children}
+	<div class="space-y-1">
+		{#if label}
+			<T class="text-sm">{label}:</T>
+		{/if}
 
-	<div class="w-fit rounded-sm border border-slate-400 bg-white px-2 py-1">
-		{@render children()}
+		<div class="w-fit rounded-sm border border-slate-400 bg-white px-2 py-1">
+			{#if value}
+				<T class="whitespace-pre">{value}</T>
+			{:else if children}
+				{@render children()}
+			{/if}
+		</div>
 	</div>
-</div>
+{/if}
