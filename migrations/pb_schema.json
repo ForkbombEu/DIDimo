@@ -1310,6 +1310,16 @@
             },
             {
                 "hidden": false,
+                "id": "json2577950828",
+                "maxSize": 0,
+                "name": "json",
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "json"
+            },
+            {
+                "hidden": false,
                 "id": "autodate2990389176",
                 "name": "created",
                 "onCreate": true,
