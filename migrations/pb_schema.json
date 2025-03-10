@@ -1319,6 +1319,20 @@
                 "type": "json"
             },
             {
+                "autogeneratePattern": "",
+                "hidden": false,
+                "id": "text2324736937",
+                "max": 0,
+                "min": 0,
+                "name": "key",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": false,
+                "system": false,
+                "type": "text"
+            },
+            {
                 "hidden": false,
                 "id": "autodate2990389176",
                 "name": "created",

@@ -45,20 +45,28 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	}
 
 	dbPath := getDBPath()
-
+	var validKeys []string
 	// Store credentials
-	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, input.IssuerID, dbPath).Get(ctx, nil)
-	if err != nil {
-		var appErr *temporal.ApplicationError
-		if errors.As(err, &appErr) {
-			errType := appErr.Type()
-			logger.Warn("StoreCredentialsActivity failed", "errorType", errType, "error", err)
+	for credKey, credential := range issuerData.CredentialConfigurationsSupported {
+		err := workflow.ExecuteActivity(ctx, StoreOrUpdateCredentialsActivity, input.IssuerID, issuerData.Display[0].Name, credKey, dbPath, credential).Get(ctx, nil)
+		if err != nil {
+			var appErr *temporal.ApplicationError
+			if errors.As(err, &appErr) {
+				errType := appErr.Type()
+				logger.Warn("StoreCredentialsActivity failed", "errorType", errType, "error", err)
 
-			if errType == "RestartFromFetch" {
-				logger.Warn("Restarting workflow from FetchCredentialIssuerActivity")
-				return "", workflow.NewContinueAsNewError(ctx, CredentialWorkflow, input)
+				if errType == "RestartFromFetch" {
+					logger.Warn("Restarting workflow from FetchCredentialIssuerActivity")
+					return "", workflow.NewContinueAsNewError(ctx, CredentialWorkflow, input)
+				}
 			}
+			return "", err
 		}
+		validKeys = append(validKeys, credKey)
+	}
+	err = workflow.ExecuteActivity(ctx, CleanupCredentialsActivity, input.IssuerID, dbPath, validKeys).Get(ctx, nil)
+	if err != nil {
+		logger.Error("FCleanupCredentialsActivity failed", "error", err)
 		return "", err
 	}
 

@@ -3,6 +3,7 @@ package workflow
 import (
 	"testing"
 
+	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"go.temporal.io/sdk/testsuite"
@@ -11,11 +12,11 @@ import (
 func Test_Workflow(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestWorkflowEnvironment()
-
+	issuerData := credentialissuer.OpenidCredentialIssuerSchemaJson{}
 	// Mock activity implementation
-	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(nil, nil)
-	env.OnActivity(StoreCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-
+	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(&issuerData, nil)
+	env.OnActivity(StoreOrUpdateCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+	env.OnActivity(CleanupCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	env.ExecuteWorkflow(CredentialWorkflow, WorkflowInput{BaseURL: "example@test.com"})
 
 	var result string
