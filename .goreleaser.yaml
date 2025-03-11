@@ -17,6 +17,7 @@ before:
 
 builds:
   - id: didimo
+    binary: didimo
     main: ./cmd/didimo/ 
     env:
       - CGO_ENABLED=0
