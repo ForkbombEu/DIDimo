@@ -90,10 +90,11 @@ func StoreOrUpdateCredentialsActivity(
 		// Update existing credential
 		updateSQL := `
         UPDATE credentials 
-        SET format = ?, name = ?, locale = ?, logo = ?, json = ?, updated = CURRENT_TIMESTAMP 
+        SET format = ?, issuer_name = ?, name = ?, locale = ?, logo = ?, json = ?, updated = CURRENT_TIMESTAMP 
         WHERE key = ? AND credential_issuer = ?;`
 		_, err = db.ExecContext(ctx, updateSQL,
 			credential.Format,
+			issuerName,
 			credName,
 			credLocale,
 			credLogo,

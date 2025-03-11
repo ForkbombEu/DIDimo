@@ -20,7 +20,7 @@
 			// note: use npm:out-of-character to clean the url if needed
 			const { url } = form.data;
 
-			const response = await pb.send('URL_HERE', {
+			const response = await pb.send('/credentials_issuers/start-check', {
 				method: 'POST',
 				body: {
 					credentialIssuerUrl: url
