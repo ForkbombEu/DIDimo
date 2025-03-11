@@ -4,3 +4,4 @@ min_version = '2025.1.8'
 go = "1.23.4"
 bun = "latest"
 "aqua:dyne/slangroom-exec" = "latest"
+goreleaser = "latest"
