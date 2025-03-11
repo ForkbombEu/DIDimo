@@ -32,7 +32,7 @@ AIR 			?= $(GOBIN)/air
 # Submodules
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
-DEPS 			= slangroom-exec mise wget git tmux temporal
+DEPS 			= slangroom-exec mise wget git tmux temporal mailpit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
