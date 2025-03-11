@@ -41,9 +41,6 @@ changelog:
       - "^docs:"
       - "^test:"
 
-gomod:
-  proxy: true
-
 # config the checksum filename
 # https://goreleaser.com/customization/checksum
 checksum:
