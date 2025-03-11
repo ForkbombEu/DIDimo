@@ -7,6 +7,7 @@ services:
       - ADDRESS_TEMPORAL=http://temporal-ui:8832
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
+      - PUBLIC_POCKETBASE_URL={$SERVICE_FQDN_DIDIMO_8090}
       - PORT=5100
       - MP_MAX_MESSAGES=5000
       - MP_SMTP_AUTH_ACCEPT_ANY=true
@@ -25,7 +26,5 @@ services:
     ports:
       - 8090:8090
       - 8025:8025
-    args:
-      - PUBLIC_POCKETBASE_URL={$SERVICE_FQDN_DIDIMO_8090}
     volumes:
       - ./pb_data/:/pb_data
