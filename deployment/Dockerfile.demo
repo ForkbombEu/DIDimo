@@ -46,7 +46,7 @@ RUN chmod +x /usr/local/bin/didimo
 RUN didimo migrate
 
 WORKDIR webapp
-ARG PUBLIC_POCKETBASE_URL
+ARG PUBLIC_POCKETBASE_URL=https://demo.didimo.apps.forkbomb.eu:8090/
 ENV PORT=5100
 
 RUN bun i
