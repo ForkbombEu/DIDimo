@@ -27,6 +27,6 @@ export default defineConfig({
 
 	server: {
 		port: Number(process.env.PORT) || 5100,
-		open: `http://localhost:8090/`
+		allowedHosts: process.env.COOLIFY_FQDN || true
 	}
 });
