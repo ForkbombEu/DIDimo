@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -113,10 +114,17 @@ func getDBPath() string {
 		log.Fatal("Failed to get caller info")
 	}
 	sourceDir := filepath.Dir(filename)
-	dbPath := filepath.Join(sourceDir, "../../../pb_data/data.db")
+	dbPath := getEnv("DB_PATH", filepath.Join(sourceDir, "../../../pb_data/data.db"))
 	absDBPath, err := filepath.Abs(dbPath)
 	if err != nil {
 		log.Fatal("Failed to resolve absolute path:", err)
 	}
 	return absDBPath
+}
+
+func getEnv(key, fallback string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return fallback
 }
