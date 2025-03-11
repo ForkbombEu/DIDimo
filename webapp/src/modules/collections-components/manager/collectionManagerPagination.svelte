@@ -15,6 +15,12 @@
 	const { manager } = $derived(getCollectionManagerContext());
 	const perPage = $derived(manager.query.getPageSize());
 	const show = $derived(perPage && manager.totalItems > perPage);
+
+	$effect(() => {
+		if (manager.currentPage) {
+			window.scrollTo({ top: 0, behavior: 'instant' });
+		}
+	});
 </script>
 
 {#if show && perPage}

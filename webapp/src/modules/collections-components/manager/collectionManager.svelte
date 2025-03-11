@@ -8,8 +8,7 @@
 	import {
 		setCollectionManagerContext,
 		type CollectionManagerContext,
-		type Filter,
-		type FilterGroup
+		type FiltersOption
 	} from './collectionManagerContext';
 
 	// Logic - Types
@@ -67,7 +66,7 @@
 	type Options = {
 		queryOptions: PocketbaseQueryOptions<C, E>;
 		queryAgentOptions: PocketbaseQueryAgentOptions;
-		filters: (Filter | FilterGroup)[];
+		filters: FiltersOption;
 		subscribe: 'off' | 'expanded_collections' | CollectionName[];
 
 		hide: ('empty_state' | 'pagination')[];
@@ -100,7 +99,6 @@
 		filters = [],
 		...rest
 	}: Props = $props();
-
 	//
 
 	const manager = $derived(

@@ -1,4 +1,5 @@
 import type { X } from 'lucide-svelte';
+import type { Snippet } from 'svelte';
 import type { HTMLAnchorAttributes } from 'svelte/elements';
 
 //
@@ -12,3 +13,5 @@ export interface Link extends HTMLAnchorAttributes {
 export interface LinkWithIcon extends Link {
 	icon?: IconComponent;
 }
+
+export type SnippetFunction<T> = (props: T) => ReturnType<Snippet>;

@@ -3,6 +3,7 @@ package workflow
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
 	"path/filepath"
@@ -68,7 +69,11 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 				credLogo = cred.Display[0].Logo.Uri
 			}
 		}
-
+		credJSON, err := json.Marshal(cred)
+		if err != nil {
+			logger.Warn(fmt.Sprintf("Failed to marshal credential %s : %v, retrying StoreCredentialsActivity", credName, err), "error", err)
+			return temporal.NewApplicationError(fmt.Sprintf("Failed to marshal credential %s", credName), "RetryStoreCredentials", err)
+		}
 		insertSQL := `
         INSERT INTO credentials(
             format,
@@ -76,8 +81,11 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
             name, 
             locale,
             logo,
-			credential_issuer
-        ) VALUES (?, ?, ?, ?, ?, ?);`
+			json,
+			credential_issuer,
+			created,
+			updated
+        ) VALUES (?, ?, ?, ?, ?, ?,?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);`
 
 		_, err = db.ExecContext(ctx, insertSQL,
 			cred.Format,
@@ -85,6 +93,7 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 			credName,
 			credLocale,
 			credLogo,
+			credJSON,
 			issuerID,
 		)
 		if err != nil {

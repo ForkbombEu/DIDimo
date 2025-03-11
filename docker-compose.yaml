@@ -50,6 +50,12 @@ services:
     image: prom/prometheus
     environment:
       - SERVICE_FQDN_PROMETHEUS_9090
+    ports:
+      - 8080:8080
+  prometheus:
+    image: prom/prometheus
+    ports:
+      - 9090:9090
     volumes:
       - type: bind
         source: ./deployment/prometheus/config.yml
@@ -69,6 +75,8 @@ services:
       - GF_SECURITY_CONTENT_SECURITY_POLICY=false
       - GF_SERVER_HTTP_PORT=8085
       - GF_SECURITY_ACTIONS_ALLOW_POST_URL=/*
+    ports:
+      - 8085:8085
     volumes:
       - type: bind
         source: ./deployment/grafana/provisioning/datasources

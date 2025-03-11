@@ -30,7 +30,6 @@ func main() {
 	w.RegisterWorkflow(workflow.OpenIDTestWorkflow)
 	w.RegisterActivity(workflow.GenerateYAMLActivity)
 	w.RegisterActivity(workflow.RunStepCIJSProgramActivity)
-	w.RegisterActivity(workflow.GenerateQRCodeActivity)
 	w.RegisterActivity(workflow.SendMailActivity)
 
 	err = w.Run(worker.InterruptCh())
