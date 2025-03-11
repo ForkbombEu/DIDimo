@@ -29,6 +29,6 @@ export default defineConfig({
 		port: Number(process.env.PORT) || 5100
 	},
 	preview: {
-		allowedHosts: process.env.COOLIFY_FQDN || true
+		allowedHosts: true
 	}
 });
