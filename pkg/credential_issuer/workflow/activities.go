@@ -5,7 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"path/filepath"
 	"runtime"
 
@@ -120,3 +122,46 @@ func getDBPath() string {
 	}
 	return absDBPath
 }
+
+func FetchIssuersActivity(ctx context.Context) (FetchIssuersActivityResponse, error) {
+	req, err := http.NewRequestWithContext(ctx, "GET", EbsiIssuersUrl, nil)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to perform HTTP request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var root ApiResponse
+	if err = json.Unmarshal(body, &root); err != nil {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to unmarshal JSON: %w", err)
+	}
+
+	hrefs, err := extractHrefsFromApiResponse(root)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to extract hrefs: %w", err)
+	}
+
+	return FetchIssuersActivityResponse{Issuers: hrefs}, nil
+}
+
+func extractHrefsFromApiResponse(root ApiResponse) ([]string, error) {
+	var hrefs []string
+	for _, item := range root.Items {
+		hrefs = append(hrefs, item.Href)
+	}
+	return hrefs, nil
+}
+

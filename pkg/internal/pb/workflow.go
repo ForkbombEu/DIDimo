@@ -40,7 +40,7 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 		}
 		defer c.Close()
 
-		workflowInput := credential_workflow.WorkflowInput{
+		workflowInput := credential_workflow.CredentialWorkflowInput{
 			BaseURL:  e.Record.Get("url").(string),
 			IssuerID: e.Record.Id,
 		}

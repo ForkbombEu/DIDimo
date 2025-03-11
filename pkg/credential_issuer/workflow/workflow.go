@@ -10,14 +10,8 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
-// WorkflowInput defines the input for the Temporal workflow.
-type WorkflowInput struct {
-	BaseURL  string // Base URL for the credential issuer
-	IssuerID string // ID of the credentials issuer from PB
-}
-
 // CredentialWorkflow validates the schema, parses metadata, and prints it.
-func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, error) {
+func CredentialWorkflow(ctx workflow.Context, input CredentialWorkflowInput) (CredentialWorkflowResponse, error) {
 	logger := workflow.GetLogger(ctx)
 	logger.Info("Starting Credential Workflow", "BaseURL", input.BaseURL)
 
@@ -41,7 +35,7 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 	err := workflow.ExecuteActivity(ctx, FetchCredentialIssuerActivity, input.BaseURL).Get(ctx, &issuerData)
 	if err != nil {
 		logger.Error("FetchCredentialIssuerActivity failed", "error", err)
-		return "", err
+		return CredentialWorkflowResponse{Message: ""}, err
 	}
 
 	dbPath := getDBPath()
@@ -56,13 +50,42 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 
 			if errType == "RestartFromFetch" {
 				logger.Warn("Restarting workflow from FetchCredentialIssuerActivity")
-				return "", workflow.NewContinueAsNewError(ctx, CredentialWorkflow, input)
+				return CredentialWorkflowResponse{Message: ""}, workflow.NewContinueAsNewError(ctx, CredentialWorkflow, input)
 			}
 		}
-		return "", err
+		return CredentialWorkflowResponse{Message: ""}, err
 	}
 
 	successMessage := fmt.Sprintf("Credentials Workflow completed successfully for URL: %s", input.BaseURL)
 	logger.Info(successMessage)
-	return successMessage, nil
+	return CredentialWorkflowResponse{Message: successMessage}, nil
+}
+
+func FetchIssuersWorkflow(ctx workflow.Context) error {
+
+	retrypolicy := &temporal.RetryPolicy{
+		InitialInterval:    time.Second,
+		BackoffCoefficient: 2.0,
+		MaximumInterval:    100 * time.Second,
+		MaximumAttempts:    500,
+	}
+
+	options := workflow.ActivityOptions{
+		TaskQueue: FetchIssuersTaskQueue,
+		StartToCloseTimeout: time.Minute,
+		RetryPolicy: retrypolicy,
+	}
+
+	ctx = workflow.WithActivityOptions(ctx, options)
+
+	err := workflow.ExecuteActivity(ctx, FetchIssuersActivity).Get(ctx, nil)
+
+	if err != nil {
+		return err
+	}
+	// childWorkflow := workflow.ExecuteChildWorkflow(ctx, MyChildWorkflow)
+    // // Wait for child to start
+    // _ = childWorkflow.GetChildWorkflowExecution().Get(ctx, nil)
+
+	return nil
 }

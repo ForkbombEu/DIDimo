@@ -216,3 +216,43 @@ func TestStoreCredentialsActivity(t *testing.T) {
 		})
 	}
 }
+
+
+func TestFetchIssuersActivity(t *testing.T) {
+	testSuite := &testsuite.WorkflowTestSuite{}
+	env := testSuite.NewTestActivityEnvironment()
+	env.RegisterActivity(FetchIssuersActivity)
+
+	val, err := env.ExecuteActivity(FetchIssuersActivity)
+	var result FetchIssuersActivityResponse
+	assert.NoError(t, val.Get(&result))
+	assert.NoError(t, err)
+}
+
+
+func TestExtractHrefsFromApiResponse(t *testing.T) {
+	root := ApiResponse{
+		Items: []Item{
+			{
+				Did:  "did:example:123",
+				Href: "https://example.com/123",
+			},
+			{
+				Did:  "did:example:456",
+				Href: "https://example.com/456",
+			},
+		},
+		Links: Links{
+			First: "https://example.com/first",
+			Last:  "https://example.com/last",
+			Next:  "https://example.com/next",
+			Prev:  "https://example.com/prev",
+		},
+		PageSize: 2,
+		Self:     "https://example.com/self",
+		Total:    4,
+	}
+	hrefs, err := extractHrefsFromApiResponse(root)
+	assert.NoError(t, err)
+	assert.Equal(t, []string{"https://example.com/123", "https://example.com/456"}, hrefs)
+}
