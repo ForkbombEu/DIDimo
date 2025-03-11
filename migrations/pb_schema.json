@@ -1353,7 +1353,9 @@
                 "type": "autodate"
             }
         ],
-        "indexes": [],
+        "indexes": [
+            "CREATE UNIQUE INDEX `idx_fihXiaFPhk` ON `credentials` (\n  `key`,\n  `credential_issuer`\n)"
+        ],
         "system": false
     },
     {
