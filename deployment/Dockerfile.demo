@@ -48,7 +48,6 @@ RUN didimo migrate
 WORKDIR webapp
 ENV PORT=5100
 
-RUN cp .env.example .env
 RUN bun i
 RUN bun run build
 
