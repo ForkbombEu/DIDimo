@@ -1,0 +1,21 @@
+services:
+  didimo:
+    build:
+      context: .
+      dockerfile: ./deployment/Dockerfile.demo
+    environment:
+      - ADDRESS_TEMPORAL=http://temporal-ui:8832
+      - ADDRESS_GRAFANA=http://grafana:8085
+      - ADDRESS_UI=http://localhost:5100
+      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
+      - PORT=5100
+      - MP_MAX_MESSAGES=5000
+      - MP_SMTP_AUTH_ACCEPT_ANY=true
+      - MP_SMTP_AUTH_ALLOW_INSECURE=true
+      - MP_SMTP_TLS_CERT=/app/.certs/mailpit+3.pem
+      - MP_SMTP_TLS_KEY=/app/.certs/mailpit+3-key.pem
+    ports:
+      - 8090:8090
+      - 8025:8025
+    volumes:
+      - ./pb_data/:/pb_data
