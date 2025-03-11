@@ -37,28 +37,28 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 }
 
 // StoreCredentialsActivity inserts credential issuer data into the Pocketbase database
-func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.OpenidCredentialIssuerSchemaJson, issuerID, dbPath string) error {
+func StoreCredentialsActivity(ctx context.Context, input StoreCredentialsActivityInput) error {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Storing credential issuer data into database")
 
-	if len(issuerData.Display) == 0 {
+	if len(input.IssuerData.Display) == 0 {
 		logger.Warn("IssuerData.Display is empty, restarting from FetchCredentialIssuerActivity")
 		return temporal.NewApplicationError("Invalid issuer data: no display information", "RestartFromFetch")
 	}
 
-	logger.Info("Using database path", "dbPath", dbPath)
+	logger.Info("Using database path", "dbPath", input.DBPath)
 
 	// Attempt to open the database
-	db, err := sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite", input.DBPath)
 	if err != nil {
 		logger.Warn(fmt.Sprintf("Failed to open database : %v, retrying StoreCredentialsActivity", err), "error", err)
 		return temporal.NewApplicationError("Failed to open database", "RetryStoreCredentials", err)
 	}
 	defer db.Close()
 
-	issuerName := issuerData.Display[0].Name
+	issuerName := input.IssuerData.Display[0].Name
 
-	for _, cred := range issuerData.CredentialConfigurationsSupported {
+	for _, cred := range input.IssuerData.CredentialConfigurationsSupported {
 		credName, credLocale, credLogo := "", "", ""
 		if len(cred.Display) > 0 {
 			if cred.Display[0].Name != "" {
@@ -96,7 +96,7 @@ func StoreCredentialsActivity(ctx context.Context, issuerData *credentialissuer.
 			credLocale,
 			credLogo,
 			credJSON,
-			issuerID,
+			input.IssuerID,
 		)
 		if err != nil {
 			logger.Warn("SQL execution failed, restarting from FetchCredentialIssuerActivity", "error", err)
@@ -163,5 +163,22 @@ func extractHrefsFromApiResponse(root ApiResponse) ([]string, error) {
 		hrefs = append(hrefs, item.Href)
 	}
 	return hrefs, nil
+}
+
+func CreateCredentialIssuersActivity(ctx context.Context, input CreateCredentialIssuersInput) error {
+	db, err := sql.Open("sqlite", getDBPath())
+	if err != nil {
+		return fmt.Errorf("failed to open database: %w", err)
+	}
+	defer db.Close()
+
+	for _, issuer := range input.Issuers {
+		_, err = db.ExecContext(ctx, "INSERT INTO credential_issuers(url) VALUES (?)", issuer)
+		if err != nil {
+			return fmt.Errorf("failed to insert issuer into database: %w", err)
+		}
+	}
+
+	return nil
 }
 

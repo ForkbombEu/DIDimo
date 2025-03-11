@@ -39,9 +39,14 @@ func CredentialWorkflow(ctx workflow.Context, input CredentialWorkflowInput) (Cr
 	}
 
 	dbPath := getDBPath()
+	var activityInput = StoreCredentialsActivityInput{
+		IssuerData: issuerData,
+		IssuerID:   input.IssuerID,
+		DBPath:     dbPath,
+	}
 
 	// Store credentials
-	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, issuerData, input.IssuerID, dbPath).Get(ctx, nil)
+	err = workflow.ExecuteActivity(ctx, StoreCredentialsActivity, activityInput).Get(ctx, nil)
 	if err != nil {
 		var appErr *temporal.ApplicationError
 		if errors.As(err, &appErr) {
@@ -62,7 +67,6 @@ func CredentialWorkflow(ctx workflow.Context, input CredentialWorkflowInput) (Cr
 }
 
 func FetchIssuersWorkflow(ctx workflow.Context) error {
-
 	retrypolicy := &temporal.RetryPolicy{
 		InitialInterval:    time.Second,
 		BackoffCoefficient: 2.0,
@@ -71,21 +75,29 @@ func FetchIssuersWorkflow(ctx workflow.Context) error {
 	}
 
 	options := workflow.ActivityOptions{
-		TaskQueue: FetchIssuersTaskQueue,
+		TaskQueue:           FetchIssuersTaskQueue,
 		StartToCloseTimeout: time.Minute,
-		RetryPolicy: retrypolicy,
+		RetryPolicy:         retrypolicy,
 	}
 
 	ctx = workflow.WithActivityOptions(ctx, options)
 
-	err := workflow.ExecuteActivity(ctx, FetchIssuersActivity).Get(ctx, nil)
+	var response FetchIssuersActivityResponse
+
+	err := workflow.ExecuteActivity(ctx, FetchIssuersActivity).Get(ctx, &response)
 
 	if err != nil {
 		return err
 	}
-	// childWorkflow := workflow.ExecuteChildWorkflow(ctx, MyChildWorkflow)
-    // // Wait for child to start
-    // _ = childWorkflow.GetChildWorkflowExecution().Get(ctx, nil)
 
+	if len(response.Issuers) == 0 {
+		return errors.New("no issuers found")
+	}
+
+	errCreate := workflow.ExecuteActivity(ctx, CreateCredentialIssuersActivity, response).Get(ctx, nil)
+
+	if errCreate != nil {
+		return errCreate
+	}
 	return nil
 }

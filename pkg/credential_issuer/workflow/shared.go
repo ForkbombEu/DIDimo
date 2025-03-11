@@ -1,5 +1,7 @@
 package workflow
 
+import credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
+
 const EbsiIssuersUrl = "https://api-conformance.ebsi.eu/trusted-issuers-registry/v5/issuers"
 
 type FetchIssuersActivityResponse struct { Issuers []string }
@@ -33,5 +35,16 @@ type CredentialWorkflowInput struct {
 type CredentialWorkflowResponse struct {
 	Message string
 }
+
+type CreateCredentialIssuersInput struct {
+	Issuers []string
+}
+
+type StoreCredentialsActivityInput struct {
+	IssuerData *credentialissuer.OpenidCredentialIssuerSchemaJson
+	IssuerID   string
+	DBPath     string
+}
+
 
 const FetchIssuersTaskQueue = "FetchIssuersTaskQueue"
