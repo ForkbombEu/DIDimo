@@ -33,12 +33,6 @@ RUN gunzip overmind-v2.5.1-linux-amd64.gz
 RUN mv overmind-v2.5.1-linux-amd64 /usr/local/bin/overmind
 RUN chmod +x /usr/local/bin/overmind
 
-# setup mailpit
-RUN curl https://raw.githubusercontent.com/axllent/mailpit/develop/install.sh > mailpit.sh
-RUN bash mailpit.sh
-COPY ./.certs/mailpit+3.pem /usr/local/share/ca-certificates/mailpit.crt
-RUN cat /usr/local/share/ca-certificates/mailpit.crt >> /etc/ssl/certs/ca-certificates.crt
-
 # install didimo
 RUN curl -sLO https://github.com/ForkbombEu/DIDimo/releases/download/v1.0.0/didimo_v1.0.0_linux_amd64
 RUN mv didimo_v1.0.0_linux_amd64 /usr/local/bin/didimo
@@ -53,4 +47,4 @@ RUN bun i
 RUN bun run build
 RUN didimo migrate --dir /pb_data
 
-CMD ["overmind", "s", "-f", "/app/Procfile.demo", "-c", "mailpit"]
+CMD ["overmind", "s", "-f", "/app/Procfile.demo" ]
