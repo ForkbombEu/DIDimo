@@ -132,7 +132,8 @@
 		<Sheet.Header class="mb-8">
 			<Sheet.Title>Claim provider</Sheet.Title>
 			<Sheet.Description>
-				Please fill in the following details to claim this provider.
+				Please fill in the following details to claim this provider.<br />
+				All fields are required.
 			</Sheet.Description>
 		</Sheet.Header>
 
@@ -142,7 +143,7 @@
 				isClaimFormOpen = false;
 			}}
 			fieldsOptions={{
-				order: ['name', 'description', 'logo', 'legal_entity', 'country', 'external_links'],
+				order: ['name', 'description', 'logo', 'legal_entity', 'country'],
 				placeholders: {
 					name: 'Provider A',
 					legal_entity: 'Example Org'
@@ -153,22 +154,18 @@
 				exclude: ['provider', 'owner', 'status'],
 				hide: {
 					provider: provider.id
-				},
-				snippets: {
-					external_links: ExternalLinks
 				}
 			}}
 			uiOptions={{
+				hideRequiredIndicator: true,
 				showToastOnSuccess: true,
 				toastText: 'Provider claim request sent. Review your submission in your dashboard.'
 			}}
+			submitButtonContent={SubmitButton}
 		/>
 	</Sheet.Content>
 </Sheet.Root>
 
-{#snippet ExternalLinks({ form, field }: FieldSnippetOptions<'provider_claims'>)}
-	<!-- <pre>{JSON.stringify(form.)}</pre> -->
-	<div>
-		<T>{field}</T>
-	</div>
+{#snippet SubmitButton()}
+	Send request
 {/snippet}

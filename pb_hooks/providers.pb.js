@@ -64,16 +64,15 @@ onRecordUpdateRequest((e) => {
 
     e.next();
 
+    /**
+     * After the update
+     */
+
     // If the request is from an admin, and the status is "approved":
     // - Update the provider
     // - Create an organization if missing
     // - Delete the claim
     // - Notify the user
-
-    if (utils.isAdminContext(e) && providerClaim) {
-        const logo = utils.getFirstFile(providerClaim, "logo");
-        console.log("logoName", logo?.name);
-    }
 
     if (
         utils.isAdminContext(e) &&
@@ -81,7 +80,9 @@ onRecordUpdateRequest((e) => {
         providerClaim.get("status") === "approved"
     ) {
         $app.runInTransaction((app) => {
+            console.log("break before");
             const ownerId = providerClaim.getString("owner");
+            const logo = utils.copyFile(providerClaim, "logo");
 
             /**
              * Create an organization if missing
@@ -90,36 +91,42 @@ onRecordUpdateRequest((e) => {
             /** @type {string} */
             let organizationId;
 
-            const organizations = app
+            const orgAuthorizations = app
                 .findRecordsByFilter(
-                    "organizations",
-                    `claimed_by = "${ownerId}"`,
+                    "orgAuthorizations",
+                    `user.id = "${ownerId}"`,
                     "",
                     0,
                     0
                 )
                 .filter((org) => org !== undefined);
 
-            if (organizations.length === 1) {
-                organizationId = organizations[0].id;
-            } else if (organizations.length > 1) {
+            if (orgAuthorizations.length === 1) {
+                organizationId = orgAuthorizations[0].getString("organization");
+            } else if (orgAuthorizations.length > 1) {
                 throw new BadRequestError(
                     "Multiple organizations found for the same user."
                 );
             } else {
                 const orgCollection =
                     app.findCollectionByNameOrId("organizations");
-
                 const newOrganization = new Record(orgCollection, {
                     name: providerClaim.get("name"),
-                    claimed_by: ownerId,
-                    created_by: ownerId,
-                    country: providerClaim.get("country"),
-                    // logo: logo,
+                    description: providerClaim.get("description"),
+                    logo,
                 });
-
                 app.save(newOrganization);
                 organizationId = newOrganization.id;
+
+                const orgAuthorization = new Record(
+                    app.findCollectionByNameOrId("orgAuthorizations"),
+                    {
+                        organization: organizationId,
+                        user: ownerId,
+                        role: utils.getRoleByName("owner")?.id,
+                    }
+                );
+                app.save(orgAuthorization);
             }
 
             /**
@@ -137,10 +144,14 @@ onRecordUpdateRequest((e) => {
                 "country",
                 "legal_entity",
                 "external_links",
+                "external_website_url",
+                "documentation_url",
+                "contact_email",
             ].forEach((field) => {
                 provider.set(field, providerClaim.get(field));
             });
-            // provider.set("logo", logo);
+
+            provider.set("logo", logo);
             provider.set("owner", organizationId);
 
             app.save(provider);
@@ -148,8 +159,6 @@ onRecordUpdateRequest((e) => {
             //
 
             app.delete(providerClaim);
-
-            console.log("Provider updated and claim deleted");
         });
     }
 }, "provider_claims");

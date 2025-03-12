@@ -413,18 +413,37 @@ function getRequestAgentName(e) {
 }
 
 /**
+ * @param {core.Record} record
+ * @param {string} field
+ * @returns {string}
+ */
+function getFileKey(record, field) {
+    return record.baseFilesPath() + "/" + record.getString(field);
+}
+
+/**
  *
  * @param {core.Record} record
  * @param {string} field
  * @returns {filesystem.File | undefined}
  */
-function getFirstFile(record, field) {
+function copyFile(record, field) {
+    let fsys, fileBlob;
+    let file;
     try {
-        const key = record.baseFilesPath() + "/" + record.getString(field);
-        return $filesystem.fileFromPath(key);
+        fsys = $app.newFilesystem();
+        fileBlob = fsys.getFile(getFileKey(record, field));
+        file = $filesystem.fileFromBytes(
+            toString(fileBlob),
+            record.getString(field)
+        );
+    } catch (e) {
+        console.error(e);
     } finally {
-        return undefined;
+        fileBlob?.close();
+        fsys?.close();
     }
+    return file;
 }
 
 //
@@ -454,6 +473,6 @@ module.exports = {
     getRecordUpdateEventDiff,
     getRequestAgent,
     getRequestAgentName,
-    getFirstFile,
+    copyFile,
     errors,
 };
