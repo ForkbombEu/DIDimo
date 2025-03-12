@@ -7,7 +7,7 @@ services:
       - ADDRESS_TEMPORAL=http://localhost:8832
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
-      - PUBLIC_POCKETBASE_URL={$SERVICE_FQDN_DIDIMO_8090}
+      - PUBLIC_POCKETBASE_URL=$SERVICE_FQDN_DIDIMO
       - PORT=5100
       - PB_ADMIN_USER=admin@example.org
       - PB_ADMIN_PASS=adminadmin
