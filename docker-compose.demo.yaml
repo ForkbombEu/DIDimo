@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: ./deployment/Dockerfile.demo
     environment:
+      - SERVICE_FQDN_DIDIMO_8090
       - ADDRESS_TEMPORAL=http://localhost:8832
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
