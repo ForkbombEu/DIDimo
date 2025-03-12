@@ -25,8 +25,6 @@ services:
       - MAINTENANCE=false
     ports:
       - 8090:8090
-      - 8025:8025
       - 7233:7233
-      - 5600:5600
     volumes:
       - ./pb_data/:/pb_data
