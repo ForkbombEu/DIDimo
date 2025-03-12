@@ -14,7 +14,6 @@ import (
 	"go.temporal.io/sdk/temporal"
 )
 
-// FetchCredentialIssuerActivity wraps the FetchCredentialIssuer function and manages error categorization.
 // FetchCredentialIssuerActivity fetches credential issuer metadata from a URL.
 func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*credentialissuer.OpenidCredentialIssuerSchemaJson, error) {
 	logger := activity.GetLogger(ctx)
@@ -23,15 +22,18 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 	issuerMetadata, err := credentialissuer.FetchCredentialIssuer(baseURL)
 	if err != nil {
 		logger.Warn("Error fetching credential issuer, retrying", "error", err)
-		// Always retry the activity
-		return nil, temporal.NewApplicationError(fmt.Sprintf("Error fetching credential issuer: %v. Retry", err), "RetryableError", err)
+		return nil, temporal.NewApplicationError(
+			fmt.Sprintf("Error fetching credential issuer: %v", err),
+			"RetryableError",
+			err,
+		)
 	}
 
 	logger.Info("Successfully fetched credential issuer metadata")
 	return issuerMetadata, nil
 }
 
-// StoreCredentialsActivity inserts credential issuer data into the Pocketbase database
+// StoreOrUpdateCredentialsActivity inserts or updates credential issuer data in the database.
 func StoreOrUpdateCredentialsActivity(
 	ctx context.Context,
 	issuerID, issuerName, credKey, dbPath string,
@@ -52,7 +54,11 @@ func StoreOrUpdateCredentialsActivity(
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		logger.Warn("Failed to open database", "error", err)
-		return temporal.NewApplicationError("Failed to open database", "RetryStoreCredentials", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Failed to open database: %v", err),
+			"RetryStoreCredentials",
+			err,
+		)
 	}
 	defer db.Close()
 
@@ -72,7 +78,11 @@ func StoreOrUpdateCredentialsActivity(
 	credJSON, err := json.Marshal(credential)
 	if err != nil {
 		logger.Warn("Failed to marshal credential JSON", "error", err)
-		return temporal.NewApplicationError("Failed to marshal credential JSON", "RetryStoreCredentials", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Failed to marshal credential JSON: %v", err),
+			"RetryStoreCredentials",
+			err,
+		)
 	}
 
 	// Check if the credential exists
@@ -80,9 +90,14 @@ func StoreOrUpdateCredentialsActivity(
 	err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credentials WHERE key = ? AND credential_issuer = ?", credKey, issuerID).Scan(&count)
 	if err != nil {
 		logger.Warn("Failed to check existing credential", "error", err)
-		return temporal.NewApplicationError("Database query failed while checking existing credentials", "RetryStoreCredentials", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Database query failed while checking existing credentials: %v", err),
+			"RetryStoreCredentials",
+			err,
+		)
 	}
 
+	// UPSERT SQL query
 	upsertSQL := `
 	INSERT INTO credentials (
 		format,
@@ -106,25 +121,21 @@ func StoreOrUpdateCredentialsActivity(
 		updated = CURRENT_TIMESTAMP;`
 
 	// Execute the UPSERT query
-	_, err = db.ExecContext(ctx, upsertSQL,
-		credential.Format,
-		issuerName,
-		credName,
-		credLocale,
-		credLogo,
-		credJSON,
-		credKey,
-		issuerID,
-	)
+	_, err = db.ExecContext(ctx, upsertSQL, credential.Format, issuerName, credName, credLocale, credLogo, credJSON, credKey, issuerID)
 	if err != nil {
 		logger.Warn("SQL UPSERT failed", "error", err)
-		return temporal.NewApplicationError(fmt.Sprintf("Database UPSERT failed:%v", err), "RestartFromFetch", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Database UPSERT failed: %v", err),
+			"RestartFromFetch",
+			err,
+		)
 	}
 
 	logger.Info("Successfully stored or updated credential", "credKey", credKey)
 	return nil
 }
 
+// CleanupCredentialsActivity removes outdated credentials from the database.
 func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, validKeys []string) error {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Cleaning up outdated credentials for issuer", "issuerID", issuerID)
@@ -132,8 +143,12 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 	// Open database
 	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
-		logger.Warn(fmt.Sprintf("Failed to open database: %v", err), "error", err)
-		return temporal.NewApplicationError("Failed to open database", "RetryCleanupCredentials", err)
+		logger.Warn("Failed to open database", "error", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Failed to open database: %v", err),
+			"RetryCleanupCredentials",
+			err,
+		)
 	}
 	defer db.Close()
 
@@ -142,7 +157,11 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 	rows, err := db.QueryContext(ctx, "SELECT key FROM credentials WHERE credential_issuer = ?", issuerID)
 	if err != nil {
 		logger.Warn("Failed to fetch existing credential keys", "error", err)
-		return temporal.NewApplicationError("Database query failed while fetching existing keys", "RetryCleanupCredentials", err)
+		return temporal.NewApplicationError(
+			fmt.Sprintf("Database query failed while fetching existing keys: %v", err),
+			"RetryCleanupCredentials",
+			err,
+		)
 	}
 	defer rows.Close()
 
@@ -150,7 +169,11 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 		var key string
 		if err := rows.Scan(&key); err != nil {
 			logger.Warn("Failed to scan credential key", "error", err)
-			return temporal.NewApplicationError("Failed to scan credential key", "RetryCleanupCredentials", err)
+			return temporal.NewApplicationError(
+				fmt.Sprintf("Failed to scan credential key: %v", err),
+				"RetryCleanupCredentials",
+				err,
+			)
 		}
 		existingKeys[key] = true
 	}
@@ -167,9 +190,13 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 			_, err := db.ExecContext(ctx, "DELETE FROM credentials WHERE key = ? AND credential_issuer = ?", key, issuerID)
 			if err != nil {
 				logger.Warn("SQL delete failed", "error", err)
-				return temporal.NewApplicationError(fmt.Sprintf("Database delete failed: %v", err), "RetryCleanupCredentials", err)
+				return temporal.NewApplicationError(
+					fmt.Sprintf("Database delete failed: %v", err),
+					"RetryCleanupCredentials",
+					err,
+				)
 			}
-			logger.Info("Deleted old credential", "credKey", key)
+			logger.Info("Deleted outdated credential", "credKey", key)
 		}
 	}
 
