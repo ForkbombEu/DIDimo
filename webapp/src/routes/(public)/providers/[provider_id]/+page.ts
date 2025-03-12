@@ -6,6 +6,8 @@ export const load = async ({ params }) => {
 		expand: ['credential_issuers']
 	}).getOne(params.provider_id);
 
+	const isClaimed = Boolean(provider.owner);
+
 	const providerClaims = await new PocketbaseQueryAgent({
 		collection: 'provider_claims',
 		filter: `provider = "${params.provider_id}"`
@@ -13,5 +15,5 @@ export const load = async ({ params }) => {
 
 	const hasClaim = providerClaims.length > 0;
 
-	return { provider, hasClaim };
+	return { provider, hasClaim, isClaimed };
 };

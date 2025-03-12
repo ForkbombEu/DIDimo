@@ -13,6 +13,17 @@ onRecordCreateRequest((e) => {
 
     //
 
+    // Check if the provider is already claimed
+
+    const provider = $app.findRecordById("services", e.record?.get("provider"));
+    const isClaimed = Boolean(provider.getString("owner"));
+
+    if (isClaimed) {
+        throw new BadRequestError("This provider is already claimed.");
+    }
+
+    //
+
     const ownerId = utils.getUserFromContext(e)?.id;
 
     // Check if the user has already submitted a claim for this provider

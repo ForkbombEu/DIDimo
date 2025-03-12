@@ -17,7 +17,7 @@
 	import A from '@/components/ui-custom/a.svelte';
 
 	let { data } = $props();
-	const { provider, hasClaim } = $derived(data);
+	const { provider, hasClaim, isClaimed } = $derived(data);
 
 	//
 
@@ -51,16 +51,22 @@
 
 <PageTop>
 	<div class="flex items-start gap-4"></div>
+	<!-- TODO - Provider logo not showing -->
 	{#if provider.logo}
 		<Avatar src={provider.logo} class="size-32" hideIfLoadingError />
 	{/if}
+
 	<div class="space-y-3">
 		<div class="space-y-1">
 			<T class="text-sm">{m.Provider_name()}</T>
 			<T tag="h1">{provider.name}</T>
 		</div>
 
-		{#if hasClaim}
+		{#if isClaimed}
+			<div class="text-sm">
+				<p class="text-muted-foreground">This provider is verified ✅</p>
+			</div>
+		{:else if hasClaim}
 			<div class="text-sm">
 				<p class="text-muted-foreground">
 					You already have submitted a claim for this provider.
