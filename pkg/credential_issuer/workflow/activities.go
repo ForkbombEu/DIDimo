@@ -173,6 +173,13 @@ func CreateCredentialIssuersActivity(ctx context.Context, input CreateCredential
 	defer db.Close()
 
 	for _, issuer := range input.Issuers {
+		exists, err := checkIfCredentialIssuerExist(ctx, db, issuer)
+		if err != nil {
+			return fmt.Errorf("failed to check if issuer exists: %w", err)
+		}
+		if exists {
+			continue
+		}
 		_, err = db.ExecContext(ctx, "INSERT INTO credential_issuers(url) VALUES (?)", issuer)
 		if err != nil {
 			return fmt.Errorf("failed to insert issuer into database: %w", err)
@@ -182,3 +189,11 @@ func CreateCredentialIssuersActivity(ctx context.Context, input CreateCredential
 	return nil
 }
 
+func checkIfCredentialIssuerExist(ctx context.Context, db *sql.DB, url string) (bool, error) {
+	var count int
+	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credential_issuer WHERE url = ?", url).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to query database: %w", err)
+	}
+	return count > 0, nil
+}

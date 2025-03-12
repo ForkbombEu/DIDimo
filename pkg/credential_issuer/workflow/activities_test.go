@@ -200,8 +200,13 @@ func TestStoreCredentialsActivity(t *testing.T) {
 				assert.Error(t, err, "Expected JSON unmarshalling error")
 				return
 			}
+			var input = StoreCredentialsActivityInput{
+				IssuerData: &issuerData,
+				DBPath:     dbPath,
+				IssuerID:   "Test_Issuer",
+			}
 
-			_, err = env.ExecuteActivity(StoreCredentialsActivity, &issuerData, "Test_Issuer", dbPath)
+			_, err = env.ExecuteActivity(StoreCredentialsActivity, input)
 			if tc.expectError {
 				assert.Error(t, err, "Expected an error from StoreCredentialsActivity")
 				return
@@ -217,7 +222,6 @@ func TestStoreCredentialsActivity(t *testing.T) {
 	}
 }
 
-
 func TestFetchIssuersActivity(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestActivityEnvironment()
@@ -228,7 +232,6 @@ func TestFetchIssuersActivity(t *testing.T) {
 	assert.NoError(t, val.Get(&result))
 	assert.NoError(t, err)
 }
-
 
 func TestExtractHrefsFromApiResponse(t *testing.T) {
 	root := ApiResponse{
@@ -255,4 +258,32 @@ func TestExtractHrefsFromApiResponse(t *testing.T) {
 	hrefs, err := extractHrefsFromApiResponse(root)
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"https://example.com/123", "https://example.com/456"}, hrefs)
+}
+
+func TestCheckIfCredentialIssuersExist(t *testing.T) {
+	testCases := []struct {
+		name         string
+		url          string
+		expectError  bool
+		expectedRows int
+	}{
+		{
+			name:         "Valid URL",
+			url:          "https://example.com/123",
+			expectError:  false,
+			expectedRows: 1,
+		},
+		{
+			name:         "Invalid URL",
+			url:          "https://example.com/invalid",
+			expectError:  false,
+			expectedRows: 0,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			//I need to implement with a test database
+		})
+	}
 }

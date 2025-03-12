@@ -20,16 +20,23 @@ func Test_Workflow(t *testing.T) {
 
 	env.ExecuteWorkflow(CredentialWorkflow, CredentialWorkflowInput{BaseURL: "example@test.com"})
 
-	var result string
+	var result CredentialWorkflowResponse
 	assert.NoError(t, env.GetWorkflowResult(&result))
-	assert.Equal(t, "Credentials Workflow completed successfully for URL: example@test.com", result)
+	assert.Equal(t, "Credentials Workflow completed successfully for URL: example@test.com", result.Message)
 }
 
 func Test_SuccessfulFetchIssuersWorkflows(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestWorkflowEnvironment()
 
-	env.OnActivity(FetchIssuersActivity, mock.Anything).Return(FetchIssuersActivityResponse{}, nil)
+	issuers := []string{"issuer1", "issuer2", "issuer3"}
+
+	env.OnActivity(FetchIssuersActivity, mock.Anything).Return(FetchIssuersActivityResponse{
+		Issuers: issuers,
+	}, nil)
+	env.OnActivity(CreateCredentialIssuersActivity, mock.Anything, CreateCredentialIssuersInput{
+		Issuers: issuers,
+	}).Return(nil)
 	env.ExecuteWorkflow(FetchIssuersWorkflow)
 
 	require.True(t, env.IsWorkflowCompleted())
