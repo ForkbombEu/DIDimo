@@ -54,6 +54,7 @@
 		name: 'das',
 		locale: 'en',
 		type: 'plc',
+		json: {},
 		collectionId: '',
 		collectionName: Collections.Credentials
 	};
