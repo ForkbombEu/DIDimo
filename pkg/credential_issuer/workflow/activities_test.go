@@ -213,6 +213,10 @@ func TestStoreOrUpdateCredentialsActivity(t *testing.T) {
 			if !tc.expectError {
 				assert.NoError(t, err, "Expected no error creating test database schema")
 			}
+			_, err = db.Exec(`CREATE UNIQUE INDEX idx_fihXiaFPhk ON credentials (key, credential_issuer);`)
+			if !tc.expectError {
+				assert.NoError(t, err, "Expected no error creating test database schema")
+			}
 
 			// Insert initial credential if updating
 			if tc.name == "Valid Data - Update" {

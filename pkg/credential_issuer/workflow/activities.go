@@ -86,57 +86,42 @@ func StoreOrUpdateCredentialsActivity(
 		return temporal.NewApplicationError("Database query failed while checking existing credentials", "RetryStoreCredentials", err)
 	}
 
-	if count > 0 {
-		// Update existing credential
-		updateSQL := `
-        UPDATE credentials 
-        SET format = ?, issuer_name = ?, name = ?, locale = ?, logo = ?, json = ?, updated = CURRENT_TIMESTAMP 
-        WHERE key = ? AND credential_issuer = ?;`
-		_, err = db.ExecContext(ctx, updateSQL,
-			credential.Format,
-			issuerName,
-			credName,
-			credLocale,
-			credLogo,
-			credJSON,
-			credKey,
-			issuerID,
-		)
-		if err != nil {
-			logger.Warn("SQL update failed", "error", err)
-			return temporal.NewApplicationError("Database update failed", "RestartFromFetch", err)
-		}
-		logger.Info("Updated existing credential", "credKey", credKey)
-	} else {
-		// Insert new credential
-		insertSQL := `
-        INSERT INTO credentials(
-            format,
-			issuer_name,
-            name, 
-            locale,
-            logo,
-            json,
-            key,
-            credential_issuer,
-            created,
-            updated
-        ) VALUES (?,?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);`
-		_, err = db.ExecContext(ctx, insertSQL,
-			credential.Format,
-			issuerName,
-			credName,
-			credLocale,
-			credLogo,
-			credJSON,
-			credKey,
-			issuerID,
-		)
-		if err != nil {
-			logger.Warn("SQL insert failed", "error", err)
-			return temporal.NewApplicationError("Database insert failed", "RestartFromFetch", err)
-		}
-		logger.Info("Inserted new credential", "credKey", credKey)
+	upsertSQL := `
+	INSERT INTO credentials (
+		format,
+		issuer_name,
+		name, 
+		locale,
+		logo,
+		json,
+		key,
+		credential_issuer,
+		created,
+		updated
+	) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+	ON CONFLICT(key, credential_issuer) DO UPDATE SET
+		format = excluded.format,
+		issuer_name = excluded.issuer_name,
+		name = excluded.name,
+		locale = excluded.locale,
+		logo = excluded.logo,
+		json = excluded.json,
+		updated = CURRENT_TIMESTAMP;`
+
+	// Execute the UPSERT query
+	_, err = db.ExecContext(ctx, upsertSQL,
+		credential.Format,
+		issuerName,
+		credName,
+		credLocale,
+		credLogo,
+		credJSON,
+		credKey,
+		issuerID,
+	)
+	if err != nil {
+		logger.Warn("SQL UPSERT failed", "error", err)
+		return temporal.NewApplicationError(fmt.Sprintf("Database UPSERT failed:%v", err), "RestartFromFetch", err)
 	}
 
 	logger.Info("Successfully stored or updated credential", "credKey", credKey)
