@@ -1,9 +1,11 @@
 package workflow
 
 import (
+	"encoding/json"
 	"errors"
 	"testing"
 
+	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -13,11 +15,25 @@ import (
 func Test_Workflow(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestWorkflowEnvironment()
+	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
+	err := json.Unmarshal([]byte(wellKnownJSON), &issuerData)
+	assert.NoError(t, err, "Did not expect an error")
 
+	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"]) 
+
+	 
+	inputStoreOrUpdate := StoreCredentialsActivityInput{
+		IssuerData: &issuerData,
+		IssuerID:   mock.Anything,
+		DBPath:     mock.Anything,
+		CredKey:    mock.Anything,
+		IssuerName: mock.Anything,
+		Credential: credential,
+	}
 	// Mock activity implementation
-	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(nil, nil)
-	env.OnActivity(StoreCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-
+	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(&issuerData, nil)
+	env.OnActivity(StoreOrUpdateCredentialsActivity, inputStoreOrUpdate).Return(nil)
+	env.OnActivity(CleanupCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	env.ExecuteWorkflow(CredentialWorkflow, CredentialWorkflowInput{BaseURL: "example@test.com"})
 
 	var result CredentialWorkflowResponse

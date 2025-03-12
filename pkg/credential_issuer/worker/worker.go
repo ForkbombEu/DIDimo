@@ -30,7 +30,8 @@ func main() {
 	// Register the workflow and activities
 	w.RegisterWorkflow(workflow.CredentialWorkflow)
 	w.RegisterActivity(workflow.FetchCredentialIssuerActivity)
-	w.RegisterActivity(workflow.StoreCredentialsActivity)
+	w.RegisterActivity(workflow.StoreOrUpdateCredentialsActivity)
+	w.RegisterActivity(workflow.CleanupCredentialsActivity)
 
 	// Start the worker
 	err = w.Run(worker.InterruptCh())
