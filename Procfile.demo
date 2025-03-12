@@ -3,4 +3,4 @@ workflow: go run pkg/credential_issuer/worker/worker.go
 workflow-oid: go run pkg/OpenID4VP/worker/worker.go
 didimo: ./scripts/wait-for-it.sh -s -t 0 localhost:7233 && /usr/local/bin/didimo serve --dir /pb_data --http=0.0.0.0:8090
 ui: ./scripts/wait-for-it.sh -s -t 0 localhost:8090 && cd webapp && bun run preview --host 0.0.0.0
-mailpit: mailpit
+mailpit: mailpit --listen 0.0.0.0:$PORT

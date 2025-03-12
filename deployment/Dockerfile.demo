@@ -52,4 +52,4 @@ ENV PORT=5100
 RUN bun i
 RUN bun run build
 
-CMD ["overmind", "s", "-f", "/app/Procfile.demo"]
+CMD ["overmind", "s", "-f", "/app/Procfile.demo", "-c", "mailpit"]
