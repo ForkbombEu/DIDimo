@@ -1,4 +1,4 @@
-temporal: temporal server start-dev --ui-port 8832 --db-filename /pb_data/temporal.db --ui-public-path /workflows
+temporal: temporal server start-dev --ui-port 8832 --db-filename /pb_data/temporal.db --ui-public-path /workflows --ip 116.203.138.130
 workflow: go run pkg/credential_issuer/worker/worker.go
 workflow-oid: go run pkg/OpenID4VP/worker/worker.go
 didimo: ./scripts/wait-for-it.sh -s -t 0 localhost:7233 && /usr/local/bin/didimo serve --dir /pb_data --http=0.0.0.0:8090
