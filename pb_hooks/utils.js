@@ -412,6 +412,21 @@ function getRequestAgentName(e) {
     }
 }
 
+/**
+ *
+ * @param {core.Record} record
+ * @param {string} field
+ * @returns {filesystem.File | undefined}
+ */
+function getFirstFile(record, field) {
+    try {
+        const key = record.baseFilesPath() + "/" + record.getString(field);
+        return $filesystem.fileFromPath(key);
+    } finally {
+        return undefined;
+    }
+}
+
 //
 
 module.exports = {
@@ -439,5 +454,6 @@ module.exports = {
     getRecordUpdateEventDiff,
     getRequestAgent,
     getRequestAgentName,
+    getFirstFile,
     errors,
 };

@@ -11,9 +11,13 @@
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
 	import { currentUser } from '@/pocketbase/index.js';
+	import * as Sheet from '@/components/ui/sheet';
+	import { CollectionForm } from '@/collections-components/index.js';
+	import type { FieldSnippetOptions } from '@/collections-components/form/collectionFormTypes.js';
+	import A from '@/components/ui-custom/a.svelte';
 
 	let { data } = $props();
-	const { provider } = $derived(data);
+	const { provider, hasClaim } = $derived(data);
 
 	//
 
@@ -39,6 +43,10 @@
 			label: m.Compatible_verifiers()
 		}
 	};
+
+	//
+
+	let isClaimFormOpen = $state(false);
 </script>
 
 <PageTop>
@@ -51,15 +59,23 @@
 			<T class="text-sm">{m.Provider_name()}</T>
 			<T tag="h1">{provider.name}</T>
 		</div>
-		{#if $currentUser}
-			<Button size="sm">Claim provider</Button>
+
+		{#if hasClaim}
+			<div class="text-sm">
+				<p class="text-muted-foreground">
+					You already have submitted a claim for this provider.
+				</p>
+				<p><A href="/my">Review your submission in the dashboard.</A></p>
+			</div>
+		{:else if $currentUser}
+			<Button size="sm" onclick={() => (isClaimFormOpen = true)}>Claim provider</Button>
 		{:else}
 			<Button size="sm" href="/login" variant="outline">Login to claim provider</Button>
 		{/if}
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12">
+<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12">
 	<div>
 		<PageIndex sections={Object.values(sections)} />
 	</div>
@@ -106,5 +122,53 @@
 		<p>
 			{index}
 		</p>
+	</div>
+{/snippet}
+
+<!-- Provider claim -->
+
+<Sheet.Root bind:open={isClaimFormOpen}>
+	<Sheet.Content class="sm:max-w-5xl">
+		<Sheet.Header class="mb-8">
+			<Sheet.Title>Claim provider</Sheet.Title>
+			<Sheet.Description>
+				Please fill in the following details to claim this provider.
+			</Sheet.Description>
+		</Sheet.Header>
+
+		<CollectionForm
+			collection="provider_claims"
+			onSuccess={() => {
+				isClaimFormOpen = false;
+			}}
+			fieldsOptions={{
+				order: ['name', 'description', 'logo', 'legal_entity', 'country', 'external_links'],
+				placeholders: {
+					name: 'Provider A',
+					legal_entity: 'Example Org'
+				},
+				labels: {
+					legal_entity: 'Legal entity'
+				},
+				exclude: ['provider', 'owner', 'status'],
+				hide: {
+					provider: provider.id
+				},
+				snippets: {
+					external_links: ExternalLinks
+				}
+			}}
+			uiOptions={{
+				showToastOnSuccess: true,
+				toastText: 'Provider claim request sent. Review your submission in your dashboard.'
+			}}
+		/>
+	</Sheet.Content>
+</Sheet.Root>
+
+{#snippet ExternalLinks({ form, field }: FieldSnippetOptions<'provider_claims'>)}
+	<!-- <pre>{JSON.stringify(form.)}</pre> -->
+	<div>
+		<T>{field}</T>
 	</div>
 {/snippet}
