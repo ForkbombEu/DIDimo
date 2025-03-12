@@ -3,4 +3,3 @@ ui: ./scripts/wait-for-it.sh -s -t 0 localhost:8090 && cd webapp && bun i && bun
 temporal: temporal server start-dev --ui-port 8080 --db-filename pb_data/temporal.db --ui-public-path /workflows
 workflow: go run pkg/credential_issuer/worker/worker.go
 workflow-oid: go run pkg/OpenID4VP/worker/worker.go
-mailpit: mailpit
