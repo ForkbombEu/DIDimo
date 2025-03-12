@@ -43,7 +43,7 @@ RUN cat /usr/local/share/ca-certificates/mailpit.crt >> /etc/ssl/certs/ca-certif
 RUN curl -sLO https://github.com/ForkbombEu/DIDimo/releases/download/v1.0.0/didimo_v1.0.0_linux_amd64
 RUN mv didimo_v1.0.0_linux_amd64 /usr/local/bin/didimo
 RUN chmod +x /usr/local/bin/didimo
-RUN didimo migrate
+RUN didimo migrate --dir /pb_data
 
 WORKDIR webapp
 ARG PUBLIC_POCKETBASE_URL=https://demo.didimo.apps.forkbomb.eu/
