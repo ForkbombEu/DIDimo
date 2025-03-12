@@ -3,6 +3,7 @@ package workflow
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 
 	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
@@ -44,7 +45,7 @@ func CredentialWorkflow(ctx workflow.Context, input WorkflowInput) (string, erro
 		return "", err
 	}
 
-	dbPath := getDBPath()
+	dbPath := os.Getenv("DATA_DB_PATH")
 	var validKeys []string
 	// Store credentials
 	for credKey, credential := range issuerData.CredentialConfigurationsSupported {

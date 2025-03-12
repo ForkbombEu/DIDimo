@@ -5,9 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"log"
-	"path/filepath"
-	"runtime"
 
 	_ "modernc.org/sqlite"
 	_ "modernc.org/sqlite/lib"
@@ -178,18 +175,4 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 
 	logger.Info("Cleanup completed successfully")
 	return nil
-}
-
-func getDBPath() string {
-	_, filename, _, ok := runtime.Caller(0)
-	if !ok {
-		log.Fatal("Failed to get caller info")
-	}
-	sourceDir := filepath.Dir(filename)
-	dbPath := filepath.Join(sourceDir, "../../../pb_data/data.db")
-	absDBPath, err := filepath.Abs(dbPath)
-	if err != nil {
-		log.Fatal("Failed to resolve absolute path:", err)
-	}
-	return absDBPath
 }
