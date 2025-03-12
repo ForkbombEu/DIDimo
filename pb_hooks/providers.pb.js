@@ -173,3 +173,18 @@ onRecordUpdateRequest((e) => {
         });
     }
 }, "provider_claims");
+
+//
+
+onRecordUpdateRequest((e) => {
+    /** @type {Utils} */
+    const utils = require(`${__hooks}/utils.js`);
+
+    if (utils.isAdminContext(e)) e.next();
+
+    const provider = e.record;
+    const originalProvider = provider?.original();
+
+    provider?.set("owner", originalProvider?.get("owner"));
+    e.next();
+}, "services");
