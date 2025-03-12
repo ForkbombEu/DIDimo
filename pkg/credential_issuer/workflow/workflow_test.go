@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"encoding/json"
 	"errors"
 	"testing"
 
@@ -16,12 +15,9 @@ func Test_Workflow(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestWorkflowEnvironment()
 	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
-	err := json.Unmarshal([]byte(wellKnownJSON), &issuerData)
-	assert.NoError(t, err, "Did not expect an error")
-
+	// Mock activity implementation
+	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(&issuerData, nil)
 	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"]) 
-
-	 
 	inputStoreOrUpdate := StoreCredentialsActivityInput{
 		IssuerData: &issuerData,
 		IssuerID:   mock.Anything,
@@ -30,13 +26,12 @@ func Test_Workflow(t *testing.T) {
 		IssuerName: mock.Anything,
 		Credential: credential,
 	}
-	// Mock activity implementation
-	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(&issuerData, nil)
 	env.OnActivity(StoreOrUpdateCredentialsActivity, inputStoreOrUpdate).Return(nil)
 	env.OnActivity(CleanupCredentialsActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
 	env.ExecuteWorkflow(CredentialWorkflow, CredentialWorkflowInput{BaseURL: "example@test.com"})
 
 	var result CredentialWorkflowResponse
+	
 	assert.NoError(t, env.GetWorkflowResult(&result))
 	assert.Equal(t, "Credentials Workflow completed successfully for URL: example@test.com", result.Message)
 }
