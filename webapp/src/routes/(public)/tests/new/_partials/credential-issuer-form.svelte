@@ -20,16 +20,15 @@
 			// note: use npm:out-of-character to clean the url if needed
 			const { url } = form.data;
 
-			const credentialIssuer = await pb
-				.collection('credential_issuers')
-				.create({ url } satisfies Data<CredentialIssuersRecord>);
+			const response = await pb.send('/credentials_issuers/start-check', {
+				method: 'POST',
+				body: {
+					credentialIssuerUrl: url
+				}
+			});
+			console.log(response);
 
-			const service = await pb.collection('services').create({
-				name: nanoid(5),
-				credential_issuers: [credentialIssuer.id]
-			} satisfies Data<ServicesRecord>);
-
-			goto(`/providers/${service.id}`);
+			// goto(`/providers/${service.id}`);
 		}
 	});
 </script>
