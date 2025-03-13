@@ -49,6 +49,8 @@ COPY --from=builder /src/didimo /usr/local/bin/didimo
 RUN chmod +x /usr/local/bin/didimo
 RUN didimo migrate
 
+ARG PUBLIC_POCKETBASE_URL
+ENV PUBLIC_POCKETBASE_URL $PUBLIC_POCKETBASE_URL
 WORKDIR webapp
 RUN bun i
 RUN bun run build

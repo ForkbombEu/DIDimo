@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: ./deployment/Dockerfile.demo
+      args: 
+        - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-https://demo.didimo.forkbomb.eu/}
     environment:
       - ADDRESS_TEMPORAL=http://localhost:8832
       - ADDRESS_GRAFANA=http://grafana:8085
