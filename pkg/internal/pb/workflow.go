@@ -17,6 +17,7 @@ import (
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 
+	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
 )
 
@@ -189,6 +190,47 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
 		})
+		return se.Next()
+	})
+}
+
+func RouteWorkflowList(app *pocketbase.PocketBase) {
+	c, err := temporalclient.GetTemporalClient()
+	if err != nil {
+		log.Fatalln("unable to create client", err)
+	}
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+
+		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
+			namespace := e.Request.URL.Query().Get("namespace")
+			if namespace == "" {
+				return apis.NewBadRequestError("namespace is required", nil)
+			}
+
+			authRecord := e.Auth
+
+			orgRecord, err := e.App.FindFirstRecordByFilter("organizations", "name={:name}", dbx.Params{"name": namespace})
+			if err != nil || orgRecord == nil {
+				return apis.NewBadRequestError("Organization not found", err)
+			}
+
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && organization={:organization}", "", 0, 0, dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
+			if err != nil || orgAuthRecord == nil {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
+			}
+			if len(orgAuthRecord) > 1 {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", nil)
+			}
+
+			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
+				Namespace: namespace,
+			})
+			if err != nil {
+				return apis.NewInternalServerError("failed to list workflows", err)
+			}
+
+			return e.JSON(http.StatusOK, list)
+		}).Bind(apis.RequireAuth())
 		return se.Next()
 	})
 }
