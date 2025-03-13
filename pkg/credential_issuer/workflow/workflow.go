@@ -3,7 +3,10 @@ package workflow
 import (
 	"errors"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
+	"runtime"
 	"time"
 
 	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
@@ -107,11 +110,29 @@ func FetchIssuersWorkflow(ctx workflow.Context) error {
 	if len(response.Issuers) == 0 {
 		return errors.New("no issuers found")
 	}
+	input := CreateCredentialIssuersInput{
+		Issuers: response.Issuers,
+		DBPath:  getDBPath(), //TODO: use DBPath from the environment
+	}
 
-	errCreate := workflow.ExecuteActivity(ctx, CreateCredentialIssuersActivity, response).Get(ctx, nil)
+	errCreate := workflow.ExecuteActivity(ctx, CreateCredentialIssuersActivity, input).Get(ctx, nil)
 
 	if errCreate != nil {
 		return errCreate
 	}
 	return nil
+}
+
+func getDBPath() string {
+	_, filename, _, ok := runtime.Caller(0)
+	if !ok {
+		log.Fatal("Failed to get caller info")
+	}
+	sourceDir := filepath.Dir(filename)
+	dbPath := filepath.Join(sourceDir, "../../../pb_data/data.db")
+	absDBPath, err := filepath.Abs(dbPath)
+	if err != nil {
+		log.Fatal("Failed to resolve absolute path:", err)
+	}
+	return absDBPath
 }

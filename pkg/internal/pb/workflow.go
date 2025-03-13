@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
@@ -16,6 +17,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/types"
 
 	"go.temporal.io/sdk/client"
 )
@@ -200,5 +202,78 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
 		})
 		return se.Next()
+	})
+}
+
+func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
+	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
+		if e.Record.Id != "99cc877olfmg41j" {
+			return nil
+		}
+		if e.Record.Get("active") == false {
+			return nil
+		}
+		envVariables := e.Record.Get("envVariables")
+		if envVariables == nil {
+			return nil
+		}
+		result := struct {
+			Interval string `json:"interval"`
+		}{}
+		errJson := json.Unmarshal(e.Record.Get("envVariables").(types.JSONRaw), &result)
+		if errJson != nil {
+			log.Fatal(errJson)
+		}
+		if result.Interval == "" {
+			return nil
+		}
+		var interval time.Duration
+		switch result.Interval {
+		case "every_minute":
+			interval = time.Minute
+		case "hourly":
+			interval = time.Hour
+		case "daily":
+			interval = time.Hour * 24
+		case "weekly":
+			interval = time.Hour * 24 * 7
+		case "monthly":
+			interval = time.Hour * 24 * 30
+		default:
+			interval = time.Hour
+		}
+		workflowID := "schedule_workflow_id" + fmt.Sprintf("%d", time.Now().Unix())
+		scheduleID := "schedule_id" + fmt.Sprintf("%d", time.Now().Unix())
+		ctx := context.Background()
+
+		temporalClient, err := client.Dial(client.Options{
+			HostPort: client.DefaultHostPort,
+		})
+		if err != nil {
+			log.Fatalln("Unable to create Temporal Client", err)
+		}
+		defer temporalClient.Close()
+
+		scheduleHandle, err := temporalClient.ScheduleClient().Create(ctx, client.ScheduleOptions{
+			ID: scheduleID,
+			Spec: client.ScheduleSpec{
+				Intervals: []client.ScheduleIntervalSpec{
+					{
+						Every: interval,
+					},
+				},
+			},
+			Action: &client.ScheduleWorkflowAction{
+				ID:        workflowID,
+				Workflow:  credential_workflow.FetchIssuersWorkflow,
+				TaskQueue: credential_workflow.FetchIssuersTaskQueue,
+			},
+		})
+		if err != nil {
+			log.Fatalln("Unable to create schedule", err)
+		}
+		_, _ = scheduleHandle.Describe(ctx)
+
+		return nil
 	})
 }

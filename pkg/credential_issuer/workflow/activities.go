@@ -183,37 +183,61 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 }
 
 func FetchIssuersActivity(ctx context.Context) (FetchIssuersActivityResponse, error) {
-	req, err := http.NewRequestWithContext(ctx, "GET", EbsiIssuersUrl, nil)
-	if err != nil {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to create request: %w", err)
-	}
+    // Start with offset 0.
+    hrefs, err := fetchIssuersRecursive(ctx, 0)
+    if err != nil {
+        return FetchIssuersActivityResponse{}, err
+    }
+    return FetchIssuersActivityResponse{Issuers: hrefs}, nil
+}
 
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to perform HTTP request: %w", err)
-	}
-	defer resp.Body.Close()
+func fetchIssuersRecursive(ctx context.Context, after int) ([]string, error) {
+    var url string
+    if after > 0 {
+        url = fmt.Sprintf("%s&page[after]=%d", EbsiIssuersUrl, after)
+    } else {
+        url = EbsiIssuersUrl
+    }
 
-	if resp.StatusCode != http.StatusOK {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-	}
+    req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+    if err != nil {
+        return nil, fmt.Errorf("failed to create request: %w", err)
+    }
 
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to read response body: %w", err)
-	}
+    resp, err := http.DefaultClient.Do(req)
+    if err != nil {
+        return nil, fmt.Errorf("failed to perform HTTP request: %w", err)
+    }
+    defer resp.Body.Close()
 
-	var root ApiResponse
-	if err = json.Unmarshal(body, &root); err != nil {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to unmarshal JSON: %w", err)
-	}
+    if resp.StatusCode != http.StatusOK {
+        return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+    }
 
-	hrefs, err := extractHrefsFromApiResponse(root)
-	if err != nil {
-		return FetchIssuersActivityResponse{}, fmt.Errorf("failed to extract hrefs: %w", err)
-	}
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return nil, fmt.Errorf("failed to read response body: %w", err)
+    }
+    var root ApiResponse
+    if err = json.Unmarshal(body, &root); err != nil {
+        return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+    }
 
-	return FetchIssuersActivityResponse{Issuers: hrefs}, nil
+    hrefs, err := extractHrefsFromApiResponse(root)
+    if err != nil {
+        return nil, fmt.Errorf("failed to extract hrefs: %w", err)
+    }
+
+    if len(hrefs) >= root.Total || len(hrefs) < 50 {
+        return hrefs, nil
+    }
+
+	nextHrefs, err := fetchIssuersRecursive(ctx, after+1)
+    if err != nil {
+        return nil, err
+    }
+
+    return append(hrefs, nextHrefs...), nil
 }
 
 func extractHrefsFromApiResponse(root ApiResponse) ([]string, error) {
@@ -250,7 +274,7 @@ func CreateCredentialIssuersActivity(ctx context.Context, input CreateCredential
 
 func checkIfCredentialIssuerExist(ctx context.Context, db *sql.DB, url string) (bool, error) {
 	var count int
-	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credential_issuer WHERE url = ?", url).Scan(&count)
+	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credential_issuers WHERE url = ?", url).Scan(&count)
 	if err != nil {
 		return false, fmt.Errorf("failed to query database: %w", err)
 	}

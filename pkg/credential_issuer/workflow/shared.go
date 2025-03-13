@@ -2,7 +2,7 @@ package workflow
 
 import credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
 
-const EbsiIssuersUrl = "https://api-conformance.ebsi.eu/trusted-issuers-registry/v5/issuers"
+const EbsiIssuersUrl = "https://api-conformance.ebsi.eu/trusted-issuers-registry/v5/issuers?page[size]=50"
 
 type FetchIssuersActivityResponse struct{ Issuers []string }
 
