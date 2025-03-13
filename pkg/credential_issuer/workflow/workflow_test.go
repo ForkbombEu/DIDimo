@@ -47,6 +47,7 @@ func Test_SuccessfulFetchIssuersWorkflows(t *testing.T) {
 	}, nil)
 	env.OnActivity(CreateCredentialIssuersActivity, mock.Anything, CreateCredentialIssuersInput{
 		Issuers: issuers,
+		DBPath:  mock.Anything,
 	}).Return(nil)
 	env.ExecuteWorkflow(FetchIssuersWorkflow)
 
