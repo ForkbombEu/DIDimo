@@ -4,12 +4,17 @@ services:
       context: .
       dockerfile: ./deployment/Dockerfile.demo
     environment:
-      - SERVICE_FQDN_DIDIMO_8090
       - ADDRESS_TEMPORAL=http://localhost:8832
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
-      - PUBLIC_POCKETBASE_URL=$SERVICE_FQDN_DIDIMO
+      - APP_PATH=${COOLIFY_URL:-http://localhost:8090}
+      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://localhost:8090}
       - PORT=5100
+      - SCHEMAS_PATH=schemas
+      - DATA_DB_PATH=/pb_data/data.db
+      - SMTP_HOST=smtp.apps.forkbomb.eu
+      - SMTP_PORT=1025
+      - MAIL_SENDER=didimo@forkbomb.eu
       - PB_ADMIN_USER=admin@example.org
       - PB_ADMIN_PASS=adminadmin
       - PB_TYPEGEN_EMAIL=admin@example.org
@@ -23,4 +28,4 @@ services:
       - 8090:8090
       - 7233:7233
     volumes:
-      - ./pb_data/:/pb_data
+      - ./pb_data:/pb_data

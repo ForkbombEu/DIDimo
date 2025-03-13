@@ -4,13 +4,11 @@ import prettier from 'prettier';
 import sqlite3 from 'sqlite3';
 import { open } from 'sqlite';
 
-import dbPath from '$admin/pb_data/data.db?url';
-
 //
 
 export function openDb() {
 	return open({
-		filename: dbPath,
+		filename: process.env.DATA_DB_PATH || "../pb_data/data.db",
 		driver: sqlite3.Database
 	});
 }
