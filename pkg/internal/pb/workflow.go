@@ -216,14 +216,17 @@ func RouteWorkflowList(app *pocketbase.PocketBase) {
 
 			authRecord := e.Auth
 
-			orgRecord, err := e.App.FindFirstRecordByFilter("organization", "name={:name}", dbx.Params{"name": namespace})
+			orgRecord, err := e.App.FindFirstRecordByFilter("organizations", "name={:name}", dbx.Params{"name": namespace})
 			if err != nil || orgRecord == nil {
 				return apis.NewBadRequestError("Organization not found", err)
 			}
 
-			orgAuthRecord, err := e.App.FindFirstRecordByFilter("orgAuthorization", "user={:user} AND organization={:organization}", dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && organization={:organization}", "", 0, 0, dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
 			if err != nil || orgAuthRecord == nil {
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
+			}
+			if len(orgAuthRecord) > 1 {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", nil)
 			}
 
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
