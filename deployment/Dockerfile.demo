@@ -31,13 +31,6 @@ RUN curl https://mise.run | sh
 RUN mise trust
 RUN mise i
 
-# install temporal
-ARG TARFILE=temporal_cli_latest_linux_amd64.tar.gz
-RUN wget 'https://temporal.download/cli/archive/latest?platform=linux&arch=amd64' -O $TARFILE
-RUN tar xf $TARFILE
-RUN rm $TARFILE
-RUN mv temporal /usr/local/bin
-
 # install overmind
 RUN curl -sLO https://github.com/DarthSim/overmind/releases/download/v2.5.1/overmind-v2.5.1-linux-amd64.gz
 RUN gunzip overmind-v2.5.1-linux-amd64.gz
@@ -49,6 +42,8 @@ COPY --from=builder /src/didimo /usr/local/bin/didimo
 RUN chmod +x /usr/local/bin/didimo
 RUN didimo migrate
 
+ARG TEMPORAL_ADDRESS
+ENV TEMPORAL_ADDRESS $TEMPORAL_ADDRESS
 ARG PUBLIC_POCKETBASE_URL
 ENV PUBLIC_POCKETBASE_URL $PUBLIC_POCKETBASE_URL
 WORKDIR webapp
