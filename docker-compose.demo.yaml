@@ -6,9 +6,10 @@ services:
       args: 
         - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-https://demo.didimo.forkbomb.eu/}
     environment:
-      - ADDRESS_TEMPORAL=http://localhost:8832
+      - ADDRESS_TEMPORAL=https://temporalui-demo.apps.forkbomb.eu
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
+      - TEMPORAL_ADDRESS=https://temporalui-demo.apps.forkbomb.eu:7233
       - APP_PATH=${COOLIFY_URL:-http://localhost:8090}
       - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://localhost:8090}
       - PORT=5100
@@ -21,13 +22,8 @@ services:
       - PB_ADMIN_PASS=adminadmin
       - PB_TYPEGEN_EMAIL=admin@example.org
       - PB_TYPEGEN_PASSWORD=adminadmin
-      - TEST_USER_A_MAIL=userA@example.org
-      - TEST_USER_A_PASS=userAuserA
-      - TEST_USER_B_MAIL=userB@example.org
-      - TEST_USER_B_PASS=userBuserB
       - MAINTENANCE=false
     ports:
       - 8090:8090
-      - 7233:7233
     volumes:
       - ./pb_data:/pb_data
