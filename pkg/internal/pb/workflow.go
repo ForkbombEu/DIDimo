@@ -195,17 +195,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 }
 
 func RouteWorkflowList(app *pocketbase.PocketBase) {
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
+	c, err := temporalclient.GetTemporalClient()
 	if err != nil {
 		log.Fatalln("unable to create client", err)
 	}
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
