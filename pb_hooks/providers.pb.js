@@ -2,10 +2,13 @@
 
 /// <reference path="../pb_data/types.d.ts" />
 /** @typedef {import('./utils.js')} Utils */
+/** @typedef {import('./auditLogger.js')} AuditLogger */
 
 //
 
 onRecordCreateRequest((e) => {
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -48,7 +51,20 @@ onRecordCreateRequest((e) => {
     // Adding default values
 
     e.record?.set("status", "in_review");
-    e.record?.set("owner", utils.getUserFromContext(e)?.id);
+    const owner = utils.getUserFromContext(e);
+    e.record?.set("owner", owner?.id);
+
+    auditLogger(e).info(
+        "created_provider_claim",
+        "providerId",
+        e.record?.get("provider"),
+        "providerName",
+        e.record?.get("name"),
+        "ownerId",
+        owner?.id,
+        "ownerName",
+        owner?.getString("name")
+    );
 
     //
 
@@ -58,6 +74,8 @@ onRecordCreateRequest((e) => {
 //
 
 onRecordUpdateRequest((e) => {
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
 
@@ -91,7 +109,6 @@ onRecordUpdateRequest((e) => {
         providerClaim.get("status") === "approved"
     ) {
         $app.runInTransaction((app) => {
-            console.log("break before");
             const ownerId = providerClaim.getString("owner");
             const logo = utils.copyFile(providerClaim, "logo");
 
@@ -138,6 +155,18 @@ onRecordUpdateRequest((e) => {
                     }
                 );
                 app.save(orgAuthorization);
+
+                auditLogger(e).info(
+                    "created_organization_after_successful_claim",
+                    "organizationId",
+                    organizationId,
+                    "organizationName",
+                    providerClaim.get("name"),
+                    "ownerId",
+                    ownerId,
+                    "ownerName",
+                    app.findRecordById("users", ownerId).getString("name")
+                );
             }
 
             /**
@@ -167,6 +196,34 @@ onRecordUpdateRequest((e) => {
 
             app.save(provider);
 
+            auditLogger(e).info(
+                "updated_provider_after_successful_claim",
+                "providerId",
+                provider.id,
+                "providerName",
+                provider.get("name"),
+                "organizationId",
+                organizationId,
+                "organizationName",
+                providerClaim.get("name"),
+                "ownerId",
+                ownerId
+            );
+
+            const user = app.findRecordById("users", ownerId);
+
+            const email = utils.renderEmail("provider-claim-accepted", {
+                ProviderName: provider.get("name"),
+                DashboardLink: utils.getAppUrl() + "/my",
+                UserName: user.getString("name"),
+                AppName: utils.getAppName(),
+            });
+
+            utils.sendEmail({
+                to: utils.getUserEmailAddressData(user),
+                ...email,
+            });
+
             //
 
             app.delete(providerClaim);
@@ -179,12 +236,61 @@ onRecordUpdateRequest((e) => {
 onRecordUpdateRequest((e) => {
     /** @type {Utils} */
     const utils = require(`${__hooks}/utils.js`);
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
 
     if (utils.isAdminContext(e)) e.next();
 
     const provider = e.record;
     const originalProvider = provider?.original();
-
     provider?.set("owner", originalProvider?.get("owner"));
+
+    const agent = utils.getUserFromContext(e);
+
+    auditLogger(e).info(
+        "updated_provider",
+        "providerId",
+        provider?.id,
+        "providerName",
+        provider?.get("name"),
+        "agentId",
+        agent?.id,
+        "agentName",
+        agent?.getString("name")
+    );
+
     e.next();
+}, "services");
+
+//
+
+onRecordDeleteRequest((e) => {
+    /** @type {Utils} */
+    const utils = require(`${__hooks}/utils.js`);
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    e.next();
+
+    auditLogger(e).info("deleted_provider", "providerId", e.record?.id);
+
+    if (
+        utils.isAdminContext(e) &&
+        e.record?.getString("status") === "in_review"
+    ) {
+        const provider = e.record;
+        const ownerId = provider.getString("owner");
+        const user = $app.findRecordById("users", ownerId);
+
+        const email = utils.renderEmail("provider-claim-declined", {
+            ProviderName: provider.get("name"),
+            UserName: user.getString("name"),
+            AppName: utils.getAppName(),
+        });
+
+        utils.sendEmail({
+            to: utils.getUserEmailAddressData(user),
+            ...email,
+        });
+    }
 }, "services");

@@ -1,0 +1,39 @@
+<mjml>
+	<mj-head>
+		<mj-title>Your provider claim for {{.ProviderName}} has been accepted</mj-title>
+		<mj-include path="../_components/attributes.mjml" />
+	</mj-head>
+
+	<mj-body>
+		<mj-include path="../_components/header.mjml" />
+
+		<mj-section>
+			<mj-column>
+				<mj-text mj-class="big">
+					Your provider claim for {{.ProviderName}} has been accepted!
+				</mj-text>
+
+				<mj-text> Hello {{.UserName}}, </mj-text>
+
+				<mj-text>
+					Your claim to manage {{.ProviderName}} has been reviewed and accepted. You now
+					have full access to manage this provider's information, including updating
+					documentation, contact details, and service offerings. You can access the
+					provider management interface through your dashboard. We recommend reviewing all
+					provider information to ensure it's up to date.
+				</mj-text>
+
+				<mj-text>
+					Thank you for your contribution to the {{.AppName}} community. We look forward
+					to your continued involvement in managing {{.ProviderName}}'s information.
+				</mj-text>
+
+				<mj-button href="{{.DashboardLink}}" mj-class="btn-primary">
+					Go to your dashboard
+				</mj-button>
+			</mj-column>
+		</mj-section>
+
+		<mj-include path="../_components/footer.mjml" />
+	</mj-body>
+</mjml>
