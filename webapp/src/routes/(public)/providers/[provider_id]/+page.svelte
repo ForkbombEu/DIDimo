@@ -10,10 +10,9 @@
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
-	import { currentUser } from '@/pocketbase/index.js';
+	import { currentUser, pb } from '@/pocketbase/index.js';
 	import * as Sheet from '@/components/ui/sheet';
 	import { CollectionForm } from '@/collections-components/index.js';
-	import type { FieldSnippetOptions } from '@/collections-components/form/collectionFormTypes.js';
 	import A from '@/components/ui-custom/a.svelte';
 
 	let { data } = $props();
@@ -50,45 +49,69 @@
 </script>
 
 <PageTop>
-	<div class="flex items-start gap-4"></div>
-	<!-- TODO - Provider logo not showing -->
-	{#if provider.logo}
-		<Avatar src={provider.logo} class="size-32" hideIfLoadingError />
-	{/if}
-
-	<div class="space-y-3">
-		<div class="space-y-1">
-			<T class="text-sm">{m.Provider_name()}</T>
-			<T tag="h1">{provider.name}</T>
-		</div>
-
-		{#if isClaimed}
-			<div class="text-sm">
-				<p class="text-muted-foreground">This provider is verified ✅</p>
-			</div>
-		{:else if hasClaim}
-			<div class="text-sm">
-				<p class="text-muted-foreground">
-					You already have submitted a claim for this provider.
-				</p>
-				<p><A href="/my">Review your submission in the dashboard.</A></p>
-			</div>
-		{:else if $currentUser}
-			<Button size="sm" onclick={() => (isClaimFormOpen = true)}>Claim provider</Button>
-		{:else}
-			<Button size="sm" href="/login" variant="outline">Login to claim provider</Button>
+	<div class="flex items-center gap-6">
+		{#if provider.logo}
+			{@const providerUrl = pb.files.getURL(provider, provider.logo)}
+			<Avatar src={providerUrl} class="size-32 rounded-sm" hideIfLoadingError />
 		{/if}
+
+		<div class="space-y-3">
+			<div class="space-y-1">
+				<T class="text-sm">{m.Provider_name()}</T>
+				<T tag="h1">{provider.name}</T>
+			</div>
+
+			{#if isClaimed}
+				<div class="text-sm">
+					<p class="text-muted-foreground">This provider is verified ✅</p>
+				</div>
+			{:else if hasClaim}
+				<div class="text-sm">
+					<p class="text-muted-foreground">
+						You already have submitted a claim for this provider.
+					</p>
+					<p><A href="/my">Review your submission in the dashboard.</A></p>
+				</div>
+			{:else if $currentUser}
+				<Button size="sm" onclick={() => (isClaimFormOpen = true)}>Claim provider</Button>
+			{:else}
+				<Button size="sm" href="/login" variant="outline">Login to claim provider</Button>
+			{/if}
+		</div>
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12">
-	<div>
+<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12 items-start">
+	<div class="sticky top-5">
 		<PageIndex sections={Object.values(sections)} />
 	</div>
 
 	<div class="grow space-y-12">
-		<div>
+		<div class="space-y-6">
 			<PageHeader title={sections.general_info.label} id={sections.general_info.anchor} />
+			<div class="flex gap-6">
+				<InfoBox label="Legal entity">{provider.legal_entity}</InfoBox>
+				<InfoBox label="Country">{provider.country}</InfoBox>
+			</div>
+			<InfoBox label={m.Description()}>{provider.description}</InfoBox>
+
+			<div class="flex gap-6">
+				<InfoBox label="Website">
+					<A href={provider.external_website_url} target="_blank">
+						{provider.external_website_url}
+					</A>
+				</InfoBox>
+				<InfoBox label="Documentation">
+					<A href={provider.documentation_url} target="_blank">
+						{provider.documentation_url}
+					</A>
+				</InfoBox>
+				<InfoBox label="Contact email">
+					<A href={`mailto:${provider.contact_email}`} target="_blank">
+						{provider.contact_email}
+					</A>
+				</InfoBox>
+			</div>
 		</div>
 
 		<div>
@@ -134,7 +157,7 @@
 <!-- Provider claim -->
 
 <Sheet.Root bind:open={isClaimFormOpen}>
-	<Sheet.Content class="sm:max-w-5xl">
+	<Sheet.Content class="overflow-auto sm:max-w-5xl">
 		<Sheet.Header class="mb-8">
 			<Sheet.Title>Claim provider</Sheet.Title>
 			<Sheet.Description>
