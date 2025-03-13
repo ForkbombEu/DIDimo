@@ -4,10 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
@@ -24,15 +24,8 @@ type OpenID4VPTestInputFile struct {
 func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error {
 	// Load environment variables.
 	godotenv.Load()
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
+	c, err := temporalclient.GetTemporalClient()
 
-	// Create a Temporal client.
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
 	if err != nil {
 		return fmt.Errorf("unable to create client: %v", err)
 	}

@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/google/uuid"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -31,16 +31,6 @@ type IssuerURL struct {
 }
 
 func HookCredentialWorkflow(app *pocketbase.PocketBase) {
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
-	if err != nil {
-		log.Fatalln("unable to create client", err)
-	}
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 
@@ -93,7 +83,10 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				ID:        "credentials-workflow-" + uuid.New().String(),
 				TaskQueue: "CredentialsTaskQueue",
 			}
-
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
 			we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, credential_workflow.CredentialWorkflow, workflowInput)
 			if err != nil {
 				return fmt.Errorf("error starting workflow for URL %s: %v", req.URL, err)
@@ -133,17 +126,6 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		hostPort := os.Getenv("TEMPORAL_ADDRESS")
-		if hostPort == "" {
-			hostPort = "localhost:7233"
-		}
-		c, err := client.Dial(client.Options{
-			HostPort: hostPort,
-		})
-		if err != nil {
-			log.Fatalln("Unable to create client", err)
-		}
-
 		se.Router.POST("/api/openid4vp-test", func(e *core.RequestEvent) error {
 			var req OpenID4VPRequest
 			appURL := app.Settings().Meta.AppURL
@@ -172,7 +154,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			data := openid4vp_workflow.SignalData{
 				Success: true,
 			}
-			err := c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send success signal", err)
 			}
@@ -192,7 +178,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Success: false,
 				Reason:  request.Reason,
 			}
-			err := c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send failure signal", err)
 			}
