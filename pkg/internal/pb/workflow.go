@@ -17,6 +17,7 @@ import (
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 
+	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
 )
 
@@ -198,6 +199,39 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
+		})
+		return se.Next()
+	})
+}
+
+func RouteWorkflowList(app *pocketbase.PocketBase) {
+	hostPort := os.Getenv("TEMPORAL_ADDRESS")
+	if hostPort == "" {
+		hostPort = "localhost:7233"
+	}
+	c, err := client.Dial(client.Options{
+		HostPort: hostPort,
+	})
+	if err != nil {
+		log.Fatalln("unable to create client", err)
+	}
+
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+
+		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
+			namespace := e.Request.URL.Query().Get("namespace")
+			if namespace == "" {
+				return apis.NewBadRequestError("namespace is required", nil)
+			}
+
+			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
+				Namespace: namespace,
+			})
+			if err != nil {
+				return apis.NewInternalServerError("failed to list workflows", err)
+			}
+
+			return e.JSON(http.StatusOK, list)
 		})
 		return se.Next()
 	})
