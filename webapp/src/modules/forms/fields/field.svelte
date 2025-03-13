@@ -35,7 +35,9 @@
 	};
 
 	let placeholder = $derived(
-		Boolean(options.placeholder) ? options.placeholder : defaultPlaceholders[options.type ?? 'text']
+		Boolean(options.placeholder)
+			? options.placeholder
+			: defaultPlaceholders[options.type ?? 'text']
 	);
 </script>
 
@@ -43,7 +45,12 @@
 	<FieldWrapper field={name} {options}>
 		{#snippet children({ props })}
 			{#if valueProxy}
-				<Input {...options} {placeholder} {...props} bind:value={$valueProxy} />
+				<Input
+					{...options as GenericRecord}
+					{...props as GenericRecord}
+					{placeholder}
+					bind:value={$valueProxy}
+				/>
 			{/if}
 		{/snippet}
 	</FieldWrapper>

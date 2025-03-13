@@ -69,7 +69,7 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(WEBENV) tools submodules kill-pocketbase ## 🚀 run in watch mode
+dev: $(WEBENV) tools submodules kill-pocketbase remove-overmind ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
@@ -158,3 +158,6 @@ help: ## Show this help.
 kill-pocketbase: ## 🔪 Kill any running PocketBase instance
 	@echo "Killing any existing PocketBase instance..."
 	@-lsof -ti:8090 -sTCP:LISTEN | xargs kill -9 2>/dev/null || true
+
+remove-overmind: ## 🧹 Remove overmind.sock
+	@rm -f ./.overmind.sock

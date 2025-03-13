@@ -82,6 +82,9 @@
 		formFieldsOptions: Partial<FieldsOptions<C>>;
 		createFormFieldsOptions: Partial<FieldsOptions<C>>;
 		editFormFieldsOptions: Partial<FieldsOptions<C>>;
+
+		emptyStateTitle: string;
+		emptyStateDescription: string;
 	};
 
 	//
@@ -97,6 +100,8 @@
 		emptyState,
 		contentWrapper,
 		filters = [],
+		emptyStateTitle = m.No_items_here(),
+		emptyStateDescription = m.Start_by_adding_a_record_to_this_collection_(),
 		...rest
 	}: Props = $props();
 	//
@@ -165,10 +170,6 @@
 	{:else if emptyState}
 		{@render emptyState({ EmptyState })}
 	{:else if !hide.includes('empty_state')}
-		<EmptyState
-			title={m.No_items_here()}
-			description={m.Start_by_adding_a_record_to_this_collection_()}
-			icon={FolderIcon}
-		/>
+		<EmptyState title={emptyStateTitle} description={emptyStateDescription} icon={FolderIcon} />
 	{/if}
 {/snippet}

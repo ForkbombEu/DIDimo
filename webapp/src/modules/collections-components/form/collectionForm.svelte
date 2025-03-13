@@ -48,7 +48,10 @@
 	/* Form setup */
 
 	const formMode = $derived<CollectionFormMode>(props.recordId ? 'edit' : 'create');
-	const form = $derived(setupCollectionForm(props));
+
+	const form = setupCollectionForm(props);
+	// Note: form was previously derived, but this was causing issues with the form context
+	// On error, the form would not be updated correctly
 
 	/* Fields */
 
