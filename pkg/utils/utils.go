@@ -3,6 +3,8 @@ package utils
 import (
 	"os"
 	"strconv"
+	"math"
+	"fmt"
 )
 
 func GetEnvVariable(name string, defaultValue string, required bool) string {
@@ -24,6 +26,9 @@ func GetEnvVariableAsInt(name string, defaultValue int, required bool) (int, err
 	outputAsInt, err := strconv.ParseInt(output, 10, 64)
 	if err != nil {
 		return 0, err
+	}
+	if outputAsInt > math.MaxInt || outputAsInt < math.MinInt {
+		return 0, fmt.Errorf("value out of range for int: %d", outputAsInt)
 	}
 	return int(outputAsInt), nil
 }
