@@ -224,6 +224,18 @@ func RouteWorkflowList(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("namespace is required", nil)
 			}
 
+			authRecord := e.Auth
+
+			orgRecord, err := e.App.FindFirstRecordByFilter("organization", "name={:name}", dbx.Params{"name": namespace})
+			if err != nil || orgRecord == nil {
+				return apis.NewBadRequestError("Organization not found", err)
+			}
+
+			orgAuthRecord, err := e.App.FindFirstRecordByFilter("orgAuthorization", "user={:user} AND organization={:organization}", dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
+			if err != nil || orgAuthRecord == nil {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
+			}
+
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
@@ -232,7 +244,7 @@ func RouteWorkflowList(app *pocketbase.PocketBase) {
 			}
 
 			return e.JSON(http.StatusOK, list)
-		})
+		}).Bind(apis.RequireAuth())
 		return se.Next()
 	})
 }
