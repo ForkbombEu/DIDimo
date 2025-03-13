@@ -18,7 +18,8 @@ export default defineConfig({
 			'@codemirror/language-javascript',
 			'@codemirror/lang-json',
 			'thememirror'
-		]
+		],
+		include: ['date-fns', 'date-fns-tz']
 	},
 
 	test: {

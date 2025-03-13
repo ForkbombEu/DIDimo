@@ -1,6 +1,4 @@
 <script lang="ts">
-	import './temporal.css';
-
 	import {
 		workflowRun,
 		fullEventHistory,
@@ -9,9 +7,10 @@
 		WorkflowHistoryLayout,
 		toEventHistory,
 		eventViewType
-	} from 'temporal-ui';
+	} from '@temporalio/ui';
 
-	import type { WorkflowRunWithWorkers, WorkflowEvent } from 'temporal-ui';
+	import type { WorkflowRunWithWorkers, WorkflowEvent } from '@temporalio/ui';
+	import '@temporalio/ui/dist/_css/temporal.css';
 
 	import { workflowResponse, eventHistory } from './data';
 	import { onMount } from 'svelte';
