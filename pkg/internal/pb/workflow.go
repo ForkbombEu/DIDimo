@@ -32,9 +32,7 @@ type IssuerURL struct {
 }
 
 func HookCredentialWorkflow(app *pocketbase.PocketBase) {
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-
 		se.Router.POST("/credentials_issuers/start-check", func(e *core.RequestEvent) error {
 			var req IssuerURL
 
@@ -91,14 +89,12 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 			we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, credential_workflow.CredentialWorkflow, workflowInput)
 			if err != nil {
 				return fmt.Errorf("error starting workflow for URL %s: %v", req.URL, err)
-
 			}
 
 			var result string
 			err = we.Get(context.Background(), &result)
 			if err != nil {
 				return fmt.Errorf("error running workflow for URL %s: %v", req.URL, err)
-
 			}
 
 			log.Printf("Workflow completed successfully for URL %s: %s", req.URL, result)
@@ -125,7 +121,6 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 }
 
 func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.POST("/api/openid4vp-test", func(e *core.RequestEvent) error {
 			var req OpenID4VPRequest
@@ -195,12 +190,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 }
 
 func RouteWorkflowList(app *pocketbase.PocketBase) {
-	c, err := temporalclient.GetTemporalClient()
-	if err != nil {
-		log.Fatalln("unable to create client", err)
-	}
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			namespace := e.Request.URL.Query().Get("namespace")
 			if namespace == "" {
@@ -222,6 +212,10 @@ func RouteWorkflowList(app *pocketbase.PocketBase) {
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", nil)
 			}
 
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				log.Fatalln("unable to create client", err)
+			}
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
