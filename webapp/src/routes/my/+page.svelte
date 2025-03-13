@@ -7,6 +7,8 @@
 	import { currentUser } from '@/pocketbase';
 
 	if (WelcomeSession.isActive()) WelcomeSession.end();
+
+	let { data } = $props();
 </script>
 
 <div class="flex flex-col space-y-8 p-4">
@@ -19,14 +21,37 @@
 
 	<Separator />
 
-	<div class="space-y-2">
-		<T tag="h2">Provider claims (in review)</T>
-		<CollectionManager
-			collection="provider_claims"
-			editFormFieldsOptions={{ exclude: ['owner', 'provider', 'status'] }}
-		>
-			{#snippet records({ records })}
-				<div class="grid grid-cols-3 gap-4">
+	<div class="grid gap-8 pb-8 md:grid-cols-2">
+		<div class="space-y-2">
+			<T tag="h2">Your providers</T>
+			<CollectionManager
+				collection="services"
+				emptyStateDescription="Start a test to add a provider"
+				queryOptions={{
+					filter: `owner = "${data.organization?.id}"`
+				}}
+				editFormFieldsOptions={{ exclude: ['owner', 'wallets', 'credential_issuers'] }}
+			>
+				{#snippet records({ records })}
+					{#each records as record}
+						<RecordCard {record} hide={['select', 'share', 'delete']}>
+							{#snippet children({ Title, Description })}
+								<Title>{record.name}</Title>
+							{/snippet}
+						</RecordCard>
+					{/each}
+				{/snippet}
+			</CollectionManager>
+		</div>
+
+		<div class="space-y-2">
+			<T tag="h2">Provider claims (in review)</T>
+			<CollectionManager
+				collection="provider_claims"
+				editFormFieldsOptions={{ exclude: ['owner', 'provider', 'status'] }}
+				emptyStateDescription="Claims in review will appear here"
+			>
+				{#snippet records({ records })}
 					{#each records as record}
 						<RecordCard {record} hide={['select', 'share']}>
 							{#snippet children({ Title, Description })}
@@ -34,8 +59,8 @@
 							{/snippet}
 						</RecordCard>
 					{/each}
-				</div>
-			{/snippet}
-		</CollectionManager>
+				{/snippet}
+			</CollectionManager>
+		</div>
 	</div>
 </div>
