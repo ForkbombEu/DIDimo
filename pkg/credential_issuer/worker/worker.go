@@ -2,23 +2,15 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
-
-	"go.temporal.io/sdk/client"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"go.temporal.io/sdk/worker"
 )
 
 func main() {
 	// Create a Temporal client
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
+	c, err := temporalclient.GetTemporalClient()
 	if err != nil {
 		log.Fatalf("Unable to create Temporal client: %v", err)
 	}
