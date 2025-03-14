@@ -45,7 +45,7 @@ func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error 
 	// Define workflow options.
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        "OpenIDTestWorkflow" + uuid.NewString(),
-		TaskQueue: "openid-test-task-queue",
+		TaskQueue: workflow.OpenIDTestTaskQueue,
 	}
 
 	// Start the workflow execution.
