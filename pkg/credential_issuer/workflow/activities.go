@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	_ "modernc.org/sqlite"
 	_ "modernc.org/sqlite/lib"
@@ -183,67 +184,68 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 }
 
 func FetchIssuersActivity(ctx context.Context) (FetchIssuersActivityResponse, error) {
-    // Start with offset 0.
-    hrefs, err := fetchIssuersRecursive(ctx, 0)
-    if err != nil {
-        return FetchIssuersActivityResponse{}, err
-    }
-    return FetchIssuersActivityResponse{Issuers: hrefs}, nil
+	// Start with offset 0.
+	hrefs, err := fetchIssuersRecursive(ctx, 0)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, err
+	}
+	return FetchIssuersActivityResponse{Issuers: hrefs}, nil
 }
 
 func fetchIssuersRecursive(ctx context.Context, after int) ([]string, error) {
-    var url string
-    if after > 0 {
-        url = fmt.Sprintf("%s&page[after]=%d", EbsiIssuersUrl, after)
-    } else {
-        url = EbsiIssuersUrl
-    }
+	var url string
+	if after > 0 {
+		url = fmt.Sprintf("%s&page=%d", FidesIssuersUrl, after)
+	} else {
+		url = FidesIssuersUrl
+	}
 
-    req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
-    if err != nil {
-        return nil, fmt.Errorf("failed to create request: %w", err)
-    }
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
 
-    resp, err := http.DefaultClient.Do(req)
-    if err != nil {
-        return nil, fmt.Errorf("failed to perform HTTP request: %w", err)
-    }
-    defer resp.Body.Close()
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform HTTP request: %w", err)
+	}
+	defer resp.Body.Close()
 
-    if resp.StatusCode != http.StatusOK {
-        return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
-    }
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
 
-    body, err := io.ReadAll(resp.Body)
-    if err != nil {
-        return nil, fmt.Errorf("failed to read response body: %w", err)
-    }
-    var root ApiResponse
-    if err = json.Unmarshal(body, &root); err != nil {
-        return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
-    }
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	var root FidesResponse
+	if err = json.Unmarshal(body, &root); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+	}
 
-    hrefs, err := extractHrefsFromApiResponse(root)
-    if err != nil {
-        return nil, fmt.Errorf("failed to extract hrefs: %w", err)
-    }
+	hrefs, err := extractHrefsFromApiResponse(root)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract hrefs: %w", err)
+	}
 
-    if len(hrefs) >= root.Total || len(hrefs) < 50 {
-        return hrefs, nil
-    }
+	if root.Page.Number >= root.Page.TotalPages || len(hrefs) < 200 {
+		return hrefs, nil
+	}
 
 	nextHrefs, err := fetchIssuersRecursive(ctx, after+1)
-    if err != nil {
-        return nil, err
-    }
+	if err != nil {
+		return nil, err
+	}
 
-    return append(hrefs, nextHrefs...), nil
+	return append(hrefs, nextHrefs...), nil
 }
 
-func extractHrefsFromApiResponse(root ApiResponse) ([]string, error) {
+func extractHrefsFromApiResponse(root FidesResponse) ([]string, error) {
 	var hrefs []string
-	for _, item := range root.Items {
-		hrefs = append(hrefs, item.Href)
+	for _, item := range root.Content {
+		trimmedHref := RemoveWellKnownSuffix(item.IssuanceURL)
+		hrefs = append(hrefs, trimmedHref)
 	}
 	return hrefs, nil
 }
@@ -279,4 +281,12 @@ func checkIfCredentialIssuerExist(ctx context.Context, db *sql.DB, url string) (
 		return false, fmt.Errorf("failed to query database: %w", err)
 	}
 	return count > 0, nil
+}
+
+func RemoveWellKnownSuffix(urlStr string) string {
+	const suffix = "/.well-known/openid-credential-issuer"
+	if strings.HasSuffix(urlStr, suffix) {
+		return strings.TrimSuffix(urlStr, suffix)
+	}
+	return urlStr
 }

@@ -2,28 +2,22 @@ package workflow
 
 import credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
 
-const EbsiIssuersUrl = "https://api-conformance.ebsi.eu/trusted-issuers-registry/v5/issuers?page[size]=50"
+const FidesIssuersUrl = "https://credential-catalog.fides.community/api/public/credentialtype?includeAllDetails=false&size=200"
 
 type FetchIssuersActivityResponse struct{ Issuers []string }
 
-type ApiResponse struct {
-	Items    []Item `json:"items"`
-	Links    Links  `json:"links"`
-	PageSize int    `json:"pageSize"`
-	Self     string `json:"self"`
-	Total    int    `json:"total"`
-}
-
-type Item struct {
-	Did  string `json:"did"`
-	Href string `json:"href"`
-}
-
-type Links struct {
-	First string `json:"first"`
-	Last  string `json:"last"`
-	Next  string `json:"next"`
-	Prev  string `json:"prev"`
+type FidesResponse struct {
+	Content []struct {
+		IssuanceURL               string `json:"issuanceUrl"`
+		CredentialConfigurationID string `json:"credentialConfigurationId"`
+		IssuePortalURL            string `json:"issuePortalUrl,omitempty"`
+	} `json:"content"`
+	Page struct {
+		Size          int `json:"size"`
+		Number        int `json:"number"`
+		TotalElements int `json:"totalElements"`
+		TotalPages    int `json:"totalPages"`
+	} `json:"page"`
 }
 
 type CredentialWorkflowInput struct {

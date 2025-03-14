@@ -16,7 +16,6 @@ import (
 	_ "modernc.org/sqlite/lib"
 )
 
-
 func TestFetchCredentialsIssuerActivity(t *testing.T) {
 	testCases := []struct {
 		name         string
@@ -77,7 +76,7 @@ func TestStoreOrUpdateCredentialsActivity(t *testing.T) {
 	err := json.Unmarshal([]byte(wellKnownJSON), &issuerData)
 	assert.NoError(t, err, "Did not expect an error")
 
-	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"]) 
+	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"])
 
 	testCases := []struct {
 		name         string
@@ -325,7 +324,6 @@ func TestCleanupCredentialsActivity(t *testing.T) {
 	}
 }
 
-
 func TestFetchIssuersActivity(t *testing.T) {
 	testSuite := &testsuite.WorkflowTestSuite{}
 	env := testSuite.NewTestActivityEnvironment()
@@ -338,27 +336,29 @@ func TestFetchIssuersActivity(t *testing.T) {
 }
 
 func TestExtractHrefsFromApiResponse(t *testing.T) {
-	root := ApiResponse{
-		Items: []Item{
+	root := FidesResponse{
+		Content: []struct {
+			IssuanceURL               string `json:"issuanceUrl"`
+			CredentialConfigurationID string `json:"credentialConfigurationId"`
+			IssuePortalURL            string `json:"issuePortalUrl,omitempty"`
+		}{
 			{
-				Did:  "did:example:123",
-				Href: "https://example.com/123",
+				IssuanceURL: "https://example.com/123/.well-known/openid-credential-issuer",
 			},
 			{
-				Did:  "did:example:456",
-				Href: "https://example.com/456",
+				IssuanceURL: "https://example.com/456",
 			},
 		},
-		Links: Links{
-			First: "https://example.com/first",
-			Last:  "https://example.com/last",
-			Next:  "https://example.com/next",
-			Prev:  "https://example.com/prev",
+		Page: struct {
+			Size          int `json:"size"`
+			Number        int `json:"number"`
+			TotalElements int `json:"totalElements"`
+			TotalPages    int `json:"totalPages"`
+		}{
+			Number: 0,
 		},
-		PageSize: 2,
-		Self:     "https://example.com/self",
-		Total:    4,
 	}
+
 	hrefs, err := extractHrefsFromApiResponse(root)
 	assert.NoError(t, err)
 	assert.Equal(t, []string{"https://example.com/123", "https://example.com/456"}, hrefs)
@@ -388,6 +388,39 @@ func TestCheckIfCredentialIssuersExist(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			//I need to implement with a test database
+		})
+	}
+}
+
+func TestRemoveWellKnownSuffix(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "URL with suffix",
+			input:    "https://wallet.acc.credenco.com/public/c497db8f-4906-4a8e-96e1-e52927166e07/credencoInjiIssuer/.well-known/openid-credential-issuer",
+			expected: "https://wallet.acc.credenco.com/public/c497db8f-4906-4a8e-96e1-e52927166e07/credencoInjiIssuer",
+		},
+		{
+			name:     "URL without suffix",
+			input:    "https://wallet.acc.credenco.com/public/c497db8f-4906-4a8e-96e1-e52927166e07/credencoInjiIssuer",
+			expected: "https://wallet.acc.credenco.com/public/c497db8f-4906-4a8e-96e1-e52927166e07/credencoInjiIssuer",
+		},
+		{
+			name:     "URL with a different well-known segment",
+			input:    "https://example.com/path/.well-known/some-other-value",
+			expected: "https://example.com/path/.well-known/some-other-value",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := RemoveWellKnownSuffix(tt.input)
+			if result != tt.expected {
+				t.Errorf("RemoveWellKnownSuffix(%q) = %q; expected %q", tt.input, result, tt.expected)
+			}
 		})
 	}
 }
