@@ -52,7 +52,7 @@ func CredentialWorkflow(ctx workflow.Context, input CredentialWorkflowInput) (Cr
 			IssuerName: *issuerData.Display[0].Name,
 			Credential: castedCredential,
 		}
-		err := workflow.ExecuteActivity(ctx, activityInput).Get(ctx, nil)
+		err := workflow.ExecuteActivity(ctx, StoreOrUpdateCredentialsActivity, activityInput).Get(ctx, nil)
 		if err != nil {
 			var appErr *temporal.ApplicationError
 			if errors.As(err, &appErr) {

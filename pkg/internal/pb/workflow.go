@@ -102,14 +102,14 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 
 			}
 
-			var result string
+			var result credential_workflow.CredentialWorkflowResponse
 			err = we.Get(context.Background(), &result)
 			if err != nil {
 				return fmt.Errorf("error running workflow for URL %s: %v", req.URL, err)
 
 			}
 
-			log.Printf("Workflow completed successfully for URL %s: %s", req.URL, result)
+			log.Printf("Workflow completed successfully for URL %s: %s", req.URL, result.Message)
 
 			providers, err := app.FindCollectionByNameOrId("services")
 			if err != nil {
