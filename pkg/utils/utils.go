@@ -11,17 +11,27 @@ import (
 //
 // Parameters:
 //   - name: The name of the environment variable to retrieve.
-//   - defaultValue: The value to return if the environment variable is not set.
-//   - required: A boolean indicating whether the environment variable is required.
+//   - defaultValue (if provided): The value to return if the environment variable is not set.
+//   - required (if provided): A boolean indicating whether the environment variable is required.
 //
 // Returns:
 //   - string: The value of the environment variable, or the default value if not set.
 //     If the variable is required and not set, the function panics.
-func GetEnvironmentVariable(name string, defaultValue string, others ...bool) string {
-	required := false
+func GetEnvironmentVariable(name string, others ...any) string {
+	var defaultValue string = ""
+	var required bool
+
 	if len(others) > 0 {
-		required = others[0]
+		if val, ok := others[0].(string); ok {
+			defaultValue = val
+		}
 	}
+	if len(others) > 1 {
+		if val, ok := others[1].(bool); ok {
+			required = val
+		}
+	}
+
 	output := os.Getenv(name)
 	if output == "" {
 		output = defaultValue
@@ -32,21 +42,33 @@ func GetEnvironmentVariable(name string, defaultValue string, others ...bool) st
 	return output
 }
 
-// GetEnvVariableAsInt retrieves an environment variable and converts it to an integer.
+// GetEnvironmentVariableAsInteger retrieves the value of an environment variable and converts it to an integer.
 //
 // Parameters:
 //   - name: The name of the environment variable to retrieve.
-//   - defaultValue: The default integer value to return if the environment variable is not set.
-//   - required: A boolean indicating whether the environment variable is required.
+//   - others: Optional variadic parameters:
+//   - First parameter (if provided): The default integer value to return if the environment variable is not set or empty.
+//   - Second parameter (if provided): A boolean indicating whether the environment variable is required.
 //
 // Returns:
-//   - int: The integer value of the environment variable, or the default value if not set.
-//   - error: An error if the variable cannot be parsed as an integer or if it's out of range for int type.
-func GetEnvironmentVariableAsInteger(name string, defaultValue int, others ...bool) (int, error) {
-	required := false
+//   - int: The integer value of the environment variable, or the default value if not set or empty.
+//   - error: An error if the environment variable cannot be parsed as an integer or if the value is out of range for int.
+//     Returns nil if no error occurred.
+func GetEnvironmentVariableAsInteger(name string, others ...any) (int, error) {
+	var defaultValue int = 0
+	var required bool
+
 	if len(others) > 0 {
-		required = others[0]
+		if val, ok := others[0].(int); ok {
+			defaultValue = val
+		}
 	}
+	if len(others) > 1 {
+		if val, ok := others[1].(bool); ok {
+			required = val
+		}
+	}
+
 	output := GetEnvironmentVariable(name, "", required)
 	if output == "" {
 		return defaultValue, nil

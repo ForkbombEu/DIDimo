@@ -7,14 +7,14 @@ import (
 
 func Test_GetEnvironmentVariable(t *testing.T) {
 	t.Run("test with an existing variable", func(t *testing.T) {
-		envVar := GetEnvironmentVariable("GOPATH", "")
+		envVar := GetEnvironmentVariable("GOPATH")
 		if envVar == "" {
 			t.Errorf("Expected a value for the environment variable GOPATH, got an empty string")
 		}
 	})
 
 	t.Run("test with a non-existing variable", func(t *testing.T) {
-		envVar := GetEnvironmentVariable("NON_EXISTING_ENV_VAR", "")
+		envVar := GetEnvironmentVariable("NON_EXISTING_ENV_VAR")
 		if envVar != "" {
 			t.Errorf("Expected an empty string for the environment variable NON_EXISTING_ENV_VAR, got a value")
 		}
