@@ -44,7 +44,7 @@ RUN didimo migrate
 
 ARG TEMPORAL_ADDRESS
 ENV TEMPORAL_ADDRESS $TEMPORAL_ADDRESS
-ENV PUBLIC_POCKETBASE_URL https://demo.didimo.forkbomb.eu
+ENV PUBLIC_POCKETBASE_URL https://demo.didimo.apps.forkbomb.eu
 WORKDIR webapp
 RUN bun i
 RUN bun run build
