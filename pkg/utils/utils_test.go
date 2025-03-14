@@ -5,30 +5,30 @@ import (
 	"testing"
 )
 
-func Test_GetEnvVariable(t *testing.T) {
+func Test_GetEnvironmentVariable(t *testing.T) {
 	t.Run("test with an existing variable", func(t *testing.T) {
-		envVar := GetEnvVariable("GOPATH", "", false)
+		envVar := GetEnvironmentVariable("GOPATH", "")
 		if envVar == "" {
 			t.Errorf("Expected a value for the environment variable GOPATH, got an empty string")
 		}
 	})
 
 	t.Run("test with a non-existing variable", func(t *testing.T) {
-		envVar := GetEnvVariable("NON_EXISTING_ENV_VAR", "", false)
+		envVar := GetEnvironmentVariable("NON_EXISTING_ENV_VAR", "")
 		if envVar != "" {
 			t.Errorf("Expected an empty string for the environment variable NON_EXISTING_ENV_VAR, got a value")
 		}
 	})
 
 	t.Run("pass default value to a non existing variable", func(t *testing.T) {
-		got := GetEnvVariable("NON_EXISTING_ENV_VAR", "default", false)
+		got := GetEnvironmentVariable("NON_EXISTING_ENV_VAR", "default")
 		want := "default"
 		if got != want {
 			t.Errorf("Expected 'default' for the environment variable NON_EXISTING_ENV_VAR, got a value")
 		}
 	})
 	t.Run("test a required variable", func(t *testing.T) {
-		envVar := GetEnvVariable("GOPATH", "", true)
+		envVar := GetEnvironmentVariable("GOPATH", "", true)
 		if envVar == "" {
 			t.Errorf("Expected a value for the environment variable GOPATH, got an empty string")
 		}
@@ -40,7 +40,7 @@ func Test_GetEnvVariable(t *testing.T) {
 				t.Errorf("The code did not panic")
 			}
 		}()
-		GetEnvVariable("NON_EXISTING_ENV_VAR", "", true)
+		GetEnvironmentVariable("NON_EXISTING_ENV_VAR", "", true)
 	})
 
 	t.Run("test a required  non existing variable with default value should not return a error", func(t *testing.T) {
@@ -49,18 +49,18 @@ func Test_GetEnvVariable(t *testing.T) {
 				t.Errorf("The code panicked")
 			}
 		}()
-		GetEnvVariable("NON_EXISTING_ENV_VAR", "default", true)
+		GetEnvironmentVariable("NON_EXISTING_ENV_VAR", "default", true)
 	})
 }
 
-func Test_GetEnvVariableAsInt(t *testing.T) {
+func Test_GetEnvironmentVariableAsInteger(t *testing.T) {
 	t.Run("test with an existing int variable should return an integer", func(t *testing.T) {
 		err := os.Setenv("MY_ENV_VAR", "9")
 		if err != nil {
 			t.Errorf("Failed to set the environment variable")
 		}
 		var got any
-		envVar, err := GetEnvVariableAsInt("MY_ENV_VAR", 0, false)
+		envVar, err := GetEnvironmentVariableAsInteger("MY_ENV_VAR", 0)
 		got = envVar
 		if err != nil {
 			t.Errorf("Expected a value for the environment variable MY_ENV_VAR, got an empty string")
@@ -75,7 +75,7 @@ func Test_GetEnvVariableAsInt(t *testing.T) {
 	})
 
 	t.Run("test with a non-existing variable", func(t *testing.T) {
-		envVar, err := GetEnvVariableAsInt("NON_EXISTING_ENV_VAR", 0, false)
+		envVar, err := GetEnvironmentVariableAsInteger("NON_EXISTING_ENV_VAR", 0)
 		if err != nil {
 			t.Errorf("Expected a value for the environment variable NON_EXISTING_ENV_VAR, got an empty string")
 		}
@@ -89,7 +89,7 @@ func Test_GetEnvVariableAsInt(t *testing.T) {
 		if err != nil {
 			t.Errorf("Failed to set the environment variable")
 		}
-		envVar, err := GetEnvVariableAsInt("MY_ENV_VAR", 0, false)
+		envVar, err := GetEnvironmentVariableAsInteger("MY_ENV_VAR", 0)
 		if err == nil {
 			t.Errorf("Expected an error for the environment variable MY_ENV_VAR, got nil")
 		}
