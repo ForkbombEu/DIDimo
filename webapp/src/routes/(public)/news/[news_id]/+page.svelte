@@ -26,9 +26,7 @@
 </PageTop>
 
 <PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
-	<div class="grow space-y-16">
-		<div class="prose max-w-none">
-			{@html news.news}
-		</div>
+	<div class="prose lg:prose-lg xl:prose-xl">
+		{@html news.news}
 	</div>
 </PageContent>
