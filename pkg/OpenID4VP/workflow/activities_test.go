@@ -3,6 +3,9 @@ package workflow
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 
@@ -239,6 +242,8 @@ tests:
                 captures:
                     result:
                         jsonpath: $.browser.urls[0]
+                    rid:
+                        jsonpath: $.id
                 check:
                     status: 200
                     schema:
@@ -484,5 +489,82 @@ func TestSendMailActivity(t *testing.T) {
 	// Check if email was sent
 	if len(mockServer.Messages()) != 1 {
 		t.Errorf("Expected email to be sent, but mock server received none")
+	}
+}
+
+func TestGetLogsActivity(t *testing.T) {
+	var ts testsuite.WorkflowTestSuite
+	env := ts.NewTestActivityEnvironment()
+	env.RegisterActivity(GetLogsActivity)
+	tests := []struct {
+		name           string
+		serverResponse string
+		statusCode     int
+		expectedError  string
+		expectedResult []map[string]interface{}
+	}{
+		{
+			name: "Valid Logs Response",
+			serverResponse: `[
+				{"log_id": "1", "message": "log entry 1"},
+				{"log_id": "2", "message": "log entry 2"}
+			]`,
+			statusCode:    http.StatusOK,
+			expectedError: "",
+			expectedResult: []map[string]interface{}{
+				{"log_id": "1", "message": "log entry 1"},
+				{"log_id": "2", "message": "log entry 2"},
+			},
+		},
+		{
+			name:           "Invalid JSON Response",
+			serverResponse: `{"log_id": "1", "message"`,
+			statusCode:     http.StatusOK,
+			expectedError:  "failed to decode response",
+			expectedResult: nil,
+		},
+		{
+			name:           "Non-200 Status Code",
+			serverResponse: "",
+			statusCode:     http.StatusUnauthorized,
+			expectedError:  "unexpected status code: 401",
+			expectedResult: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Create a mock server
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tt.statusCode)
+				fmt.Fprint(w, tt.serverResponse)
+			}))
+			defer server.Close()
+
+			// Call the GetLogsActivity with the mock server URL
+			input := LogActivitytyInput{
+				BaseURL: server.URL,
+				RID:     "test-rid",
+				Token:   "test-token",
+			}
+
+			future, err := env.ExecuteActivity(GetLogsActivity, input)
+
+			// Validate the result
+			if tt.expectedError == "" {
+				require.NoError(t, err, "Expected no error")
+			} else {
+				require.Error(t, err, "Expected an error")
+				require.Contains(t, err.Error(), tt.expectedError)
+			}
+
+			// Check if the result matches the expected logs
+			if tt.expectedResult != nil {
+				var logs []map[string]any
+				err := future.Get(&logs)
+				require.NoError(t, err, "Failed to get activity result")
+				require.ElementsMatch(t, tt.expectedResult, logs)
+			}
+		})
 	}
 }
