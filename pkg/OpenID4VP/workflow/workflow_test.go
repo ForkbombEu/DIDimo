@@ -19,8 +19,8 @@ func Test_Workflow(t *testing.T) {
 	os.Setenv("SMTP_PORT", "1000")
 	os.Setenv("MAIL_SENDER", "test@example.org")
 	// Mock activity implementation
-	env.OnActivity(GenerateYAMLActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
-	env.OnActivity(RunStepCIJSProgramActivity, mock.Anything, mock.Anything, mock.Anything).Return(nil, nil)
+	env.OnActivity(GenerateYAMLActivity, mock.Anything, mock.Anything).Return(nil)
+	env.OnActivity(RunStepCIJSProgramActivity, mock.Anything, mock.Anything).Return(StepCIRunnerResponse{}, nil)
 	env.OnActivity(SendMailActivity, mock.Anything, mock.Anything).Return(nil)
 	fakeData := SignalData{
 		Success: false,
@@ -31,7 +31,7 @@ func Test_Workflow(t *testing.T) {
 	}, time.Minute)
 	env.ExecuteWorkflow(OpenIDTestWorkflow, WorkflowInput{Variant: "test", UserMail: "user@example.org"})
 
-	var result string
+	var result WorkflowResponse
 	assert.NoError(t, env.GetWorkflowResult(&result))
-	assert.Equal(t, "Workflow terminated with a failure message: Test message", result)
+	assert.Equal(t, "Workflow terminated with a failure message: Test message", result.Message)
 }
