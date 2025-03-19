@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
@@ -92,7 +93,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 
 	result, ok := response.Result["result"].(string)
 	if !ok {
-		result = ""
+		result = " "
 	}
 
 	query := u.Query()
@@ -118,20 +119,104 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 		</html>
 	`, finalURL, finalURL),
 	}
+
 	err = workflow.ExecuteActivity(ctx, SendMailActivity, emailConfig).Get(ctx, nil)
 	if err != nil {
 		logger.Error("Failed to send mail to user ", "error", err)
 		return WorkflowResponse{}, fmt.Errorf("failed to print QR code to terminal: %w", err)
 	}
 
-	signal := workflow.GetSignalChannel(ctx, "wallet-test-signal")
+	rid, ok := response.Result["rid"].(string)
+	if !ok {
+		return WorkflowResponse{}, fmt.Errorf("failed to get id from response: %v", err)
+	}
+
+	childCtx, cancelHandler := workflow.WithCancel(ctx)
+	defer cancelHandler()
+
+	childOptions := workflow.ChildWorkflowOptions{
+		WorkflowID:        workflow.GetInfo(ctx).WorkflowExecution.ID + "-log",
+		ParentClosePolicy: enums.PARENT_CLOSE_POLICY_TERMINATE,
+	}
+	childCtx = workflow.WithChildOptions(childCtx, childOptions)
+
+	// Execute child workflow asynchronously
+	logsWorkflow := workflow.ExecuteChildWorkflow(childCtx, LogSubWorkflow, LogWorkflowInput{
+		RID:      rid,
+		Token:    token,
+		Interval: time.Second * 30,
+	})
+
+	// Wait for either signal or child completion
+	selector := workflow.NewSelector(ctx)
+	var subWorkflowResponse LogWorkflowResponse
 	var data SignalData
-	signal.Receive(ctx, &data)
+
+	selector.AddFuture(logsWorkflow, func(f workflow.Future) {
+		f.Get(ctx, &subWorkflowResponse)
+	})
+	var signalSent bool
+	signalChan := workflow.GetSignalChannel(ctx, "wallet-test-signal")
+	selector.AddReceive(signalChan, func(c workflow.ReceiveChannel, _ bool) {
+		signalSent = true
+		c.Receive(ctx, &data)
+		cancelHandler()
+		logsWorkflow.Get(ctx, &subWorkflowResponse)
+
+	})
+	for !signalSent {
+		selector.Select(ctx)
+	}
 
 	// Process the signal data
 	if !data.Success {
-		return WorkflowResponse{Message: fmt.Sprintf("Workflow terminated with a failure message: %s", data.Reason)}, nil
+		return WorkflowResponse{Message: fmt.Sprintf("Workflow terminated with a failure message: %s", data.Reason), Logs: subWorkflowResponse.Logs}, nil
 	}
 
-	return WorkflowResponse{Message: "Worflow completed successfully"}, nil
+	return WorkflowResponse{Message: "Workflow completed successfully", Logs: subWorkflowResponse.Logs}, nil
+}
+
+func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowResponse, error) {
+	logger := workflow.GetLogger(ctx)
+
+	// Configure activity options for the sub-workflow
+	subActivityOptions := workflow.ActivityOptions{
+		ScheduleToCloseTimeout: time.Minute * 10,
+		StartToCloseTimeout:    time.Minute * 5,
+		RetryPolicy: &temporal.RetryPolicy{
+			InitialInterval:    time.Second * 5,
+			BackoffCoefficient: 2.0,
+			MaximumInterval:    time.Minute,
+			MaximumAttempts:    3,
+		},
+	}
+	subCtx := workflow.WithActivityOptions(ctx, subActivityOptions)
+
+	logInput := LogActivitytyInput{
+		BaseURL: LogsBaseURL,
+		RID:     input.RID,
+		Token:   input.Token,
+	}
+	var logs []map[string]any
+	for {
+		if ctx.Err() != nil {
+			logger.Info("Workflow canceled, returning collected logs")
+			return LogWorkflowResponse{Logs: logs}, nil
+		}
+
+		err := workflow.ExecuteActivity(subCtx, GetLogsActivity, logInput).Get(subCtx, &logs)
+		if err != nil {
+			logger.Error("Failed to get log", "error", err)
+			return LogWorkflowResponse{}, err
+		}
+
+		if result, ok := logs[len(logs)-1]["result"].(string); ok {
+			if result == "INTERRUPTED" || result == "FINISHED" {
+				return LogWorkflowResponse{Logs: logs}, nil
+			}
+		}
+
+		workflow.Sleep(subCtx, input.Interval)
+	}
+
 }

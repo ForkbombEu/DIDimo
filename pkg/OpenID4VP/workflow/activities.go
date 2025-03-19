@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
 
@@ -108,6 +110,7 @@ func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
 					JSONPath string `yaml:"jsonpath"`
 				}{
 					"result": {JSONPath: "$.browser.urls[0]"},
+					"rid":    {JSONPath: "$.id"},
 				},
 				Check: struct {
 					Status int `yaml:"status,omitempty"`
@@ -196,4 +199,46 @@ func SendMailActivity(ctx context.Context, config EmailConfig) error {
 	}
 
 	return nil
+}
+
+// GetLogActivity performs the GET request to fetch the log
+func GetLogsActivity(ctx context.Context, input LogActivitytyInput) ([]map[string]any, error) {
+
+	baseURL, err := url.Parse(input.BaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse base URL: %w", err)
+	}
+
+	baseURL.Path += url.PathEscape(input.RID)
+
+	query := baseURL.Query()
+	query.Set("public", "false")
+	baseURL.RawQuery = query.Encode()
+
+	finalURL := baseURL.String()
+
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", input.Token))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform GET request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result []map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return result, nil
 }
