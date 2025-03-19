@@ -1,8 +1,15 @@
 package workflow
 
-import "github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
+import (
+	"time"
 
-const OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
+	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
+)
+
+const (
+	OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
+	LogsBaseURL         = "https://www.certification.openid.net/api/log/"
+)
 
 // EmailConfig holds the email configuration details
 type EmailConfig struct {
@@ -39,8 +46,25 @@ type WorkflowInput struct {
 	AppURL   string
 }
 
+type LogWorkflowInput struct {
+	RID      string
+	Token    string
+	Interval time.Duration
+}
+
 type WorkflowResponse struct {
 	Message string
+	Logs    []map[string]any
+}
+
+type LogWorkflowResponse struct {
+	Logs []map[string]any
+}
+
+type LogActivitytyInput struct {
+	BaseURL string
+	RID     string
+	Token   string
 }
 
 type SignalData struct {

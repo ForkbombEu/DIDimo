@@ -20,9 +20,11 @@ func main() {
 	w := worker.New(c, workflow.OpenIDTestTaskQueue, worker.Options{})
 
 	w.RegisterWorkflow(workflow.OpenIDTestWorkflow)
+	w.RegisterWorkflow(workflow.LogSubWorkflow)
 	w.RegisterActivity(workflow.GenerateYAMLActivity)
 	w.RegisterActivity(workflow.RunStepCIJSProgramActivity)
 	w.RegisterActivity(workflow.SendMailActivity)
+	w.RegisterActivity(workflow.GetLogsActivity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
