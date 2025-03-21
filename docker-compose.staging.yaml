@@ -8,11 +8,11 @@ services:
     environment:
       - SERVICE_FQDN_CREDIMI
       - SERVICE_FQDN_CREDIMI_8092
-      - ADDRESS_TEMPORAL=${SERVICE_FQDN_TEMPORALUI:-http://temporal-ui:8233}
+      - ADDRESS_TEMPORAL=${SERVICE_FQDN_TEMPORALUI:-http://temporal-ui:8234}
       - ADDRESS_UI=http://localhost:5100
       - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
-      - APP_PATH=${COOLIFY_URL:-http://credimi:8090}
-      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://credimi:8090}
+      - APP_PATH=${COOLIFY_URL:-http://credimi:8092}
+      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://credimi:8092}
       - PORT=5100
       - SCHEMAS_PATH=schemas
       - DATA_DB_PATH=/pb_data/data.db
@@ -49,14 +49,14 @@ services:
       - temporal
     environment:
       - SERVICE_FQDN_TEMPORALUI
-      - SERVICE_FQDN_TEMPORALUI_8233
+      - SERVICE_FQDN_TEMPORALUI_8234
       - TEMPORAL_OPENAPI_ENABLED=true
       - TEMPORAL_UI_ENABLED=true
       - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
       - TEMPORAL_UI_PUBLIC_PATH=/workflows
     image: temporalio/ui:2.32.0
     ports:
-      - 8233:8080
+      - 8234:8080
   postgresql:
     image: postgres:13
     environment:
