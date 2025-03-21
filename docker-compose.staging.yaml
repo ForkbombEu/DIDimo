@@ -1,7 +1,7 @@
 services:
   credimi:
     build:
-      context: ..
+      context: .
       dockerfile: ./deployment/Dockerfile.demo
     depends_on:
       - temporal
