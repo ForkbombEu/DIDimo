@@ -4,11 +4,12 @@
 
 Before you begin, ensure you have the following tools installed:
 
+-   [Git](https://git-scm.com/downloads)
 -   [Go](https://go.dev/doc/install)
--   [Node.js](https://nodejs.org/en/download/)
--   [Bun](https://bun.sh/docs/installation)
+-   [Make](https://www.gnu.org/software/make)
 -   [Mise](https://mise.jdx.dev/getting-started.html)
 -   [Temporal](https://docs.temporal.io/cli)
+-   [Tmux](https://github.com/tmux/tmux/wiki/Installing)
 
 ## **Installation Steps**
 
@@ -51,6 +52,7 @@ Initialize the environment:
 
 ```bash
 cd DIDimo
+mise trust
 make didimo
 ```
 
