@@ -5,15 +5,12 @@
 Before you begin, ensure you have the following tools installed:
 
 -   [Git](https://git-scm.com/downloads)
--   [Go](https://go.dev/doc/install)
 -   [Make](https://www.gnu.org/software/make)
 -   [Mise](https://mise.jdx.dev/getting-started.html)
 -   [Temporal](https://docs.temporal.io/cli)
 -   [Tmux](https://github.com/tmux/tmux/wiki/Installing)
 
-## **Installation Steps**
-
-### 1. Install `slangroom-exec`
+### **Install `slangroom-exec`**
 
 Download the appropriate `slangroom-exec` binary for your OS from the [releases page](https://github.com/dyne/slangroom-exec/releases).
 
@@ -25,30 +22,15 @@ chmod +x slangroom-exec
 sudo cp slangroom-exec /usr/local/bin/
 ```
 
-### 2. Install `zencode-exec`
+## **Setup Workspace**
 
-Download the appropriate `zencode-exec` binary for your OS from the [releases page](https://github.com/dyne/zenroom/releases).
-
-> [!WARNING]
-> On Mac OS, the executable is zencode-exec.command and you have to symlink it to zencode-exec
-
-Add `zencode-exec` to PATH and make it executable:
-
-```bash
-wget https://github.com/dyne/zenroom/releases/latest/download/zencode-exec
-chmod +x zencode-exec
-sudo cp zencode-exec /usr/local/bin/
-```
-
-### 3. **Setup Project**
-
-Clone the repository:
+### **Clone the repository**
 
 ```bash
 git clone https://github.com/ForkbombEu/DIDimo
 ```
 
-Initialize the environment:
+### **Install dependencies**
 
 ```bash
 cd DIDimo
@@ -56,8 +38,11 @@ mise trust
 make didimo
 ```
 
-### 4. **Start Development Server**
+## **Start Development Server**
 
 ```bash
 make dev
 ```
+
+> [!TIP]
+> Use `make help` to see all the commands available.
