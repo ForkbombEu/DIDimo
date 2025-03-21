@@ -36,6 +36,7 @@ git clone https://github.com/ForkbombEu/DIDimo
 cd DIDimo
 mise trust
 make didimo
+./didimo migrate
 ```
 
 ## **Start Development Server**
