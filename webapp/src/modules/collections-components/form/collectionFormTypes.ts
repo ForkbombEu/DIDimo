@@ -59,8 +59,13 @@ export type FieldsOptions<C extends CollectionName, R = CollectionFormData[C]> =
 export type RelationFieldOptions<C extends CollectionName> = CollectionFieldModeProp &
 	CollectionInputRecordProps<C, PocketbaseQueryExpandOption<C>>;
 
+export type FieldSnippetOptions<C extends CollectionName, T = CollectionFormData[C]> = {
+	form: SuperForm<T & GenericRecord>;
+	field: FormPath<T & GenericRecord>;
+};
+
 export type FieldSnippet<C extends CollectionName, T = CollectionFormData[C]> = Snippet<
-	[{ form: SuperForm<T & GenericRecord>; field: FormPath<T & GenericRecord> }]
+	[FieldSnippetOptions<C, T>]
 >;
 
 /* UI Options */

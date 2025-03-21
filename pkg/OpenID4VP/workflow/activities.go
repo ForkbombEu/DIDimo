@@ -8,26 +8,12 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
 	"gopkg.in/gomail.v2"
 )
 
-// EmailConfig holds the email configuration details
-type EmailConfig struct {
-	SMTPHost      string
-	SMTPPort      int
-	Username      string
-	Password      string
-	SenderEmail   string
-	ReceiverEmail string
-	Subject       string
-	Body          string
-	Attachments   map[string][]byte
-}
-
 // GenerateYAML generates a YAML file based on provided variant and form
-func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.Form, filePath string) error {
+func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
 
 	schemasPath := os.Getenv("SCHEMAS_PATH")
 	if schemasPath == "" {
@@ -55,7 +41,7 @@ func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.For
 				URL:    "https://www.certification.openid.net/api/plan",
 				Params: map[string]string{
 					"planName": "oid4vp-id2-wallet-test-plan",
-					"variant":  variant,
+					"variant":  input.Variant,
 				},
 				Auth: struct {
 					Ref string `yaml:"$ref"`
@@ -64,7 +50,7 @@ func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.For
 					"accept":       "application/json",
 					"Content-Type": "application/json",
 				},
-				JSON: form,
+				JSON: input.Form,
 				Captures: map[string]struct {
 					JSONPath string `yaml:"jsonpath"`
 				}{
@@ -147,7 +133,7 @@ func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.For
 		},
 	}
 
-	err = stepci.GenerateYAML(config, filePath)
+	err = stepci.GenerateYAML(config, input.FilePath)
 	if err != nil {
 		return fmt.Errorf("error generating YAML: %w", err)
 	}
@@ -156,27 +142,27 @@ func GenerateYAMLActivity(ctx context.Context, variant string, form testdata.For
 }
 
 // RunStepCIJSProgram executes the JavaScript program and returns a generic JSON response.
-func RunStepCIJSProgramActivity(ctx context.Context, yamlFilePath, token string) (map[string]any, error) {
+func RunStepCIJSProgramActivity(ctx context.Context, input StepCIRunnerInput) (StepCIRunnerResponse, error) {
 	runStepCIPath := os.Getenv("RUN_STEPCI_PATH")
 	if runStepCIPath == "" {
-		return nil, fmt.Errorf("RUN_STEPCI_PATH environment variable not set")
+		return StepCIRunnerResponse{}, fmt.Errorf("RUN_STEPCI_PATH environment variable not set")
 	}
 
 	// Set up the command
-	cmd := exec.CommandContext(ctx, "bun", "run", runStepCIPath, "-p", yamlFilePath, "-s", "token="+token)
+	cmd := exec.CommandContext(ctx, "bun", "run", runStepCIPath, "-p", input.FilePath, "-s", "token="+input.Token)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return nil, fmt.Errorf("error executing JS program: %w\nOutput: %s", err, string(output))
+		return StepCIRunnerResponse{}, fmt.Errorf("error executing JS program: %w\nOutput: %s", err, string(output))
 	}
 
 	// Decode JSON output into a generic map
 	var result map[string]any
 	if err := json.Unmarshal(output, &result); err != nil {
-		return nil, fmt.Errorf("failed to parse JSON output: %w\nRaw Output: %s", err, string(output))
+		return StepCIRunnerResponse{}, fmt.Errorf("failed to parse JSON output: %w\nRaw Output: %s", err, string(output))
 	}
 
-	return result, nil
+	return StepCIRunnerResponse{Result: result}, nil
 }
 
 // SendMailActivity sends an email
