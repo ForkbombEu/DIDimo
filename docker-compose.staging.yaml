@@ -7,7 +7,7 @@ services:
       - temporal
     environment:
       - SERVICE_FQDN_CREDIMI
-      - SERVICE_FQDN_CREDIMI_8090
+      - SERVICE_FQDN_CREDIMI_8092
       - ADDRESS_TEMPORAL=${SERVICE_FQDN_TEMPORALUI:-http://temporal-ui:8233}
       - ADDRESS_UI=http://localhost:5100
       - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
@@ -25,7 +25,7 @@ services:
       - PB_TYPEGEN_PASSWORD=adminadmin
       - MAINTENANCE=false
     ports:
-      - 8090:8090
+      - 8092:8090
     volumes:
       - ../pb_data:/pb_data
   temporal:
