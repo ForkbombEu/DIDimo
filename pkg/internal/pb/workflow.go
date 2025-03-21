@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/google/uuid"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -19,6 +19,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/types"
 
+	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
 )
 
@@ -33,19 +34,7 @@ type IssuerURL struct {
 }
 
 func HookCredentialWorkflow(app *pocketbase.PocketBase) {
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
-	if err != nil {
-		log.Fatalln("unable to create client", err)
-	}
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-
 		se.Router.POST("/credentials_issuers/start-check", func(e *core.RequestEvent) error {
 			var req IssuerURL
 
@@ -95,18 +84,19 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				ID:        "credentials-workflow-" + uuid.New().String(),
 				TaskQueue: "CredentialsTaskQueue",
 			}
-
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
 			we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, credential_workflow.CredentialWorkflow, workflowInput)
 			if err != nil {
 				return fmt.Errorf("error starting workflow for URL %s: %v", req.URL, err)
-
 			}
 
 			var result credential_workflow.CredentialWorkflowResponse
 			err = we.Get(context.Background(), &result)
 			if err != nil {
 				return fmt.Errorf("error running workflow for URL %s: %v", req.URL, err)
-
 			}
 
 			log.Printf("Workflow completed successfully for URL %s: %s", req.URL, result.Message)
@@ -133,19 +123,7 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 }
 
 func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
-
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
-		hostPort := os.Getenv("TEMPORAL_ADDRESS")
-		if hostPort == "" {
-			hostPort = "localhost:7233"
-		}
-		c, err := client.Dial(client.Options{
-			HostPort: hostPort,
-		})
-		if err != nil {
-			log.Fatalln("Unable to create client", err)
-		}
-
 		se.Router.POST("/api/openid4vp-test", func(e *core.RequestEvent) error {
 			var req OpenID4VPRequest
 			appURL := app.Settings().Meta.AppURL
@@ -174,7 +152,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			data := openid4vp_workflow.SignalData{
 				Success: true,
 			}
-			err := c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send success signal", err)
 			}
@@ -194,7 +176,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Success: false,
 				Reason:  request.Reason,
 			}
-			err := c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send failure signal", err)
 			}
@@ -275,5 +261,44 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 		_, _ = scheduleHandle.Describe(ctx)
 
 		return nil
+	})
+}
+func RouteWorkflowList(app *pocketbase.PocketBase) {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
+			namespace := e.Request.URL.Query().Get("namespace")
+			if namespace == "" {
+				return apis.NewBadRequestError("namespace is required", nil)
+			}
+
+			authRecord := e.Auth
+
+			orgRecord, err := e.App.FindFirstRecordByFilter("organizations", "name={:name}", dbx.Params{"name": namespace})
+			if err != nil || orgRecord == nil {
+				return apis.NewBadRequestError("Organization not found", err)
+			}
+
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && organization={:organization}", "", 0, 0, dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
+			if err != nil || orgAuthRecord == nil {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
+			}
+			if len(orgAuthRecord) > 1 {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", nil)
+			}
+
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				log.Fatalln("unable to create client", err)
+			}
+			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
+				Namespace: namespace,
+			})
+			if err != nil {
+				return apis.NewInternalServerError("failed to list workflows", err)
+			}
+
+			return e.JSON(http.StatusOK, list)
+		}).Bind(apis.RequireAuth())
+		return se.Next()
 	})
 }

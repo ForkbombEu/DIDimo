@@ -2,30 +2,22 @@ package main
 
 import (
 	"log"
-	"os"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/joho/godotenv"
-	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
 )
 
 func main() {
 	godotenv.Load()
-	hostPort := os.Getenv("TEMPORAL_ADDRESS")
-	if hostPort == "" {
-		hostPort = "localhost:7233"
-	}
-
-	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
-	})
+	c, err := temporalclient.GetTemporalClient()
 	if err != nil {
 		log.Fatalf("Failed to connect to Temporal: %v", err)
 	}
 	defer c.Close()
 
-	w := worker.New(c, "openid-test-task-queue", worker.Options{})
+	w := worker.New(c, workflow.OpenIDTestTaskQueue, worker.Options{})
 
 	w.RegisterWorkflow(workflow.OpenIDTestWorkflow)
 	w.RegisterActivity(workflow.GenerateYAMLActivity)

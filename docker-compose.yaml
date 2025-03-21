@@ -59,20 +59,6 @@ services:
       - type: bind
         source: ./deployment/grafana/provisioning/datasources
         target: /etc/grafana/provisioning/datasources
-  mailpit:
-    image: axllent/mailpit
-    restart: unless-stopped
-    volumes:
-      - ./.certs:/certs
-    ports:
-      - 8025:8025
-      - 1025:1025
-    environment:
-      - MP_MAX_MESSAGES=5000
-      - MP_SMTP_AUTH_ACCEPT_ANY=true
-      - MP_SMTP_AUTH_ALLOW_INSECURE=true
-      - MP_SMTP_TLS_CERT=/certs/mailpit+3.pem
-      - MP_SMTP_TLS_KEY=/certs/mailpit+3-key.pem
   thirdparty:
     build: deployment/thirdparty-simulator
     command: thirdparty-simulator api

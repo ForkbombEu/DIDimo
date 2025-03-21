@@ -66,6 +66,23 @@ type EmailData = {
         "AppName",
         "DashboardLink"
     ],
+    "provider-claim-accepted": [
+        "ProviderName",
+        "AppName",
+        "ProviderName",
+        "UserName",
+        "ProviderName",
+        "AppName",
+        "ProviderName",
+        "DashboardLink"
+    ],
+    "provider-claim-declined": [
+        "ProviderName",
+        "AppName",
+        "ProviderName",
+        "UserName",
+        "ProviderName"
+    ],
     "reset-password": [
         "AppName",
         "username",

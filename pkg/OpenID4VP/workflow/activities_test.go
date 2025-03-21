@@ -69,21 +69,21 @@ func TestGenerateYAMLActivity(t *testing.T) {
 	testCases := []struct {
 		name          string
 		variant       string
-		Form          testdata.Form
+		form          testdata.Form
 		setupEnv      func()
 		expectedError bool
 	}{
 		{
 			name:          "Success Valid input",
 			variant:       "testVariant",
-			Form:          mockForm,
+			form:          mockForm,
 			setupEnv:      func() { os.Setenv("SCHEMAS_PATH", "../../../schemas") },
 			expectedError: false,
 		},
 		{
 			name:          "Failure  Missing SCHEMAS_PATH",
 			variant:       "testVariant",
-			Form:          mockForm,
+			form:          mockForm,
 			setupEnv:      func() { os.Unsetenv("SCHEMAS_PATH") },
 			expectedError: true,
 		},
@@ -96,8 +96,13 @@ func TestGenerateYAMLActivity(t *testing.T) {
 			tmpFile, err := os.CreateTemp("", "test-*.yaml")
 			require.NoError(t, err, "Failed to create temporary YAML file")
 			defer os.Remove(tmpFile.Name())
+			YAMLInput := GenerateYAMLInput{
+				Variant:  tc.variant,
+				Form:     tc.form,
+				FilePath: tmpFile.Name(),
+			}
 
-			_, err = env.ExecuteActivity(GenerateYAMLActivity, tc.variant, tc.Form, tmpFile.Name())
+			_, err = env.ExecuteActivity(GenerateYAMLActivity, YAMLInput)
 			if tc.expectedError {
 				require.Error(t, err, "Expected an error but did not receive one")
 				return
@@ -422,9 +427,12 @@ tests:
 
 			_, err = tmpYAMLFile.WriteString(tc.yamlContent)
 			require.NoError(t, err, "Failed to write to temporary YAML file")
-
-			var result map[string]any
-			future, err := env.ExecuteActivity(RunStepCIJSProgramActivity, tmpYAMLFile.Name(), tc.token)
+			stepCIInput := StepCIRunnerInput{
+				FilePath: tmpYAMLFile.Name(),
+				Token:    tc.token,
+			}
+			var result StepCIRunnerResponse
+			future, err := env.ExecuteActivity(RunStepCIJSProgramActivity, stepCIInput)
 
 			if tc.expectedError {
 				require.Error(t, err, "Expected an error but did not receive one")
@@ -437,7 +445,7 @@ tests:
 				expected := make(map[string]any)
 				err = json.Unmarshal([]byte(tc.expectedJSON), &expected)
 				require.NoError(t, err, "Failed to unmarshal JSON")
-				require.Equal(t, expected, result)
+				require.Equal(t, expected, result.Result)
 			}
 		})
 	}
