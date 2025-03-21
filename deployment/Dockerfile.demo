@@ -18,7 +18,6 @@ RUN --mount=target=/var/lib/apt/lists,type=cache,sharing=locked \
         build-essential make bash curl git tmux wget ca-certificates
 
 WORKDIR /app
-COPY .. ./
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 ENV MISE_DATA_DIR="/mise"
@@ -28,8 +27,19 @@ ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
 ENV PATH="/mise/shims:$PATH"
 
 RUN curl https://mise.run | sh
+
+COPY .mise.toml ./
 RUN mise trust
-RUN mise i
+RUN --mount=type=cache,target=/mise/cache mise i
+
+WORKDIR /app
+COPY ../webapp/package.json webapp/
+COPY ../webapp/bun.lock webapp/
+WORKDIR /app/webapp
+RUN bun i --frozen-lockfile
+
+WORKDIR /app
+COPY .. ./
 
 # install overmind
 RUN curl -sLO https://github.com/DarthSim/overmind/releases/download/v2.5.1/overmind-v2.5.1-linux-amd64.gz
@@ -44,9 +54,9 @@ RUN didimo migrate
 
 ARG TEMPORAL_ADDRESS
 ENV TEMPORAL_ADDRESS $TEMPORAL_ADDRESS
-ENV PUBLIC_POCKETBASE_URL https://demo.didimo.apps.forkbomb.eu
-WORKDIR webapp
-RUN bun i
+ARG PUBLIC_POCKETBASE_URL
+ENV PUBLIC_POCKETBASE_URL $PUBLIC_POCKETBASE_URL
+WORKDIR /app/webapp
 RUN bun run build
 
 CMD ["overmind", "s", "-f", "/app/Procfile.demo" ]

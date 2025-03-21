@@ -1,0 +1,69 @@
+services:
+  credimi:
+    build:
+      context: ..
+      dockerfile: ./deployment/Dockerfile.demo
+    depends_on:
+      - temporal
+    environment:
+      - SERVICE_FQDN_CREDIMI
+      - SERVICE_FQDN_CREDIMI_8090
+      - ADDRESS_TEMPORAL=${SERVICE_FQDN_TEMPORALUI:-http://temporal-ui:8233}
+      - ADDRESS_UI=http://localhost:5100
+      - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
+      - APP_PATH=${COOLIFY_URL:-http://credimi:8090}
+      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://credimi:8090}
+      - PORT=5100
+      - SCHEMAS_PATH=schemas
+      - DATA_DB_PATH=/pb_data/data.db
+      - SMTP_HOST=smtp.apps.forkbomb.eu
+      - SMTP_PORT=1025
+      - MAIL_SENDER=didimo@forkbomb.eu
+      - PB_ADMIN_USER=admin@example.org
+      - PB_ADMIN_PASS=adminadmin
+      - PB_TYPEGEN_EMAIL=admin@example.org
+      - PB_TYPEGEN_PASSWORD=adminadmin
+      - MAINTENANCE=false
+    ports:
+      - 8090:8090
+    volumes:
+      - ../pb_data:/pb_data
+  temporal:
+    depends_on:
+      - postgresql
+    environment:
+      - SERVICE_FQDN_TEMPORAL
+      - DB=postgres12
+      - DB_PORT=5432
+      - POSTGRES_USER=${SERVICE_USER_POSTGRESQL:-temporal}
+      - POSTGRES_PWD=${SERVICE_PASSWORD_POSTGRESQL:-temporal}
+      - POSTGRES_SEEDS=postgresql
+      - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
+      - BIND_ON_IP=0.0.0.0
+      - PROMETHEUS_ENDPOINT=0.0.0.0:8000
+    image: temporalio/server:latest
+    ports:
+      - 9223:7233
+  temporal-ui:
+    depends_on:
+      - temporal
+    environment:
+      - SERVICE_FQDN_TEMPORALUI
+      - SERVICE_FQDN_TEMPORALUI_8233
+      - TEMPORAL_OPENAPI_ENABLED=true
+      - TEMPORAL_UI_ENABLED=true
+      - TEMPORAL_ADDRESS=${SERVICE_FQDN_TEMPORAL:-temporal:9223}
+      - TEMPORAL_UI_PUBLIC_PATH=/workflows
+    image: temporalio/ui:2.32.0
+    ports:
+      - 8233:8080
+  postgresql:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=${SERVICE_USER_POSTGRESQL:-temporal}
+      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRESQL:-temporal}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 20s
+      retries: 10
