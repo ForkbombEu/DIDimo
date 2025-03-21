@@ -193,7 +193,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
-		if e.Record.Id != "99cc877olfmg41j" {
+		if e.Record.Collection().Name != "features" || e.Record.Get("name") != "updateIssuers" {
 			return nil
 		}
 		if e.Record.Get("active") == false {
