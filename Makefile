@@ -69,7 +69,7 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(WEBENV) tools submodules kill-pocketbase remove-overmind ## 🚀 run in watch mode
+dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
