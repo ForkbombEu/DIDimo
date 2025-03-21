@@ -19,11 +19,27 @@ Download the appropriate `slangroom-exec` binary for your OS from the [releases 
 Add `slangroom-exec` to PATH and make it executable:
 
 ```bash
+wget https://github.com/dyne/slangroom-exec/releases/latest/download/slangroom-exec-Linux-x86_64 -O slangroom-exec
 chmod +x slangroom-exec
-echo "export PATH=\$PATH:$(pwd)/slangroom-exec" >> ~/.bashrc
+sudo cp slangroom-exec /usr/local/bin/
 ```
 
-### 2. **Setup Project**
+### 2. Install `zencode-exec`
+
+Download the appropriate `zencode-exec` binary for your OS from the [releases page](https://github.com/dyne/zenroom/releases).
+
+> [!WARNING]
+> On Mac OS, the executable is zencode-exec.command and you have to symlink it to zencode-exec
+
+Add `zencode-exec` to PATH and make it executable:
+
+```bash
+wget https://github.com/dyne/zenroom/releases/latest/download/zencode-exec
+chmod +x zencode-exec
+sudo cp zencode-exec /usr/local/bin/
+```
+
+### 3. **Setup Project**
 
 Clone the repository:
 
@@ -38,7 +54,7 @@ cd DIDimo
 make didimo
 ```
 
-### 3. **Start Development Server**
+### 4. **Start Development Server**
 
 ```bash
 make dev
