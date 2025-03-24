@@ -87,7 +87,6 @@
 		"@codemirror/lang-json": "^6.0.1",
 		"@inlang/paraglide-sveltekit": "^0.15.5",
 		"@melt-ui/svelte": "^0.86.0",
-		"@temporalio/ui": "https://github.com/bbtgnn/temporal-ui",
 		"@types/node": "^22.10.2",
 		"date-fns": "2.29",
 		"effect": "^3.10.12",
@@ -103,6 +102,7 @@
 		"sqlite3": "^5.1.7",
 		"svelte-codemirror-editor": "^1.4.1",
 		"svelte-loading-spinners": "^0.3.6",
+		"temporal-ui": "https://github.com/bbtgnn/temporal-ui-minimal",
 		"thememirror": "^2.0.1",
 		"type-fest": "^4.26.1",
 		"zenroom": "^4.45.3"

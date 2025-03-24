@@ -7,10 +7,10 @@
 		WorkflowHistoryLayout,
 		toEventHistory,
 		eventViewType
-	} from '@temporalio/ui';
+	} from 'temporal-ui';
 
-	import type { WorkflowRunWithWorkers, WorkflowEvent } from '@temporalio/ui';
-	import '@temporalio/ui/dist/_css/temporal.css';
+	import type { WorkflowRunWithWorkers, WorkflowEvent } from 'temporal-ui';
+	import 'temporal-ui/dist/_css/temporal.css';
 
 	import { workflowResponse, eventHistory } from './data';
 	import { onMount } from 'svelte';

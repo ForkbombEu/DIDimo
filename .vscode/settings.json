@@ -7,5 +7,12 @@
     ],
     "editor.quickSuggestions": {
         "strings": "on"
+    },
+    "go.goroot": "/Users/giovanniabbatepaolo/.local/share/mise/installs/go/1.23.4",
+    "python.defaultInterpreterPath": "/Users/giovanniabbatepaolo/.local/share/mise/installs/python/3.11.11/bin/python",
+    "go.alternateTools": {
+        "go": "/Users/giovanniabbatepaolo/.local/share/mise/shims/go",
+        "dlv": "/Users/giovanniabbatepaolo/.local/share/mise/shims/dlv",
+        "gopls": "/Users/giovanniabbatepaolo/.local/share/mise/shims/gopls"
     }
 }
