@@ -5,6 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
 
 	_ "modernc.org/sqlite"
 	_ "modernc.org/sqlite/lib"
@@ -35,23 +38,11 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 
 // StoreOrUpdateCredentialsActivity inserts or updates credential issuer data in the database.
 func StoreOrUpdateCredentialsActivity(
-	ctx context.Context,
-	issuerID, issuerName, credKey, dbPath string,
-	credential struct {
-		CredentialDefinition                 *credentialissuer.CredentialDefinition                      `json:"credential_definition,omitempty"`
-		CredentialSigningAlgValuesSupported  []credentialissuer.CredentialSigningAlgValuesSupportedElem  `json:"credential_signing_alg_values_supported,omitempty"`
-		CryptographicBindingMethodsSupported []credentialissuer.CryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty"`
-		Display                              []credentialissuer.DisplayElem_1                            `json:"display,omitempty"`
-		Format                               string                                                      `json:"format"`
-		ProofTypesSupported                  credentialissuer.ProofTypesSupported                        `json:"proof_types_supported,omitempty"`
-		Scope                                *string                                                     `json:"scope,omitempty"`
-	},
-) error {
+	ctx context.Context, input StoreCredentialsActivityInput) error {
 	logger := activity.GetLogger(ctx)
-	logger.Info("Storing or updating credential", "issuerID", issuerID, "credKey", credKey)
+	logger.Info("Storing or updating credential", "issuerID", input.IssuerID, "credKey", input.CredKey)
 
-	// Open database
-	db, err := sql.Open("sqlite", dbPath)
+	db, err := sql.Open("sqlite", input.DBPath)
 	if err != nil {
 		logger.Warn("Failed to open database", "error", err)
 		return temporal.NewApplicationError(
@@ -64,34 +55,22 @@ func StoreOrUpdateCredentialsActivity(
 
 	// Extract credential details
 	credName, credLocale, credLogo := "", "", ""
-	if len(credential.Display) > 0 {
-		if credential.Display[0].Name != "" {
-			credName = credential.Display[0].Name
+	if len(input.Credential.Display) > 0 {
+		if input.Credential.Display[0].Name != "" {
+			credName = input.Credential.Display[0].Name
 		}
-		if credential.Display[0].Locale != nil {
-			credLocale = *credential.Display[0].Locale
+		if input.Credential.Display[0].Locale != nil {
+			credLocale = *input.Credential.Display[0].Locale
 		}
-		if credential.Display[0].Logo != nil && credential.Display[0].Logo.Uri != "" {
-			credLogo = credential.Display[0].Logo.Uri
+		if input.Credential.Display[0].Logo != nil && input.Credential.Display[0].Logo.Uri != "" {
+			credLogo = input.Credential.Display[0].Logo.Uri
 		}
 	}
-	credJSON, err := json.Marshal(credential)
+	credJSON, err := json.Marshal(input.Credential)
 	if err != nil {
 		logger.Warn("Failed to marshal credential JSON", "error", err)
 		return temporal.NewApplicationError(
 			fmt.Sprintf("Failed to marshal credential JSON: %v", err),
-			"RetryStoreCredentials",
-			err,
-		)
-	}
-
-	// Check if the credential exists
-	var count int
-	err = db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credentials WHERE key = ? AND credential_issuer = ?", credKey, issuerID).Scan(&count)
-	if err != nil {
-		logger.Warn("Failed to check existing credential", "error", err)
-		return temporal.NewApplicationError(
-			fmt.Sprintf("Database query failed while checking existing credentials: %v", err),
 			"RetryStoreCredentials",
 			err,
 		)
@@ -121,7 +100,7 @@ func StoreOrUpdateCredentialsActivity(
 		updated = CURRENT_TIMESTAMP;`
 
 	// Execute the UPSERT query
-	_, err = db.ExecContext(ctx, upsertSQL, credential.Format, issuerName, credName, credLocale, credLogo, credJSON, credKey, issuerID)
+	_, err = db.ExecContext(ctx, upsertSQL, input.Credential.Format, input.IssuerName, credName, credLocale, credLogo, credJSON, input.CredKey, input.IssuerID)
 	if err != nil {
 		logger.Warn("SQL UPSERT failed", "error", err)
 		return temporal.NewApplicationError(
@@ -131,7 +110,7 @@ func StoreOrUpdateCredentialsActivity(
 		)
 	}
 
-	logger.Info("Successfully stored or updated credential", "credKey", credKey)
+	logger.Info("Successfully stored or updated credential", "credKey", input.CredKey)
 	return nil
 }
 
@@ -202,4 +181,112 @@ func CleanupCredentialsActivity(ctx context.Context, issuerID, dbPath string, va
 
 	logger.Info("Cleanup completed successfully")
 	return nil
+}
+
+func FetchIssuersActivity(ctx context.Context) (FetchIssuersActivityResponse, error) {
+	// Start with offset 0.
+	hrefs, err := fetchIssuersRecursive(ctx, 0)
+	if err != nil {
+		return FetchIssuersActivityResponse{}, err
+	}
+	return FetchIssuersActivityResponse{Issuers: hrefs}, nil
+}
+
+func fetchIssuersRecursive(ctx context.Context, after int) ([]string, error) {
+	var url string
+	if after > 0 {
+		url = fmt.Sprintf("%s&page=%d", FidesIssuersUrl, after)
+	} else {
+		url = FidesIssuersUrl
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform HTTP request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+	var root FidesResponse
+	if err = json.Unmarshal(body, &root); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal JSON: %w", err)
+	}
+
+	hrefs, err := extractHrefsFromApiResponse(root)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract hrefs: %w", err)
+	}
+
+	if root.Page.Number >= root.Page.TotalPages || len(hrefs) < 200 {
+		return hrefs, nil
+	}
+
+	nextHrefs, err := fetchIssuersRecursive(ctx, after+1)
+	if err != nil {
+		return nil, err
+	}
+
+	return append(hrefs, nextHrefs...), nil
+}
+
+func extractHrefsFromApiResponse(root FidesResponse) ([]string, error) {
+	var hrefs []string
+	for _, item := range root.Content {
+		trimmedHref := RemoveWellKnownSuffix(item.IssuanceURL)
+		hrefs = append(hrefs, trimmedHref)
+	}
+	return hrefs, nil
+}
+
+func CreateCredentialIssuersActivity(ctx context.Context, input CreateCredentialIssuersInput) error {
+	db, err := sql.Open("sqlite", input.DBPath)
+	if err != nil {
+		return fmt.Errorf("failed to open database: %w", err)
+	}
+	defer db.Close()
+
+	for _, issuer := range input.Issuers {
+		exists, err := checkIfCredentialIssuerExist(ctx, db, issuer)
+		if err != nil {
+			return fmt.Errorf("failed to check if issuer exists: %w", err)
+		}
+		if exists {
+			continue
+		}
+		_, err = db.ExecContext(ctx, "INSERT INTO credential_issuers(url) VALUES (?)", issuer)
+		if err != nil {
+			return fmt.Errorf("failed to insert issuer into database: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func checkIfCredentialIssuerExist(ctx context.Context, db *sql.DB, url string) (bool, error) {
+	var count int
+	err := db.QueryRowContext(ctx, "SELECT COUNT(*) FROM credential_issuers WHERE url = ?", url).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to query database: %w", err)
+	}
+	return count > 0, nil
+}
+
+func RemoveWellKnownSuffix(urlStr string) string {
+	const suffix = "/.well-known/openid-credential-issuer"
+	if strings.HasSuffix(urlStr, suffix) {
+		return strings.TrimSuffix(urlStr, suffix)
+	}
+	return urlStr
 }
