@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	engine "github.com/forkbombeu/didimo/pkg/template_engine"
 	"github.com/pocketbase/dbx"
@@ -30,7 +31,7 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("Error reading test suite folder", err)
 			}
 
-			variables, err := e.App.FindRecordsByFilter("config_variables", "provider = {:provider} && test_suite = {:testId}", "", 0, 0, dbx.Params{"provider": provider, "testId": testId})
+			variables, err := e.App.FindRecordsByFilter("config_values", "provider = {:provider} && test_suite = {:testId}", "", 0, 0, dbx.Params{"provider": provider, "testId": testId})
 			if err != nil {
 				return apis.NewBadRequestError("Error fetching variables", err)
 			}
@@ -92,6 +93,8 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 		return se.Next()
 	})
 }
+
+
 
 func RouteNormalizedPlaceholders(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
@@ -159,3 +162,25 @@ func parseFilesAsReaders(files []*os.File) []io.Reader {
 	return readers
 }
 
+func RouteGetTestSuiteVariants(app *pocketbase.PocketBase) {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.GET("/api/test-suite-variants", func(e *core.RequestEvent) error {
+			testId := e.Request.URL.Query().Get("test_id")
+			if testId == "" {
+				return apis.NewBadRequestError("test_id is required", nil)
+			}
+			files, err := getTemplatesByFolderId(testId)
+			if err != nil {
+				return apis.NewBadRequestError("Error reading test suite folder", err)
+			}
+			var variants []string
+			for _, file := range files {
+				variants = append(variants, strings.Replace(file.Name(), testId+"/", "", 1))
+			}
+			return e.JSON(http.StatusOK, map[string]interface{}{
+				"variants": variants,
+			})
+		})
+		return se.Next()
+	})
+}
