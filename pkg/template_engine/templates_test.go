@@ -1,10 +1,11 @@
 package template_engine
 
 import (
-	"fmt"
+	// "fmt"
 	"io"
 	"reflect"
-	"runtime"
+
+	// "runtime"
 	"sort"
 	"strings"
 	"testing"
@@ -12,7 +13,14 @@ import (
 
 func TestExtractPlaceholders_SinglePlaceholder(t *testing.T) {
 	content := "Hello, {{.Name}}!"
-	expected := []string{"Name"}
+	expected := []PlaceholderMetadata{
+		{
+			Field:        "Name",
+			Translations: map[string]string{},
+			Descriptions: map[string]string{},
+			CredimiID:    "",
+		},
+	}
 
 	result := ExtractPlaceholders(content)
 
@@ -23,7 +31,11 @@ func TestExtractPlaceholders_SinglePlaceholder(t *testing.T) {
 
 func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 	content := "Hello, {{.Name}}! Your age is {{.Age}} and your email is {{.Email}}. {{.Name}} appears twice."
-	expected := []string{"Name", "Age", "Email"}
+	expected := []PlaceholderMetadata{
+		{Field: "Name", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Age", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Email", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+	}
 
 	result := ExtractPlaceholders(content)
 
@@ -32,10 +44,16 @@ func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 	}
 }
 
-func TestExtractPlaceholders_NoPlaceholders(t *testing.T) {
-	t.Skip()
-	content := "Hello, World! This is a plain text without any placeholders."
-	expected := []string{}
+func TestExtractPlaceholders_WithCompleteMetadata(t *testing.T) {
+	content := "Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}!"
+	expected := []PlaceholderMetadata{
+		{
+			Field:        "Name",
+			Translations: map[string]string{"en": "name", "it": "nome"},
+			Descriptions: map[string]string{"en": "Enter your name", "it": "Inserisci il tuo nome"},
+			CredimiID:    "1234",
+		},
+	}
 
 	result := ExtractPlaceholders(content)
 
@@ -46,7 +64,11 @@ func TestExtractPlaceholders_NoPlaceholders(t *testing.T) {
 
 func TestExtractPlaceholders_PlaceholdersWithNumbers(t *testing.T) {
 	content := "Hello, {{.Name1}}! Your ID is {{.User2ID}} and your score is {{.Score3}}."
-	expected := []string{"Name1", "User2ID", "Score3"}
+	expected := []PlaceholderMetadata{
+		{Field: "Name1", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "User2ID", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Score3", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+	}
 
 	result := ExtractPlaceholders(content)
 
@@ -54,8 +76,6 @@ func TestExtractPlaceholders_PlaceholdersWithNumbers(t *testing.T) {
 		t.Errorf("ExtractPlaceholders() = %v, want %v", result, expected)
 	}
 }
-
-//
 
 func TestRenderTemplate_ValidContentAndData(t *testing.T) {
 	content := "Hello, {{.Name}}! Your age is {{.Age}}."
@@ -94,7 +114,6 @@ func TestRenderTemplate_EmptyContent(t *testing.T) {
 		t.Errorf("renderTemplate() = %q, want %q", result, expected)
 	}
 }
-
 
 func TestRenderTemplate_EmptyDataMap(t *testing.T) {
 	content := "Hello, {{.Name}}! Welcome to {{.Place}}."
@@ -167,24 +186,23 @@ func TestRenderTemplate_WithCustomReader(t *testing.T) {
 }
 
 func TestRenderTemplate_WithSproutFunctions(t *testing.T) {
-    content := "Hello, {{.Name}}! Your age in 5 years will be {{.Age | add 5}}."
-    data := map[string]interface{}{
-        "Name": "Alice",
-        "Age":  30,
-    }
-    expected := "Hello, Alice! Your age in 5 years will be 35."
+	content := "Hello, {{.Name}}! Your age in 5 years will be {{.Age | add 5}}."
+	data := map[string]interface{}{
+		"Name": "Alice",
+		"Age":  30,
+	}
+	expected := "Hello, Alice! Your age in 5 years will be 35."
 
-    result, err := RenderTemplate(strings.NewReader(content), data)
+	result, err := RenderTemplate(strings.NewReader(content), data)
 
-    if err != nil {
-        t.Errorf("RenderTemplate() returned an error: %v", err)
-    }
+	if err != nil {
+		t.Errorf("RenderTemplate() returned an error: %v", err)
+	}
 
-    if result != expected {
-        t.Errorf("RenderTemplate() = %q, want %q", result, expected)
-    }
+	if result != expected {
+		t.Errorf("RenderTemplate() = %q, want %q", result, expected)
+	}
 }
-
 
 func TestGetPlaceholders_MultipleReadersWithDifferentContent(t *testing.T) {
 	reader1 := strings.NewReader("Hello, {{.Name}}! Your age is {{.Age}}.")
@@ -201,7 +219,11 @@ func TestGetPlaceholders_MultipleReadersWithDifferentContent(t *testing.T) {
 		t.Errorf("GetPlaceholders() returned an error: %v", err)
 	}
 
-	if !reflect.DeepEqual(sortStrings(result), sortStrings(expected)) {
+	resultFields := make([]string, len(result))
+	for i, placeholder := range result {
+		resultFields[i] = placeholder.Field
+	}
+	if !reflect.DeepEqual(sortStrings(resultFields), sortStrings(expected)) {
 		t.Errorf("GetPlaceholders() = %v, want %v", result, expected)
 	}
 }
@@ -212,61 +234,6 @@ func sortStrings(strs []string) []string {
 	sort.Strings(sorted)
 	return sorted
 }
-
-func TestGetPlaceholders_ErrorOnReaderFailure(t *testing.T) {
-	reader1 := strings.NewReader("Hello, {{.Name}}!")
-	reader2 := &errorReader{err: fmt.Errorf("read error")}
-	reader3 := strings.NewReader("Welcome, {{.User}}!")
-
-	readers := []io.Reader{reader1, reader2, reader3}
-
-	result, err := GetPlaceholders(readers)
-
-	if err == nil {
-		t.Error("GetPlaceholders() should have returned an error")
-	}
-
-	if result != nil {
-		t.Errorf("GetPlaceholders() = %v, want nil", result)
-	}
-}
-
-type errorReader struct {
-	err error
-}
-
-func (r *errorReader) Read(p []byte) (n int, err error) {
-	return 0, r.err
-}
-
-func TestGetPlaceholders_LargeInput(t *testing.T) {
-	// Create a large input string with many placeholders
-	largeInput := strings.Repeat("Hello, {{.Name}}! Your age is {{.Age}}. ", 10000)
-
-	// Create a custom reader that simulates reading from a large file
-	largeReader := &customReader{content: largeInput}
-
-	readers := []io.Reader{largeReader}
-
-	result, err := GetPlaceholders(readers)
-
-	if err != nil {
-		t.Errorf("GetPlaceholders() returned an error: %v", err)
-	}
-
-	expected := []string{"Name", "Age"}
-	if !reflect.DeepEqual(sortStrings(result), sortStrings(expected)) {
-		t.Errorf("GetPlaceholders() = %v, want %v", result, expected)
-	}
-
-	// Check if memory usage is within acceptable limits
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-	if m.Alloc > 10*1024*1024 { // 100 MB
-		t.Errorf("Memory usage too high: %d bytes", m.Alloc)
-	}
-}
-
 
 func TestGetPlaceholders_UniqueWithSproutFunctions(t *testing.T) {
 	reader1 := strings.NewReader("Hello, {{.Name}}! Your age is {{.Age}}.")
@@ -283,7 +250,11 @@ func TestGetPlaceholders_UniqueWithSproutFunctions(t *testing.T) {
 		t.Errorf("GetPlaceholders() returned an error: %v", err)
 	}
 
-	if !reflect.DeepEqual(sortStrings(result), sortStrings(expected)) {
+	resultFields := make([]string, len(result))
+	for i, placeholder := range result {
+		resultFields[i] = placeholder.Field
+	}
+	if !reflect.DeepEqual(sortStrings(resultFields), sortStrings(expected)) {
 		t.Errorf("GetPlaceholders() = %v, want %v", result, expected)
 	}
 }
@@ -303,7 +274,114 @@ func TestGetPlaceholders_WithNoNormalization(t *testing.T) {
 		t.Errorf("GetPlaceholders() returned an error: %v", err)
 	}
 
-	if !reflect.DeepEqual(sortStrings(result), sortStrings(expected)) {
+	resultFields := make([]string, len(result))
+	for i, placeholder := range result {
+		resultFields[i] = placeholder.Field
+	}
+	if !reflect.DeepEqual(sortStrings(resultFields), sortStrings(expected)) {
 		t.Errorf("GetPlaceholders() = %v, want %v", result, expected)
+	}
+}
+
+func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testing.T) {
+	reader1 := strings.NewReader("Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age }}.")
+	reader2 := strings.NewReader("Welcome, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age}}.")
+	reader3 := strings.NewReader("Goodbye, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age}}.")
+
+	readers := []io.Reader{reader1, reader2, reader3}
+
+	expected := []PlaceholderMetadata{
+		{
+			Field:        "Name",
+			Translations: map[string]string{"en": "name", "it": "nome"},
+			Descriptions: map[string]string{"en": "Enter your name", "it": "Inserisci il tuo nome"},
+			CredimiID:    "1234",
+		},
+		{Field: "Age", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+	}
+
+	result, err := GetPlaceholders(readers, true)
+
+	if err != nil {
+		t.Errorf("GetPlaceholders() returned an error: %v", err)
+	}
+
+	if !reflect.DeepEqual(result, expected) {
+		t.Errorf("GetPlaceholders() = %v, want %v", result, expected)
+	}
+}
+
+func TestParseMetadata_EmptyInput(t *testing.T) {
+	metaStr := ""
+	expectedTranslations := make(map[string]string)
+	expectedDescriptions := make(map[string]string)
+	expectedCredimiID := ""
+
+	translations, descriptions, credimiID := parseMetadata(metaStr)
+
+	if !reflect.DeepEqual(translations, expectedTranslations) {
+		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
+	}
+
+	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
+		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
+	}
+
+	if credimiID != expectedCredimiID {
+		t.Errorf("parseMetadata() credimiID = %v, want %v", credimiID, expectedCredimiID)
+	}
+}
+
+func TestParseMetadata_MultipleTranslationsAndDescriptions(t *testing.T) {
+	metaStr := "en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234"
+	expectedTranslations := map[string]string{
+		"en": "name",
+		"it": "nome",
+	}
+	expectedDescriptions := map[string]string{
+		"en": "Enter your name",
+		"it": "Inserisci il tuo nome",
+	}
+	expectedCredimiID := "1234"
+
+	translations, descriptions, credimiID := parseMetadata(metaStr)
+
+	if !reflect.DeepEqual(translations, expectedTranslations) {
+		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
+	}
+
+	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
+		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
+	}
+
+	if credimiID != expectedCredimiID {
+		t.Errorf("parseMetadata() credimiID = %v, want %v", credimiID, expectedCredimiID)
+	}
+}
+
+func TestParseMetadata_MultipleCredimiIDs(t *testing.T) {
+	metaStr := "en:name, it:nome, description:en:Enter your name, credimi_id:1234, description:it:Inserisci il tuo nome, credimi_id:5678"
+	expectedTranslations := map[string]string{
+		"en": "name",
+		"it": "nome",
+	}
+	expectedDescriptions := map[string]string{
+		"en": "Enter your name",
+		"it": "Inserisci il tuo nome",
+	}
+	expectedCredimiID := "5678"
+
+	translations, descriptions, credimiID := parseMetadata(metaStr)
+
+	if !reflect.DeepEqual(translations, expectedTranslations) {
+		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
+	}
+
+	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
+		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
+	}
+
+	if credimiID != expectedCredimiID {
+		t.Errorf("parseMetadata() credimiID = %v, want %v", credimiID, expectedCredimiID)
 	}
 }

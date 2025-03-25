@@ -50,13 +50,13 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 			for _, variable := range neededVariables {
 				found := false
 				for _, v := range variables {
-					if v.Get("field_name") == variable {
+					if v.Get("credimi_id") == variable.CredimiID {
 						found = true
 						break
 					}
 				}
 				if !found {
-					return apis.NewBadRequestError("Variable "+variable+" not found", nil)
+					return apis.NewBadRequestError("Variable "+variable.Field+" not found", nil)
 				}
 			}
 
@@ -64,6 +64,10 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 			for _, template := range templates {
 				template.Seek(0, 0)
 				template_variables, err := engine.GetPlaceholders([]io.Reader{template})
+				fields := make([]string, len(template_variables))
+				for i, v := range template_variables {
+					fields[i] = v.Field
+				}
 				if err != nil {
 					return apis.NewBadRequestError("Error getting placeholders", err)
 				}
@@ -73,7 +77,7 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 					if !ok {
 						return apis.NewBadRequestError("Invalid variable name type", nil)
 					}
-					if slices.Contains(template_variables, name) {
+					if slices.Contains(fields, name) {
 						values[name] = variable.Get("value")
 					}
 				}
@@ -196,7 +200,7 @@ func RouteGetPlaceholdersByVariant(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("Error reading test suite folder", err)
 			}
 
-			placeholdersByVariant := make(map[string][]string)
+			placeholdersByVariant := make(map[string][]engine.PlaceholderMetadata)
 			for _, file := range files {
 				file.Seek(0, 0)
 				placeholders, err := engine.GetPlaceholders([]io.Reader{file}, false)

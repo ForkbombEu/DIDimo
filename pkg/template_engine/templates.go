@@ -4,34 +4,101 @@ import (
 	"bytes"
 	"io"
 	"regexp"
+	"strings"
 	"text/template"
 
 	"github.com/go-sprout/sprout"
 	"github.com/go-sprout/sprout/group/all"
 )
 
-func ExtractPlaceholders(content string, others ...bool) []string {
-	normalized := true
-	if len(others) > 0 {
-		normalized = others[0]
-	}
-	placeholderRegex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)\s*}}`)
-	matches := placeholderRegex.FindAllStringSubmatch(content, -1)
+type PlaceholderMetadata struct {
+	Field         string
+	Translations  map[string]string 
+	Descriptions  map[string]string 
+	CredimiID     string 
+}
 
-	var placeholders []string
-	unique := make(map[string]bool)
+func parseMetadata(metaStr string) (map[string]string, map[string]string, string) {
+	translations := make(map[string]string)
+	descriptions := make(map[string]string)
+	credimiID := ""
+	inDescription := false
 
-	for _, match := range matches {
-		if len(match) > 1 {
-			name := match[1]
-			if !unique[name] && normalized {
-				unique[name] = true
-				placeholders = append(placeholders, name)
-			} else if !normalized {
-				placeholders = append(placeholders, name)
+	parts := strings.Split(metaStr, ",")
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		if strings.HasPrefix(part, "description:") {
+			inDescription = true
+			part = strings.TrimPrefix(part, "description:")
+			part = strings.TrimSpace(part)
+		}
+
+		if strings.HasPrefix(part, "credimi_id:") {
+			credimiID = strings.TrimSpace(strings.TrimPrefix(part, "credimi_id:"))
+			continue
+		}
+
+		kv := strings.SplitN(part, ":", 2)
+		if len(kv) == 2 {
+			key := strings.TrimSpace(kv[0])
+			value := strings.TrimSpace(kv[1])
+			if inDescription {
+				descriptions[key] = value
+			} else {
+				translations[key] = value
 			}
 		}
 	}
+
+	return translations, descriptions, credimiID
+}
+
+func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetadata {
+	norm := true
+	if len(normalized) > 0 {
+		norm = normalized[0]
+	}
+
+	regex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)(?:\s*\|\s*([^}]+))?\s*}}`)
+	matches := regex.FindAllStringSubmatch(content, -1)
+
+	var placeholders []PlaceholderMetadata
+	unique := make(map[string]bool)
+
+	for _, match := range matches {
+		field := match[1]
+		translations := make(map[string]string)
+		descriptions := make(map[string]string)
+		credimiID := ""
+
+		if len(match) >= 3 && match[2] != "" {
+			translations, descriptions, credimiID = parseMetadata(match[2])
+		}
+
+		if norm {
+			if !unique[field] {
+				unique[field] = true
+				placeholders = append(placeholders, PlaceholderMetadata{
+					Field:         field,
+					Translations:  translations,
+					Descriptions:  descriptions,
+					CredimiID:     credimiID,
+				})
+			}
+		} else {
+			placeholders = append(placeholders, PlaceholderMetadata{
+				Field:         field,
+				Translations:  translations,
+				Descriptions:  descriptions,
+				CredimiID:     credimiID,
+			})
+		}
+	}
+
 	return placeholders
 }
 
@@ -60,38 +127,32 @@ func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, erro
 	return buf.String(), nil
 }
 
-func GetPlaceholders(reader []io.Reader, others ...bool) ([]string, error) {
-	var normalized = true
-	if len(others) > 0 {
-		normalized = others[0]
+func GetPlaceholders(readers []io.Reader, normalized ...bool) ([]PlaceholderMetadata, error) {
+	norm := true
+	if len(normalized) > 0 {
+		norm = normalized[0]
 	}
-
-	var placeholders []string
+	var allPlaceholders []PlaceholderMetadata
 	unique := make(map[string]bool)
 
-	for _, r := range reader {
+	for _, r := range readers {
 		var buf bytes.Buffer
 		if _, err := io.Copy(&buf, r); err != nil {
 			return nil, err
 		}
-
 		content := buf.String()
-		placeholders = append(placeholders, ExtractPlaceholders(content, normalized)...)
-	}
-
-	for _, placeholder := range placeholders {
-		if !unique[placeholder] {
-			unique[placeholder] = true
+		placeholders := ExtractPlaceholders(content, norm)
+		for _, ph := range placeholders {
+			if norm {
+				if !unique[ph.Field] {
+					unique[ph.Field] = true
+					allPlaceholders = append(allPlaceholders, ph)
+				}
+			} else {
+				allPlaceholders = append(allPlaceholders, ph)
+			}
 		}
 	}
 
-	if !normalized {
-		return placeholders, nil
-	}
-	var result []string
-	for placeholder := range unique {
-		result = append(result, placeholder)
-	}
-
-	return result, nil
+	return allPlaceholders, nil
 }
