@@ -199,7 +199,7 @@ func RouteGetPlaceholdersByVariant(app *pocketbase.PocketBase) {
 			placeholdersByVariant := make(map[string][]string)
 			for _, file := range files {
 				file.Seek(0, 0)
-				placeholders, err := engine.GetPlaceholders([]io.Reader{file})
+				placeholders, err := engine.GetPlaceholders([]io.Reader{file}, false)
 				if err != nil {
 					return apis.NewBadRequestError("Error getting placeholders", err)
 				}
