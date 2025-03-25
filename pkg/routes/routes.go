@@ -38,6 +38,7 @@ func Setup(app *pocketbase.PocketBase) {
 	bindAppHooks(app)
 	pb.RouteParseTestsConfig(app)
 	pb.RouteNormalizedPlaceholders(app)
+	pb.RouteGetPlaceholdersByVariant(app)
 	pb.RouteGetTestSuiteVariants(app)
 	pb.HookNamespaceOrgs(app)
 	pb.HookCredentialWorkflow(app)

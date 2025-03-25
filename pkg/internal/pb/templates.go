@@ -184,3 +184,32 @@ func RouteGetTestSuiteVariants(app *pocketbase.PocketBase) {
 		return se.Next()
 	})
 }
+func RouteGetPlaceholdersByVariant(app *pocketbase.PocketBase) {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.GET("/api/placeholders-by-variant", func(e *core.RequestEvent) error {
+			testId := e.Request.URL.Query().Get("test_id")
+			if testId == "" {
+				return apis.NewBadRequestError("test_id is required", nil)
+			}
+			files, err := getTemplatesByFolderId(testId)
+			if err != nil {
+				return apis.NewBadRequestError("Error reading test suite folder", err)
+			}
+
+			placeholdersByVariant := make(map[string][]string)
+			for _, file := range files {
+				file.Seek(0, 0)
+				placeholders, err := engine.GetPlaceholders([]io.Reader{file})
+				if err != nil {
+					return apis.NewBadRequestError("Error getting placeholders", err)
+				}
+				placeholdersByVariant[file.Name()] = placeholders
+			}
+
+			return e.JSON(http.StatusOK, map[string]interface{}{
+				"placeholdersByVariant": placeholdersByVariant,
+			})
+		})
+		return se.Next()
+	})
+}
