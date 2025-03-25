@@ -284,9 +284,9 @@ func TestGetPlaceholders_WithNoNormalization(t *testing.T) {
 }
 
 func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testing.T) {
-	reader1 := strings.NewReader("Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age }}.")
-	reader2 := strings.NewReader("Welcome, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age}}.")
-	reader3 := strings.NewReader("Goodbye, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}! Your age is {{.Age}}.")
+	reader1 := strings.NewReader("Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age }}.")
+	reader2 := strings.NewReader("Welcome, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age}}.")
+	reader3 := strings.NewReader("Goodbye, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age}}.")
 
 	readers := []io.Reader{reader1, reader2, reader3}
 
@@ -296,6 +296,7 @@ func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testi
 			Translations: map[string]string{"en": "name", "it": "nome"},
 			Descriptions: map[string]string{"en": "Enter your name", "it": "Inserisci il tuo nome"},
 			CredimiID:    "1234",
+			Type:         "string",
 		},
 		{Field: "Age", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
 	}
@@ -316,8 +317,9 @@ func TestParseMetadata_EmptyInput(t *testing.T) {
 	expectedTranslations := make(map[string]string)
 	expectedDescriptions := make(map[string]string)
 	expectedCredimiID := ""
+	expectedPlaceholderType := ""
 
-	translations, descriptions, credimiID := parseMetadata(metaStr)
+	translations, descriptions, credimiID, placeHolderType := parseMetadata(metaStr)
 
 	if !reflect.DeepEqual(translations, expectedTranslations) {
 		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
@@ -329,6 +331,10 @@ func TestParseMetadata_EmptyInput(t *testing.T) {
 
 	if credimiID != expectedCredimiID {
 		t.Errorf("parseMetadata() credimiID = %v, want %v", credimiID, expectedCredimiID)
+	}
+
+	if placeHolderType != expectedPlaceholderType {
+		t.Errorf("parseMetadata() placeHolderType = %v, want %v", placeHolderType, expectedPlaceholderType)
 	}
 }
 
@@ -344,7 +350,7 @@ func TestParseMetadata_MultipleTranslationsAndDescriptions(t *testing.T) {
 	}
 	expectedCredimiID := "1234"
 
-	translations, descriptions, credimiID := parseMetadata(metaStr)
+	translations, descriptions, credimiID, _ := parseMetadata(metaStr)
 
 	if !reflect.DeepEqual(translations, expectedTranslations) {
 		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
@@ -371,7 +377,7 @@ func TestParseMetadata_MultipleCredimiIDs(t *testing.T) {
 	}
 	expectedCredimiID := "5678"
 
-	translations, descriptions, credimiID := parseMetadata(metaStr)
+	translations, descriptions, credimiID, _ := parseMetadata(metaStr)
 
 	if !reflect.DeepEqual(translations, expectedTranslations) {
 		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)

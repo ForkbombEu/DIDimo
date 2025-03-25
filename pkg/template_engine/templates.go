@@ -16,13 +16,15 @@ type PlaceholderMetadata struct {
 	Translations  map[string]string 
 	Descriptions  map[string]string 
 	CredimiID     string 
+	Type          string
 }
 
-func parseMetadata(metaStr string) (map[string]string, map[string]string, string) {
+func parseMetadata(metaStr string) (map[string]string, map[string]string, string, string) {
 	translations := make(map[string]string)
 	descriptions := make(map[string]string)
 	credimiID := ""
 	inDescription := false
+	placeholderType := ""
 
 	parts := strings.Split(metaStr, ",")
 	for _, part := range parts {
@@ -42,6 +44,11 @@ func parseMetadata(metaStr string) (map[string]string, map[string]string, string
 			continue
 		}
 
+		if strings.HasPrefix(part, "type:") {
+			placeholderType = strings.TrimSpace(strings.TrimPrefix(part, "type:"))
+			continue
+		}
+
 		kv := strings.SplitN(part, ":", 2)
 		if len(kv) == 2 {
 			key := strings.TrimSpace(kv[0])
@@ -54,7 +61,7 @@ func parseMetadata(metaStr string) (map[string]string, map[string]string, string
 		}
 	}
 
-	return translations, descriptions, credimiID
+	return translations, descriptions, credimiID, placeholderType
 }
 
 func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetadata {
@@ -74,9 +81,10 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 		translations := make(map[string]string)
 		descriptions := make(map[string]string)
 		credimiID := ""
+		placeholderType := ""
 
 		if len(match) >= 3 && match[2] != "" {
-			translations, descriptions, credimiID = parseMetadata(match[2])
+			translations, descriptions, credimiID, placeholderType = parseMetadata(match[2])
 		}
 
 		if norm {
@@ -87,6 +95,7 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 					Translations:  translations,
 					Descriptions:  descriptions,
 					CredimiID:     credimiID,
+					Type:          placeholderType,
 				})
 			}
 		} else {
@@ -95,6 +104,7 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 				Translations:  translations,
 				Descriptions:  descriptions,
 				CredimiID:     credimiID,
+				Type:          placeholderType,
 			})
 		}
 	}
