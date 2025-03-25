@@ -10,8 +10,11 @@ import (
 	"github.com/go-sprout/sprout/group/all"
 )
 
-
-func ExtractPlaceholders(content string) []string {
+func ExtractPlaceholders(content string, others ...bool) []string {
+	normalized := true
+	if len(others) > 0 {
+		normalized = others[0]
+	}
 	placeholderRegex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)\s*}}`)
 	matches := placeholderRegex.FindAllStringSubmatch(content, -1)
 
@@ -21,8 +24,10 @@ func ExtractPlaceholders(content string) []string {
 	for _, match := range matches {
 		if len(match) > 1 {
 			name := match[1]
-			if !unique[name] {
+			if !unique[name] && normalized {
 				unique[name] = true
+				placeholders = append(placeholders, name)
+			} else if !normalized {
 				placeholders = append(placeholders, name)
 			}
 		}
@@ -31,31 +36,36 @@ func ExtractPlaceholders(content string) []string {
 }
 
 func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, error) {
-    handler := sprout.New(
-        sprout.WithGroups(all.RegistryGroup()),
-    )
-    funcs := handler.Build()
+	handler := sprout.New(
+		sprout.WithGroups(all.RegistryGroup()),
+	)
+	funcs := handler.Build()
 
-    var buf bytes.Buffer
-    if _, err := io.Copy(&buf, reader); err != nil {
-        return "", err
-    }
+	var buf bytes.Buffer
+	if _, err := io.Copy(&buf, reader); err != nil {
+		return "", err
+	}
 
-    tmpl, err := template.New("tmpl").Funcs(funcs).Parse(buf.String())
-    if err != nil {
-        return "", err
-    }
+	tmpl, err := template.New("tmpl").Funcs(funcs).Parse(buf.String())
+	if err != nil {
+		return "", err
+	}
 
-    buf.Reset()
-    err = tmpl.Execute(&buf, data)
-    if err != nil {
-        return "", err
-    }
+	buf.Reset()
+	err = tmpl.Execute(&buf, data)
+	if err != nil {
+		return "", err
+	}
 
-    return buf.String(), nil
+	return buf.String(), nil
 }
 
-func GetPlaceholders(reader []io.Reader) ([]string, error) {
+func GetPlaceholders(reader []io.Reader, others ...bool) ([]string, error) {
+	var normalized = true
+	if len(others) > 0 {
+		normalized = others[0]
+	}
+
 	var placeholders []string
 	unique := make(map[string]bool)
 
@@ -66,7 +76,7 @@ func GetPlaceholders(reader []io.Reader) ([]string, error) {
 		}
 
 		content := buf.String()
-		placeholders = append(placeholders, ExtractPlaceholders(content)...)
+		placeholders = append(placeholders, ExtractPlaceholders(content, normalized)...)
 	}
 
 	for _, placeholder := range placeholders {
@@ -75,6 +85,9 @@ func GetPlaceholders(reader []io.Reader) ([]string, error) {
 		}
 	}
 
+	if !normalized {
+		return placeholders, nil
+	}
 	var result []string
 	for placeholder := range unique {
 		result = append(result, placeholder)
@@ -82,6 +95,3 @@ func GetPlaceholders(reader []io.Reader) ([]string, error) {
 
 	return result, nil
 }
-	
-	
-
