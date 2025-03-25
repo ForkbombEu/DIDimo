@@ -14,10 +14,10 @@ func TestExtractPlaceholders_SinglePlaceholder(t *testing.T) {
 	content := "Hello, {{.Name}}!"
 	expected := []string{"Name"}
 
-	result := extractPlaceholders(content)
+	result := ExtractPlaceholders(content)
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("extractPlaceholders() = %v, want %v", result, expected)
+		t.Errorf("ExtractPlaceholders() = %v, want %v", result, expected)
 	}
 }
 
@@ -25,10 +25,10 @@ func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 	content := "Hello, {{.Name}}! Your age is {{.Age}} and your email is {{.Email}}. {{.Name}} appears twice."
 	expected := []string{"Name", "Age", "Email"}
 
-	result := extractPlaceholders(content)
+	result := ExtractPlaceholders(content)
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("extractPlaceholders() = %v, want %v", result, expected)
+		t.Errorf("ExtractPlaceholders() = %v, want %v", result, expected)
 	}
 }
 
@@ -36,10 +36,10 @@ func TestExtractPlaceholders_NoPlaceholders(t *testing.T) {
 	content := "Hello, World! This is a plain text without any placeholders."
 	expected := []string{}
 
-	result := extractPlaceholders(content)
+	result := ExtractPlaceholders(content)
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("extractPlaceholders() = %v, want %v", result, expected)
+		t.Errorf("ExtractPlaceholders() = %v, want %v", result, expected)
 	}
 }
 
@@ -47,10 +47,10 @@ func TestExtractPlaceholders_PlaceholdersWithNumbers(t *testing.T) {
 	content := "Hello, {{.Name1}}! Your ID is {{.User2ID}} and your score is {{.Score3}}."
 	expected := []string{"Name1", "User2ID", "Score3"}
 
-	result := extractPlaceholders(content)
+	result := ExtractPlaceholders(content)
 
 	if !reflect.DeepEqual(result, expected) {
-		t.Errorf("extractPlaceholders() = %v, want %v", result, expected)
+		t.Errorf("ExtractPlaceholders() = %v, want %v", result, expected)
 	}
 }
 
@@ -64,14 +64,14 @@ func TestRenderTemplate_ValidContentAndData(t *testing.T) {
 	}
 	expected := "Hello, Alice! Your age is 30."
 
-	result, err := renderTemplate(strings.NewReader(content), data)
+	result, err := RenderTemplate(strings.NewReader(content), data)
 
 	if err != nil {
-		t.Errorf("renderTemplate() returned an error: %v", err)
+		t.Errorf("RenderTemplate() returned an error: %v", err)
 	}
 
 	if result != expected {
-		t.Errorf("renderTemplate() = %v, want %v", result, expected)
+		t.Errorf("RenderTemplate() = %v, want %v", result, expected)
 	}
 }
 
@@ -83,7 +83,7 @@ func TestRenderTemplate_EmptyContent(t *testing.T) {
 	}
 	expected := ""
 
-	result, err := renderTemplate(strings.NewReader(content), data)
+	result, err := RenderTemplate(strings.NewReader(content), data)
 
 	if err != nil {
 		t.Errorf("renderTemplate() returned an error: %v", err)
@@ -100,14 +100,14 @@ func TestRenderTemplate_EmptyDataMap(t *testing.T) {
 	data := map[string]interface{}{}
 	expected := "Hello, <no value>! Welcome to <no value>."
 
-	result, err := renderTemplate(strings.NewReader(content), data)
+	result, err := RenderTemplate(strings.NewReader(content), data)
 
 	if err != nil {
-		t.Errorf("renderTemplate() returned an error: %v", err)
+		t.Errorf("RenderTemplate() returned an error: %v", err)
 	}
 
 	if result != expected {
-		t.Errorf("renderTemplate() = %q, want %q", result, expected)
+		t.Errorf("RenderTemplate() = %q, want %q", result, expected)
 	}
 }
 
@@ -118,14 +118,14 @@ func TestRenderTemplate_InvalidTemplate(t *testing.T) {
 		"Age":  30,
 	}
 
-	result, err := renderTemplate(strings.NewReader(content), data)
+	result, err := RenderTemplate(strings.NewReader(content), data)
 
 	if err == nil {
-		t.Error("renderTemplate() should have returned an error for invalid template")
+		t.Error("RenderTemplate() should have returned an error for invalid template")
 	}
 
 	if result != "" {
-		t.Errorf("renderTemplate() = %q, want empty string", result)
+		t.Errorf("RenderTemplate() = %q, want empty string", result)
 	}
 }
 
@@ -154,14 +154,14 @@ func TestRenderTemplate_WithCustomReader(t *testing.T) {
 
 	custom := &customReader{content: content}
 
-	result, err := renderTemplate(custom, data)
+	result, err := RenderTemplate(custom, data)
 
 	if err != nil {
-		t.Errorf("renderTemplate() returned an error: %v", err)
+		t.Errorf("RenderTemplate() returned an error: %v", err)
 	}
 
 	if result != expected {
-		t.Errorf("renderTemplate() = %v, want %v", result, expected)
+		t.Errorf("RenderTemplate() = %v, want %v", result, expected)
 	}
 }
 
@@ -173,14 +173,14 @@ func TestRenderTemplate_WithSproutFunctions(t *testing.T) {
     }
     expected := "Hello, Alice! Your age in 5 years will be 35."
 
-    result, err := renderTemplate(strings.NewReader(content), data)
+    result, err := RenderTemplate(strings.NewReader(content), data)
 
     if err != nil {
-        t.Errorf("renderTemplate() returned an error: %v", err)
+        t.Errorf("RenderTemplate() returned an error: %v", err)
     }
 
     if result != expected {
-        t.Errorf("renderTemplate() = %q, want %q", result, expected)
+        t.Errorf("RenderTemplate() = %q, want %q", result, expected)
     }
 }
 

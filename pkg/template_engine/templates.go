@@ -10,7 +10,8 @@ import (
 	"github.com/go-sprout/sprout/group/all"
 )
 
-func extractPlaceholders(content string) []string {
+
+func ExtractPlaceholders(content string) []string {
 	placeholderRegex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)\s*}}`)
 	matches := placeholderRegex.FindAllStringSubmatch(content, -1)
 
@@ -29,7 +30,7 @@ func extractPlaceholders(content string) []string {
 	return placeholders
 }
 
-func renderTemplate(reader io.Reader, data map[string]interface{}) (string, error) {
+func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, error) {
     handler := sprout.New(
         sprout.WithGroups(all.RegistryGroup()),
     )
@@ -65,7 +66,7 @@ func GetPlaceholders(reader []io.Reader) ([]string, error) {
 		}
 
 		content := buf.String()
-		placeholders = append(placeholders, extractPlaceholders(content)...)
+		placeholders = append(placeholders, ExtractPlaceholders(content)...)
 	}
 
 	for _, placeholder := range placeholders {
