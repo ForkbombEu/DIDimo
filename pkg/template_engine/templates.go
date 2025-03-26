@@ -64,6 +64,14 @@ func parseMetadata(metaStr string) (map[string]string, map[string]string, string
 	return translations, descriptions, credimiID, placeholderType
 }
 
+func RemoveNewlinesAndBackslashes(input string) string {
+	output := strings.ReplaceAll(input, "\n", "")
+	output = strings.ReplaceAll(output, "\\", "")
+	output = strings.ReplaceAll(output, "\"", "'")
+	return output
+}
+
+
 func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetadata {
 	norm := true
 	if len(normalized) > 0 {
@@ -174,3 +182,4 @@ func GetPlaceholders(readers []io.Reader, normalized ...bool) ([]PlaceholderMeta
 
 	return allPlaceholders, nil
 }
+

@@ -88,11 +88,11 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 				if err != nil {
 					return apis.NewInternalServerError("Error rendering template", err)
 				}
-				renderedTemplates = append(renderedTemplates, rendered)
+				renderedTemplates = append(renderedTemplates, engine.RemoveNewlinesAndBackslashes(rendered))
 			}
 
 			return e.JSON(http.StatusOK, map[string]interface{}{
-				"templates": renderedTemplates,
+				"configs": renderedTemplates,
 			})
 		})
 		// .Bind(apis.RequireAuth())
