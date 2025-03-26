@@ -12,9 +12,3 @@
 <a href={rest.href ? localizeHref(rest.href) : undefined} {...rest}>
 	{@render children?.()}
 </a>
-
-<style lang="postcss">
-	a {
-		@apply text-primary hover:underline;
-	}
-</style>
