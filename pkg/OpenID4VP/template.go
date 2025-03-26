@@ -15,6 +15,10 @@ type Variant struct {
 	ResponseMode     string `json:"response_mode"`
 }
 
+type Variants struct {
+	Variants []string `json:"variants"`
+}
+
 // Config represents the structure of the configuration file.
 type Config struct {
 	VariantKeys    map[string][]string `json:"variant_keys"`
