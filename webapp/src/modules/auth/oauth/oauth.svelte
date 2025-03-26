@@ -10,6 +10,7 @@
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { Separator } from '@/components/ui/separator';
 	import { goto } from '$app/navigation';
+	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	//
 
@@ -41,7 +42,7 @@
 								createData
 							});
 							$currentUser = authData.record;
-							goto('/my');
+							goto(localizeHref('/my'));
 						} catch (e) {
 							error = e as ClientResponseError;
 						}

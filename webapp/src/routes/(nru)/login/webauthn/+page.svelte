@@ -8,6 +8,7 @@
 	import { currentEmail } from '../+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { goto } from '$app/navigation';
+	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	const schema = z.object({
 		email: z.string().email()
@@ -18,7 +19,7 @@
 		onSubmit: async ({ form }) => {
 			const { data } = form;
 			await loginUser(data.email);
-			await goto('/my');
+			await goto(localizeHref('/my'));
 		},
 		initialData: { email: currentEmail.value },
 		options: { taintedMessage: null }

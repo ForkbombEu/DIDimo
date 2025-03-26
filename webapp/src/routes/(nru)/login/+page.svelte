@@ -7,6 +7,7 @@
 	import { currentEmail } from './+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { goto } from '$app/navigation';
+	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	//
 
@@ -21,7 +22,7 @@
 			const { data } = form;
 			const u = pb.collection('users');
 			await u.authWithPassword(data.email, data.password);
-			await goto('/my');
+			await goto(localizeHref('/my'));
 		},
 		initialData: { email: currentEmail.value },
 		options: { taintedMessage: null }

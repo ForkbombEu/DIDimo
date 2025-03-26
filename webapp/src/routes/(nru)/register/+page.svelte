@@ -15,6 +15,7 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
+	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	//
 
@@ -37,7 +38,7 @@
 			await u.authWithPassword(data.email, data.password);
 			await u.requestVerification(data.email);
 			WelcomeSession.start();
-			await goto('/my');
+			await goto(localizeHref('/my'));
 		}
 	});
 
