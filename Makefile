@@ -18,7 +18,6 @@ GOTOOL			?= $(GOCMD) tool
 GOGET			?= $(GOCMD) get
 GOMOD			?= $(GOCMD) mod
 GOINST			?= $(GOCMD) install
-GOGEN			?= $(GOCMD) generate
 GOPATH 			?= $(shell $(GOCMD) env GOPATH)
 GOBIN 			?= $(GOPATH)/bin
 GOMOD_FILES 	:= go.mod go.sum
@@ -126,10 +125,7 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
 	@echo "🧹 cleaned"
 
-generate: $(ROOT_DIR)/pkg/gen.go
-	$(GOGEN) $(SUBDIRS)
-
-tools: generate
+tools:
 	mise install
 	@if [ ! -f "$(REVIVE)" ]; then \
 		$(GOINST) github.com/mgechev/revive@latest; \
