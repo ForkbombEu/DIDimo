@@ -13,17 +13,14 @@ import (
 
 type PlaceholderMetadata struct {
 	Field         string
-	Translations  map[string]string 
-	Descriptions  map[string]string 
+	Descriptions  string 
 	CredimiID     string 
 	Type          string
 }
 
-func parseMetadata(metaStr string) (map[string]string, map[string]string, string, string) {
-	translations := make(map[string]string)
-	descriptions := make(map[string]string)
+func parseMetadata(metaStr string) (string, string, string) {
+	descriptions := ""
 	credimiID := ""
-	inDescription := false
 	placeholderType := ""
 
 	parts := strings.Split(metaStr, ",")
@@ -34,9 +31,7 @@ func parseMetadata(metaStr string) (map[string]string, map[string]string, string
 		}
 
 		if strings.HasPrefix(part, "description:") {
-			inDescription = true
-			part = strings.TrimPrefix(part, "description:")
-			part = strings.TrimSpace(part)
+			descriptions = strings.TrimSpace(strings.TrimPrefix(part, "description:"))
 		}
 
 		if strings.HasPrefix(part, "credimi_id:") {
@@ -47,21 +42,10 @@ func parseMetadata(metaStr string) (map[string]string, map[string]string, string
 		if strings.HasPrefix(part, "type:") {
 			placeholderType = strings.TrimSpace(strings.TrimPrefix(part, "type:"))
 			continue
-		}
-
-		kv := strings.SplitN(part, ":", 2)
-		if len(kv) == 2 {
-			key := strings.TrimSpace(kv[0])
-			value := strings.TrimSpace(kv[1])
-			if inDescription {
-				descriptions[key] = value
-			} else {
-				translations[key] = value
-			}
-		}
+		}	
 	}
 
-	return translations, descriptions, credimiID, placeholderType
+	return descriptions, credimiID, placeholderType
 }
 
 func RemoveNewlinesAndBackslashes(input string) string {
@@ -86,13 +70,12 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 
 	for _, match := range matches {
 		field := match[1]
-		translations := make(map[string]string)
-		descriptions := make(map[string]string)
+		descriptions := ""
 		credimiID := ""
 		placeholderType := ""
 
 		if len(match) >= 3 && match[2] != "" {
-			translations, descriptions, credimiID, placeholderType = parseMetadata(match[2])
+			descriptions, credimiID, placeholderType = parseMetadata(match[2])
 		}
 
 		if norm {
@@ -100,7 +83,6 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 				unique[field] = true
 				placeholders = append(placeholders, PlaceholderMetadata{
 					Field:         field,
-					Translations:  translations,
 					Descriptions:  descriptions,
 					CredimiID:     credimiID,
 					Type:          placeholderType,
@@ -109,7 +91,6 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 		} else {
 			placeholders = append(placeholders, PlaceholderMetadata{
 				Field:         field,
-				Translations:  translations,
 				Descriptions:  descriptions,
 				CredimiID:     credimiID,
 				Type:          placeholderType,

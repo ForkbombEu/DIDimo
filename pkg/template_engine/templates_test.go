@@ -16,8 +16,7 @@ func TestExtractPlaceholders_SinglePlaceholder(t *testing.T) {
 	expected := []PlaceholderMetadata{
 		{
 			Field:        "Name",
-			Translations: map[string]string{},
-			Descriptions: map[string]string{},
+			Descriptions: "",
 			CredimiID:    "",
 		},
 	}
@@ -32,9 +31,9 @@ func TestExtractPlaceholders_SinglePlaceholder(t *testing.T) {
 func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 	content := "Hello, {{.Name}}! Your age is {{.Age}} and your email is {{.Email}}. {{.Name}} appears twice."
 	expected := []PlaceholderMetadata{
-		{Field: "Name", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
-		{Field: "Age", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
-		{Field: "Email", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Name", Descriptions: "", CredimiID: ""},
+		{Field: "Age", Descriptions: "", CredimiID: ""},
+		{Field: "Email", Descriptions: "", CredimiID: ""},
 	}
 
 	result := ExtractPlaceholders(content)
@@ -45,12 +44,11 @@ func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 }
 
 func TestExtractPlaceholders_WithCompleteMetadata(t *testing.T) {
-	content := "Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234§ }}!"
+	content := "Hello, {{.Name §description:enter_your_name, credimi_id:1234§ }}!"
 	expected := []PlaceholderMetadata{
 		{
 			Field:        "Name",
-			Translations: map[string]string{"en": "name", "it": "nome"},
-			Descriptions: map[string]string{"en": "Enter your name", "it": "Inserisci il tuo nome"},
+			Descriptions: "enter_your_name",
 			CredimiID:    "1234",
 		},
 	}
@@ -65,9 +63,9 @@ func TestExtractPlaceholders_WithCompleteMetadata(t *testing.T) {
 func TestExtractPlaceholders_PlaceholdersWithNumbers(t *testing.T) {
 	content := "Hello, {{.Name1}}! Your ID is {{.User2ID}} and your score is {{.Score3}}."
 	expected := []PlaceholderMetadata{
-		{Field: "Name1", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
-		{Field: "User2ID", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
-		{Field: "Score3", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Name1", Descriptions: "", CredimiID: ""},
+		{Field: "User2ID", Descriptions: "", CredimiID: ""},
+		{Field: "Score3", Descriptions: "", CredimiID: ""},
 	}
 
 	result := ExtractPlaceholders(content)
@@ -186,7 +184,7 @@ func TestRenderTemplate_WithCustomReader(t *testing.T) {
 }
 
 func TestRenderTemplate_WithSproutFunctions(t *testing.T) {
-	content := "Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§ }}! Your age in 5 years will be {{.Age | add 5}}."
+	content := "Hello, {{.Name §description:enter_your_name, credimi_id:1234, type: string§ }}! Your age in 5 years will be {{.Age | add 5}}."
 	data := map[string]interface{}{
 		"Name": "Alice",
 		"Age":  30,
@@ -284,21 +282,20 @@ func TestGetPlaceholders_WithNoNormalization(t *testing.T) {
 }
 
 func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testing.T) {
-	reader1 := strings.NewReader("Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age }}.")
-	reader2 := strings.NewReader("Welcome, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
-	reader3 := strings.NewReader("Goodbye, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
+	reader1 := strings.NewReader("Hello, {{.Name §description:enter_your_name, credimi_id:1234, type: string§}}! Your age is {{.Age }}.")
+	reader2 := strings.NewReader("Welcome, {{.Name §description:enter_your_name, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
+	reader3 := strings.NewReader("Goodbye, {{.Name §description:enter_your_name, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
 
 	readers := []io.Reader{reader1, reader2, reader3}
 
 	expected := []PlaceholderMetadata{
 		{
 			Field:        "Name",
-			Translations: map[string]string{"en": "name", "it": "nome"},
-			Descriptions: map[string]string{"en": "Enter your name", "it": "Inserisci il tuo nome"},
+			Descriptions: "enter_your_name",
 			CredimiID:    "1234",
 			Type:         "string",
 		},
-		{Field: "Age", Translations: map[string]string{}, Descriptions: map[string]string{}, CredimiID: ""},
+		{Field: "Age", Descriptions: "", CredimiID: ""},
 	}
 
 	result, err := GetPlaceholders(readers, true)
@@ -314,16 +311,12 @@ func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testi
 
 func TestParseMetadata_EmptyInput(t *testing.T) {
 	metaStr := ""
-	expectedTranslations := make(map[string]string)
-	expectedDescriptions := make(map[string]string)
+	expectedDescriptions := ""
 	expectedCredimiID := ""
 	expectedPlaceholderType := ""
 
-	translations, descriptions, credimiID, placeHolderType := parseMetadata(metaStr)
+	descriptions, credimiID, placeHolderType := parseMetadata(metaStr)
 
-	if !reflect.DeepEqual(translations, expectedTranslations) {
-		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
-	}
 
 	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
 		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
@@ -339,22 +332,13 @@ func TestParseMetadata_EmptyInput(t *testing.T) {
 }
 
 func TestParseMetadata_MultipleTranslationsAndDescriptions(t *testing.T) {
-	metaStr := "en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234"
-	expectedTranslations := map[string]string{
-		"en": "name",
-		"it": "nome",
-	}
-	expectedDescriptions := map[string]string{
-		"en": "Enter your name",
-		"it": "Inserisci il tuo nome",
-	}
+	metaStr := "description:enter_your_name, credimi_id:1234"
+	
+	expectedDescriptions := "enter_your_name"
 	expectedCredimiID := "1234"
 
-	translations, descriptions, credimiID, _ := parseMetadata(metaStr)
+	descriptions, credimiID, _ := parseMetadata(metaStr)
 
-	if !reflect.DeepEqual(translations, expectedTranslations) {
-		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
-	}
 
 	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
 		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
@@ -366,22 +350,12 @@ func TestParseMetadata_MultipleTranslationsAndDescriptions(t *testing.T) {
 }
 
 func TestParseMetadata_MultipleCredimiIDs(t *testing.T) {
-	metaStr := "en:name, it:nome, description:en:Enter your name, credimi_id:1234, description:it:Inserisci il tuo nome, credimi_id:5678"
-	expectedTranslations := map[string]string{
-		"en": "name",
-		"it": "nome",
-	}
-	expectedDescriptions := map[string]string{
-		"en": "Enter your name",
-		"it": "Inserisci il tuo nome",
-	}
+	metaStr := "description:enter_your_name, credimi_id:5678"
+
+	expectedDescriptions := "enter_your_name"
 	expectedCredimiID := "5678"
 
-	translations, descriptions, credimiID, _ := parseMetadata(metaStr)
-
-	if !reflect.DeepEqual(translations, expectedTranslations) {
-		t.Errorf("parseMetadata() translations = %v, want %v", translations, expectedTranslations)
-	}
+	descriptions, credimiID, _ := parseMetadata(metaStr)
 
 	if !reflect.DeepEqual(descriptions, expectedDescriptions) {
 		t.Errorf("parseMetadata() descriptions = %v, want %v", descriptions, expectedDescriptions)
