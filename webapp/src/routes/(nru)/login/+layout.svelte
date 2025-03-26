@@ -13,6 +13,7 @@
 	import A from '@/components/ui-custom/a.svelte';
 	import type { Snippet } from 'svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
+	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	//
 
@@ -24,11 +25,11 @@
 
 	const modes: Link[] = [
 		{
-			href: '/login',
+			href: localizeHref('/login'),
 			title: m.Email_and_password()
 		},
 		{
-			href: '/login/webauthn',
+			href: localizeHref('/login/webauthn'),
 			title: m.Webauthn()
 		}
 	];
