@@ -1,6 +1,7 @@
 <script lang="ts">
 	import * as Sidebar from '@/components/ui/sidebar';
 	import { cn } from '@/components/ui/utils';
+	import A from '@/components/ui-custom/a.svelte';
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
 	import SidebarItemIcon from './sidebarItemIcon.svelte';
 	import { page } from '$app/state';
@@ -37,7 +38,7 @@
 	<Button {isActive}>
 		{#snippet child({ props })}
 			{#if !disabled}
-				<a
+				<A
 					{href}
 					{...props}
 					{...rest}
@@ -47,7 +48,7 @@
 					}}
 				>
 					{@render content()}
-				</a>
+				</A>
 			{:else}
 				<p {...props}>
 					{@render content()}

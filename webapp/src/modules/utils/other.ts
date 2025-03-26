@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { resolveRoute } from '@/i18n';
+import { deLocalizeUrl } from '@/i18n/paraglide/runtime';
 import type { Page } from '@sveltejs/kit';
 
 //
@@ -23,8 +23,8 @@ export function createDummyFile(options: { filename?: string; size?: number; mim
 //
 
 export function isLinkActive(href: string, page: Page, includeSubpages = false) {
-	const isExact = page.url.pathname == resolveRoute(href, page.url);
-	const isParent = page.url.pathname.includes(href);
+	const isExact = page.url.pathname == deLocalizeUrl(href).pathname;
+	const isParent = page.url.pathname.includes(deLocalizeUrl(href).pathname);
 	return includeSubpages ? isParent : isExact;
 }
 

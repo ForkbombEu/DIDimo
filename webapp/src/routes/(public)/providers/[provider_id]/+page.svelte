@@ -5,6 +5,7 @@
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
+	import A from '@/components/ui-custom/a.svelte';
 	import { Button } from '@/components/ui/button';
 	import { m } from '@/i18n';
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
@@ -13,7 +14,6 @@
 	import { currentUser, pb } from '@/pocketbase/index.js';
 	import * as Sheet from '@/components/ui/sheet';
 	import { CollectionForm } from '@/collections-components/index.js';
-	import A from '@/components/ui-custom/a.svelte';
 
 	let { data } = $props();
 	const { provider, hasClaim, isClaimed } = $derived(data);
@@ -81,7 +81,7 @@
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex flex-col md:flex-row gap-12 items-start">
 	<div class="sticky top-5">
 		<PageIndex sections={Object.values(sections)} />
 	</div>
@@ -128,12 +128,12 @@
 							{@render CircledNumber(index + 1)}
 							<div class="space-y-1">
 								<InfoBox label={m.OpenID_Issuance_URL()}>
-									<a
+									<A
 										href="/credential-issuers/{issuer.id}"
 										class="hover:underline"
 									>
 										{issuer.url}
-									</a>
+									</A>
 								</InfoBox>
 							</div>
 						</li>
@@ -146,7 +146,7 @@
 
 {#snippet CircledNumber(index: number)}
 	<div
-		class="border-primary flex size-4 shrink-0 items-center justify-center rounded-full border text-sm text-slate-500"
+		class="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary text-sm text-slate-500"
 	>
 		<p>
 			{index}

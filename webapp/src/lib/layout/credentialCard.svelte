@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
+	import A from '@/components/ui-custom/a.svelte';
 	import { m } from '@/i18n';
 	import type { CredentialsResponse } from '@/pocketbase/types';
 	import { String } from 'effect';
@@ -22,9 +23,9 @@
 	}
 </script>
 
-<a
+<A
 	href="/credentials/{credential.id}"
-	class="bg-card text-card-foreground border-primary ring-primary flex flex-col gap-6 rounded-xl border p-6 shadow-sm transition-transform hover:-translate-y-2 hover:ring-2 {className}"
+	class="flex flex-col gap-6 rounded-xl border border-primary bg-card p-6 text-card-foreground shadow-sm ring-primary transition-transform hover:-translate-y-2 hover:ring-2 {className}"
 >
 	<div class="flex items-center gap-2">
 		{#if credential.logo}
@@ -38,4 +39,4 @@
 			<T class="text-sm text-slate-400">{key}: <span class="text-primary">{value}</span></T>
 		{/each}
 	</div>
-</a>
+</A>

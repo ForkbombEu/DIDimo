@@ -6,6 +6,7 @@
 	import type { LanguageSelectTriggerSnippetProps } from './baseLanguageSelect.svelte';
 	import type { Snippet } from 'svelte';
 	import type { GenericRecord } from '@/utils/types';
+	import { setLocale } from './paraglide/runtime';
 
 	type Props = {
 		contentClass?: string;
@@ -38,10 +39,9 @@
 
 		{#snippet languages({ languages })}
 			<Popover.Content class="space-y-0.5 p-1 {contentClass} w-[--bits-popover-anchor-width]">
-				{#each languages as { href, hreflang, name, flag, isCurrent }}
+				{#each languages as { name, flag, isCurrent, tag }}
 					<Button
-						{href}
-						{hreflang}
+						onclick={() => setLocale(tag)}
 						variant={isCurrent ? 'secondary' : 'ghost'}
 						class="flex items-center justify-start gap-2"
 						size="sm"

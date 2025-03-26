@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import { loginUser } from '@/webauthn/index';
 	import z from 'zod';
 
@@ -7,6 +7,7 @@
 	import { Field } from '@/forms/fields';
 	import { currentEmail } from '../+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
+	import { goto } from '$app/navigation';
 
 	const schema = z.object({
 		email: z.string().email()

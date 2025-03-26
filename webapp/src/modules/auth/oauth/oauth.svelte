@@ -4,11 +4,12 @@
 	import Button from '@/components/ui/button/button.svelte';
 	import type { ClientResponseError } from 'pocketbase';
 	import Alert from '@/components/ui-custom/alert.svelte';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import type { Data, UsersRecord } from '@/pocketbase/types';
 	import { nanoid } from 'nanoid';
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { Separator } from '@/components/ui/separator';
+	import { goto } from '$app/navigation';
 
 	//
 

@@ -4,6 +4,7 @@
 	import Icon from './icon.svelte';
 	import type { IconComponent, LinkWithIcon } from '../types';
 	import type { Snippet } from 'svelte';
+	import A from '@/components/ui-custom/a.svelte';
 
 	//
 
@@ -21,7 +22,7 @@
 
 <DropdownMenuItem {...options} class="{options?.class} hover:cursor-pointer">
 	{#snippet child({ props })}
-		<a {href} {...props} {...rest} data-sveltekit-preload-data="off">
+		<A {href} {...props} {...rest} data-sveltekit-preload-data="off">
 			{#if children}
 				{@render children()}
 			{:else if title}
@@ -30,6 +31,6 @@
 				{/if}
 				<span>{title}</span>
 			{/if}
-		</a>
+		</A>
 	{/snippet}
 </DropdownMenuItem>

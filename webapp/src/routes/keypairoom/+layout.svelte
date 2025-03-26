@@ -11,6 +11,7 @@
 	import { FileIcon, LogOut, SquareArrowOutUpRight } from 'lucide-svelte';
 	import { getUserDidUrl } from '@/did';
 	import BaseLanguageSelect from '@/i18n/baseLanguageSelect.svelte';
+	import A from '@/components/ui-custom/a.svelte';
 
 	interface Props {
 		children?: Snippet;
@@ -46,10 +47,10 @@
 										{#each languages as { name, flag, href, hreflang }}
 											<DropdownMenu.Item>
 												{#snippet child({ props })}
-													<a {...props} {href} {hreflang}>
+													<A {...props} {href} {hreflang}>
 														<span>{flag}</span>
 														<span>{name}</span>
-													</a>
+													</A>
 												{/snippet}
 											</DropdownMenu.Item>
 										{/each}
@@ -62,11 +63,11 @@
 							{#await getUserDidUrl() then url}
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
-										<a {...props} href={url} target="_blank">
+										<A {...props} href={url} target="_blank">
 											<Icon src={FileIcon} />
 											{m.my_DID()}
 											<Icon src={SquareArrowOutUpRight} class="opacity-50" />
-										</a>
+										</A>
 									{/snippet}
 								</DropdownMenu.Item>
 							{/await}
@@ -74,10 +75,10 @@
 
 						<DropdownMenu.Item>
 							{#snippet child({ props })}
-								<a {...props} href="/logout" data-sveltekit-preload-data="off">
+								<A {...props} href="/logout" data-sveltekit-preload-data="off">
 									<Icon src={LogOut} />
 									{m.Sign_out()}
-								</a>
+								</A>
 							{/snippet}
 						</DropdownMenu.Item>
 					</DropdownMenu.Group>

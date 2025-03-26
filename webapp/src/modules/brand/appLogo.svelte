@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appName } from '@/brand';
+	import A from '@/components/ui-custom/a.svelte';
 
 	interface Props {
 		/*
@@ -11,9 +12,9 @@
 	let { href = '/' }: Props = $props();
 </script>
 
-<a {href}>
+<A {href}>
 	<img src={'/logo.svg'} class="h-9" alt={appName} />
-</a>
+</A>
 
 <!--  
     @component 

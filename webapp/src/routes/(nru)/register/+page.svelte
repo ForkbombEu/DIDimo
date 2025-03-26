@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { pb } from '@/pocketbase';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import z from 'zod';
+	import { goto } from '$app/navigation';
 
 	import { Form, createForm } from '@/forms';
 	import { Field, CheckboxField } from '@/forms/fields';
@@ -51,7 +52,9 @@
 		return pb.collection('organizations').getOne(id, { requestKey: null });
 	}
 
-	let disableEmail = $derived($featureFlags.ORGANIZATIONS && OrganizationInviteSession.isActive());
+	let disableEmail = $derived(
+		$featureFlags.ORGANIZATIONS && OrganizationInviteSession.isActive()
+	);
 </script>
 
 {#if $featureFlags.ORGANIZATIONS}

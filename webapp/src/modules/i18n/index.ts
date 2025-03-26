@@ -1,40 +1,23 @@
-import { createI18n } from '@inlang/paraglide-sveltekit';
-import * as runtime from './paraglide/runtime.js';
+import { Record } from 'effect';
+import type { Handle, Page } from '@sveltejs/kit';
+
+import { paraglideMiddleware } from './paraglide/server';
+import { locales, localizeHref, getLocale } from '@/i18n/paraglide/runtime';
 import * as m from './paraglide/messages.js';
 
-export const i18n = createI18n(runtime);
 export { m };
-export * from './paraglide/runtime.js';
 
-//
+export const handleParaglide: Handle = ({ event, resolve }) =>
+	paraglideMiddleware(event.request, ({ request: localizedRequest, locale }) => {
+		event.request = localizedRequest;
+		return resolve(event, {
+			transformPageChunk: ({ html }) => {
+				return html.replace('%lang%', locale);
+			}
+		});
+	});
 
-import { goto as sveltekitGoto } from '$app/navigation';
-import { redirect as sveltekitRedirect, type Page } from '@sveltejs/kit';
-import { get } from 'svelte/store';
-import { page } from '$app/stores';
-import type { AvailableLanguageTag } from './paraglide/runtime.js';
-import { Record } from 'effect';
-
-//
-
-export function resolveRoute(route: string, url: URL) {
-	const baseRoute = i18n.route(route);
-	return i18n.resolveRoute(baseRoute, i18n.getLanguageFromUrl(url));
-}
-
-export function goto(route: string) {
-	return sveltekitGoto(resolveRoute(route, get(page).url));
-}
-
-export function redirect(route: string, fromUrl: URL, statusCode: RedirectStatusCode = 303) {
-	return sveltekitRedirect(statusCode, resolveRoute(route, fromUrl));
-}
-
-type RedirectStatusCode = Parameters<typeof sveltekitRedirect>['0'];
-
-//
-
-export const languagesDisplay: Record<AvailableLanguageTag, { flag: string; name: string }> = {
+export const languagesDisplay: Record<(typeof locales)[number], { flag: string; name: string }> = {
 	en: { flag: '🇬🇧', name: 'English' },
 	it: { flag: '🇮🇹', name: 'Italiano' },
 	de: { flag: '🇩🇪', name: 'Deutsch' },
@@ -44,11 +27,11 @@ export const languagesDisplay: Record<AvailableLanguageTag, { flag: string; name
 };
 
 export function getLanguagesData(page: Page): LanguageData[] {
-	const currentLang = i18n.getLanguageFromUrl(page.url);
+	const currentLang = getLocale();
 
 	return Record.keys(languagesDisplay).map((lang) => ({
 		tag: lang,
-		href: i18n.route(page.url.pathname),
+		href: localizeHref(page.url.pathname, { locale: lang }),
 		hreflang: lang,
 		flag: languagesDisplay[lang].flag,
 		name: languagesDisplay[lang].name,
@@ -57,9 +40,9 @@ export function getLanguagesData(page: Page): LanguageData[] {
 }
 
 export type LanguageData = {
-	tag: AvailableLanguageTag;
+	tag: (typeof locales)[number];
 	href: string;
-	hreflang: AvailableLanguageTag;
+	hreflang: (typeof locales)[number];
 	flag: string;
 	name: string;
 	isCurrent: boolean;

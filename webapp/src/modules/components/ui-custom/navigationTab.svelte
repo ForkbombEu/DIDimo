@@ -3,7 +3,7 @@
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { cn } from '@/components/ui/utils';
 	import type { LinkWithIcon } from '../types';
-
+	import A from '@/components/ui-custom/a.svelte';
 	let { href, icon, title, ...rest }: LinkWithIcon = $props();
 
 	//
@@ -22,9 +22,9 @@
 	);
 </script>
 
-<a {...rest} role="tab" class={classes} {href}>
+<A {...rest} role="tab" class={classes} {href}>
 	{#if icon}
 		<Icon src={icon} mr></Icon>
 	{/if}
 	{title}
-</a>
+</A>

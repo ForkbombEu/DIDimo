@@ -1,10 +1,9 @@
 import { loadFeatureFlags } from '@/features/index.js';
-import { redirect } from '@/i18n/index.js';
 import { OrganizationInviteSession } from '@/organizations/invites';
 import { pb } from '@/pocketbase';
-import { error } from '@sveltejs/kit';
+import { error, redirect } from '@sveltejs/kit';
 
-export const load = async ({ params, url, fetch }) => {
+export const load = async ({ params, fetch }) => {
 	const featureFlags = await loadFeatureFlags(fetch);
 	if (!featureFlags.ORGANIZATIONS) error(404);
 
@@ -15,9 +14,9 @@ export const load = async ({ params, url, fetch }) => {
 		userId: params.userId
 	});
 
-	if (pb.authStore.token) redirect('/my/organizations', url);
+	if (pb.authStore.token) redirect(303, '/my/organizations');
 	else {
-		if (params.userId) redirect('/login', url);
-		else redirect('/register', url);
+		if (params.userId) redirect(303, '/login');
+		else redirect(303, '/register');
 	}
 };

@@ -8,6 +8,7 @@
 	import type { CredentialConfiguration } from '$lib/types/openid.js';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
+	import A from '@/components/ui-custom/a.svelte';
 	import { m } from '@/i18n/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
 
@@ -61,7 +62,7 @@
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
@@ -153,9 +154,9 @@
 
 			{#if credentialIssuer}
 				<InfoBox label="OpenID issuance URL">
-					<a href="/credential-issuers/{credentialIssuer.id}" class="hover:underline">
+					<A href="/credential-issuers/{credentialIssuer.id}" class="hover:underline">
 						{credentialIssuer.url}
-					</a>
+					</A>
 				</InfoBox>
 			{/if}
 		</div>
