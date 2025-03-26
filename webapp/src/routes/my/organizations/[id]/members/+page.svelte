@@ -2,7 +2,7 @@
 	import { CollectionManager } from '@/collections-components/manager';
 	import { m } from '@/i18n';
 	import { OrgRoles, ProtectedOrgUI } from '@/organizations';
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { Pencil, Plus, X } from 'lucide-svelte';
 	import Badge from '@/components/ui/badge/badge.svelte';
 	import PageCard from '@/components/layout/pageCard.svelte';

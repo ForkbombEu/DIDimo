@@ -2,7 +2,7 @@
 	import type { SnippetFunction } from '@/components/types';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { ArrowUpRight } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 

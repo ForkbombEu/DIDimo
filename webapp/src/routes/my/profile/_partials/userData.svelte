@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import UserAvatar from '@/components/ui-custom/userAvatar.svelte';
 	import { Pencil, X } from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';

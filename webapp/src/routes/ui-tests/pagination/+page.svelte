@@ -1,9 +1,16 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
+	import { invalidateAll } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { goto } from '@/i18n';
-	import { page } from '$app/state';
-	import type { Page } from '@sveltejs/kit';
 
 	import * as Pagination from '@/components/ui/pagination';
+	import type { Page } from '@sveltejs/kit';
+
+	run(() => {
+		console.log($page);
+	});
 
 	function handlePageChange(number: number, page: Page) {
 		const url = page.url;
@@ -12,7 +19,7 @@
 	}
 </script>
 
-<Pagination.Root count={100} perPage={8} onPageChange={(n) => handlePageChange(n, page)}>
+<Pagination.Root count={100} perPage={8} onPageChange={(n) => handlePageChange(n, $page)}>
 	{#snippet children({ pages, currentPage })}
 		<Pagination.Content>
 			<Pagination.Item>

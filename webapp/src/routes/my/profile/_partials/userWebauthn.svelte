@@ -1,11 +1,15 @@
 <script lang="ts">
-	import { registerUser, isWebauthnSupported, isPlatformAuthenticatorAvailable } from '@/webauthn';
+	import {
+		registerUser,
+		isWebauthnSupported,
+		isPlatformAuthenticatorAvailable
+	} from '@/webauthn';
 	import { currentUser } from '@/pocketbase';
 	import { CollectionManager, RecordDelete, RecordEdit } from '@/collections-components/manager';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import Separator from '@/components/ui/separator/separator.svelte';
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { Plus, Info } from 'lucide-svelte';
 	import Card from '@/components/ui-custom/card.svelte';

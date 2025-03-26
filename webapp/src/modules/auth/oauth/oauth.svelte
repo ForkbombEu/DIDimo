@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { currentUser, pb } from '@/pocketbase';
 	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import type { ClientResponseError } from 'pocketbase';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { m } from '@/i18n';

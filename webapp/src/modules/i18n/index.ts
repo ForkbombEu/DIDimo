@@ -20,8 +20,7 @@ export const handleParaglide: Handle = ({ event, resolve }) =>
 	});
 
 export const goto = (url: string) => svelteKitGoto(localizeHref(url));
-export const redirect = (url: string, code?: number) =>
-	svelteKitRedirect(code ?? 303, localizeUrl(url));
+export const redirect = (url: string) => svelteKitRedirect(303, localizeUrl(url));
 
 export const languagesDisplay: Record<(typeof locales)[number], { flag: string; name: string }> = {
 	en: { flag: '🇬🇧', name: 'English' },

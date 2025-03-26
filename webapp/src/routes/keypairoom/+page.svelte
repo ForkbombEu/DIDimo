@@ -32,7 +32,7 @@
 	import RegenerateBanner from './_partials/RegenerateBanner.svelte';
 	import { log } from '@/utils/other';
 
-	import Button from '@/components/ui-custom/button.svelte'';
+	import Button from '@/components/ui-custom/button.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import Separator from '@/components/ui/separator/separator.svelte';
