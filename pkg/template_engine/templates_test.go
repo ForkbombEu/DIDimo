@@ -45,7 +45,7 @@ func TestExtractPlaceholders_MultipleUniquePlaceholders(t *testing.T) {
 }
 
 func TestExtractPlaceholders_WithCompleteMetadata(t *testing.T) {
-	content := "Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234}}!"
+	content := "Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234§ }}!"
 	expected := []PlaceholderMetadata{
 		{
 			Field:        "Name",
@@ -186,7 +186,7 @@ func TestRenderTemplate_WithCustomReader(t *testing.T) {
 }
 
 func TestRenderTemplate_WithSproutFunctions(t *testing.T) {
-	content := "Hello, {{.Name}}! Your age in 5 years will be {{.Age | add 5}}."
+	content := "Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§ }}! Your age in 5 years will be {{.Age | add 5}}."
 	data := map[string]interface{}{
 		"Name": "Alice",
 		"Age":  30,
@@ -284,9 +284,9 @@ func TestGetPlaceholders_WithNoNormalization(t *testing.T) {
 }
 
 func TestGetPlaceholders_WithAllMetadataSetAndMultipleReadersAndSprouts(t *testing.T) {
-	reader1 := strings.NewReader("Hello, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age }}.")
-	reader2 := strings.NewReader("Welcome, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age}}.")
-	reader3 := strings.NewReader("Goodbye, {{.Name|en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string}}! Your age is {{.Age}}.")
+	reader1 := strings.NewReader("Hello, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age }}.")
+	reader2 := strings.NewReader("Welcome, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
+	reader3 := strings.NewReader("Goodbye, {{.Name §en:name, it:nome, description:en:Enter your name, description:it:Inserisci il tuo nome, credimi_id:1234, type: string§}}! Your age is {{.Age}}.")
 
 	readers := []io.Reader{reader1, reader2, reader3}
 

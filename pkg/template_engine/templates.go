@@ -70,7 +70,7 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 		norm = normalized[0]
 	}
 
-	regex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)(?:\s*\|\s*([^}]+))?\s*}}`)
+	regex := regexp.MustCompile(`{{\s*\.([a-zA-Z0-9_.]+)(?:\s*§\s*([^§]+?)\s*§)?\s*}}`)
 	matches := regex.FindAllStringSubmatch(content, -1)
 
 	var placeholders []PlaceholderMetadata
@@ -112,6 +112,11 @@ func ExtractPlaceholders(content string, normalized ...bool) []PlaceholderMetada
 	return placeholders
 }
 
+func stripMetadataFromTemplate(content string) string {
+	regex := regexp.MustCompile(`({{\s*\.[a-zA-Z0-9_.]+)\s*§\s*[^§]+\s*§\s*}}`)
+	return regex.ReplaceAllString(content, "$1}}")
+}
+
 func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, error) {
 	handler := sprout.New(
 		sprout.WithGroups(all.RegistryGroup()),
@@ -123,7 +128,10 @@ func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, erro
 		return "", err
 	}
 
-	tmpl, err := template.New("tmpl").Funcs(funcs).Parse(buf.String())
+	templateContent := buf.String()
+	cleanContent := stripMetadataFromTemplate(templateContent)
+
+	tmpl, err := template.New("tmpl").Funcs(funcs).Parse(cleanContent)
 	if err != nil {
 		return "", err
 	}

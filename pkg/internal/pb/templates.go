@@ -64,8 +64,10 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 			for _, template := range templates {
 				template.Seek(0, 0)
 				template_variables, err := engine.GetPlaceholders([]io.Reader{template})
+				ids := make([]string, len(template_variables))
 				fields := make([]string, len(template_variables))
 				for i, v := range template_variables {
+					ids[i] = v.CredimiID
 					fields[i] = v.Field
 				}
 				if err != nil {
@@ -73,12 +75,12 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 				}
 				values := make(map[string]interface{})
 				for _, variable := range variables {
-					name, ok := variable.Get("field_name").(string)
+					cId, ok := variable.Get("credimi_id").(string)
 					if !ok {
 						return apis.NewBadRequestError("Invalid variable name type", nil)
 					}
-					if slices.Contains(fields, name) {
-						values[name] = variable.Get("value")
+					if slices.Contains(ids, cId) {
+						values[fields[indexOf(ids, cId)]] = variable.Get("value")
 					}
 				}
 				template.Seek(0, 0)
@@ -98,7 +100,14 @@ func RouteParseTestsConfig(app *pocketbase.PocketBase) {
 	})
 }
 
-
+func indexOf(slice []string, item string) int {
+	for i, v := range slice {
+		if v == item {
+			return i
+		}
+	}
+	return -1
+}
 
 func RouteNormalizedPlaceholders(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
