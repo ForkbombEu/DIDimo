@@ -4,38 +4,62 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	"github.com/spf13/cobra"
 )
 
+type Variants struct {
+	Variants []string `json:"variants"`
+}
+
 func main() {
 	var input string
 	var defaultPath string
 	var configPath string
+	var outputDir string
 
 	// Define the root command using Cobra
 	var rootCmd = &cobra.Command{
 		Use:   "parse-input",
-		Short: "Parses the input string using OpenID4VP",
+		Short: "Parses the input string using OpenID4VP and saves output to files",
 		Run: func(cmd *cobra.Command, args []string) {
-			// Ensure the input is provided
-			if input == "" || defaultPath == "" || configPath == "" {
-				fmt.Println("Error: Missing required arguments.")
-				cmd.Usage()
-				return
-			}
 
-			// Call the ParseInput function with the provided arguments
-			result, err := OpenID4VP.ParseInput(input, defaultPath, configPath)
+			info, err := os.Stat(outputDir)
 			if err != nil {
-				fmt.Println("Error:", err)
+				fmt.Println("Error: Output directory does not exist:", outputDir)
+				return
+			}
+			if !info.IsDir() {
+				fmt.Println("Error: Output path exists but is not a directory:", outputDir)
 				return
 			}
 
-			// Marshal the result to JSON and print it
-			output, _ := json.MarshalIndent(result, "", "    ")
-			fmt.Println(string(output))
+			var variants Variants
+			if err := OpenID4VP.LoadJSON(input, &variants); err != nil {
+				fmt.Println("Error loading JSON:", err)
+				return
+			}
+
+			for _, variantString := range variants.Variants {
+				result, err := OpenID4VP.ParseInput(variantString, defaultPath, configPath)
+				if err != nil {
+					fmt.Println("Error processing variant:", err)
+					continue
+				}
+
+				output, _ := json.MarshalIndent(result, "", "    ")
+
+				filename := fmt.Sprintf("%s.json", filepath.Clean(variantString))
+				filePath := filepath.Join(outputDir, filename)
+
+				if err := os.WriteFile(filePath, output, 0644); err != nil {
+					fmt.Println("Error writing file:", err)
+					continue
+				}
+
+			}
 		},
 	}
 
@@ -43,13 +67,13 @@ func main() {
 	rootCmd.Flags().StringVarP(&input, "input", "i", "", "Input string (required)")
 	rootCmd.Flags().StringVarP(&defaultPath, "default", "d", "", "Path to the default JSON file (required)")
 	rootCmd.Flags().StringVarP(&configPath, "config", "c", "", "Path to the config JSON file (required)")
+	rootCmd.Flags().StringVarP(&outputDir, "output", "o", "", "Path to the output directory (required)")
 
-	// Mark the flags as required
 	rootCmd.MarkFlagRequired("input")
 	rootCmd.MarkFlagRequired("default")
 	rootCmd.MarkFlagRequired("config")
+	rootCmd.MarkFlagRequired("output")
 
-	// Execute the command
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)
