@@ -5,7 +5,7 @@ type Server struct {
 }
 
 type Client struct {
-	ClientID                          string      `yaml:"client_id" json:"client_id"`
+	ClientID                          string      `yaml:"client_id,omitempty" json:"client_id,omitempty"`
 	AuthorizationEncryptedResponseAlg string      `yaml:"authorization_encrypted_response_alg,omitempty" json:"authorization_encrypted_response_alg,omitempty"`
 	AuthorizationEncryptedResponseEnc string      `yaml:"authorization_encrypted_response_enc,omitempty" json:"authorization_encrypted_response_enc,omitempty"`
 	PresentationDefinition            interface{} `yaml:"presentation_definition" json:"presentation_definition"`
