@@ -1,12 +1,12 @@
 import { loadFeatureFlags } from '@/features';
 import { getUserPublicKeys } from '@/keypairoom/utils';
-import { redirect } from '@sveltejs/kit';
+import { redirect } from '@/i18n';
 
 export const load = async ({ fetch }) => {
 	const { KEYPAIROOM, AUTH } = await loadFeatureFlags(fetch);
 
 	if (KEYPAIROOM && AUTH) {
 		const publicKeys = await getUserPublicKeys(undefined, fetch);
-		if (!publicKeys) redirect(303, '/my/keypairoom');
+		if (!publicKeys) redirect('/my/keypairoom');
 	}
 };

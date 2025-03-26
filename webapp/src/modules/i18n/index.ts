@@ -1,8 +1,10 @@
 import { Record } from 'effect';
 import type { Handle, Page } from '@sveltejs/kit';
+import { redirect as svelteKitRedirect } from '@sveltejs/kit';
+import { goto as svelteKitGoto } from '$app/navigation';
 
 import { paraglideMiddleware } from './paraglide/server';
-import { locales, localizeHref, getLocale } from '@/i18n/paraglide/runtime';
+import { locales, localizeHref, getLocale, localizeUrl } from '@/i18n/paraglide/runtime';
 import * as m from './paraglide/messages.js';
 
 export { m };
@@ -16,6 +18,10 @@ export const handleParaglide: Handle = ({ event, resolve }) =>
 			}
 		});
 	});
+
+export const goto = (url: string) => svelteKitGoto(localizeHref(url));
+export const redirect = (url: string, code?: number) =>
+	svelteKitRedirect(code ?? 303, localizeUrl(url));
 
 export const languagesDisplay: Record<(typeof locales)[number], { flag: string; name: string }> = {
 	en: { flag: '🇬🇧', name: 'English' },

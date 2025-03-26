@@ -1,9 +1,9 @@
 import { error } from '@sveltejs/kit';
 import { loadFeatureFlags } from '@/features';
 import { verifyUser } from '@/auth/verifyUser';
-import { redirect } from '@sveltejs/kit';
+import { redirect } from '@/i18n';
 
 export const load = async ({ fetch }) => {
 	if (!(await loadFeatureFlags(fetch)).AUTH) error(404);
-	if (await verifyUser(fetch)) redirect(303, '/my');
+	if (await verifyUser(fetch)) redirect('/my');
 };

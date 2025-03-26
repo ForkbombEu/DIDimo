@@ -2,7 +2,6 @@
 	import { pb } from '@/pocketbase';
 	import { m } from '@/i18n';
 	import z from 'zod';
-	import { goto } from '$app/navigation';
 
 	import { Form, createForm } from '@/forms';
 	import { Field, CheckboxField } from '@/forms/fields';
@@ -15,7 +14,7 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
-	import { localizeHref } from '@/i18n/paraglide/runtime';
+	import { goto } from '@/i18n';
 
 	//
 
@@ -38,7 +37,7 @@
 			await u.authWithPassword(data.email, data.password);
 			await u.requestVerification(data.email);
 			WelcomeSession.start();
-			await goto(localizeHref('/my'));
+			await goto('/my');
 		}
 	});
 

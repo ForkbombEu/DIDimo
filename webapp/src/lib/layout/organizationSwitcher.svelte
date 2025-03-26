@@ -11,7 +11,7 @@
 	import type { OrganizationsResponse } from '@/pocketbase/types';
 	import { m } from '@/i18n';
 	import OrganizationAvatar from '@/organizations/components/organizationAvatar.svelte';
-	import { goto } from '$app/navigation';
+	import { goto } from '@/i18n';
 
 	//
 

@@ -9,8 +9,7 @@
 	import { nanoid } from 'nanoid';
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { Separator } from '@/components/ui/separator';
-	import { goto } from '$app/navigation';
-	import { localizeHref } from '@/i18n/paraglide/runtime';
+	import { goto } from '@/i18n';
 
 	//
 
@@ -42,7 +41,7 @@
 								createData
 							});
 							$currentUser = authData.record;
-							goto(localizeHref('/my'));
+							goto('/my');
 						} catch (e) {
 							error = e as ClientResponseError;
 						}
