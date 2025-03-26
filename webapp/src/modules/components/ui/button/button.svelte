@@ -40,7 +40,6 @@
 
 <script lang="ts">
 	import { cn } from '@/components/ui/utils.js';
-	import { localizeHref } from '@/i18n/paraglide/runtime';
 
 	let {
 		class: className,
@@ -55,12 +54,7 @@
 </script>
 
 {#if href}
-	<a
-		bind:this={ref}
-		class={cn(buttonVariants({ variant, size }), className)}
-		href={localizeHref(href)}
-		{...restProps}
-	>
+	<a bind:this={ref} class={cn(buttonVariants({ variant, size }), className)} {...restProps}>
 		{@render children?.()}
 	</a>
 {:else}
