@@ -15,7 +15,7 @@
 	import { ZTestCollectionSelectFieldOptions } from '@/pocketbase/types';
 	import { CollectionField } from '@/collections-components';
 	import type { ComponentProps } from 'svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 
 	const schema = createCollectionZodSchema('z_test_collection');
 	console.log(schema.shape);

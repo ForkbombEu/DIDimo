@@ -7,7 +7,7 @@
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';

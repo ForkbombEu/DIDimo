@@ -4,7 +4,7 @@
 
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { ArrowLeft, Mail, X } from 'lucide-svelte';
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte'';
 
 	import { m } from '@/i18n';
 	import { pb } from '@/pocketbase';

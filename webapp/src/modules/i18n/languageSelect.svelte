@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import * as Popover from '@/components/ui/popover';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import BaseLanguageSelect from './baseLanguageSelect.svelte';
 	import type { LanguageSelectTriggerSnippetProps } from './baseLanguageSelect.svelte';
 	import type { Snippet } from 'svelte';
@@ -43,7 +43,7 @@
 					<Button
 						onclick={() => setLocale(tag)}
 						variant={isCurrent ? 'secondary' : 'ghost'}
-						class="flex items-center justify-start gap-2"
+						class="flex w-full items-center justify-start gap-2"
 						size="sm"
 					>
 						<span class="text-2xl">

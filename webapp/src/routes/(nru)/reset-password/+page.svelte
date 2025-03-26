@@ -2,7 +2,7 @@
 	import { enhance } from '$app/forms';
 	import { m } from '@/i18n';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { Input } from '@/components/ui/input';
 	import { Label } from '@/components/ui/label';
 
@@ -17,7 +17,13 @@
 		</div>
 		<Label class="space-y-2">
 			<span>{m.New_password()}</span>
-			<Input type="password" name="password" id="password" placeholder="•••••••••••" required />
+			<Input
+				type="password"
+				name="password"
+				id="password"
+				placeholder="•••••••••••"
+				required
+			/>
 		</Label>
 		<Label class="space-y-2">
 			<span>{m.New_password()}</span>

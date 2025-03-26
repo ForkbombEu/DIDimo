@@ -6,7 +6,7 @@
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import A from '@/components/ui-custom/a.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { m } from '@/i18n';
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';

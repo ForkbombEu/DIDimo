@@ -8,7 +8,7 @@
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 	import type { Snippet } from 'svelte';

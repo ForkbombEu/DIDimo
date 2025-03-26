@@ -10,7 +10,7 @@
 
 	import t from './test.json';
 	import Alert from '@/components/ui-custom/alert.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import CodeEditor from '@/components/ui-custom/codeEditor.svelte';
 	import CodeEditorField from '@/forms/fields/codeEditorField.svelte';
 
@@ -67,7 +67,7 @@
 
 		<CodeEditorField {form} name="json" options={{ lang: 'json', maxHeight: 400 }} />
 
-		<div class="bg-secondary/30 space-y-4 rounded-xl border p-4">
+		<div class="space-y-4 rounded-xl border bg-secondary/30 p-4">
 			<Field {form} name="email" options={{ type: 'email' }} />
 			<T>{m.We_will_send_the_instructions_for_proceeding_with_the_test_to_this_email()}</T>
 		</div>

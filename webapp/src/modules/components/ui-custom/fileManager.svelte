@@ -9,7 +9,7 @@
 
 <script lang="ts">
 	import ArrayOrItemManager from './arrayOrItemManager.svelte';
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 	import T from './t.svelte';
 	import { X } from 'lucide-svelte';
 	import _ from 'lodash';

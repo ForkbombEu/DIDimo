@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte'';
 	import UserAvatar from '@/components/ui-custom/userAvatar.svelte';
 	import { Pencil, X } from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
@@ -89,7 +89,9 @@
 
 			{#snippet submitButton({ SubmitButton })}
 				<div class="flex items-center justify-end gap-2">
-					<Button variant="outline" onclick={showForm.off}><Icon src={X} mr />{m.Cancel()}</Button>
+					<Button variant="outline" onclick={showForm.off}
+						><Icon src={X} mr />{m.Cancel()}</Button
+					>
 					<SubmitButton><Icon src={Pencil} mr />{m.Update_profile()}</SubmitButton>
 				</div>
 			{/snippet}

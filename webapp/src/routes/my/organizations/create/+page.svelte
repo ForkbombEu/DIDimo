@@ -4,7 +4,7 @@
 	import { PageContent, PageCard, PageTop } from '@/components/layout';
 	import { ArrowLeft } from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 </script>
 
