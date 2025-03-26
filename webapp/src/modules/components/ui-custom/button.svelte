@@ -1,9 +1,15 @@
 <script lang="ts">
-	import type { ButtonProps } from '@/components/ui/button';
-	import Button from '@/components/ui-custom/button.svelte';
+	import { Button, type ButtonProps } from '@/components/ui/button';
 	import { localizeHref } from '@/i18n/paraglide/runtime';
+	import { cn } from '@/components/ui/utils.js';
 
-	let { class: className, href, ...rest }: ButtonProps = $props();
+	let { class: className, href, children, ...restProps }: ButtonProps = $props();
 </script>
 
-<Button href={href ? localizeHref(href) : undefined} class={className} {...rest} />
+<Button
+	href={href ? localizeHref(href) : undefined}
+	class={cn(className, 'cursor-pointer')}
+	{...restProps}
+>
+	{@render children?.()}
+</Button>
