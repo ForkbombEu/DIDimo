@@ -33,6 +33,9 @@
 		<DropdownMenu.Separator />
 
 		<DropdownMenu.Group>
+			<DropdownMenuLink href="/my">
+				{m.Go_to_Dashboard()}
+			</DropdownMenuLink>
 			<DropdownMenuLink href="/my/profile">
 				{m.My_profile()}
 			</DropdownMenuLink>

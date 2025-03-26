@@ -4,15 +4,15 @@
 	const filters: FilterGroup[] = [
 		{
 			name: 'Group 1',
+			id: 'default',
+			mode: '&&',
 			filters: [
 				{
 					name: 'Has self relation',
-					id: 'has_self_relation',
 					expression: 'self_relation != null'
 				},
 				{
 					name: 'Self relation has Select B',
-					id: 'has_relation_of_select_b',
 					expression: "self_relation.select_field = 'b'"
 				}
 			]
