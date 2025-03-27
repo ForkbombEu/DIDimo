@@ -22,15 +22,15 @@ func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
 		return fmt.Errorf("SCHEMAS_PATH environment variable not set")
 	}
 
-	testPlanResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/create_test_plan.json", schemasPath))
+	testPlanResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/create_test_plan.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	startRunnerResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/start_runner.json", schemasPath))
+	startRunnerResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/start_runner.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	getInfoResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/get_info.json", schemasPath))
+	getInfoResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/get_info.json", schemasPath))
 	if err != nil {
 		return err
 	}
