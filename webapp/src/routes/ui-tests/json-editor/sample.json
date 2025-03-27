@@ -1,0 +1,20 @@
+{
+	"variant": {
+		"credential_format": "sd_jwt_vc",
+		"client_id_scheme": "did",
+		"request_method": "request_uri_signed",
+		"response_mode": "direct_post"
+	},
+	"form": {
+		"alias": "{{ id_1 }}",
+		"description": "{{ id_2 }}",
+		"server": {
+			"authorization_endpoint": "openid-vc://"
+		},
+		"client": {
+			"client_id": "{{ id_3 }}",
+			"presentation_definition": "{{ id_4 }}",
+			"jwks": "{{ id_5 }}"
+		}
+	}
+}

@@ -1,0 +1,46 @@
+<script lang="ts">
+	import { sharedFields, testsFields, testsConfigs } from './sample.data';
+	import FieldConfigFormShared from './field-config-form-shared.svelte';
+	import FieldConfigForm from './field-config-form.svelte';
+	import type { TestInput } from './logic';
+
+	//
+
+	type Props = {
+		tests: string[];
+	};
+
+	let { tests }: Props = $props();
+
+	//
+
+	let sharedData = $state<Record<string, unknown>>({});
+
+	const defaultFieldsIds = Object.values(sharedFields).map((f) => f.credimi_id);
+
+	const masterDataStructure: Record<string, TestInput> = $state({});
+</script>
+
+<div class="space-y-16">
+	<div class="space-y-4">
+		<h2 class="text-lg font-bold">Shared fields</h2>
+		<FieldConfigFormShared fields={sharedFields} onUpdate={(form) => (sharedData = form)} />
+	</div>
+
+	<hr />
+	{#each Object.entries(testsFields) as [testId, fields]}
+		<div class="space-y-4">
+			<h2 class="text-lg font-bold">{testId}</h2>
+			<FieldConfigForm
+				{fields}
+				jsonConfig={testsConfigs[testId]}
+				defaultValues={sharedData}
+				{defaultFieldsIds}
+				onValidUpdate={(form) => {
+					masterDataStructure[testId] = form;
+				}}
+			/>
+		</div>
+		<hr />
+	{/each}
+</div>
