@@ -130,8 +130,8 @@ func GetPlaceholders(readers []io.Reader, names ...[]string) (map[string]interfa
 		if credimiIDCount[ph.CredimiID] > 1 && !seenCredimiIDs[ph.CredimiID] {
 			seenCredimiIDs[ph.CredimiID] = true
 			field := map[string]interface{}{
-				"CredimiID":           ph.CredimiID,
-				"Type":                 ph.Type,
+				"CredimiID":      ph.CredimiID,
+				"Type":           ph.Type,
 				"DescriptionKey": ph.DescriptionKey,
 				"LabelKey":       ph.LabelKey,
 			}

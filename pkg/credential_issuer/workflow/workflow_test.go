@@ -17,7 +17,7 @@ func Test_Workflow(t *testing.T) {
 	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
 	// Mock activity implementation
 	env.OnActivity(FetchCredentialIssuerActivity, mock.Anything, mock.Anything).Return(&issuerData, nil)
-	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"]) 
+	credential := Credential(issuerData.CredentialConfigurationsSupported["discount_from_voucher"])
 	inputStoreOrUpdate := StoreCredentialsActivityInput{
 		IssuerData: &issuerData,
 		IssuerID:   mock.Anything,
@@ -31,7 +31,7 @@ func Test_Workflow(t *testing.T) {
 	env.ExecuteWorkflow(CredentialWorkflow, CredentialWorkflowInput{BaseURL: "example@test.com"})
 
 	var result CredentialWorkflowResponse
-	
+
 	assert.NoError(t, env.GetWorkflowResult(&result))
 	assert.Equal(t, "Credentials Workflow completed successfully for URL: example@test.com", result.Message)
 }
