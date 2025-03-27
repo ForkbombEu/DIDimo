@@ -60,16 +60,6 @@ func TestFetchCredentialsIssuerActivity(t *testing.T) {
 	}
 }
 
-type mockCredentials struct {
-	CredentialDefinition                 *credentialissuer.CredentialDefinition                      `json:"credential_definition,omitempty"`
-	CredentialSigningAlgValuesSupported  []credentialissuer.CredentialSigningAlgValuesSupportedElem  `json:"credential_signing_alg_values_supported,omitempty"`
-	CryptographicBindingMethodsSupported []credentialissuer.CryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty"`
-	Display                              []credentialissuer.DisplayElem_1                            `json:"display,omitempty"`
-	Format                               string                                                      `json:"format"`
-	ProofTypesSupported                  credentialissuer.ProofTypesSupported                        `json:"proof_types_supported,omitempty"`
-	Scope                                *string                                                     `json:"scope,omitempty"`
-}
-
 func TestStoreOrUpdateCredentialsActivity(t *testing.T) {
 
 	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson

@@ -6,195 +6,6 @@ import "encoding/json"
 import "fmt"
 import "reflect"
 
-type CredentialDefinition struct {
-	// CredentialSubject corresponds to the JSON schema field "credentialSubject".
-	CredentialSubject CredentialDefinitionCredentialSubject `json:"credentialSubject,omitempty" yaml:"credentialSubject,omitempty" mapstructure:"credentialSubject,omitempty"`
-
-	// Type corresponds to the JSON schema field "type".
-	Type []string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
-}
-
-type CredentialDefinitionCredentialSubject map[string]struct {
-	// Display corresponds to the JSON schema field "display".
-	Display []DisplayElem `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
-
-	// Mandatory corresponds to the JSON schema field "mandatory".
-	Mandatory *bool `json:"mandatory,omitempty" yaml:"mandatory,omitempty" mapstructure:"mandatory,omitempty"`
-}
-
-type CredentialSigningAlgValuesSupportedElem string
-
-const CredentialSigningAlgValuesSupportedElemES256 CredentialSigningAlgValuesSupportedElem = "ES256"
-const CredentialSigningAlgValuesSupportedElemES256K CredentialSigningAlgValuesSupportedElem = "ES256K"
-const CredentialSigningAlgValuesSupportedElemEdDSA CredentialSigningAlgValuesSupportedElem = "EdDSA"
-const CredentialSigningAlgValuesSupportedElemRS256 CredentialSigningAlgValuesSupportedElem = "RS256"
-const CredentialSigningAlgValuesSupportedElemRSA CredentialSigningAlgValuesSupportedElem = "RSA"
-const CredentialSigningAlgValuesSupportedElemRsaSignature2018 CredentialSigningAlgValuesSupportedElem = "RsaSignature2018"
-
-var enumValues_CredentialSigningAlgValuesSupportedElem = []interface{}{
-	"ES256",
-	"EdDSA",
-	"RS256",
-	"ES256K",
-	"RSA",
-	"RsaSignature2018",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CredentialSigningAlgValuesSupportedElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_CredentialSigningAlgValuesSupportedElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_CredentialSigningAlgValuesSupportedElem, v)
-	}
-	*j = CredentialSigningAlgValuesSupportedElem(v)
-	return nil
-}
-
-type CryptographicBindingMethodsSupportedElem string
-
-const CryptographicBindingMethodsSupportedElemCoseKey CryptographicBindingMethodsSupportedElem = "cose_key"
-const CryptographicBindingMethodsSupportedElemDid CryptographicBindingMethodsSupportedElem = "did"
-const CryptographicBindingMethodsSupportedElemDidDyne CryptographicBindingMethodsSupportedElem = "did:dyne"
-const CryptographicBindingMethodsSupportedElemDidDyneSandboxSignroom CryptographicBindingMethodsSupportedElem = "did:dyne:sandbox.signroom"
-const CryptographicBindingMethodsSupportedElemDidEbsi CryptographicBindingMethodsSupportedElem = "did:ebsi"
-const CryptographicBindingMethodsSupportedElemDidJwk CryptographicBindingMethodsSupportedElem = "did:jwk"
-const CryptographicBindingMethodsSupportedElemDidKey CryptographicBindingMethodsSupportedElem = "did:key"
-const CryptographicBindingMethodsSupportedElemDidWeb CryptographicBindingMethodsSupportedElem = "did:web"
-const CryptographicBindingMethodsSupportedElemJWK CryptographicBindingMethodsSupportedElem = "JWK"
-const CryptographicBindingMethodsSupportedElemJwk CryptographicBindingMethodsSupportedElem = "jwk"
-
-var enumValues_CryptographicBindingMethodsSupportedElem = []interface{}{
-	"JWK",
-	"jwk",
-	"did",
-	"did:web",
-	"did:ebsi",
-	"did:jwk",
-	"did:dyne",
-	"did:dyne:sandbox.signroom",
-	"did:key",
-	"cose_key",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *CryptographicBindingMethodsSupportedElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_CryptographicBindingMethodsSupportedElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_CryptographicBindingMethodsSupportedElem, v)
-	}
-	*j = CryptographicBindingMethodsSupportedElem(v)
-	return nil
-}
-
-type DisplayElem struct {
-	// Locale corresponds to the JSON schema field "locale".
-	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name string `json:"name" yaml:"name" mapstructure:"name"`
-}
-
-type DisplayElemLogo struct {
-	// AltText corresponds to the JSON schema field "alt_text".
-	AltText *string `json:"alt_text,omitempty" yaml:"alt_text,omitempty" mapstructure:"alt_text,omitempty"`
-
-	// Uri corresponds to the JSON schema field "uri".
-	Uri string `json:"uri" yaml:"uri" mapstructure:"uri"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *DisplayElemLogo) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["uri"]; raw != nil && !ok {
-		return fmt.Errorf("field uri in DisplayElemLogo: required")
-	}
-	type Plain DisplayElemLogo
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = DisplayElemLogo(plain)
-	return nil
-}
-
-type DisplayElem_1 struct {
-	// Locale corresponds to the JSON schema field "locale".
-	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
-
-	// Logo corresponds to the JSON schema field "logo".
-	Logo *DisplayElemLogo `json:"logo,omitempty" yaml:"logo,omitempty" mapstructure:"logo,omitempty"`
-
-	// Name corresponds to the JSON schema field "name".
-	Name string `json:"name" yaml:"name" mapstructure:"name"`
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *DisplayElem_1) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["name"]; raw != nil && !ok {
-		return fmt.Errorf("field name in DisplayElem_1: required")
-	}
-	type Plain DisplayElem_1
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = DisplayElem_1(plain)
-	return nil
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *DisplayElem) UnmarshalJSON(b []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["name"]; raw != nil && !ok {
-		return fmt.Errorf("field name in DisplayElem: required")
-	}
-	type Plain DisplayElem
-	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
-		return err
-	}
-	*j = DisplayElem(plain)
-	return nil
-}
-
-type KeyAttestationsRequired struct {
-	// KeyStorage corresponds to the JSON schema field "key_storage".
-	KeyStorage []string `json:"key_storage,omitempty" yaml:"key_storage,omitempty" mapstructure:"key_storage,omitempty"`
-
-	// UserAuthentication corresponds to the JSON schema field "user_authentication".
-	UserAuthentication []string `json:"user_authentication,omitempty" yaml:"user_authentication,omitempty" mapstructure:"user_authentication,omitempty"`
-}
-
 type OpenidCredentialIssuerSchemaJson struct {
 	// Array of OAuth 2.0 Authorization Server identifiers.
 	AuthorizationServers []string `json:"authorization_servers,omitempty" yaml:"authorization_servers,omitempty" mapstructure:"authorization_servers,omitempty"`
@@ -239,9 +50,9 @@ type OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["batch_size"]; raw != nil && !ok {
@@ -249,7 +60,7 @@ func (j *OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance) UnmarshalJSON(
 	}
 	type Plain OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	if 1 > plain.BatchSize {
@@ -262,28 +73,257 @@ func (j *OpenidCredentialIssuerSchemaJsonBatchCredentialIssuance) UnmarshalJSON(
 type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupported map[string]struct {
 	// CredentialDefinition corresponds to the JSON schema field
 	// "credential_definition".
-	CredentialDefinition *CredentialDefinition `json:"credential_definition,omitempty" yaml:"credential_definition,omitempty" mapstructure:"credential_definition,omitempty"`
+	CredentialDefinition *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinition `json:"credential_definition,omitempty" yaml:"credential_definition,omitempty" mapstructure:"credential_definition,omitempty"`
 
 	// CredentialSigningAlgValuesSupported corresponds to the JSON schema field
 	// "credential_signing_alg_values_supported".
-	CredentialSigningAlgValuesSupported []CredentialSigningAlgValuesSupportedElem `json:"credential_signing_alg_values_supported,omitempty" yaml:"credential_signing_alg_values_supported,omitempty" mapstructure:"credential_signing_alg_values_supported,omitempty"`
+	CredentialSigningAlgValuesSupported []OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem `json:"credential_signing_alg_values_supported,omitempty" yaml:"credential_signing_alg_values_supported,omitempty" mapstructure:"credential_signing_alg_values_supported,omitempty"`
 
 	// CryptographicBindingMethodsSupported corresponds to the JSON schema field
 	// "cryptographic_binding_methods_supported".
-	CryptographicBindingMethodsSupported []CryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty" yaml:"cryptographic_binding_methods_supported,omitempty" mapstructure:"cryptographic_binding_methods_supported,omitempty"`
+	CryptographicBindingMethodsSupported []OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty" yaml:"cryptographic_binding_methods_supported,omitempty" mapstructure:"cryptographic_binding_methods_supported,omitempty"`
 
 	// Display corresponds to the JSON schema field "display".
-	Display []DisplayElem_1 `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
+	Display []OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
 
 	// Format corresponds to the JSON schema field "format".
 	Format string `json:"format" yaml:"format" mapstructure:"format"`
 
 	// ProofTypesSupported corresponds to the JSON schema field
 	// "proof_types_supported".
-	ProofTypesSupported ProofTypesSupported `json:"proof_types_supported,omitempty" yaml:"proof_types_supported,omitempty" mapstructure:"proof_types_supported,omitempty"`
+	ProofTypesSupported OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupported `json:"proof_types_supported,omitempty" yaml:"proof_types_supported,omitempty" mapstructure:"proof_types_supported,omitempty"`
 
 	// Scope corresponds to the JSON schema field "scope".
 	Scope *string `json:"scope,omitempty" yaml:"scope,omitempty" mapstructure:"scope,omitempty"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinition struct {
+	// CredentialSubject corresponds to the JSON schema field "credentialSubject".
+	CredentialSubject OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubject `json:"credentialSubject,omitempty" yaml:"credentialSubject,omitempty" mapstructure:"credentialSubject,omitempty"`
+
+	// Type corresponds to the JSON schema field "type".
+	Type []string `json:"type,omitempty" yaml:"type,omitempty" mapstructure:"type,omitempty"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubject map[string]struct {
+	// Display corresponds to the JSON schema field "display".
+	Display []OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem `json:"display,omitempty" yaml:"display,omitempty" mapstructure:"display,omitempty"`
+
+	// Mandatory corresponds to the JSON schema field "mandatory".
+	Mandatory *bool `json:"mandatory,omitempty" yaml:"mandatory,omitempty" mapstructure:"mandatory,omitempty"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem struct {
+	// Locale corresponds to the JSON schema field "locale".
+	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem: required")
+	}
+	type Plain OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinitionCredentialSubjectValueDisplayElem(plain)
+	return nil
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem string
+
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemES256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "ES256"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemES256K OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "ES256K"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemEdDSA OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "EdDSA"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemRS256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "RS256"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemRSA OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "RSA"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElemRsaSignature2018 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = "RsaSignature2018"
+
+var enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem = []interface{}{
+	"ES256",
+	"EdDSA",
+	"RS256",
+	"ES256K",
+	"RSA",
+	"RsaSignature2018",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem, v)
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem(v)
+	return nil
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem string
+
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemCoseKey OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "cose_key"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDid OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidDyne OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:dyne"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidDyneSandboxSignroom OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:dyne:sandbox.signroom"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidEbsi OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:ebsi"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidJwk OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:jwk"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidKey OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:key"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemDidWeb OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "did:web"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemJWK OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "JWK"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElemJwk OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = "jwk"
+
+var enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem = []interface{}{
+	"JWK",
+	"jwk",
+	"did",
+	"did:web",
+	"did:ebsi",
+	"did:jwk",
+	"did:dyne",
+	"did:dyne:sandbox.signroom",
+	"did:key",
+	"cose_key",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem, v)
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem(v)
+	return nil
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem struct {
+	// Locale corresponds to the JSON schema field "locale".
+	Locale *string `json:"locale,omitempty" yaml:"locale,omitempty" mapstructure:"locale,omitempty"`
+
+	// Logo corresponds to the JSON schema field "logo".
+	Logo *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo `json:"logo,omitempty" yaml:"logo,omitempty" mapstructure:"logo,omitempty"`
+
+	// Name corresponds to the JSON schema field "name".
+	Name string `json:"name" yaml:"name" mapstructure:"name"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo struct {
+	// AltText corresponds to the JSON schema field "alt_text".
+	AltText *string `json:"alt_text,omitempty" yaml:"alt_text,omitempty" mapstructure:"alt_text,omitempty"`
+
+	// Uri corresponds to the JSON schema field "uri".
+	Uri string `json:"uri" yaml:"uri" mapstructure:"uri"`
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["uri"]; raw != nil && !ok {
+		return fmt.Errorf("field uri in OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo: required")
+	}
+	type Plain OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo(plain)
+	return nil
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem) UnmarshalJSON(value []byte) error {
+	var raw map[string]interface{}
+	if err := json.Unmarshal(value, &raw); err != nil {
+		return err
+	}
+	if _, ok := raw["name"]; raw != nil && !ok {
+		return fmt.Errorf("field name in OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem: required")
+	}
+	type Plain OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem
+	var plain Plain
+	if err := json.Unmarshal(value, &plain); err != nil {
+		return err
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem(plain)
+	return nil
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupported map[string]struct {
+	// KeyAttestationsRequired corresponds to the JSON schema field
+	// "key_attestations_required".
+	KeyAttestationsRequired *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueKeyAttestationsRequired `json:"key_attestations_required,omitempty" yaml:"key_attestations_required,omitempty" mapstructure:"key_attestations_required,omitempty"`
+
+	// ProofSigningAlgValuesSupported corresponds to the JSON schema field
+	// "proof_signing_alg_values_supported".
+	ProofSigningAlgValuesSupported []OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem `json:"proof_signing_alg_values_supported" yaml:"proof_signing_alg_values_supported" mapstructure:"proof_signing_alg_values_supported"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueKeyAttestationsRequired struct {
+	// KeyStorage corresponds to the JSON schema field "key_storage".
+	KeyStorage []string `json:"key_storage,omitempty" yaml:"key_storage,omitempty" mapstructure:"key_storage,omitempty"`
+
+	// UserAuthentication corresponds to the JSON schema field "user_authentication".
+	UserAuthentication []string `json:"user_authentication,omitempty" yaml:"user_authentication,omitempty" mapstructure:"user_authentication,omitempty"`
+}
+
+type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem string
+
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemES256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "ES256"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemEdDSA OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "EdDSA"
+
+var enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = []interface{}{
+	"ES256",
+	"EdDSA",
+}
+
+// UnmarshalJSON implements json.Unmarshaler.
+func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem) UnmarshalJSON(value []byte) error {
+	var v string
+	if err := json.Unmarshal(value, &v); err != nil {
+		return err
+	}
+	var ok bool
+	for _, expected := range enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem {
+		if reflect.DeepEqual(v, expected) {
+			ok = true
+			break
+		}
+	}
+	if !ok {
+		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem, v)
+	}
+	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem(v)
+	return nil
 }
 
 type OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption struct {
@@ -310,9 +350,9 @@ var enumValues_OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionAlgVa
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionAlgValuesSupportedElem) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionAlgValuesSupportedElem) UnmarshalJSON(value []byte) error {
 	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+	if err := json.Unmarshal(value, &v); err != nil {
 		return err
 	}
 	var ok bool
@@ -340,9 +380,9 @@ var enumValues_OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionEncVa
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionEncValuesSupportedElem) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionEncValuesSupportedElem) UnmarshalJSON(value []byte) error {
 	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
+	if err := json.Unmarshal(value, &v); err != nil {
 		return err
 	}
 	var ok bool
@@ -360,9 +400,9 @@ func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryptionEncValuesSu
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["alg_values_supported"]; raw != nil && !ok {
@@ -376,7 +416,7 @@ func (j *OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption) Unmarshal
 	}
 	type Plain OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = OpenidCredentialIssuerSchemaJsonCredentialResponseEncryption(plain)
@@ -403,9 +443,9 @@ type OpenidCredentialIssuerSchemaJsonDisplayElemLogo struct {
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonDisplayElemLogo) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJsonDisplayElemLogo) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["uri"]; raw != nil && !ok {
@@ -413,7 +453,7 @@ func (j *OpenidCredentialIssuerSchemaJsonDisplayElemLogo) UnmarshalJSON(b []byte
 	}
 	type Plain OpenidCredentialIssuerSchemaJsonDisplayElemLogo
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = OpenidCredentialIssuerSchemaJsonDisplayElemLogo(plain)
@@ -421,9 +461,9 @@ func (j *OpenidCredentialIssuerSchemaJsonDisplayElemLogo) UnmarshalJSON(b []byte
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJson) UnmarshalJSON(b []byte) error {
+func (j *OpenidCredentialIssuerSchemaJson) UnmarshalJSON(value []byte) error {
 	var raw map[string]interface{}
-	if err := json.Unmarshal(b, &raw); err != nil {
+	if err := json.Unmarshal(value, &raw); err != nil {
 		return err
 	}
 	if _, ok := raw["credential_configurations_supported"]; raw != nil && !ok {
@@ -437,49 +477,9 @@ func (j *OpenidCredentialIssuerSchemaJson) UnmarshalJSON(b []byte) error {
 	}
 	type Plain OpenidCredentialIssuerSchemaJson
 	var plain Plain
-	if err := json.Unmarshal(b, &plain); err != nil {
+	if err := json.Unmarshal(value, &plain); err != nil {
 		return err
 	}
 	*j = OpenidCredentialIssuerSchemaJson(plain)
 	return nil
-}
-
-type ProofSigningAlgValuesSupportedElem string
-
-const ProofSigningAlgValuesSupportedElemES256 ProofSigningAlgValuesSupportedElem = "ES256"
-const ProofSigningAlgValuesSupportedElemEdDSA ProofSigningAlgValuesSupportedElem = "EdDSA"
-
-var enumValues_ProofSigningAlgValuesSupportedElem = []interface{}{
-	"ES256",
-	"EdDSA",
-}
-
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *ProofSigningAlgValuesSupportedElem) UnmarshalJSON(b []byte) error {
-	var v string
-	if err := json.Unmarshal(b, &v); err != nil {
-		return err
-	}
-	var ok bool
-	for _, expected := range enumValues_ProofSigningAlgValuesSupportedElem {
-		if reflect.DeepEqual(v, expected) {
-			ok = true
-			break
-		}
-	}
-	if !ok {
-		return fmt.Errorf("invalid value (expected one of %#v): %#v", enumValues_ProofSigningAlgValuesSupportedElem, v)
-	}
-	*j = ProofSigningAlgValuesSupportedElem(v)
-	return nil
-}
-
-type ProofTypesSupported map[string]struct {
-	// KeyAttestationsRequired corresponds to the JSON schema field
-	// "key_attestations_required".
-	KeyAttestationsRequired *KeyAttestationsRequired `json:"key_attestations_required,omitempty" yaml:"key_attestations_required,omitempty" mapstructure:"key_attestations_required,omitempty"`
-
-	// ProofSigningAlgValuesSupported corresponds to the JSON schema field
-	// "proof_signing_alg_values_supported".
-	ProofSigningAlgValuesSupported []ProofSigningAlgValuesSupportedElem `json:"proof_signing_alg_values_supported" yaml:"proof_signing_alg_values_supported" mapstructure:"proof_signing_alg_values_supported"`
 }
