@@ -1,10 +1,13 @@
 package pb
 
 import (
+	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+
+	engine "github.com/forkbombeu/didimo/pkg/template_engine"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
@@ -57,6 +60,48 @@ func RouteGetConfigsTemplates(app *pocketbase.PocketBase) {
 			return e.JSON(http.StatusOK, map[string]interface{}{
 				"variants": variants,
 			})
+		})
+		return se.Next()
+	})
+}
+
+func RoutePostPlaceholdersByFilenames(app *pocketbase.PocketBase) {
+	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
+		se.Router.POST("/api/conformance-checks/configs/placeholders-by-filenames", func(e *core.RequestEvent) error {
+			var requestPayload struct {
+				TestID    string   `json:"test_id"`
+				Filenames []string `json:"filenames"`
+			}
+
+			if err := e.BindBody(&requestPayload); err != nil {
+				return e.BadRequestError("Failed to read request data", err)
+			}
+
+			if requestPayload.TestID == "" {
+				requestPayload.TestID = "OpenID4VP_Wallet/OpenID_Foundation"
+			}
+
+			if len(requestPayload.Filenames) == 0 {
+				return apis.NewBadRequestError("filenames are required", nil)
+			}
+			
+			var files []io.Reader
+			for _, filename := range requestPayload.Filenames {
+				filePath := filepath.Join("./config_templates", requestPayload.TestID, filename)
+				file, err := os.Open(filePath)
+				if err != nil {
+					return apis.NewBadRequestError("Error opening file: "+filename, err)
+				}
+				defer file.Close()
+				files = append(files, file)
+			}
+
+			placeholders, err := engine.GetPlaceholders(files, requestPayload.Filenames)
+			if err != nil {
+				return apis.NewBadRequestError("Error getting placeholders", err)
+			}
+
+			return e.JSON(http.StatusOK, placeholders)
 		})
 		return se.Next()
 	})

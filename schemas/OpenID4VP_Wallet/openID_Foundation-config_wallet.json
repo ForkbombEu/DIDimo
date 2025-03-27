@@ -20,19 +20,19 @@
             "values": {
                 "client_id_scheme": ["did", "pre_registered", "x509_san_dns"]
             },
-            "template": "{{ string:id_didimo_id:client_id:i18n_client_id }}"
+            "template": "{{ .credimiPlaceholder('client_id', 'id_didimo_id', 'i18n_client_id', 'i18n_client_id_description', 'string') }}"
         },
         "authorization_encrypted_response_enc": {
             "values": {
                 "response_mode": ["direct_post.jwt", "w3c_dc_api.jwt"]
             },
-            "template": "{{ string:id_didimo_id:authorization_encrypted_response_enc:i18n_authorization_encrypted_response_enc }}"
+            "template": "{{ .credimiPlaceholder('authorization_encrypted_response_enc', 'id_didimo_id', 'i18n_authorization_encrypted_response_enc', 'i18n_authorization_encrypted_response_enc_description', 'string') }}"
         },
         "authorization_encrypted_response_alg": {
             "values": {
                 "response_mode": ["direct_post.jwt", "w3c_dc_api.jwt"]
             },
-            "template": "{{ string:id_didimo_id:authorization_encrypted_response_alg:i18n_authorization_encrypted_response_alg }}"
+            "template": "{{ .credimiPlaceholder('authorization_encrypted_response_alg', 'id_didimo_id', 'i18n_authorization_encrypted_response_alg', 'i18n_authorization_encrypted_response_alg_description', 'string') }}"
         }
     }
 }
