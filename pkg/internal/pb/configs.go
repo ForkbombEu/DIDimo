@@ -55,7 +55,7 @@ func RouteGetConfigsTemplates(app *pocketbase.PocketBase) {
 			}
 			var variants []string
 			for _, file := range files {
-				variants = append(variants, strings.Replace(file.Name(), testId+"/", "", 1))
+				variants = append(variants, strings.Replace(file.Name(), "config_templates/"+testId+"/", "", 1))
 			}
 			return e.JSON(http.StatusOK, map[string]interface{}{
 				"variants": variants,
@@ -84,7 +84,7 @@ func RoutePostPlaceholdersByFilenames(app *pocketbase.PocketBase) {
 			if len(requestPayload.Filenames) == 0 {
 				return apis.NewBadRequestError("filenames are required", nil)
 			}
-			
+
 			var files []io.Reader
 			for _, filename := range requestPayload.Filenames {
 				filePath := filepath.Join("./config_templates", requestPayload.TestID, filename)
