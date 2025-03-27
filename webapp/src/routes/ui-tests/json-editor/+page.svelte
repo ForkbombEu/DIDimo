@@ -1,12 +1,13 @@
 <script lang="ts">
 	import SelectTestForm from './select-test-form.svelte';
-	import { getVariables } from './logic';
+	import { getVariables, type FieldsResponse } from './logic';
+	import TestsDataForm from './tests-data-form.svelte';
 
 	//
 
 	let { data } = $props();
 
-	let d = $state<Record<string, unknown>>();
+	let d = $state<FieldsResponse>();
 </script>
 
 <!--  -->
@@ -21,5 +22,5 @@
 		}}
 	/>
 {:else}
-	<pre>{JSON.stringify(d, null, 2)}</pre>
+	<TestsDataForm data={d} />
 {/if}
