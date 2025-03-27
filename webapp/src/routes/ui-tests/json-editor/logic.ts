@@ -3,37 +3,27 @@ import { getExceptionMessage } from '@/utils/errors';
 import { Record as R } from 'effect';
 import { pb } from '@/pocketbase';
 
-//
+/* Schemas */
 
-export type StandardWithTestSuites = {
-	id: string;
-	label: string;
-	description: string;
-	testSuites: Array<{
-		id: string;
-		label: string;
-		tests: string[];
-	}>;
-};
+const sharedFieldSchema = z.object({
+	CredimiID: z.string(),
+	DescriptionKey: z.string(),
+	LabelKey: z.string(),
+	Type: z.literal('string').or(z.literal('object'))
+});
 
-//
+export type FieldConfig = z.infer<typeof sharedFieldSchema>;
 
-export type FieldConfig = {
-	field_name: string;
-	credimi_id: string;
-	i18_label: string;
-	i18n_description: string;
-	field_type: 'string' | 'object';
-};
+const specificFieldSchema = sharedFieldSchema.extend({
+	FieldName: z.string(),
+	Example: z.string().optional()
+});
 
-export type TestInput = {
-	format: 'json' | 'variables';
-	data: Record<string, unknown>;
-};
+export type SpecificFieldConfig = z.infer<typeof specificFieldSchema>;
 
 //
 
-export const jsonObjectStringSchema = z.string().superRefine((v, ctx) => {
+export const stringifiedObjectSchema = z.string().superRefine((v, ctx) => {
 	try {
 		z.record(z.string(), z.unknown())
 			.refine((value) => R.size(value) > 0)
@@ -51,31 +41,59 @@ export function createSchemaFromFieldsConfigs(fields: FieldConfig[]) {
 	const schemaRawShape: ZodRawShape = Object.fromEntries(
 		fields.map((f) => {
 			let schema: ZodTypeAny;
-			if (f.field_type == 'string') {
+			if (f.Type == 'string') {
 				schema = z.string().nonempty();
-			} else if (f.field_type == 'object') {
-				schema = jsonObjectStringSchema;
+			} else if (f.Type == 'object') {
+				schema = stringifiedObjectSchema;
 			} else {
-				throw new Error(`Invalid field type: ${f.field_type}`);
+				throw new Error(`Invalid field type: ${f.Type}`);
 			}
-			return [f.credimi_id, schema];
+			return [f.CredimiID, schema];
 		})
 	);
 
 	return z.object(schemaRawShape);
 }
 
-//
+const fieldsResponseSchema = z.object({
+	normalized_fields: z.array(sharedFieldSchema),
+	specific_fields: z.record(
+		z.string(),
+		z.object({
+			content: stringifiedObjectSchema,
+			fields: z.array(specificFieldSchema)
+		})
+	)
+});
 
-export function getVariables(testId: string, filenames: string[]) {
-	return pb.send('/api/conformance-checks/configs/placeholders-by-filenames', {
+export type FieldsResponse = z.infer<typeof fieldsResponseSchema>;
+
+export type TestInput = {
+	format: 'json' | 'variables';
+	data: Record<string, unknown>;
+};
+
+export async function getVariables(testId: string, filenames: string[]) {
+	const data = await pb.send('/api/conformance-checks/configs/placeholders-by-filenames', {
 		method: 'POST',
 		body: {
 			test_id: '', //  TODO - Empty string is mandatory right now
 			filenames
 		}
 	});
+	return fieldsResponseSchema.parse(data);
 }
+
+export type StandardWithTestSuites = {
+	id: string;
+	label: string;
+	description: string;
+	testSuites: Array<{
+		id: string;
+		label: string;
+		tests: string[];
+	}>;
+};
 
 //
 

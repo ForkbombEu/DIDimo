@@ -4,8 +4,8 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
 		createSchemaFromFieldsConfigs,
-		jsonObjectStringSchema,
-		type FieldConfig,
+		stringifiedObjectSchema,
+		type SpecificFieldConfig,
 		type TestInput
 	} from './logic';
 	import { Record as R, Record, pipe } from 'effect';
@@ -25,7 +25,7 @@
 	type UpdateFunction = (testInput: TestInput) => void;
 
 	type Props = {
-		fields: FieldConfig[];
+		fields: SpecificFieldConfig[];
 		jsonConfig: Record<string, unknown>;
 		defaultFieldsIds?: string[];
 		defaultValues?: Record<string, unknown>;
@@ -48,7 +48,7 @@
 	const form = createForm({
 		adapter: zod(
 			createSchemaFromFieldsConfigs(fields).extend({
-				jsonConfig: jsonObjectStringSchema.optional()
+				jsonConfig: stringifiedObjectSchema.optional()
 			})
 		),
 		initialData: {
@@ -75,7 +75,7 @@
 			const notOverridden = pipe(
 				defaultValues,
 				// Only fields that are in the fields array
-				R.filter((_, key) => fields.map((f) => f.credimi_id).includes(key)),
+				R.filter((_, key) => fields.map((f) => f.CredimiID).includes(key)),
 				// Not overridden
 				R.filter((_, key) => !overrideFields.includes(key))
 			);
@@ -168,7 +168,7 @@
 		{:else}
 			<div class="space-y-8">
 				{#each fields as config}
-					{@const { credimi_id: id, i18_label: label } = config}
+					{@const { CredimiID: id, LabelKey: label } = config}
 					{@const isDefault = defaultFieldsIds.includes(id)}
 					{@const isOverride = overrideFields.includes(id)}
 
@@ -182,8 +182,7 @@
 									placeholder="Value depends on shared '{label}' field"
 									class={{
 										'font-mono':
-											config.field_type == 'object' &&
-											Boolean(defaultValues[id])
+											config.Type == 'object' && Boolean(defaultValues[id])
 									}}
 								/>
 								<IconButton

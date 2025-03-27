@@ -5,15 +5,21 @@
 	//
 
 	let { data } = $props();
+
+	let d = $state<Record<string, unknown>>();
 </script>
 
 <!--  -->
 
-<SelectTestForm
-	standards={data.standardsAndTestSuites}
-	onSelectTests={(standardId, tests) => {
-		getVariables(standardId, tests).then((res) => {
-			console.log(res);
-		});
-	}}
-/>
+{#if !d}
+	<SelectTestForm
+		standards={data.standardsAndTestSuites}
+		onSelectTests={(standardId, tests) => {
+			getVariables(standardId, tests).then((res) => {
+				d = res;
+			});
+		}}
+	/>
+{:else}
+	<pre>{JSON.stringify(d, null, 2)}</pre>
+{/if}

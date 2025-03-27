@@ -37,7 +37,7 @@
 
 	async function getValidFormData() {
 		const results = await pipe(
-			fields.map(({ credimi_id: id }) =>
+			fields.map(({ CredimiID: id }) =>
 				validate(id, { update: false }).then((result) =>
 					Tuple.make(id, !Boolean(result?.length))
 				)

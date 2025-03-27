@@ -13,15 +13,15 @@
 	const { config, form }: Props = $props();
 </script>
 
-{#if config.field_type == 'string'}
-	<Field {form} name={config.credimi_id} options={{ label: config.i18_label }} />
-{:else if config.field_type == 'object'}
+{#if config.Type == 'string'}
+	<Field {form} name={config.CredimiID} options={{ label: config.LabelKey }} />
+{:else if config.Type == 'object'}
 	<CodeEditorField
 		{form}
-		name={config.credimi_id}
+		name={config.CredimiID}
 		options={{
 			lang: 'json',
-			label: config.i18_label
+			label: config.LabelKey
 		}}
 	/>
 {/if}

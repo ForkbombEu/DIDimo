@@ -1,22 +1,22 @@
 <script lang="ts">
-	import { sharedFields, testsFields, testsConfigs } from './sample.data';
+	// import { sharedFields, testsFields, testsConfigs } from './sample.data';
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
-	import type { TestInput } from './logic';
+	import type { FieldsResponse, TestInput } from './logic';
 
 	//
 
 	type Props = {
-		tests: string[];
+		data: FieldsResponse;
 	};
 
-	let { tests }: Props = $props();
+	let { data }: Props = $props();
 
 	//
 
 	let sharedData = $state<Record<string, unknown>>({});
 
-	const defaultFieldsIds = Object.values(sharedFields).map((f) => f.credimi_id);
+	const defaultFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
 
 	const masterDataStructure: Record<string, TestInput> = $state({});
 </script>
@@ -24,16 +24,19 @@
 <div class="space-y-16">
 	<div class="space-y-4">
 		<h2 class="text-lg font-bold">Shared fields</h2>
-		<FieldConfigFormShared fields={sharedFields} onUpdate={(form) => (sharedData = form)} />
+		<FieldConfigFormShared
+			fields={data.normalized_fields}
+			onUpdate={(form) => (sharedData = form)}
+		/>
 	</div>
 
 	<hr />
-	{#each Object.entries(testsFields) as [testId, fields]}
+	{#each Object.entries(data.specific_fields) as [testId, testData]}
 		<div class="space-y-4">
 			<h2 class="text-lg font-bold">{testId}</h2>
 			<FieldConfigForm
-				{fields}
-				jsonConfig={testsConfigs[testId]}
+				fields={testData.fields}
+				jsonConfig={JSON.parse(testData.content)}
 				defaultValues={sharedData}
 				{defaultFieldsIds}
 				onValidUpdate={(form) => {
