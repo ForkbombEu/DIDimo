@@ -11,8 +11,7 @@
 	import { FileIcon, LogOut, SquareArrowOutUpRight } from 'lucide-svelte';
 	import { getUserDidUrl } from '@/did';
 	import BaseLanguageSelect from '@/i18n/baseLanguageSelect.svelte';
-	import A from '@/components/ui-custom/a.svelte';
-
+	import { localizeHref } from '@/i18n';
 	interface Props {
 		children?: Snippet;
 	}
@@ -47,10 +46,14 @@
 										{#each languages as { name, flag, href, hreflang }}
 											<DropdownMenu.Item>
 												{#snippet child({ props })}
-													<A {...props} {href} {hreflang}>
+													<a
+														{...props}
+														href={localizeHref(href)}
+														{hreflang}
+													>
 														<span>{flag}</span>
 														<span>{name}</span>
-													</A>
+													</a>
 												{/snippet}
 											</DropdownMenu.Item>
 										{/each}
@@ -63,11 +66,15 @@
 							{#await getUserDidUrl() then url}
 								<DropdownMenu.Item>
 									{#snippet child({ props })}
-										<A {...props} href={url} target="_blank">
+										<a
+											{...props}
+											href={url ? localizeHref(url) : undefined}
+											target="_blank"
+										>
 											<Icon src={FileIcon} />
 											{m.my_DID()}
 											<Icon src={SquareArrowOutUpRight} class="opacity-50" />
-										</A>
+										</a>
 									{/snippet}
 								</DropdownMenu.Item>
 							{/await}
@@ -75,10 +82,14 @@
 
 						<DropdownMenu.Item>
 							{#snippet child({ props })}
-								<A {...props} href="/logout" data-sveltekit-preload-data="off">
+								<a
+									{...props}
+									href={localizeHref('/logout')}
+									data-sveltekit-preload-data="off"
+								>
 									<Icon src={LogOut} />
 									{m.Sign_out()}
-								</A>
+								</a>
 							{/snippet}
 						</DropdownMenu.Item>
 					</DropdownMenu.Group>

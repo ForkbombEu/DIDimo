@@ -1,5 +1,5 @@
 import { dev } from '$app/environment';
-import { deLocalizeUrl } from '@/i18n/paraglide/runtime';
+import { deLocalizeUrl } from '@/i18n';
 import type { Page } from '@sveltejs/kit';
 
 //

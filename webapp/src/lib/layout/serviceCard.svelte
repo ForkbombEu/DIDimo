@@ -1,7 +1,6 @@
 <script lang="ts">
 	import T from '@/components/ui-custom/t.svelte';
-	import A from '@/components/ui-custom/a.svelte';
-	import { m } from '@/i18n';
+	import { m, localizeHref } from '@/i18n';
 	import { type ServicesRecord, type ServicesResponse } from '@/pocketbase/types';
 
 	//
@@ -49,8 +48,8 @@
 	});
 </script>
 
-<A
-	href="/providers/{service.id}"
+<a
+	href={localizeHref(`/providers/${service.id}`)}
 	class="rounded-lg border border-primary bg-card p-6 text-card-foreground shadow-sm ring-primary transition-all hover:-translate-y-2 hover:ring-2 {className}"
 >
 	<div class="space-y-4">
@@ -69,7 +68,7 @@
 			{service.updated.split(' ').at(0)}
 		</T>
 	</div>
-</A>
+</a>
 
 <!-- <a
 	href="/services/{service.id}"

@@ -5,9 +5,8 @@
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import A from '@/components/ui-custom/a.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
-	import { m } from '@/i18n';
+	import { m, localizeHref } from '@/i18n';
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
@@ -70,7 +69,11 @@
 					<p class="text-muted-foreground">
 						You already have submitted a claim for this provider.
 					</p>
-					<p><A href="/my">Review your submission in the dashboard.</A></p>
+					<p>
+						<a href={localizeHref('/my')} class="hover:underline">
+							Review your submission in the dashboard.
+						</a>
+					</p>
 				</div>
 			{:else if $currentUser}
 				<Button size="sm" onclick={() => (isClaimFormOpen = true)}>Claim provider</Button>
@@ -97,19 +100,19 @@
 
 			<div class="flex gap-6">
 				<InfoBox label="Website">
-					<A href={provider.external_website_url} target="_blank">
+					<a href={provider.external_website_url} target="_blank">
 						{provider.external_website_url}
-					</A>
+					</a>
 				</InfoBox>
 				<InfoBox label="Documentation">
-					<A href={provider.documentation_url} target="_blank">
+					<a href={provider.documentation_url} target="_blank">
 						{provider.documentation_url}
-					</A>
+					</a>
 				</InfoBox>
 				<InfoBox label="Contact email">
-					<A href={`mailto:${provider.contact_email}`} target="_blank">
+					<a href={`mailto:${provider.contact_email}`} target="_blank">
 						{provider.contact_email}
-					</A>
+					</a>
 				</InfoBox>
 			</div>
 		</div>
@@ -128,12 +131,12 @@
 							{@render CircledNumber(index + 1)}
 							<div class="space-y-1">
 								<InfoBox label={m.OpenID_Issuance_URL()}>
-									<A
-										href="/credential-issuers/{issuer.id}"
+									<a
+										href={localizeHref(`/credential-issuers/${issuer.id}`)}
 										class="hover:underline"
 									>
 										{issuer.url}
-									</A>
+									</a>
 								</InfoBox>
 							</div>
 						</li>

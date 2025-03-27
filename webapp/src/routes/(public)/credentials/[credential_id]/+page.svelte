@@ -8,8 +8,7 @@
 	import type { CredentialConfiguration } from '$lib/types/openid.js';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import A from '@/components/ui-custom/a.svelte';
-	import { m } from '@/i18n/index.js';
+	import { m, localizeHref } from '@/i18n/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -154,9 +153,12 @@
 
 			{#if credentialIssuer}
 				<InfoBox label="OpenID issuance URL">
-					<A href="/credential-issuers/{credentialIssuer.id}" class="hover:underline">
+					<a
+						href={localizeHref(`/credential-issuers/${credentialIssuer.id}`)}
+						class="hover:underline"
+					>
 						{credentialIssuer.url}
-					</A>
+					</a>
 				</InfoBox>
 			{/if}
 		</div>

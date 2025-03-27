@@ -13,7 +13,7 @@
 	import A from '@/components/ui-custom/a.svelte';
 	import type { Snippet } from 'svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
-	import { localizeHref } from '@/i18n/paraglide/runtime';
+	import { localizeHref } from '@/i18n';
 
 	//
 

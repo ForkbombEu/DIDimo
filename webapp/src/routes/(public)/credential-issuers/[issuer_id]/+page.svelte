@@ -5,7 +5,6 @@
 	import PageIndex, { type IndexItem } from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import A from '@/components/ui-custom/a.svelte';
 
 	import { Building2 } from 'lucide-svelte';
 
@@ -35,9 +34,9 @@
 			/>
 
 			<InfoBox label="URL">
-				<A href={data.issuer.url} class="hover:underline" target="_blank">
+				<a href={data.issuer.url} class="hover:underline" target="_blank">
 					{data.issuer.url}
-				</A>
+				</a>
 			</InfoBox>
 		</div>
 	</div>

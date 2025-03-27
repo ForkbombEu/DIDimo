@@ -1,7 +1,7 @@
 <script lang="ts">
 	import * as Sidebar from '@/components/ui/sidebar';
 	import { cn } from '@/components/ui/utils';
-	import A from '@/components/ui-custom/a.svelte';
+	import { localizeHref } from '@/i18n';
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
 	import SidebarItemIcon from './sidebarItemIcon.svelte';
 	import { page } from '$app/state';
@@ -38,8 +38,8 @@
 	<Button {isActive}>
 		{#snippet child({ props })}
 			{#if !disabled}
-				<A
-					{href}
+				<a
+					href={href ? localizeHref(href) : undefined}
 					{...props}
 					{...rest}
 					onclick={(e) => {
@@ -48,7 +48,7 @@
 					}}
 				>
 					{@render content()}
-				</A>
+				</a>
 			{:else}
 				<p {...props}>
 					{@render content()}

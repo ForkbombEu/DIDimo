@@ -4,8 +4,9 @@ import { redirect as svelteKitRedirect } from '@sveltejs/kit';
 import { goto as svelteKitGoto } from '$app/navigation';
 
 import { paraglideMiddleware } from './paraglide/server';
-import { locales, localizeHref, getLocale, localizeUrl } from '@/i18n/paraglide/runtime';
+import { locales, localizeHref, getLocale, localizeUrl } from '@/i18n/paraglide/runtime.js';
 import * as m from './paraglide/messages.js';
+export * from './paraglide/runtime.js';
 
 export { m };
 

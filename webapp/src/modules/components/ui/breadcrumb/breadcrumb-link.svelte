@@ -3,7 +3,7 @@
 	import type { Snippet } from 'svelte';
 	import type { WithElementRef } from 'bits-ui';
 	import { cn } from '@/components/ui/utils.js';
-	import A from '@/components/ui-custom/a.svelte';
+	import { localizeHref } from '@/i18n';
 
 	let {
 		ref = $bindable(null),
@@ -18,7 +18,7 @@
 
 	const attrs = $derived({
 		class: cn('hover:text-foreground transition-colors', className),
-		href,
+		href: href ? localizeHref(href) : undefined,
 		...restProps
 	});
 </script>
@@ -26,7 +26,7 @@
 {#if child}
 	{@render child({ props: attrs })}
 {:else}
-	<A bind:this={ref} {...attrs}>
+	<a bind:this={ref} {...attrs}>
 		{@render children?.()}
-	</A>
+	</a>
 {/if}

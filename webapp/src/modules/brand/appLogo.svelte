@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { appName } from '@/brand';
-	import A from '@/components/ui-custom/a.svelte';
+	import { localizeHref } from '@/i18n';
 
 	interface Props {
 		/*
@@ -12,9 +12,9 @@
 	let { href = '/' }: Props = $props();
 </script>
 
-<A {href}>
+<a href={localizeHref(href)}>
 	<img src={'/logo.svg'} class="h-9" alt={appName} />
-</A>
+</a>
 
 <!--  
     @component 
