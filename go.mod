@@ -6,6 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20241219141704-b961cab9047b
+	github.com/go-sprout/sprout v1.0.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
@@ -64,7 +65,6 @@ require (
 	github.com/ganigeorgiev/fexpr v0.4.1 // indirect
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0 // indirect
 	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
-	github.com/go-sprout/sprout v1.0.0 // indirect
 	github.com/go-webauthn/x v0.1.16 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
