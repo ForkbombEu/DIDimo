@@ -35,20 +35,20 @@ type CreateCredentialIssuersInput struct {
 }
 
 type Credential struct {
-	CredentialDefinition                 *credentialissuer.CredentialDefinition                      `json:"credential_definition,omitempty"`
-	CredentialSigningAlgValuesSupported  []credentialissuer.CredentialSigningAlgValuesSupportedElem  `json:"credential_signing_alg_values_supported,omitempty"`
-	CryptographicBindingMethodsSupported []credentialissuer.CryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty"`
-	Display                              []credentialissuer.DisplayElem_1                            `json:"display,omitempty"`
-	Format                               string                                                      `json:"format"`
-	ProofTypesSupported                  credentialissuer.ProofTypesSupported                        `json:"proof_types_supported,omitempty"`
-	Scope                                *string                                                     `json:"scope,omitempty"`
+	CredentialDefinition                 *credentialissuer.OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialDefinition                      `json:"credential_definition,omitempty"`
+	CredentialSigningAlgValuesSupported  []credentialissuer.OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCredentialSigningAlgValuesSupportedElem  `json:"credential_signing_alg_values_supported,omitempty"`
+	CryptographicBindingMethodsSupported []credentialissuer.OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueCryptographicBindingMethodsSupportedElem `json:"cryptographic_binding_methods_supported,omitempty"`
+	Display                              []credentialissuer.OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElem                              `json:"display,omitempty"`
+	Format                               string                                                                                                                            `json:"format"`
+	ProofTypesSupported                  credentialissuer.OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupported                        `json:"proof_types_supported,omitempty"`
+	Scope                                *string                                                                                                                           `json:"scope,omitempty"`
 }
 
 type StoreCredentialsActivityInput struct {
 	IssuerData *credentialissuer.OpenidCredentialIssuerSchemaJson
 	IssuerID   string
 	DBPath     string
-	CredKey   string
+	CredKey    string
 	IssuerName string
 	Credential Credential
 }
@@ -123,4 +123,3 @@ const wellKnownJSON = `{
     }
   }
 }`
-
