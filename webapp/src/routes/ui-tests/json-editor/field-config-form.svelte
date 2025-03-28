@@ -146,12 +146,7 @@
 	}
 </script>
 
-<Form
-	{form}
-	hide={['submit_button']}
-	hideRequiredIndicator
-	class="flex flex-col gap-16 md:flex-row"
->
+<Form {form} hide={['submit_button']} hideRequiredIndicator class="flex flex-col gap-8 md:flex-row">
 	<!--  -->
 	<div class="flex min-w-0 shrink-0 grow basis-1 flex-col">
 		<CodeEditorField
@@ -166,7 +161,7 @@
 	</div>
 
 	<div class="shrink-0 grow basis-1">
-		<div class="mb-8 space-y-2">
+		<div class="mb-4 space-y-2">
 			<Label>Fields</Label>
 			<Separator />
 		</div>
