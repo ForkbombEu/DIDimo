@@ -28,6 +28,9 @@
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: ({ form }) => {
 			console.log(form.data);
+		},
+		options: {
+			resetForm: false
 		}
 	});
 
