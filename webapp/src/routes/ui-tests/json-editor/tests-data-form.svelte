@@ -26,8 +26,8 @@
 
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
-		onSubmit: (data) => {
-			console.log(data);
+		onSubmit: ({ form }) => {
+			console.log(form.data);
 		}
 	});
 
@@ -84,28 +84,34 @@
 </div>
 
 <div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
-	<div>
+	<div class="flex items-center gap-3">
 		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
+			<p>
+				{completeTestsCount}/{testsIds.length} tests complete
+			</p>
 			{#if incompleteTestsIds.length}
-				{completeTestsCount} tests complete
 				<Popover.Root>
 					<Popover.Trigger class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200">
 						{#snippet child({ props })}
-							<Button {...props} variant="outline">view incomplete tests</Button>
+							<Button {...props} variant="outline" class="px-3">
+								View incomplete tests ({incompleteTestsIds.length})
+							</Button>
 						{/snippet}
 					</Popover.Trigger>
-					<Popover.Content class="dark">
+					<Popover.Content class="dark w-fit">
 						<ul class="space-y-1 text-sm">
 							{#each incompleteTestsIds as testId}
 								<li>
-									<a href={`#${testId}`}>{testId}</a>
+									<a class="underline hover:no-underline" href={`#${testId}`}>
+										{testId}
+									</a>
 								</li>
 							{/each}
 						</ul>
 					</Popover.Content>
 				</Popover.Root>
 			{:else}
-				All tests complete
+				<p>✅</p>
 			{/if}
 		{/await}
 	</div>

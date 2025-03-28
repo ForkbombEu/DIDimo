@@ -146,7 +146,6 @@
 					)
 				};
 				validateForm({ update: false }).then((result) => {
-					console.log(testInput);
 					if (result.valid) onValidUpdate?.(testInput);
 				});
 			}
