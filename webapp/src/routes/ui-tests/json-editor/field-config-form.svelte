@@ -140,7 +140,7 @@
 							return {
 								type: field.Type,
 								value: value,
-								fieldName: field.LabelKey
+								fieldName: field.FieldName
 							};
 						})
 					)
