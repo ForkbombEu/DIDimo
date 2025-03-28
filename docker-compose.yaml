@@ -18,7 +18,7 @@ services:
       - SMTP_HOST=smtp.apps.forkbomb.eu
       - SMTP_PORT=1025
       - TEMPORAL_ADDRESS=localhost:7233
-      - TOKEN=Wz7SMk3G6MURWeJGgOwVMzzFs3u6wXANRI8A8+96KfrrETID+FYd2tJ+K1sb5rh/E/xzoolKW6lhh+ICqAN/9A==
+      - TOKEN=${TOKEN}
       - PORT=5100
     ports:
       - 8090:8090
