@@ -3,7 +3,7 @@
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { cn } from '@/components/ui/utils';
 	import type { LinkWithIcon } from '../types';
-
+	import { localizeHref } from '@/i18n';
 	let { href, icon, title, ...rest }: LinkWithIcon = $props();
 
 	//
@@ -22,7 +22,7 @@
 	);
 </script>
 
-<a {...rest} role="tab" class={classes} {href}>
+<a href={href ? localizeHref(href) : undefined} {...rest} role="tab" class={classes}>
 	{#if icon}
 		<Icon src={icon} mr></Icon>
 	{/if}

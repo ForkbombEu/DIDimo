@@ -5,6 +5,7 @@
 	import PageIndex, { type IndexItem } from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import T from '@/components/ui-custom/t.svelte';
+
 	import { Building2 } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -22,7 +23,7 @@
 	<T tag="h1">Credential issuer – {data.issuer.id}</T>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">

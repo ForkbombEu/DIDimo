@@ -9,8 +9,9 @@
 	import * as Dialog from '@/components/ui/dialog/index.js';
 	import * as Popover from '@/components/ui/popover/index.js';
 	import type { OrganizationsResponse } from '@/pocketbase/types';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import OrganizationAvatar from '@/organizations/components/organizationAvatar.svelte';
+	import { goto } from '@/i18n';
 
 	//
 

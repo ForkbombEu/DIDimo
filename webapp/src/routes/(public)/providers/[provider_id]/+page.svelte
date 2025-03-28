@@ -5,15 +5,14 @@
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
-	import { m } from '@/i18n';
+	import Button from '@/components/ui-custom/button.svelte';
+	import { m, localizeHref } from '@/i18n';
 	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
 	import { currentUser, pb } from '@/pocketbase/index.js';
 	import * as Sheet from '@/components/ui/sheet';
 	import { CollectionForm } from '@/collections-components/index.js';
-	import A from '@/components/ui-custom/a.svelte';
 
 	let { data } = $props();
 	const { provider, hasClaim, isClaimed } = $derived(data);
@@ -70,7 +69,11 @@
 					<p class="text-muted-foreground">
 						You already have submitted a claim for this provider.
 					</p>
-					<p><A href="/my">Review your submission in the dashboard.</A></p>
+					<p>
+						<a href={localizeHref('/my')} class="hover:underline">
+							Review your submission in the dashboard.
+						</a>
+					</p>
 				</div>
 			{:else if $currentUser}
 				<Button size="sm" onclick={() => (isClaimFormOpen = true)}>Claim provider</Button>
@@ -81,7 +84,7 @@
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex flex-col md:flex-row gap-12 items-start">
 	<div class="sticky top-5">
 		<PageIndex sections={Object.values(sections)} />
 	</div>
@@ -97,19 +100,19 @@
 
 			<div class="flex gap-6">
 				<InfoBox label="Website">
-					<A href={provider.external_website_url} target="_blank">
+					<a href={provider.external_website_url} target="_blank">
 						{provider.external_website_url}
-					</A>
+					</a>
 				</InfoBox>
 				<InfoBox label="Documentation">
-					<A href={provider.documentation_url} target="_blank">
+					<a href={provider.documentation_url} target="_blank">
 						{provider.documentation_url}
-					</A>
+					</a>
 				</InfoBox>
 				<InfoBox label="Contact email">
-					<A href={`mailto:${provider.contact_email}`} target="_blank">
+					<a href={`mailto:${provider.contact_email}`} target="_blank">
 						{provider.contact_email}
-					</A>
+					</a>
 				</InfoBox>
 			</div>
 		</div>
@@ -129,7 +132,7 @@
 							<div class="space-y-1">
 								<InfoBox label={m.OpenID_Issuance_URL()}>
 									<a
-										href="/credential-issuers/{issuer.id}"
+										href={localizeHref(`/credential-issuers/${issuer.id}`)}
 										class="hover:underline"
 									>
 										{issuer.url}
@@ -146,7 +149,7 @@
 
 {#snippet CircledNumber(index: number)}
 	<div
-		class="border-primary flex size-4 shrink-0 items-center justify-center rounded-full border text-sm text-slate-500"
+		class="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary text-sm text-slate-500"
 	>
 		<p>
 			{index}

@@ -1,7 +1,7 @@
 <script>
 	import { appName } from '@/brand';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 </script>
@@ -12,12 +12,12 @@
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
 				<div>
 					<T tag="h4">{appName}</T>
-					<p class="border-b-muted border-b">{m.Test_and_find_decentralized_IDs()}</p>
+					<p class="border-b border-b-muted">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
 				<div class="flex gap-2 blur-sm">
 					<Button
 						variant="default"
-						class="text-primary grow basis-1 bg-white hover:bg-white/90 sm:grow-0"
+						class="grow basis-1 bg-white text-primary hover:bg-white/90 sm:grow-0"
 						href={$featureFlags.DEMO ? undefined : '/tests/new'}
 						disabled={$featureFlags.DEMO}
 					>

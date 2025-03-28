@@ -128,7 +128,7 @@ clean: ## 🧹 Clean files and caches
 	@echo "🧹 cleaned"
 
 generate: $(ROOT_DIR)/pkg/gen.go
-	$(GOGEN) $(SUBDIRS)
+	$(GOGEN) $(ROOT_DIR)/pkg/gen.go
 
 tools: generate
 	mise install

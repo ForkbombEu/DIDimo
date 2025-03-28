@@ -1,7 +1,7 @@
 <script lang="ts">
 	import BaseLayout from '$lib/layout/baseLayout.svelte';
 	// import OrganizationSwitcher from '$lib/layout/organizationSwitcher.svelte';
-	// import { Button } from '@/components/ui/button';
+	// import Button from '@/components/ui-custom/button.svelte'
 	// import { m } from '@/i18n';
 	// import { currentUser } from '@/pocketbase';
 	// import { PocketbaseQuery } from '@/pocketbase/query';

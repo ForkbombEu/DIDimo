@@ -15,7 +15,7 @@
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import SectionTitle from '@/components/ui-custom/sectionTitle.svelte';
 	import { PageCard } from '@/components/layout';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Dialog from '@/components/ui-custom/dialog.svelte';
 	import { toast } from 'svelte-sonner';
 	import Trash from 'lucide-svelte/icons/trash';
@@ -75,9 +75,13 @@
 										variant="outline"
 										onclick={() =>
 											updateRequestStatus(request, accepted)
-												.then(() => toast.success(m.Request_accepted_sucessfully()))
+												.then(() =>
+													toast.success(m.Request_accepted_sucessfully())
+												)
 												.catch(() =>
-													toast.error(m.An_error_occurred_while_handling_membership_request())
+													toast.error(
+														m.An_error_occurred_while_handling_membership_request()
+													)
 												)}
 									>
 										{m.Accept()}
@@ -104,7 +108,11 @@
 													onclick={() =>
 														updateRequestStatus(request, rejected)
 															.then(closeDialog)
-															.then(() => toast.info(m.Membership_request_declined_successfully()))}
+															.then(() =>
+																toast.info(
+																	m.Membership_request_declined_successfully()
+																)
+															)}
 												>
 													{m.decline_membership_request()}
 													<Icon src={Trash} ml />

@@ -1,6 +1,6 @@
 <script lang="ts" generics="T">
 	import Icon from '@/components/ui-custom/icon.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { getCollectionManagerContext } from '../collectionManagerContext';
 	import { Head } from '@/components/ui/table';
 	import type { KeyOf } from '@/utils/types';
