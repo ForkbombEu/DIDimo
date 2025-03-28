@@ -3,7 +3,7 @@
 	import { createForm, Form } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
-		createSchemaFromFieldsConfigs,
+		createTestVariablesFormSchema,
 		stringifiedObjectSchema,
 		type SpecificFieldConfig,
 		type TestInput
@@ -47,7 +47,7 @@
 
 	const form = createForm({
 		adapter: zod(
-			createSchemaFromFieldsConfigs(fields).extend({
+			createTestVariablesFormSchema(fields).extend({
 				jsonConfig: stringifiedObjectSchema.optional()
 			})
 		),
@@ -112,28 +112,46 @@
 	const { validateForm, validate } = form;
 	const formState = new Store(formData); // Readonly
 
-	$effect(() => {
-		if (isJsonConfigTainted) {
-			const jsonConfigString = formState.current[JSON_CONFIG_KEY] as string;
+	watch(
+		() => formState.current,
+		() => {
+			if (isJsonConfigTainted) {
+				const jsonConfigString = formState.current[JSON_CONFIG_KEY] as string;
 
-			validate(JSON_CONFIG_KEY, { update: false, value: jsonConfigString }).then((errors) => {
-				if (Boolean(errors?.length)) return;
-				else
-					onValidUpdate?.({
-						format: 'json',
-						data: JSON.parse(jsonConfigString)
-					});
-			});
-		} else {
-			const testInput: TestInput = {
-				format: 'variables',
-				data: R.remove(formState.current, JSON_CONFIG_KEY)
-			};
-			validateForm({ update: false }).then((result) => {
-				if (result.valid) onValidUpdate?.(testInput);
-			});
+				validate(JSON_CONFIG_KEY, { update: false, value: jsonConfigString }).then(
+					(errors) => {
+						if (Boolean(errors?.length)) return;
+						else
+							onValidUpdate?.({
+								format: 'json',
+								data: jsonConfigString
+							});
+					}
+				);
+			} else {
+				const testInput: TestInput = {
+					format: 'variables',
+					data: pipe(
+						formState.current,
+						R.remove(JSON_CONFIG_KEY),
+						R.map((value, credimiId) => {
+							const field = fields.find((f) => f.CredimiID === credimiId);
+							if (!field) throw new Error(`Field ${credimiId} not found`);
+							return {
+								type: field.Type,
+								value: value,
+								fieldName: field.LabelKey
+							};
+						})
+					)
+				};
+				validateForm({ update: false }).then((result) => {
+					console.log(testInput);
+					if (result.valid) onValidUpdate?.(testInput);
+				});
+			}
 		}
-	});
+	);
 
 	/* Utils */
 
@@ -161,7 +179,7 @@
 	</div>
 
 	<div class="shrink-0 grow basis-1">
-		<div class="mb-4 space-y-2">
+		<div class="mb-8 space-y-2">
 			<Label>Fields</Label>
 			<Separator />
 		</div>

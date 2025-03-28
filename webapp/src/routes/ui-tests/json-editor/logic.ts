@@ -1,15 +1,30 @@
 import { z, type ZodTypeAny, type ZodRawShape } from 'zod';
 import { getExceptionMessage } from '@/utils/errors';
-import { Record as R } from 'effect';
+import { Record as R, Record } from 'effect';
 import { pb } from '@/pocketbase';
 
-/* Schemas */
+/* Types & Schemas */
+
+export type StandardWithTestSuites = {
+	id: string;
+	label: string;
+	description: string;
+	testSuites: Array<{
+		id: string;
+		label: string;
+		tests: string[];
+	}>;
+};
+
+//
+
+const fieldValueTypeSchema = z.literal('string').or(z.literal('object'));
 
 const sharedFieldSchema = z.object({
 	CredimiID: z.string(),
 	DescriptionKey: z.string(),
 	LabelKey: z.string(),
-	Type: z.literal('string').or(z.literal('object'))
+	Type: fieldValueTypeSchema
 });
 
 export type FieldConfig = z.infer<typeof sharedFieldSchema>;
@@ -37,7 +52,7 @@ export const stringifiedObjectSchema = z.string().superRefine((v, ctx) => {
 	}
 });
 
-export function createSchemaFromFieldsConfigs(fields: FieldConfig[]) {
+export function createTestVariablesFormSchema(fields: FieldConfig[]) {
 	const schemaRawShape: ZodRawShape = Object.fromEntries(
 		fields.map((f) => {
 			let schema: ZodTypeAny;
@@ -51,9 +66,10 @@ export function createSchemaFromFieldsConfigs(fields: FieldConfig[]) {
 			return [f.CredimiID, schema];
 		})
 	);
-
 	return z.object(schemaRawShape);
 }
+
+//
 
 const fieldsResponseSchema = z.object({
 	normalized_fields: z.array(sharedFieldSchema),
@@ -68,11 +84,6 @@ const fieldsResponseSchema = z.object({
 
 export type FieldsResponse = z.infer<typeof fieldsResponseSchema>;
 
-export type TestInput = {
-	format: 'json' | 'variables';
-	data: Record<string, unknown>;
-};
-
 export async function getVariables(testId: string, filenames: string[]) {
 	const data = await pb.send('/api/conformance-checks/configs/placeholders-by-filenames', {
 		method: 'POST',
@@ -84,16 +95,32 @@ export async function getVariables(testId: string, filenames: string[]) {
 	return fieldsResponseSchema.parse(data);
 }
 
-export type StandardWithTestSuites = {
-	id: string;
-	label: string;
-	description: string;
-	testSuites: Array<{
-		id: string;
-		label: string;
-		tests: string[];
-	}>;
-};
+//
+
+export const jsonTestInputSchema = z.object({
+	format: z.literal('json'),
+	data: stringifiedObjectSchema
+});
+
+export const variablesTestInputSchema = z.object({
+	format: z.literal('variables'),
+	data: z.record(
+		z.string(),
+		z.object({
+			type: fieldValueTypeSchema,
+			value: z.string().or(stringifiedObjectSchema),
+			fieldName: z.string()
+		})
+	)
+});
+
+export const testInputSchema = jsonTestInputSchema.or(variablesTestInputSchema);
+
+export type TestInput = z.infer<typeof testInputSchema>;
+
+export function createTestListInputSchema(fields: FieldsResponse) {
+	return z.object(Record.map(fields.specific_fields, () => testInputSchema));
+}
 
 //
 

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { createForm, Form } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
-	import { createSchemaFromFieldsConfigs, type FieldConfig } from './logic';
+	import { createTestVariablesFormSchema, type FieldConfig } from './logic';
 	import { Store, watch } from 'runed';
 	import FieldConfigToFormField from './field-config-to-form-field.svelte';
 	import { pipe, Tuple, Record } from 'effect';
@@ -20,7 +20,7 @@
 	//
 
 	const form = createForm({
-		adapter: zod(createSchemaFromFieldsConfigs(fields)),
+		adapter: zod(createTestVariablesFormSchema(fields)),
 		initialData,
 		options: {
 			id: nanoid(6)

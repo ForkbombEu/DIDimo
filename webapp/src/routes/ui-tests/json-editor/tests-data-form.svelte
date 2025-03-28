@@ -1,8 +1,12 @@
 <script lang="ts">
-	import { Button } from '@/components/ui/button';
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
-	import type { FieldsResponse, TestInput } from './logic';
+	import { createTestListInputSchema, type FieldsResponse } from './logic';
+	import { createForm, Form, SubmitButton } from '@/forms';
+	import { zod } from 'sveltekit-superforms/adapters';
+	import { Store } from 'runed';
+	import * as Popover from '@/components/ui/popover';
+	import Button from '@/components/ui/button/button.svelte';
 
 	//
 
@@ -18,12 +22,41 @@
 
 	const defaultFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
 
-	const masterDataStructure: Record<string, TestInput> = $state({});
+	//
+
+	const form = createForm({
+		adapter: zod(createTestListInputSchema(data)),
+		onSubmit: (data) => {
+			console.log(data);
+		}
+	});
+
+	const { form: formData, validateForm } = form;
+	const formState = new Store(formData);
+
+	const testsIds = $derived(Object.keys(data.specific_fields));
+
+	const incompleteTestsIdsPromise = $derived.by(() => {
+		formState.current;
+		return validateForm().then((result) => testsIds.filter((test) => test in result.errors));
+	});
+
+	const completeTestsCount = $derived(
+		incompleteTestsIdsPromise.then((tests) => testsIds.length - tests.length)
+	);
+
+	const completionStatusPromise = $derived(
+		Promise.all([completeTestsCount, incompleteTestsIdsPromise])
+	);
+
+	//
+
+	const SHARED_FIELDS_ID = 'shared-fields';
 </script>
 
 <div class="space-y-16">
 	<div class="space-y-4">
-		<h2 class="text-lg font-bold">Shared fields</h2>
+		<h2 id={SHARED_FIELDS_ID} class="text-lg font-bold">Shared fields</h2>
 		<FieldConfigFormShared
 			fields={data.normalized_fields}
 			onUpdate={(form) => (sharedData = form)}
@@ -33,14 +66,16 @@
 	<hr />
 	{#each Object.entries(data.specific_fields) as [testId, testData]}
 		<div class="space-y-4">
-			<h2 class="text-lg font-bold">{testId}</h2>
+			<h2 id={testId} class="text-lg font-bold">
+				{testId}
+			</h2>
 			<FieldConfigForm
 				fields={testData.fields}
 				jsonConfig={JSON.parse(testData.content)}
 				defaultValues={sharedData}
 				{defaultFieldsIds}
 				onValidUpdate={(form) => {
-					masterDataStructure[testId] = form;
+					$formData[testId] = form;
 				}}
 			/>
 		</div>
@@ -48,6 +83,34 @@
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 flex justify-end border-t p-4 backdrop-blur-lg">
-	<Button>Save</Button>
+<div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
+	<div>
+		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
+			{#if incompleteTestsIds.length}
+				{completeTestsCount} tests complete
+				<Popover.Root>
+					<Popover.Trigger class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200">
+						{#snippet child({ props })}
+							<Button {...props} variant="outline">view incomplete tests</Button>
+						{/snippet}
+					</Popover.Trigger>
+					<Popover.Content class="dark">
+						<ul class="space-y-1 text-sm">
+							{#each incompleteTestsIds as testId}
+								<li>
+									<a href={`#${testId}`}>{testId}</a>
+								</li>
+							{/each}
+						</ul>
+					</Popover.Content>
+				</Popover.Root>
+			{:else}
+				All tests complete
+			{/if}
+		{/await}
+	</div>
+
+	<Form {form} hide={['submit_button']}>
+		<SubmitButton>Save</SubmitButton>
+	</Form>
 </div>
