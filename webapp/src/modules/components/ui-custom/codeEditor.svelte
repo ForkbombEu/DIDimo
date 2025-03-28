@@ -3,6 +3,7 @@
 	import { json } from '@codemirror/lang-json';
 	import { dracula } from 'thememirror';
 	import type { EditorView } from '@codemirror/view';
+	import { dev } from '$app/environment';
 
 	//
 
@@ -74,6 +75,26 @@
 		if (maxHeight) baseStyles['&'].maxHeight = `${maxHeight}px`;
 		return baseStyles;
 	});
+
+	/* Utils */
+
+	function checkParentFlex(el: HTMLElement) {
+		if (!dev) return;
+
+		const svelteWrapperElement = el.parentElement;
+		const parent = svelteWrapperElement?.parentElement;
+		const grandparent = parent?.parentElement;
+		if (!grandparent) return;
+
+		const grandparentStyle = window.getComputedStyle(grandparent);
+		const parentStyle = window.getComputedStyle(parent);
+
+		if (grandparentStyle.display === 'flex' && !(parentStyle.minWidth === '0px')) {
+			console.warn(
+				'Warning: CodeEditor grandparent is a flex container. Make sure to set `min-width: 0` on the parent element to prevent overflow issues.'
+			);
+		}
+	}
 </script>
 
 <CodeMirror
@@ -87,6 +108,7 @@
 	}}
 	on:ready={(e) => {
 		const view = e.detail;
+		checkParentFlex(view.dom);
 		view.contentDOM.onblur = onBlur;
 		onReady?.(view);
 	}}

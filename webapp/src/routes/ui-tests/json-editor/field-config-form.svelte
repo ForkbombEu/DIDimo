@@ -152,13 +152,15 @@
 	hideRequiredIndicator
 	class="flex flex-col gap-16 md:flex-row"
 >
-	<div class="flex shrink-0 grow basis-1">
+	<!--  -->
+	<div class="flex min-w-0 shrink-0 grow basis-1 flex-col">
 		<CodeEditorField
 			{form}
 			name={JSON_CONFIG_KEY}
 			options={{
 				lang: 'json',
-				label: 'JSON configuration'
+				label: 'JSON configuration',
+				class: 'self-stretch'
 			}}
 		/>
 	</div>
