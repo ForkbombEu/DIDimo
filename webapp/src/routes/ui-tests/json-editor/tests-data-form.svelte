@@ -17,6 +17,7 @@
 	let sharedData = $state<Record<string, unknown>>({});
 
 	const defaultFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
+	console.log(defaultFieldsIds);
 
 	const masterDataStructure: Record<string, TestInput> = $state({});
 </script>

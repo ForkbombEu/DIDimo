@@ -19,6 +19,7 @@
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { Button } from '@/components/ui/button';
 	import Separator from '@/components/ui/separator/separator.svelte';
+	import { nanoid } from 'nanoid';
 
 	//
 
@@ -40,6 +41,8 @@
 		jsonConfig = {}
 	}: Props = $props();
 
+	console.log(defaultFieldsIds);
+
 	/* Form creation */
 
 	const JSON_CONFIG_KEY = 'jsonConfig';
@@ -53,6 +56,9 @@
 		),
 		initialData: {
 			[JSON_CONFIG_KEY]: jsonConfigString
+		},
+		options: {
+			id: nanoid(6)
 		}
 	});
 
@@ -171,6 +177,7 @@
 					{@const { CredimiID: id, LabelKey: label } = config}
 					{@const isDefault = defaultFieldsIds.includes(id)}
 					{@const isOverride = overrideFields.includes(id)}
+					<pre>{config.CredimiID} - {config.LabelKey} - {config.FieldName}</pre>
 
 					{#if isDefault && !isOverride}
 						<div class="space-y-2">

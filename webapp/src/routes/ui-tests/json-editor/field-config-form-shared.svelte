@@ -5,6 +5,7 @@
 	import { Store, watch } from 'runed';
 	import FieldConfigToFormField from './field-config-to-form-field.svelte';
 	import { pipe, Tuple, Record } from 'effect';
+	import { nanoid } from 'nanoid';
 
 	//
 
@@ -20,7 +21,10 @@
 
 	const form = createForm({
 		adapter: zod(createSchemaFromFieldsConfigs(fields)),
-		initialData
+		initialData,
+		options: {
+			id: nanoid(6)
+		}
 	});
 
 	const { form: formData, validate } = form;
@@ -55,5 +59,6 @@
 <Form {form} hide={['submit_button']} hideRequiredIndicator>
 	{#each fields as config}
 		<FieldConfigToFormField {config} {form} />
+		<pre>{config.CredimiID} - {config.LabelKey}</pre>
 	{/each}
 </Form>
