@@ -79,6 +79,7 @@ test: ## 🧪 run tests with coverage
 
 lint: tools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)
+	$(REVIVE) $(GODIRS)
 
 fmt: tools ## 🗿 format rules checks
 	$(GOFMT) $(GODIRS)
