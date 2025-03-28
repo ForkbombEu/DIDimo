@@ -80,6 +80,9 @@
 				onValidUpdate={(form) => {
 					$formData[testId] = form;
 				}}
+				onInvalidUpdate={() => {
+					$formData[testId] = undefined;
+				}}
 			/>
 		</div>
 		<hr />

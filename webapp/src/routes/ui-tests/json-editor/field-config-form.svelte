@@ -30,6 +30,7 @@
 		defaultFieldsIds?: string[];
 		defaultValues?: Record<string, unknown>;
 		onValidUpdate?: UpdateFunction;
+		onInvalidUpdate?: () => void;
 	};
 
 	const {
@@ -37,6 +38,7 @@
 		defaultValues = {},
 		defaultFieldsIds = [],
 		onValidUpdate,
+		onInvalidUpdate,
 		jsonConfig = {}
 	}: Props = $props();
 
@@ -120,7 +122,7 @@
 
 				validate(JSON_CONFIG_KEY, { update: false, value: jsonConfigString }).then(
 					(errors) => {
-						if (Boolean(errors?.length)) return;
+						if (Boolean(errors?.length)) onInvalidUpdate?.();
 						else
 							onValidUpdate?.({
 								format: 'json',
@@ -147,6 +149,7 @@
 				};
 				validateForm({ update: false }).then((result) => {
 					if (result.valid) onValidUpdate?.(testInput);
+					else onInvalidUpdate?.();
 				});
 			}
 		}
