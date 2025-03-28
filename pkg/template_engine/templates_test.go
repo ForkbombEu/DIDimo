@@ -163,8 +163,8 @@ func TestGetPlaceholders_WithDuplicateCredimiIDs(t *testing.T) {
 	}
 
 	expectedNormalizedField := map[string]interface{}{
-		"CredimiID":           "1234",
-		"Type":                 "string",
+		"CredimiID":      "1234",
+		"Type":           "string",
 		"DescriptionKey": "name_description",
 		"LabelKey":       "name_label",
 	}
@@ -211,8 +211,8 @@ func TestGetPlaceholders_WithSameFieldNameAndCredimiID(t *testing.T) {
 	}
 
 	expectedNormalizedField := map[string]interface{}{
-		"CredimiID":           "1234",
-		"Type":                 "string",
+		"CredimiID":      "1234",
+		"Type":           "string",
 		"DescriptionKey": "name_description",
 		"LabelKey":       "name_label",
 	}
