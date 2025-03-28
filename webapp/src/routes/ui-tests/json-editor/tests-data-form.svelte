@@ -1,5 +1,5 @@
 <script lang="ts">
-	// import { sharedFields, testsFields, testsConfigs } from './sample.data';
+	import { Button } from '@/components/ui/button';
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
 	import type { FieldsResponse, TestInput } from './logic';
@@ -17,7 +17,6 @@
 	let sharedData = $state<Record<string, unknown>>({});
 
 	const defaultFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
-	console.log(defaultFieldsIds);
 
 	const masterDataStructure: Record<string, TestInput> = $state({});
 </script>
@@ -47,4 +46,8 @@
 		</div>
 		<hr />
 	{/each}
+</div>
+
+<div class="bg-background/80 sticky bottom-0 flex justify-end border-t p-4 backdrop-blur-lg">
+	<Button>Save</Button>
 </div>

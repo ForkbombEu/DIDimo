@@ -8,11 +8,12 @@ const variantsSchema = z.object({
 	variants: z.array(z.string())
 });
 
-export const load = async () => {
+export const load = async ({ fetch }) => {
 	const variantsResponse = await pb.send(
 		'/api/conformance-checks/configs/get-configs-templates',
 		{
-			method: 'GET'
+			method: 'GET',
+			fetch
 		}
 	);
 	const parseResult = variantsSchema.safeParse(variantsResponse);

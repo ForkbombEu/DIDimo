@@ -8,18 +8,17 @@
 		type SpecificFieldConfig,
 		type TestInput
 	} from './logic';
-	import { Record as R, Record, pipe } from 'effect';
+	import { Record as R, Record, pipe, Array as A } from 'effect';
 	import { Store, watch } from 'runed';
 	import FieldConfigToFormField from './field-config-to-form-field.svelte';
-	import { Input } from '@/components/ui/input';
 	import Label from '@/components/ui/label/label.svelte';
-	import IconButton from '@/components/ui-custom/iconButton.svelte';
-	import { Pencil, Lock, Info } from 'lucide-svelte';
+	import { Pencil, Info, Undo, Eye } from 'lucide-svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { Button } from '@/components/ui/button';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { nanoid } from 'nanoid';
+	import * as Tooltip from '@/components/ui/tooltip/index.js';
 
 	//
 
@@ -40,8 +39,6 @@
 		onValidUpdate,
 		jsonConfig = {}
 	}: Props = $props();
-
-	console.log(defaultFieldsIds);
 
 	/* Form creation */
 
@@ -64,14 +61,24 @@
 
 	const { form: formData } = form;
 
-	/* Overrides */
+	/* Fields organization */
 
-	let overrideFields = $state<string[]>([]);
+	const specificFields = $derived(fields.filter((f) => !defaultFieldsIds.includes(f.CredimiID)));
+
+	let overriddenFieldsIds = $state<string[]>([]);
+
+	const overriddenFields = $derived(
+		fields.filter((f) => overriddenFieldsIds.includes(f.CredimiID))
+	);
 
 	function resetOverride(id: string) {
-		overrideFields = overrideFields.filter((f) => f !== id);
+		overriddenFieldsIds = overriddenFieldsIds.filter((f) => f !== id);
 		$formData = { ...$formData, [id]: defaultValues[id] };
 	}
+
+	const defaultFields = $derived(
+		pipe(fields, A.difference(specificFields), A.difference(overriddenFields))
+	);
 
 	/* Update form data when default values change */
 
@@ -83,7 +90,7 @@
 				// Only fields that are in the fields array
 				R.filter((_, key) => fields.map((f) => f.CredimiID).includes(key)),
 				// Not overridden
-				R.filter((_, key) => !overrideFields.includes(key))
+				R.filter((_, key) => !overriddenFieldsIds.includes(key))
 			);
 			$formData = { ...$formData, ...notOverridden };
 		}
@@ -127,6 +134,16 @@
 			});
 		}
 	});
+
+	/* Utils */
+
+	function previewValue(value: unknown, type: SpecificFieldConfig['Type']) {
+		const NULL_VALUE = '<null>';
+		if (!value) return NULL_VALUE;
+		if (type === 'string') return value as string;
+		if (type === 'object') return JSON.stringify(JSON.parse(value as string), null, 4);
+		return NULL_VALUE;
+	}
 </script>
 
 <Form
@@ -173,53 +190,64 @@
 			</div>
 		{:else}
 			<div class="space-y-8">
-				{#each fields as config}
-					{@const { CredimiID: id, LabelKey: label } = config}
-					{@const isDefault = defaultFieldsIds.includes(id)}
-					{@const isOverride = overrideFields.includes(id)}
-					<pre>{config.CredimiID} - {config.LabelKey} - {config.FieldName}</pre>
+				{#each specificFields as config}
+					<FieldConfigToFormField {config} {form} />
+				{/each}
 
-					{#if isDefault && !isOverride}
-						<div class="space-y-2">
-							<Label>{label}</Label>
-							<div class="flex items-center gap-2">
-								<Input
-									value={defaultValues[id]}
-									disabled
-									placeholder="Value depends on shared '{label}' field"
-									class={{
-										'font-mono':
-											config.Type == 'object' && Boolean(defaultValues[id])
-									}}
-								/>
-								<IconButton
-									icon={Pencil}
-									variant="outline"
-									onclick={() => {
-										overrideFields.push(id);
-									}}
-								/>
-							</div>
+				{#each overriddenFields as config}
+					<div class="relative">
+						<div class="absolute right-0 top-0">
+							<button
+								class="text-primary flex items-center gap-2 text-sm underline hover:no-underline"
+								onclick={() => {
+									resetOverride(config.CredimiID);
+								}}
+							>
+								<Icon src={Undo} size={14} />
+								Reset to default
+							</button>
 						</div>
-					{:else}
-						<div class="relative">
-							{#if isOverride}
-								<div class="absolute right-0 top-0">
+						<FieldConfigToFormField {config} {form} />
+					</div>
+				{/each}
+
+				{#if defaultFields.length}
+					<div class="space-y-2">
+						<Label>Default fields</Label>
+						<ul class="space-y-1">
+							{#each defaultFields as { CredimiID, LabelKey, Type }}
+								{@const value = defaultValues[CredimiID]}
+								{@const valuePreview = previewValue(value, Type)}
+
+								<li class="flex items-center gap-2">
+									<span class="font-mono text-sm">{LabelKey}</span>
+
+									<Tooltip.Provider>
+										<Tooltip.Root>
+											<Tooltip.Trigger
+												class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
+											>
+												<Eye size={14} />
+											</Tooltip.Trigger>
+											<Tooltip.Content class="dark">
+												<pre>{valuePreview}</pre>
+											</Tooltip.Content>
+										</Tooltip.Root>
+									</Tooltip.Provider>
+
 									<button
-										class="text-primary flex items-center gap-2 text-sm underline hover:no-underline"
+										class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
 										onclick={() => {
-											resetOverride(id);
+											overriddenFieldsIds.push(CredimiID);
 										}}
 									>
-										<Icon src={Lock} size={14} />
-										Lock again
+										<Pencil size={14} />
 									</button>
-								</div>
-							{/if}
-							<FieldConfigToFormField {config} {form} />
-						</div>
-					{/if}
-				{/each}
+								</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
 			</div>
 		{/if}
 	</div>

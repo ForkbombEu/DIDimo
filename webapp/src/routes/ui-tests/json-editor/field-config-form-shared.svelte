@@ -59,6 +59,5 @@
 <Form {form} hide={['submit_button']} hideRequiredIndicator>
 	{#each fields as config}
 		<FieldConfigToFormField {config} {form} />
-		<pre>{config.CredimiID} - {config.LabelKey}</pre>
 	{/each}
 </Form>
