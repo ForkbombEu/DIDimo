@@ -2,7 +2,7 @@
 	import type { GenericRecord } from '@/utils/types';
 	import * as Form from '@/components/ui/form';
 	import type { FormPathLeaves, SuperForm } from 'sveltekit-superforms';
-	import { stringProxy } from 'sveltekit-superforms';
+	import { formFieldProxy } from 'sveltekit-superforms';
 	import type { ComponentProps } from 'svelte';
 	import FieldWrapper from './parts/fieldWrapper.svelte';
 	import type { FieldOptions } from './types';
@@ -18,14 +18,18 @@
 
 	const { form, name, options }: Props = $props();
 
-	const { form: formData } = $derived(form);
-	const valueProxy = $derived(stringProxy(formData, name, { empty: 'undefined' }));
+	const { validate } = form;
+	const { value: v } = formFieldProxy(form, name);
 </script>
 
 <Form.Field {form} {name}>
 	<FieldWrapper field={name} {options}>
-		{#snippet children({ props })}
-			<CodeEditor {...options} {...props} bind:value={$valueProxy} />
-		{/snippet}
+		<CodeEditor
+			{...options}
+			bind:value={$v as string}
+			onBlur={() => {
+				validate(name);
+			}}
+		/>
 	</FieldWrapper>
 </Form.Field>

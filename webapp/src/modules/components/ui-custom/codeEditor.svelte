@@ -2,6 +2,7 @@
 	import CodeMirror from 'svelte-codemirror-editor';
 	import { json } from '@codemirror/lang-json';
 	import { dracula } from 'thememirror';
+	import type { EditorView } from '@codemirror/view';
 
 	//
 
@@ -25,6 +26,10 @@
 		lang: keyof typeof langs | LanguageSupport;
 		theme?: keyof typeof themes | Extension;
 		class?: string;
+		extensions?: Extension[];
+		onChange?: (value: string) => void;
+		onReady?: (value: EditorView) => void;
+		onBlur?: () => void;
 	};
 
 	let {
@@ -33,7 +38,11 @@
 		maxHeight,
 		theme = 'dracula',
 		value = $bindable(),
-		class: className = ''
+		class: className = '',
+		extensions = [],
+		onChange,
+		onReady,
+		onBlur = () => {}
 	}: Props = $props();
 
 	//
@@ -73,4 +82,13 @@
 	class="overflow-hidden rounded-lg {className}"
 	{styles}
 	bind:value
+	on:change={(e) => {
+		onChange?.(e.detail);
+	}}
+	on:ready={(e) => {
+		const view = e.detail;
+		view.contentDOM.onblur = onBlur;
+		onReady?.(view);
+	}}
+	{extensions}
 />

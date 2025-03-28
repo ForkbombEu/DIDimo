@@ -18,7 +18,7 @@
 	import { Button } from '@/components/ui/button';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { nanoid } from 'nanoid';
-	import * as Tooltip from '@/components/ui/tooltip/index.js';
+	import * as Popover from '@/components/ui/popover/index.js';
 
 	//
 
@@ -137,7 +137,7 @@
 
 	/* Utils */
 
-	function previewValue(value: unknown, type: SpecificFieldConfig['Type']) {
+	function previewValue(value: unknown, type: SpecificFieldConfig['Type']): string {
 		const NULL_VALUE = '<null>';
 		if (!value) return NULL_VALUE;
 		if (type === 'string') return value as string;
@@ -152,7 +152,7 @@
 	hideRequiredIndicator
 	class="flex flex-col gap-16 md:flex-row"
 >
-	<div class="shrink-0 grow basis-1">
+	<div class="flex shrink-0 grow basis-1">
 		<CodeEditorField
 			{form}
 			name={JSON_CONFIG_KEY}
@@ -222,18 +222,16 @@
 								<li class="flex items-center gap-2">
 									<span class="font-mono text-sm">{LabelKey}</span>
 
-									<Tooltip.Provider>
-										<Tooltip.Root>
-											<Tooltip.Trigger
-												class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
-											>
-												<Eye size={14} />
-											</Tooltip.Trigger>
-											<Tooltip.Content class="dark">
-												<pre>{valuePreview}</pre>
-											</Tooltip.Content>
-										</Tooltip.Root>
-									</Tooltip.Provider>
+									<Popover.Root>
+										<Popover.Trigger
+											class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
+										>
+											<Eye size={14} />
+										</Popover.Trigger>
+										<Popover.Content class="dark overflow-auto">
+											<pre class="text-xs">{valuePreview}</pre>
+										</Popover.Content>
+									</Popover.Root>
 
 									<button
 										class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
