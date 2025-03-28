@@ -8,10 +8,6 @@
 	import * as Pagination from '@/components/ui/pagination';
 	import type { Page } from '@sveltejs/kit';
 
-	run(() => {
-		console.log($page);
-	});
-
 	function handlePageChange(number: number, page: Page) {
 		const url = page.url;
 		url.searchParams.set('page', number.toString());

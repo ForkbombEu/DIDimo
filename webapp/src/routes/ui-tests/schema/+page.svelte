@@ -30,7 +30,6 @@
 		};
 		const schema = createCollectionZodSchema('z_test_collection');
 		const parsedData = schema.safeParse(data);
-		console.log(parsedData);
 		if (parsedData.success == true)
 			await pb.collection('z_test_collection').create(parsedData.data);
 	}
