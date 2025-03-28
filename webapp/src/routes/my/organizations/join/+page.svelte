@@ -16,7 +16,7 @@
 	import PlainCard from '@/components/ui-custom/itemCard.svelte';
 	import { CollectionManager } from '@/collections-components';
 	import Dialog from '@/components/ui-custom/dialog.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { OrganizationAvatar } from '@/organizations/components';
 

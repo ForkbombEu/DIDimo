@@ -7,7 +7,7 @@
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
@@ -33,14 +33,16 @@
 		updated: '2024-12-12',
 		credential_issuers: [],
 		description: 'Lorem ipsum',
-		external_links: [],
 		wallets: [],
 		legal_entity: 'ForkbombEu',
 		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
 		name: 'Test credential issuer',
 		owner: 'id',
 		collectionId: '',
-		collectionName: Collections.Services
+		collectionName: Collections.Services,
+		contact_email: 'asd@asd.com',
+		documentation_url: 'https://google.com',
+		external_website_url: 'https://google.com'
 	};
 
 	const fakeCredential: CredentialsResponse = {
@@ -57,8 +59,10 @@
 		name: 'das',
 		locale: 'en',
 		type: 'plc',
+		json: {},
 		collectionId: '',
-		collectionName: Collections.Credentials
+		collectionName: Collections.Credentials,
+		key: ''
 	};
 
 	const schema = z.object({

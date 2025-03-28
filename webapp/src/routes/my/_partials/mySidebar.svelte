@@ -32,7 +32,7 @@
 	import SidebarItemIcon from '@/components/layout/sidebar/sidebarItemIcon.svelte';
 	import { OrganizationAvatar } from '@/organizations/components';
 	import { page } from '$app/state';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 
 	//
 
@@ -220,7 +220,7 @@
 		<div class="flex w-full overflow-hidden border-t p-2">
 			<T
 				tag="small"
-				class="text-secondary-foreground/50 text-wrap font-mono text-xs leading-normal"
+				class="text-wrap font-mono text-xs leading-normal text-secondary-foreground/50"
 			>
 				{appName} – Version {version}
 			</T>

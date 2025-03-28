@@ -1,16 +1,16 @@
-import { paraglide } from '@inlang/paraglide-sveltekit/vite';
+import { paraglideVitePlugin } from '@inlang/paraglide-js';
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [
 		sveltekit(),
-		paraglide({
+		paraglideVitePlugin({
 			project: './project.inlang',
-			outdir: './src/modules/i18n/paraglide'
+			outdir: './src/modules/i18n/paraglide',
+			strategy: ['url', 'cookie', 'baseLocale']
 		})
 	],
-
 	optimizeDeps: {
 		exclude: [
 			'svelte-codemirror-editor',
@@ -20,11 +20,9 @@ export default defineConfig({
 			'thememirror'
 		]
 	},
-
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	},
-
 	server: {
 		port: Number(process.env.PORT) || 5100
 	},

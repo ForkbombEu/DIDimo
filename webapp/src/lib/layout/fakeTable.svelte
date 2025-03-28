@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Input from '@/components/ui/input/input.svelte';
 	import { Ellipsis } from 'lucide-svelte';
 </script>

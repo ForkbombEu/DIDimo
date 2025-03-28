@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as DropdownMenu from '@/components/ui/dropdown-menu';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { currentUser } from '@/pocketbase';
 	import { Store } from 'runed';
 	import UserAvatar from '@/components/ui-custom/userAvatar.svelte';
@@ -27,12 +27,15 @@
 		<DropdownMenu.Label class="font-normal">
 			<div class="flex flex-col space-y-1">
 				<p class="text-sm font-medium leading-none">{user.name}</p>
-				<p class="text-muted-foreground text-xs leading-none">{user.email}</p>
+				<p class="text-xs leading-none text-muted-foreground">{user.email}</p>
 			</div>
 		</DropdownMenu.Label>
 		<DropdownMenu.Separator />
 
 		<DropdownMenu.Group>
+			<DropdownMenuLink href="/my">
+				{m.Go_to_Dashboard()}
+			</DropdownMenuLink>
 			<DropdownMenuLink href="/my/profile">
 				{m.My_profile()}
 			</DropdownMenuLink>

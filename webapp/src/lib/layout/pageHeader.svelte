@@ -2,7 +2,7 @@
 	import type { SnippetFunction } from '@/components/types';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { ArrowUpRight } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
@@ -25,7 +25,7 @@
 
 <div
 	{id}
-	class="border-secondary-foreground mb-6 flex scroll-mt-5 items-center justify-between border-b {className}"
+	class="mb-6 flex scroll-mt-5 items-center justify-between border-b border-secondary-foreground {className}"
 >
 	{#if title}
 		<T tag="h2">{title}:</T>

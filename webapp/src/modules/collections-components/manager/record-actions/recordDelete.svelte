@@ -7,7 +7,7 @@
 	import Dialog from '@/components/ui-custom/dialog.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { onDestroy } from 'svelte';
 	import { getCollectionManagerContext } from '../collectionManagerContext';

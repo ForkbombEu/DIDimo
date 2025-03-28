@@ -2127,18 +2127,98 @@
                 "type": "editor"
             },
             {
+                "hidden": false,
+                "id": "autodate2990389176",
+                "name": "created",
+                "onCreate": true,
+                "onUpdate": false,
+                "presentable": false,
+                "system": false,
+                "type": "autodate"
+            },
+            {
+                "hidden": false,
+                "id": "autodate3332085495",
+                "name": "updated",
+                "onCreate": true,
+                "onUpdate": true,
+                "presentable": false,
+                "system": false,
+                "type": "autodate"
+            }
+        ],
+        "indexes": [
+            "CREATE UNIQUE INDEX `idx_PHN81EZ` ON `organizations` (`name`)"
+        ],
+        "system": false
+    },
+    {
+        "id": "pbc_2279480764",
+        "listRule": "owner.id = @request.auth.id",
+        "viewRule": "owner.id = @request.auth.id",
+        "createRule": "@request.auth.id != \"\"",
+        "updateRule": "owner.id = @request.auth.id",
+        "deleteRule": "owner.id = @request.auth.id",
+        "name": "provider_claims",
+        "type": "base",
+        "fields": [
+            {
+                "autogeneratePattern": "[a-z0-9]{15}",
+                "hidden": false,
+                "id": "text3208210256",
+                "max": 15,
+                "min": 15,
+                "name": "id",
+                "pattern": "^[a-z0-9]+$",
+                "presentable": false,
+                "primaryKey": true,
+                "required": true,
+                "system": true,
+                "type": "text"
+            },
+            {
                 "autogeneratePattern": "",
                 "hidden": false,
-                "id": "text4106974746",
+                "id": "text1579384326",
                 "max": 0,
-                "min": 0,
-                "name": "external_website_url",
+                "min": 2,
+                "name": "name",
                 "pattern": "",
                 "presentable": false,
                 "primaryKey": false,
-                "required": false,
+                "required": true,
                 "system": false,
                 "type": "text"
+            },
+            {
+                "convertURLs": false,
+                "hidden": false,
+                "id": "editor1843675174",
+                "maxSize": 0,
+                "name": "description",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "editor"
+            },
+            {
+                "hidden": false,
+                "id": "file3834550803",
+                "maxSelect": 1,
+                "maxSize": 0,
+                "mimeTypes": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/svg+xml",
+                    "image/webp"
+                ],
+                "name": "logo",
+                "presentable": false,
+                "protected": false,
+                "required": true,
+                "system": false,
+                "thumbs": [],
+                "type": "file"
             },
             {
                 "hidden": false,
@@ -2146,7 +2226,7 @@
                 "maxSelect": 1,
                 "name": "country",
                 "presentable": false,
-                "required": false,
+                "required": true,
                 "system": false,
                 "type": "select",
                 "values": [
@@ -2207,56 +2287,86 @@
             {
                 "autogeneratePattern": "",
                 "hidden": false,
-                "id": "text2111657159",
+                "id": "text3793657363",
                 "max": 0,
                 "min": 0,
+                "name": "legal_entity",
+                "pattern": "",
+                "presentable": false,
+                "primaryKey": false,
+                "required": true,
+                "system": false,
+                "type": "text"
+            },
+            {
+                "exceptDomains": [],
+                "hidden": false,
+                "id": "url4106974746",
+                "name": "external_website_url",
+                "onlyDomains": [],
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "url"
+            },
+            {
+                "exceptDomains": [],
+                "hidden": false,
+                "id": "url2111657159",
                 "name": "documentation_url",
-                "pattern": "",
+                "onlyDomains": [],
                 "presentable": false,
-                "primaryKey": false,
-                "required": false,
+                "required": true,
                 "system": false,
-                "type": "text"
+                "type": "url"
             },
             {
-                "cascadeDelete": false,
-                "collectionId": "_pb_users_auth_",
+                "exceptDomains": [],
                 "hidden": false,
-                "id": "relation3725765462",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "created_by",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "relation"
-            },
-            {
-                "cascadeDelete": false,
-                "collectionId": "_pb_users_auth_",
-                "hidden": false,
-                "id": "relation694952315",
-                "maxSelect": 1,
-                "minSelect": 0,
-                "name": "claimed_by",
-                "presentable": false,
-                "required": false,
-                "system": false,
-                "type": "relation"
-            },
-            {
-                "autogeneratePattern": "",
-                "hidden": false,
-                "id": "text3401084027",
-                "max": 0,
-                "min": 0,
+                "id": "email3401084027",
                 "name": "contact_email",
-                "pattern": "",
+                "onlyDomains": [],
                 "presentable": false,
-                "primaryKey": false,
-                "required": false,
+                "required": true,
                 "system": false,
-                "type": "text"
+                "type": "email"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "_pb_users_auth_",
+                "hidden": false,
+                "id": "relation3479234172",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "owner",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "cascadeDelete": false,
+                "collectionId": "pbc_863811952",
+                "hidden": false,
+                "id": "relation2462348188",
+                "maxSelect": 1,
+                "minSelect": 0,
+                "name": "provider",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "relation"
+            },
+            {
+                "hidden": false,
+                "id": "select2063623452",
+                "maxSelect": 1,
+                "name": "status",
+                "presentable": false,
+                "required": true,
+                "system": false,
+                "type": "select",
+                "values": ["in_review", "approved"]
             },
             {
                 "hidden": false,
@@ -2279,9 +2389,7 @@
                 "type": "autodate"
             }
         ],
-        "indexes": [
-            "CREATE UNIQUE INDEX `idx_PHN81EZ` ON `organizations` (`name`)"
-        ],
+        "indexes": [],
         "system": false
     },
     {
@@ -2465,25 +2573,27 @@
                 "type": "text"
             },
             {
-                "autogeneratePattern": "",
+                "convertURLs": false,
                 "hidden": false,
-                "id": "text1843675174",
-                "max": 0,
-                "min": 3,
+                "id": "editor1843675174",
+                "maxSize": 0,
                 "name": "description",
-                "pattern": "",
                 "presentable": false,
-                "primaryKey": false,
                 "required": false,
                 "system": false,
-                "type": "text"
+                "type": "editor"
             },
             {
                 "hidden": false,
                 "id": "file3834550803",
                 "maxSelect": 1,
                 "maxSize": 0,
-                "mimeTypes": [],
+                "mimeTypes": [
+                    "image/png",
+                    "image/jpeg",
+                    "image/webp",
+                    "image/svg+xml"
+                ],
                 "name": "logo",
                 "presentable": false,
                 "protected": false,
@@ -2571,14 +2681,37 @@
                 "type": "text"
             },
             {
+                "exceptDomains": null,
                 "hidden": false,
-                "id": "json3822047899",
-                "maxSize": 0,
-                "name": "external_links",
+                "id": "url4106974746",
+                "name": "external_website_url",
+                "onlyDomains": null,
                 "presentable": false,
                 "required": false,
                 "system": false,
-                "type": "json"
+                "type": "url"
+            },
+            {
+                "exceptDomains": null,
+                "hidden": false,
+                "id": "url2111657159",
+                "name": "documentation_url",
+                "onlyDomains": null,
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "url"
+            },
+            {
+                "exceptDomains": null,
+                "hidden": false,
+                "id": "email3401084027",
+                "name": "contact_email",
+                "onlyDomains": null,
+                "presentable": false,
+                "required": false,
+                "system": false,
+                "type": "email"
             },
             {
                 "cascadeDelete": false,
