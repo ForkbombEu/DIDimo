@@ -14,21 +14,20 @@ import (
 
 // GenerateYAML generates a YAML file based on provided variant and form
 func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
-
 	schemasPath := os.Getenv("SCHEMAS_PATH")
 	if schemasPath == "" {
 		return fmt.Errorf("SCHEMAS_PATH environment variable not set")
 	}
 
-	testPlanResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/create_test_plan.json", schemasPath))
+	testPlanResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/create_test_plan.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	startRunnerResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/start_runner.json", schemasPath))
+	startRunnerResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/start_runner.json", schemasPath))
 	if err != nil {
 		return err
 	}
-	getInfoResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VPTest/responses/get_info.json", schemasPath))
+	getInfoResponseSchema, err := stepci.ConvertJSONToMap(fmt.Sprintf("%s/OpenID4VP_Wallet/responses/get_info.json", schemasPath))
 	if err != nil {
 		return err
 	}
@@ -167,7 +166,6 @@ func RunStepCIJSProgramActivity(ctx context.Context, input StepCIRunnerInput) (S
 
 // SendMailActivity sends an email
 func SendMailActivity(ctx context.Context, config EmailConfig) error {
-
 	// Create email message
 	m := gomail.NewMessage()
 	m.SetHeader("From", config.SenderEmail)
