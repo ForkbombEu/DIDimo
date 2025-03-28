@@ -3,7 +3,7 @@
 
 	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
+	import { goto } from '@/i18n';
 
 	import * as Pagination from '@/components/ui/pagination';
 	import type { Page } from '@sveltejs/kit';

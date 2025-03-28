@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import BaseTopbar from '@/components/layout/topbar.svelte';
@@ -8,7 +8,7 @@
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
 </script>
 
-<BaseTopbar class="bg-card border-none">
+<BaseTopbar class="border-none bg-card">
 	{#snippet left()}
 		<!-- <AppLogo /> -->
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>

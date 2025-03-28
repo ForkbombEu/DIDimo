@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { currentUser, pb } from '@/pocketbase';
 	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 	import type { ClientResponseError } from 'pocketbase';
 	import Alert from '@/components/ui-custom/alert.svelte';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import type { Data, UsersRecord } from '@/pocketbase/types';
 	import { nanoid } from 'nanoid';
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { Separator } from '@/components/ui/separator';
+	import { goto } from '@/i18n';
 
 	//
 

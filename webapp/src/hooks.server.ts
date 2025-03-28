@@ -1,4 +1,3 @@
 import type { Handle } from '@sveltejs/kit';
-import { i18n } from '@/i18n';
-const handleParaglide: Handle = i18n.handle();
+import { handleParaglide } from '@/i18n';
 export const handle: Handle = handleParaglide;

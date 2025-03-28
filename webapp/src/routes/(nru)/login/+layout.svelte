@@ -8,11 +8,12 @@
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 	import type { Snippet } from 'svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
+	import { localizeHref } from '@/i18n';
 
 	//
 
@@ -24,11 +25,11 @@
 
 	const modes: Link[] = [
 		{
-			href: '/login',
+			href: localizeHref('/login'),
 			title: m.Email_and_password()
 		},
 		{
-			href: '/login/webauthn',
+			href: localizeHref('/login/webauthn'),
 			title: m.Webauthn()
 		}
 	];

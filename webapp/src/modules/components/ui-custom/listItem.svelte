@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { X } from 'lucide-svelte';
 	import T from './t.svelte';

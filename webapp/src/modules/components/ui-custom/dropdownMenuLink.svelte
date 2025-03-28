@@ -4,6 +4,7 @@
 	import Icon from './icon.svelte';
 	import type { IconComponent, LinkWithIcon } from '../types';
 	import type { Snippet } from 'svelte';
+	import { localizeHref } from '@/i18n';
 
 	//
 
@@ -21,7 +22,12 @@
 
 <DropdownMenuItem {...options} class="{options?.class} hover:cursor-pointer">
 	{#snippet child({ props })}
-		<a {href} {...props} {...rest} data-sveltekit-preload-data="off">
+		<a
+			href={href ? localizeHref(href) : undefined}
+			{...props}
+			{...rest}
+			data-sveltekit-preload-data="off"
+		>
 			{#if children}
 				{@render children()}
 			{:else if title}
