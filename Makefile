@@ -8,6 +8,7 @@ MAIN_SRC 		?= $(ROOT_DIR)/cmd/didimo/didimo.go
 DATA			?= $(ROOT_DIR)/pb_data
 WEBAPP			?= $(ROOT_DIR)/webapp
 GO_SRC 			:= $(wildcard **/*.go)
+GODIRS			:= ./pkg/... ./cmd/...
 UI_SRC			:= $(shell find $(WEBAPP)/src -type f \( -name '*.svelte' -o -name '*.js' -o -name '*.ts' -o -name '*.css' \) ! -name '*.generated.ts' ! -path 'webapp/src/modules/i18n/paraglide/*')
 DOCS			?= $(ROOT_DIR)/docs
 GOCMD 			?= go
@@ -16,15 +17,16 @@ GOCLEAN			?= $(GOCMD) clean
 GOTEST			?= $(GOCMD) test
 GOTOOL			?= $(GOCMD) tool
 GOGET			?= $(GOCMD) get
+GOFMT			?= $(GOCMD) fmt
 GOMOD			?= $(GOCMD) mod
 GOINST			?= $(GOCMD) install
+GOGEN			?= $(GOCMD) generate
 GOPATH 			?= $(shell $(GOCMD) env GOPATH)
 GOBIN 			?= $(GOPATH)/bin
 GOMOD_FILES 	:= go.mod go.sum
 
 # Tools & Linters
 REVIVE			?= $(GOBIN)/revive
-GOFUMPT 		?= $(GOBIN)/gofumpt
 GOVULNCHECK 	?= $(GOBIN)/govulncheck
 OVERMIND 		?= $(GOBIN)/overmind
 AIR 			?= $(GOBIN)/air
@@ -69,18 +71,18 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(WEBENV) tools submodules kill-pocketbase ## 🚀 run in watch mode
+dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
-	$(GOTEST) $(SUBDIRS) -v -cover
+	$(GOTEST) $(GODIRS) -v -cover
 
 lint: tools ## 📑 lint rules checks
-	$(REVIVE) -formatter stylish cmd
 	$(GOVULNCHECK) $(SUBDIRS)
+	$(REVIVE) $(GODIRS)
 
 fmt: tools ## 🗿 format rules checks
-	$(GOFUMPT) -l -w pocketbase *.go
+	$(GOFMT) $(GODIRS)
 
 tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
@@ -125,13 +127,13 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
 	@echo "🧹 cleaned"
 
-tools:
+generate: $(ROOT_DIR)/pkg/gen.go
+	$(GOGEN) $(SUBDIRS)
+
+tools: generate
 	mise install
 	@if [ ! -f "$(REVIVE)" ]; then \
 		$(GOINST) github.com/mgechev/revive@latest; \
-	fi
-	@if [ ! -f "$(GOFUMPT)" ]; then \
-		$(GOINST) mvdan.cc/gofumpt@latest; \
 	fi
 	@if [ ! -f "$(GOVULNCHECK)" ]; then \
 		$(GOINST) golang.org/x/vuln/cmd/govulncheck@latest; \
@@ -158,3 +160,6 @@ help: ## Show this help.
 kill-pocketbase: ## 🔪 Kill any running PocketBase instance
 	@echo "Killing any existing PocketBase instance..."
 	@-lsof -ti:8090 -sTCP:LISTEN | xargs kill -9 2>/dev/null || true
+
+remove-overmind: ## 🧹 Remove overmind.sock
+	@rm -f ./.overmind.sock

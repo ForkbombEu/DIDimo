@@ -1,5 +1,5 @@
 /// <reference path="../pb_data/types.d.ts" />
-/// <reference path="../pb_public/emails/_emailData.d.ts" />
+/// <reference path="../webapp/static/emails/_emailData.d.ts" />
 
 interface RecordModel<R extends Record<string, unknown>> extends core.Record {
     get: <K extends keyof R & string>(key: K) => R[K];

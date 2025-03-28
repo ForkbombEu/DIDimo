@@ -36,9 +36,12 @@ func bindAppHooks(app core.App) {
 func Setup(app *pocketbase.PocketBase) {
 
 	bindAppHooks(app)
+	pb.RouteGetConfigsTemplates(app)
+	pb.RoutePostPlaceholdersByFilenames(app)
 	pb.HookNamespaceOrgs(app)
 	pb.HookCredentialWorkflow(app)
 	pb.AddOpenID4VPTestEndpoints(app)
+	pb.HookUpdateCredentialsIssuers(app)
 	pb.RouteWorkflowList(app)
 	pb.Register(app)
 
