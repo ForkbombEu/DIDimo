@@ -75,8 +75,7 @@ dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
-	$(GOTEST) $(GOSRCPKG) -v -cover
-	$(GOTEST) $(GOSRCCMD) -v -cover
+	$(GOTEST) $(GODIRS) -v -cover
 
 lint: tools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)

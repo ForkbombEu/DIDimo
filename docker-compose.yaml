@@ -11,14 +11,12 @@ services:
       - ADDRESS_UI=http://localhost:5100
       - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://localhost:8090}
       - APP_PATH=${COOLIFY_URL:-http://localhost:8090}
-      - DATA_DB_PATH=/pb_data/data.db
       - MAIL_SENDER=didimo@forkbomb.eu
       - RUN_STEPCI_PATH=pkg/OpenID4VP/stepci/runStepCI.js
       - SCHEMAS_PATH=schemas
       - SMTP_HOST=smtp.apps.forkbomb.eu
       - SMTP_PORT=1025
       - TEMPORAL_ADDRESS=localhost:7233
-      - TOKEN=${TOKEN}
       - PORT=5100
     ports:
       - 8090:8090
