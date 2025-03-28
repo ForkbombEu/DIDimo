@@ -26,10 +26,10 @@
 		'sd_jwt_vc:x509_san_dns:request_uri_unsigned:direct_post.json'
 	];
 
-	getVariables('', x).then((res) => {
-		d = res;
-		// console.log(d);
-	});
+	// getVariables('', x).then((res) => {
+	// 	d = res;
+	// 	// console.log(d);
+	// });
 </script>
 
 <!--  -->

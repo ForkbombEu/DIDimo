@@ -121,22 +121,3 @@ export type TestInput = z.infer<typeof testInputSchema>;
 export function createTestListInputSchema(fields: FieldsResponse) {
 	return z.object(Record.map(fields.specific_fields, () => testInputSchema));
 }
-
-//
-
-// let fieldsStatus: Record<string, boolean> = $state({});
-
-// watch(
-// 	() => formState.current,
-// 	() => {
-// 		Promise.all(
-// 			fields.map(async (f) => {
-// 				const result = await validate(f.credimi_id, { taint: false, update: false });
-// 				const isValid = result === undefined || result.length === 0;
-// 				return Tuple.make(f.i18_label, isValid);
-// 			})
-// 		).then((statuses) => {
-// 			fieldsStatus = Object.fromEntries(statuses);
-// 		});
-// 	}
-// );
