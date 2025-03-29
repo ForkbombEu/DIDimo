@@ -1,48 +1,80 @@
 <script lang="ts">
-	import SelectTestForm from './select-test-form.svelte';
-	import { getVariables, type FieldsResponse } from './logic';
-	import TestsDataForm from './tests-data-form.svelte';
+	import Input from '@/components/ui/input/input.svelte';
+	import { Form, type FieldData, type Field } from './logic.exp.svelte';
+	import { z } from 'zod';
 
-	//
-
-	let { data } = $props();
-
-	let d = $state<FieldsResponse>();
-
-	const x = [
-		'iso_mdl:pre_registered:request_uri_signed:direct_post.jwt.json',
-		'iso_mdl:pre_registered:request_uri_signed:w3c_dc_api.json',
-		'iso_mdl:pre_registered:request_uri_signed:w3c_dc_api.jwt.json',
-		'iso_mdl:pre_registered:request_uri_unsigned:direct_post.json',
-		'iso_mdl:pre_registered:request_uri_unsigned:direct_post.jwt.json',
-		'iso_mdl:pre_registered:request_uri_unsigned:w3c_dc_api.json',
-		'iso_mdl:pre_registered:request_uri_unsigned:w3c_dc_api.jwt.json',
-		'iso_mdl:redirect_uri:request_uri_signed:direct_post.json',
-		'iso_mdl:redirect_uri:request_uri_signed:direct_post.jwt.json',
-		'iso_mdl:redirect_uri:request_uri_signed:w3c_dc_api.json',
-		'sd_jwt_vc:x509_san_dns:request_uri_signed:direct_post.jwt.json',
-		'sd_jwt_vc:x509_san_dns:request_uri_signed:w3c_dc_api.json',
-		'sd_jwt_vc:x509_san_dns:request_uri_signed:w3c_dc_api.jwt.json',
-		'sd_jwt_vc:x509_san_dns:request_uri_unsigned:direct_post.json'
+	const sharedFields: FieldData[] = [
+		{ id: 'name', schema: z.string(), label: 'Name', description: 'The name of the user' },
+		{ id: 'age', schema: z.number().min(18), label: 'Age', description: 'The age of the user' }
 	];
 
-	// getVariables('', x).then((res) => {
-	// 	d = res;
-	// 	// console.log(d);
-	// });
+	const primaryForm = new Form({
+		fieldsData: sharedFields,
+		defaultValues: () => ({}),
+		onSubmit: () => {}
+	});
+
+	const form = new Form({
+		fieldsData: [
+			...sharedFields,
+			{
+				id: 'email',
+				schema: z.string().email(),
+				label: 'Email',
+				description: 'The email of the user'
+			},
+			{
+				id: 'password',
+				schema: z.string().min(8),
+				label: 'Password',
+				description: 'The password of the user'
+			}
+		],
+		defaultValues: () => primaryForm.validData,
+		onSubmit: () => {}
+	});
 </script>
 
-<!--  -->
+<div class="flex flex-col gap-16">
+	<div>
+		<h1>Primary Form</h1>
+		<pre>{JSON.stringify(primaryForm.validData, null, 2)}</pre>
 
-{#if !d}
-	<SelectTestForm
-		standards={data.standardsAndTestSuites}
-		onSelectTests={(standardId, tests) => {
-			getVariables(standardId, tests).then((res) => {
-				d = res;
-			});
-		}}
-	/>
-{:else}
-	<TestsDataForm data={d} />
-{/if}
+		<form>
+			{#each primaryForm.fields as field}
+				{@render fieldRenderer(field)}
+			{/each}
+		</form>
+	</div>
+
+	<hr />
+
+	<div>
+		<h1>Form</h1>
+		<pre>{JSON.stringify(form.validData, null, 2)}</pre>
+
+		<form>
+			{#each form.fields as field}
+				{@render fieldRenderer(field)}
+			{/each}
+		</form>
+	</div>
+</div>
+
+<!--  -->
+{#snippet fieldRenderer(field: Field)}
+	{@const inputType = field.getSchemaType()}
+	<div class="flex flex-col gap-2">
+		<label for={field.id}>{field.label}</label>
+		{#if inputType == 'text'}
+			<Input bind:value={field.value} />
+		{:else if inputType == 'number'}
+			<Input bind:value={field.value} type="number" />
+		{:else}
+			<p>not defined</p>
+		{/if}
+		{#if field.error}
+			<p class="text-red-500">{field.error}</p>
+		{/if}
+	</div>
+{/snippet}
