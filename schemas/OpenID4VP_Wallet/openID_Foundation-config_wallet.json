@@ -30,7 +30,7 @@
                     "x509_san_dns"
                 ]
             },
-            "template": "{{ credimiPlaceholder \"client_id\" \"oid_client_id\" \"i18n_client_id\" \"i18n_client_id_description\" \"string\" \"\"  }}"
+            "template": "{{ credimiPlaceholder \"client_id\" \"oid_client_id\" \"i18n_client_id\" \"i18n_client_id_description\" \"string\" \"did:web:app.altme.io:issuer\"  }}"
         },
         "authorization_encrypted_response_enc": {
             "values": {
