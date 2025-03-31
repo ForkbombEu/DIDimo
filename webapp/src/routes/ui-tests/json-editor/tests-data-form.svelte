@@ -30,10 +30,10 @@
 		onSubmit: async ({ form }) => {
 			console.log(form.data);
 			const res = await pb.send('/api/openid4vp/save-variables-and-start', {
-		method: 'POST',
-		body: form.data
-	});
-	console.log(res)
+				method: 'POST',
+				body: form.data
+			});
+			console.log(res);
 		},
 		options: {
 			resetForm: false
@@ -99,14 +99,14 @@
 	<div class="flex items-center gap-3">
 		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
 			<p>
-				{completeTestsCount}/{testsIds.length} tests complete
+				{completeTestsCount}/{testsIds.length} configs complete
 			</p>
 			{#if incompleteTestsIds.length}
 				<Popover.Root>
 					<Popover.Trigger class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200">
 						{#snippet child({ props })}
 							<Button {...props} variant="outline" class="px-3">
-								View incomplete tests ({incompleteTestsIds.length})
+								View incomplete configs ({incompleteTestsIds.length})
 							</Button>
 						{/snippet}
 					</Popover.Trigger>
