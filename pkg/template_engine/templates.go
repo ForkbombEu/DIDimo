@@ -96,7 +96,12 @@ func RenderTemplate(reader io.Reader, data map[string]interface{}) (string, erro
 		return "", err
 	}
 
-	return buf.String(), nil
+	result := buf.String()
+
+	result = strings.ReplaceAll(result, "\"{", "{")
+	result = strings.ReplaceAll(result, "}\"", "}")
+
+	return result, nil
 }
 
 func GetPlaceholders(readers []io.Reader, names []string) (map[string]interface{}, error) {

@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
@@ -189,9 +188,6 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						if !ok {
 							return apis.NewBadRequestError("invalid variable format for test "+testName, nil)
 						}
-						log.Printf("credimi_id: %v", credimiId)
-
-						log.Printf("Variable data: %v", variable)
 
 						fieldName, ok := v["fieldName"].(string)
 						if !ok {
@@ -219,25 +215,15 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					}
 					defer template.Close()
 
-					templateContent, err := os.ReadFile(filepath + testName)
+					templateFile, err := os.Open(filepath + testName)
 					if err != nil {
-						return apis.NewBadRequestError("failed to read template for test "+testName, err)
+						return apis.NewBadRequestError("failed to open template for test "+testName, err)
 					}
-					preprocessedContent, err := engine.PreprocessTemplate(string(templateContent))
-					if err != nil {
-						return apis.NewBadRequestError("failed to preprocess template for test "+testName, err)
-					}
+					defer templateFile.Close()
 
-					reader := strings.NewReader(preprocessedContent)
-
-					renderedTemplate, err := engine.RenderTemplate(reader, values)
-					log.Println("Rendered template:", renderedTemplate)
+					renderedTemplate, err := engine.RenderTemplate(templateFile, values)
 					if err != nil {
 						return apis.NewInternalServerError("failed to render template for test "+testName, err)
-					}
-					
-					if !json.Valid([]byte(renderedTemplate)) {
-						return apis.NewBadRequestError("invalid JSON format in cleaned template for test "+testName, nil)
 					}
 
 					var parsedVariant OpenID4VP.OpenID4VPTestInputFile
