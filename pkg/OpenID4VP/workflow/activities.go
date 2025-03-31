@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,6 +10,7 @@ import (
 	"net/url"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
 	"gopkg.in/gomail.v2"
@@ -202,7 +204,7 @@ func SendMailActivity(ctx context.Context, config EmailConfig) error {
 }
 
 // GetLogActivity performs the GET request to fetch the log
-func GetLogsActivity(ctx context.Context, input LogActivitytyInput) ([]map[string]any, error) {
+func GetLogsActivity(ctx context.Context, input GetLogsActivityInput) ([]map[string]any, error) {
 
 	baseURL, err := url.Parse(input.BaseURL)
 	if err != nil {
@@ -241,4 +243,40 @@ func GetLogsActivity(ctx context.Context, input LogActivitytyInput) ([]map[strin
 	}
 
 	return result, nil
+}
+
+func TriggerLogsUpdateActivity(ctx context.Context, input TriggerLogsUpdateActivityInput) error {
+
+	requestBody := LogUpdateRequest{
+		WorkflowID: input.WorkflowID,
+		Logs:       input.Logs,
+	}
+
+	logPayload, err := json.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", input.AppURL+"/wallet-test/send-log-update", bytes.NewBuffer(logPayload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %v", err)
+		}
+		return fmt.Errorf("failed to send log update, received status: %d, error: %s", resp.StatusCode, string(body))
+	}
+
+	return nil
 }

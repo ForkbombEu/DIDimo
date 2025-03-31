@@ -104,7 +104,7 @@ func Test_LogSubWorkflow(t *testing.T) {
 					callCount++
 				}).
 				Return(tc.mockResponse, nil)
-
+			env.OnActivity(TriggerLogsUpdateActivity, mock.Anything, mock.Anything).Return(nil)
 			done := make(chan struct{})
 			go func() {
 				env.ExecuteWorkflow(LogSubWorkflow, LogWorkflowInput{

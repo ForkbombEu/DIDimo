@@ -47,6 +47,7 @@ type WorkflowInput struct {
 }
 
 type LogWorkflowInput struct {
+	AppURL   string
 	RID      string
 	Token    string
 	Interval time.Duration
@@ -61,12 +62,21 @@ type LogWorkflowResponse struct {
 	Logs []map[string]any
 }
 
-type LogActivitytyInput struct {
+type GetLogsActivityInput struct {
 	BaseURL string
 	RID     string
 	Token   string
 }
 
+type TriggerLogsUpdateActivityInput struct {
+	AppURL     string
+	WorkflowID string
+	Logs       []map[string]any
+}
+type LogUpdateRequest struct {
+	WorkflowID string           `json:"workflow_id"`
+	Logs       []map[string]any `json:"logs"`
+}
 type SignalData struct {
 	Success bool
 	Reason  string

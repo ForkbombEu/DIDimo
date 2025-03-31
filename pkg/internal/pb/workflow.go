@@ -17,6 +17,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
 
 	"go.temporal.io/api/workflowservice/v1"
@@ -187,10 +188,42 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
 		})
+
+		se.Router.POST("/wallet-test/send-log-update", func(e *core.RequestEvent) error {
+			var logData openid4vp_workflow.LogUpdateRequest
+			if err := json.NewDecoder(e.Request.Body).Decode(&logData); err != nil {
+				return apis.NewBadRequestError("invalid JSON input", err)
+			}
+			if err := notifyLogsUpdate(app, logData.WorkflowID+"openid4vp-wallet-logs", logData.Logs); err != nil {
+				return apis.NewBadRequestError("failed to send real-time log update", err)
+			}
+
+			return e.JSON(http.StatusOK, map[string]string{
+				"message": "Log update sent successfully",
+			})
+		})
+
 		return se.Next()
 	})
 }
+func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 
+	rawData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	message := subscriptions.Message{
+		Name: subscription,
+		Data: rawData,
+	}
+	clients := app.SubscriptionsBroker().Clients()
+	for _, client := range clients {
+		if client.HasSubscription(subscription) {
+			client.Send(message)
+		}
+	}
+	return nil
+}
 func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
 		if e.Record.Collection().Name != "features" || e.Record.Get("name") != "updateIssuers" {

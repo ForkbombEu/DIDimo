@@ -542,7 +542,7 @@ func TestGetLogsActivity(t *testing.T) {
 			defer server.Close()
 
 			// Call the GetLogsActivity with the mock server URL
-			input := LogActivitytyInput{
+			input := GetLogsActivityInput{
 				BaseURL: server.URL,
 				RID:     "test-rid",
 				Token:   "test-token",
@@ -564,6 +564,57 @@ func TestGetLogsActivity(t *testing.T) {
 				err := future.Get(&logs)
 				require.NoError(t, err, "Failed to get activity result")
 				require.ElementsMatch(t, tt.expectedResult, logs)
+			}
+		})
+	}
+}
+
+func TestTriggerLogsUpdateActivity(t *testing.T) {
+	var ts testsuite.WorkflowTestSuite
+	env := ts.NewTestActivityEnvironment()
+	env.RegisterActivity(TriggerLogsUpdateActivity)
+
+	tests := []struct {
+		name           string
+		statusCode     int
+		serverResponse string
+		expectedError  string
+	}{
+		{
+			name:           "Successful Log Update",
+			statusCode:     http.StatusOK,
+			serverResponse: "{}",
+			expectedError:  "",
+		},
+		{
+			name:           "Non-200 Response",
+			statusCode:     http.StatusInternalServerError,
+			serverResponse: "Internal Server Error",
+			expectedError:  "failed to send log update, received status: 500",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tt.statusCode)
+				fmt.Fprint(w, tt.serverResponse)
+			}))
+			defer server.Close()
+
+			input := TriggerLogsUpdateActivityInput{
+				WorkflowID: "test-workflow",
+				Logs:       []map[string]any{{"log_id": "1", "message": "test log"}},
+				AppURL:     server.URL,
+			}
+
+			_, err := env.ExecuteActivity(TriggerLogsUpdateActivity, input)
+
+			if tt.expectedError == "" {
+				require.NoError(t, err, "Expected no error")
+			} else {
+				require.Error(t, err, "Expected an error")
+				require.Contains(t, err.Error(), tt.expectedError)
 			}
 		})
 	}

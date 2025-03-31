@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"go.temporal.io/api/enums/v1"
@@ -142,6 +143,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 
 	// Execute child workflow asynchronously
 	logsWorkflow := workflow.ExecuteChildWorkflow(childCtx, LogSubWorkflow, LogWorkflowInput{
+		AppURL:   input.AppURL,
 		RID:      rid,
 		Token:    token,
 		Interval: time.Second * 30,
@@ -190,9 +192,10 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 			MaximumAttempts:    3,
 		},
 	}
+
 	subCtx := workflow.WithActivityOptions(ctx, subActivityOptions)
 
-	logInput := LogActivitytyInput{
+	logInput := GetLogsActivityInput{
 		BaseURL: LogsBaseURL,
 		RID:     input.RID,
 		Token:   input.Token,
@@ -210,6 +213,16 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 			return LogWorkflowResponse{}, err
 		}
 
+		triggerLogsInput := TriggerLogsUpdateActivityInput{
+			AppURL:     input.AppURL,
+			Logs:       logs,
+			WorkflowID: strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
+		}
+		err = workflow.ExecuteActivity(subCtx, TriggerLogsUpdateActivity, triggerLogsInput).Get(ctx, nil)
+		if err != nil {
+			logger.Error("Failed to send logs", "error", err)
+			return LogWorkflowResponse{}, err
+		}
 		if result, ok := logs[len(logs)-1]["result"].(string); ok {
 			if result == "INTERRUPTED" || result == "FINISHED" {
 				return LogWorkflowResponse{Logs: logs}, nil

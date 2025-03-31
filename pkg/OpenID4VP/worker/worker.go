@@ -25,6 +25,7 @@ func main() {
 	w.RegisterActivity(workflow.RunStepCIJSProgramActivity)
 	w.RegisterActivity(workflow.SendMailActivity)
 	w.RegisterActivity(workflow.GetLogsActivity)
+	w.RegisterActivity(workflow.TriggerLogsUpdateActivity)
 
 	err = w.Run(worker.InterruptCh())
 	if err != nil {
