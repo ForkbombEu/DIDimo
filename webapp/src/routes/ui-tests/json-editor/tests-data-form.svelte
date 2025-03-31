@@ -7,6 +7,7 @@
 	import { Store } from 'runed';
 	import * as Popover from '@/components/ui/popover';
 	import Button from '@/components/ui/button/button.svelte';
+	import { pb } from '@/pocketbase';
 
 	//
 
@@ -26,8 +27,13 @@
 
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
-		onSubmit: ({ form }) => {
+		onSubmit: async ({ form }) => {
 			console.log(form.data);
+			const res = await pb.send('/api/openid4vp/save-variables-and-start', {
+		method: 'POST',
+		body: form.data
+	});
+	console.log(res)
 		},
 		options: {
 			resetForm: false

@@ -12,9 +12,10 @@ type Client struct {
 	JWKS                              interface{} `yaml:"jwks" json:"jwks"`
 }
 
-type Form struct {
-	Alias       string `yaml:"alias" json:"alias"`
-	Description string `yaml:"description,omitempty" json:"description,omitempty"`
-	Server      Server `yaml:"server" json:"server"`
-	Client      Client `yaml:"client" json:"client"`
-}
+// type Form struct {
+// 	Alias       string `yaml:"alias" json:"alias"`
+// 	Description string `yaml:"description,omitempty" json:"description,omitempty"`
+// 	Server      Server `yaml:"server" json:"server"`
+// 	Client      Client `yaml:"client" json:"client"`
+// }
+type Form any
