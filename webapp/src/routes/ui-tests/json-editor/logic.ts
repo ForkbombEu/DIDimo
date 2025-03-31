@@ -24,7 +24,8 @@ const sharedFieldSchema = z.object({
 	CredimiID: z.string(),
 	DescriptionKey: z.string(),
 	LabelKey: z.string(),
-	Type: fieldValueTypeSchema
+	Type: fieldValueTypeSchema,
+	Example: z.string().optional()
 });
 
 export type FieldConfig = z.infer<typeof sharedFieldSchema>;

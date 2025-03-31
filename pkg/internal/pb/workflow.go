@@ -169,7 +169,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 					err := OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(testData.Data.(string)),
-					}, "", appURL)
+					}, "test@credimi.io", appURL)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -235,7 +235,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					err = OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(parsedVariant.Variant),
 						Form:    parsedVariant.Form,
-					}, "", appURL)
+					}, "test@credimi.io", appURL)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}

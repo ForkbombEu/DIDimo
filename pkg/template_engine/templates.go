@@ -29,7 +29,7 @@ func credimiPlaceholder(fieldName, credimiID, labelKey, descriptionKey, fieldTyp
 		LabelKey:       labelKey,
 		DescriptionKey: descriptionKey,
 		Type:           fieldType,
-		Example:        example,
+		Example:        strings.ReplaceAll(example, "\\\\\\\\", ""),
 	}
 	return fmt.Sprintf("{{ .%s }}", fieldName), nil
 }
@@ -147,6 +147,7 @@ func GetPlaceholders(readers []io.Reader, names []string) (map[string]interface{
 				"Type":           ph.Type,
 				"DescriptionKey": ph.DescriptionKey,
 				"LabelKey":       ph.LabelKey,
+				"Example":        ph.Example,
 			}
 			normalizedFields = append(normalizedFields, field)
 		}

@@ -2,7 +2,7 @@
 	import type { GenericRecord } from '@/utils/types';
 	import * as Form from '@/components/ui/form';
 	import { Input } from '@/components/ui/input';
-	import type { FormPathLeaves, SuperForm } from 'sveltekit-superforms';
+	import type { FormPathLeaves, FormPathType, SuperForm } from 'sveltekit-superforms';
 	import { numberProxy, fieldProxy } from 'sveltekit-superforms';
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import FieldWrapper from './parts/fieldWrapper.svelte';
@@ -27,6 +27,9 @@
 	const valueProxy = $derived(options.type == 'number' ? numberValue : textValue);
 
 	//
+	if (options.placeholder) {
+		valueProxy.set(options.placeholder as FormPathType<Data, FormPathLeaves<Data, string | number>> & string);
+	}
 
 	const defaultPlaceholders: Record<string, string> = {
 		text: 'abc',
