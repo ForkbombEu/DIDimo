@@ -182,7 +182,7 @@
 		/>
 	</div>
 
-	<div class="shrink-0 grow basis-1">
+	<div class="min-w-0 shrink-0 grow basis-1">
 		<div class="mb-8 space-y-2">
 			<Label>Fields</Label>
 			<Separator />
