@@ -8,6 +8,7 @@
 	let { data } = $props();
 
 	let d = $state<FieldsResponse>();
+	let compositeTestId = $state('');
 
 	const x = [
 		'iso_mdl:pre_registered:request_uri_signed:direct_post.jwt.json',
@@ -38,11 +39,12 @@
 	<SelectTestForm
 		standards={data.standardsAndTestSuites}
 		onSelectTests={(standardId, tests) => {
+			compositeTestId = standardId;
 			getVariables(standardId, tests).then((res) => {
 				d = res;
 			});
 		}}
 	/>
 {:else}
-	<TestsDataForm data={d} />
+	<TestsDataForm data={d} testId={compositeTestId} />
 {/if}

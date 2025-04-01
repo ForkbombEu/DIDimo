@@ -13,9 +13,10 @@
 
 	type Props = {
 		data: FieldsResponse;
+		testId: string;
 	};
 
-	let { data }: Props = $props();
+	let { data, testId = 'openid4vp' }: Props = $props();
 
 	//
 
@@ -29,7 +30,7 @@
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: async ({ form }) => {
 			console.log(form.data);
-			const res = await pb.send('/api/openid4vp/save-variables-and-start', {
+			const res = await pb.send(`/api/${testId}/save-variables-and-start`, {
 				method: 'POST',
 				body: form.data
 			});
@@ -95,7 +96,7 @@
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
+<div class="sticky bottom-0 flex justify-between border-t bg-background/80 p-4 backdrop-blur-lg">
 	<div class="flex items-center gap-3">
 		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
 			<p>
