@@ -31,8 +31,7 @@ const sharedFieldSchema = z.object({
 export type FieldConfig = z.infer<typeof sharedFieldSchema>;
 
 const specificFieldSchema = sharedFieldSchema.extend({
-	FieldName: z.string(),
-	Example: z.string().optional()
+	FieldName: z.string()
 });
 
 export type SpecificFieldConfig = z.infer<typeof specificFieldSchema>;

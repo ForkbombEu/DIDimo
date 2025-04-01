@@ -55,6 +55,7 @@
 		),
 		initialData: {
 			[JSON_CONFIG_KEY]: jsonConfigString
+			// ...Object.fromEntries(fields.map((f) => [f.CredimiID, f.Example]))
 		},
 		options: {
 			id: nanoid(6)

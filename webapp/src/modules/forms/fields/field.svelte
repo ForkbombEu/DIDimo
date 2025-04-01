@@ -27,9 +27,6 @@
 	const valueProxy = $derived(options.type == 'number' ? numberValue : textValue);
 
 	//
-	if (options.placeholder) {
-		valueProxy.set(options.placeholder as FormPathType<Data, FormPathLeaves<Data, string | number>> & string);
-	}
 
 	const defaultPlaceholders: Record<string, string> = {
 		text: 'abc',

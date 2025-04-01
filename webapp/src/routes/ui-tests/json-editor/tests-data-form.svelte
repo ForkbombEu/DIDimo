@@ -26,6 +26,13 @@
 
 	//
 
+	const initialData = Object.fromEntries(
+		data.normalized_fields
+			.map((field) => [field.CredimiID, field.Example])
+			.filter(([_, value]) => value !== undefined)
+	);
+	console.log(initialData);
+
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: async ({ form }) => {
@@ -36,6 +43,7 @@
 			});
 			console.log(res);
 		},
+		initialData,
 		options: {
 			resetForm: false
 		}
