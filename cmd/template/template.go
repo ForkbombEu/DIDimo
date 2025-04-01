@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	"github.com/spf13/cobra"
@@ -50,6 +51,9 @@ func main() {
 				}
 
 				output, _ := json.MarshalIndent(result, "", "    ")
+
+				output = []byte(fmt.Sprintf(strings.ReplaceAll(string(output), "\\\"", "\"")))
+				output = []byte(fmt.Sprintf(strings.ReplaceAll(string(output), "\\\\", "\\")))
 
 				filename := fmt.Sprintf("%s.json", filepath.Clean(variantString))
 				filePath := filepath.Join(outputDir, filename)

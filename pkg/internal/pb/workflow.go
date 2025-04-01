@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	engine "github.com/forkbombeu/didimo/pkg/template_engine"
 	"github.com/google/uuid"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -135,6 +137,112 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			err := OpenID4VP.StartWorkflow(req.Input, req.UserMail, appURL)
 			if err != nil {
 				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
+			}
+
+			return e.JSON(http.StatusOK, map[string]bool{
+				"started": true,
+			})
+		})
+
+		se.Router.POST("/api/openid4vp/save-variables-and-start", func(e *core.RequestEvent) error {
+			var req map[string]struct {
+				Format string      `json:"format"`
+				Data   interface{} `json:"data"`
+			}
+			appURL := app.Settings().Meta.AppURL
+
+			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
+				return apis.NewBadRequestError("invalid JSON input", err)
+			}
+
+			for testName, testData := range req {
+				if testData.Format == "json" {
+					jsonData, ok := testData.Data.(string)
+					if !ok {
+						return apis.NewBadRequestError("invalid JSON format for test "+testName, nil)
+					}
+
+					var parsedData map[string]interface{}
+					if err := json.Unmarshal([]byte(jsonData), &parsedData); err != nil {
+						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
+					}
+
+					err := OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
+						Variant: json.RawMessage(testData.Data.(string)),
+					}, "test@credimi.io", appURL)
+					if err != nil {
+						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
+					}
+				} else if testData.Format == "variables" {
+					variables, ok := testData.Data.(map[string]interface{})
+					values := make(map[string]interface{})
+					config_values, err := app.FindCollectionByNameOrId("config_values")
+					if err != nil {
+						return err
+					}
+					if !ok {
+						return apis.NewBadRequestError("invalid variables format for test "+testName, nil)
+					}
+					for credimiId, variable := range variables {
+						v, ok := variable.(map[string]interface{})
+						if !ok {
+							return apis.NewBadRequestError("invalid variable format for test "+testName, nil)
+						}
+
+						fieldName, ok := v["fieldName"].(string)
+						if !ok {
+							return apis.NewBadRequestError("invalid fieldName format for test "+testName, nil)
+						}
+
+						record := core.NewRecord(config_values)
+						record.Set("provider", "0t4lc1u7ws81tdq") // should be a user provide value
+						record.Set("test_suite", "09oged1pzp20i5l") // should be a user provide value
+						record.Set("credimi_id", credimiId)
+						record.Set("value", v["value"])
+						record.Set("field_name", fieldName)
+						record.Set("template_path", testName)
+						if err := app.Save(record); err != nil {
+							log.Println("Failed to create related record:", err)
+						}
+						values[fieldName] = v["value"]
+					}
+
+					filepath := "./config_templates/OpenID4VP_Wallet/OpenID_Foundation/"
+
+					template, err := os.Open(filepath + testName)
+					if err != nil {
+						return apis.NewBadRequestError("failed to open template for test "+testName, err)
+					}
+					defer template.Close()
+
+					templateFile, err := os.Open(filepath + testName)
+					if err != nil {
+						return apis.NewBadRequestError("failed to open template for test "+testName, err)
+					}
+					defer templateFile.Close()
+
+					renderedTemplate, err := engine.RenderTemplate(templateFile, values)
+					if err != nil {
+						return apis.NewInternalServerError("failed to render template for test "+testName, err)
+					}
+
+					var parsedVariant OpenID4VP.OpenID4VPTestInputFile
+					errParsing := json.Unmarshal([]byte(renderedTemplate), &parsedVariant)
+					if errParsing != nil {
+						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
+					}
+
+					err = OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
+						Variant: json.RawMessage(parsedVariant.Variant),
+						Form:    parsedVariant.Form,
+					}, "test@credimi.io", appURL)
+					if err != nil {
+						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
+					}
+
+				} else {
+					return apis.NewBadRequestError("unsupported format for test "+testName, nil)
+				}
 			}
 
 			return e.JSON(http.StatusOK, map[string]bool{
