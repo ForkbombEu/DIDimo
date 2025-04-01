@@ -42,7 +42,7 @@
 	);
 </script>
 
-<div class="flex items-start gap-8">
+<div class="flex items-start gap-8 p-8">
 	<div class="space-y-4">
 		<T tag="h4">Available standards:</T>
 
@@ -72,10 +72,14 @@
 		</RadioGroup.Root>
 	</div>
 
-	<div class="space-y-4">
+	<div class="min-w-0 space-y-4">
 		<T tag="h4">Test suites:</T>
 
-		<Check.Group bind:value={selectedTests} name="test-suites" class="flex flex-col gap-2">
+		<Check.Group
+			bind:value={selectedTests}
+			name="test-suites"
+			class="flex flex-col gap-2 overflow-auto"
+		>
 			{#each availableTestSuites as testSuite}
 				<div class="space-y-2">
 					<Check.GroupLabel class="text-sm text-gray-400 underline underline-offset-4">

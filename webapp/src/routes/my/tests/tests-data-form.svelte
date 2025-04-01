@@ -64,7 +64,7 @@
 	const SHARED_FIELDS_ID = 'shared-fields';
 </script>
 
-<div class="space-y-16">
+<div class="space-y-16 p-8">
 	<div class="space-y-4">
 		<h2 id={SHARED_FIELDS_ID} class="text-lg font-bold">Shared fields</h2>
 		<FieldConfigFormShared
@@ -88,6 +88,7 @@
 					$formData[testId] = form;
 				}}
 				onInvalidUpdate={() => {
+					// @ts-expect-error
 					$formData[testId] = undefined;
 				}}
 			/>
@@ -96,8 +97,8 @@
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 border-t p-4 backdrop-blur-lg">
-	<Form {form} hide={['submit_button', 'error']} class="w-full">
+<div class="bg-background/80 sticky bottom-0 border-t p-4 px-8 backdrop-blur-lg">
+	<Form {form} hide={['submit_button', 'error']} class="w-full space-y-4">
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
@@ -139,8 +140,6 @@
 			<SubmitButton>Next</SubmitButton>
 		</div>
 
-		<div class="flex justify-end pt-6">
-			<FormError />
-		</div>
+		<FormError />
 	</Form>
 </div>

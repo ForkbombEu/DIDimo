@@ -15,19 +15,19 @@
 <!--  -->
 
 <div class="p-8">
-	<T tag="h1" class="mb-12">Compliance tests</T>
-
-	{#if !d}
-		<SelectTestForm
-			standards={data.standardsAndTestSuites}
-			onSelectTests={(standardId, tests) => {
-				compositeTestId = standardId;
-				getVariables(standardId, tests).then((res) => {
-					d = res;
-				});
-			}}
-		/>
-	{:else}
-		<TestsDataForm data={d} testId={compositeTestId} />
-	{/if}
+	<T tag="h1">Compliance tests</T>
 </div>
+
+{#if !d}
+	<SelectTestForm
+		standards={data.standardsAndTestSuites}
+		onSelectTests={(standardId, tests) => {
+			compositeTestId = standardId;
+			getVariables(standardId, tests).then((res) => {
+				d = res;
+			});
+		}}
+	/>
+{:else}
+	<TestsDataForm data={d} testId={compositeTestId} />
+{/if}
