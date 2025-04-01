@@ -156,7 +156,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			filepath := "./config_templates/" + protocol + "/" + author + "/"
 
 			if _, err := os.Stat(filepath); os.IsNotExist(err) {
-				return apis.NewBadRequestError("directory does not exist for test "+first+"/"+second, err)
+				return apis.NewBadRequestError("directory does not exist for test "+protocol +"/"+author, err)
 			}
 
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
