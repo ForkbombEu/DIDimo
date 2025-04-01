@@ -2,12 +2,13 @@
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
 	import { createTestListInputSchema, type FieldsResponse } from './logic';
-	import { createForm, Form, SubmitButton } from '@/forms';
+	import { createForm, Form, SubmitButton, FormError } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { Store } from 'runed';
 	import * as Popover from '@/components/ui/popover';
 	import Button from '@/components/ui/button/button.svelte';
 	import { pb } from '@/pocketbase';
+	import { goto } from '$app/navigation';
 
 	//
 
@@ -33,6 +34,7 @@
 				method: 'POST',
 				body: form.data
 			});
+			await goto(`/workflows`);
 		},
 		options: {
 			resetForm: false
@@ -94,40 +96,51 @@
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
-	<div class="flex items-center gap-3">
-		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
-			<p>
-				{completeTestsCount}/{testsIds.length} configs complete
-			</p>
-			{#if incompleteTestsIds.length}
-				<Popover.Root>
-					<Popover.Trigger class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200">
-						{#snippet child({ props })}
-							<Button {...props} variant="outline" class="px-3">
-								View incomplete configs ({incompleteTestsIds.length})
-							</Button>
-						{/snippet}
-					</Popover.Trigger>
-					<Popover.Content class="dark w-fit">
-						<ul class="space-y-1 text-sm">
-							{#each incompleteTestsIds as testId}
-								<li>
-									<a class="underline hover:no-underline" href={`#${testId}`}>
-										{testId}
-									</a>
-								</li>
-							{/each}
-						</ul>
-					</Popover.Content>
-				</Popover.Root>
-			{:else}
-				<p>✅</p>
-			{/if}
-		{/await}
-	</div>
+<div class="bg-background/80 sticky bottom-0 border-t p-4 backdrop-blur-lg">
+	<Form {form} hide={['submit_button', 'error']} class="w-full">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
+					<p>
+						{completeTestsCount}/{testsIds.length} configs complete
+					</p>
+					{#if incompleteTestsIds.length}
+						<Popover.Root>
+							<Popover.Trigger
+								class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
+							>
+								{#snippet child({ props })}
+									<Button {...props} variant="outline" class="px-3">
+										View incomplete configs ({incompleteTestsIds.length})
+									</Button>
+								{/snippet}
+							</Popover.Trigger>
+							<Popover.Content class="dark w-fit">
+								<ul class="space-y-1 text-sm">
+									{#each incompleteTestsIds as testId}
+										<li>
+											<a
+												class="underline hover:no-underline"
+												href={`#${testId}`}
+											>
+												{testId}
+											</a>
+										</li>
+									{/each}
+								</ul>
+							</Popover.Content>
+						</Popover.Root>
+					{:else}
+						<p>✅</p>
+					{/if}
+				{/await}
+			</div>
 
-	<Form {form} hide={['submit_button']}>
-		<SubmitButton>Next</SubmitButton>
+			<SubmitButton>Next</SubmitButton>
+		</div>
+
+		<div class="flex justify-end pt-6">
+			<FormError />
+		</div>
 	</Form>
 </div>
