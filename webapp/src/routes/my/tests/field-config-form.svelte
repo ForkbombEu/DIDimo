@@ -20,7 +20,7 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { nanoid } from 'nanoid';
 	import * as Popover from '@/components/ui/popover/index.js';
-
+	import type { EditorView } from '@codemirror/view';
 	//
 
 	type UpdateFunction = (testInput: TestInput) => void;
@@ -166,6 +166,18 @@
 		if (type === 'object') return JSON.stringify(JSON.parse(value as string), null, 4);
 		return NULL_VALUE;
 	}
+
+	/* Editor highlighting */
+
+	let editorView = $state<EditorView>();
+
+	watch(
+		() => formState.current,
+		() => {
+			if (!editorView) return;
+			editorView.dispatch({});
+		}
+	);
 </script>
 
 <Form {form} hide={['submit_button']} hideRequiredIndicator class="flex flex-col gap-8 md:flex-row">
@@ -177,7 +189,10 @@
 			options={{
 				lang: 'json',
 				label: 'JSON configuration',
-				class: 'self-stretch'
+				class: 'self-stretch',
+				onReady: (view) => {
+					editorView = view;
+				}
 			}}
 		/>
 	</div>
