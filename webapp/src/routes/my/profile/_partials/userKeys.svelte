@@ -1,7 +1,7 @@
 <script lang="ts">
 	import CopyButton from '@/components/ui-custom/copyButton.svelte';
 	import type { PublicKeys } from '@/keypairoom/utils';
-	import Button from '@/components/ui/button/button.svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import Separator from '@/components/ui/separator/separator.svelte';

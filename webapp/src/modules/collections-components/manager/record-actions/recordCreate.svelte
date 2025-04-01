@@ -3,7 +3,7 @@
 	import { m } from '@/i18n';
 	import { type CollectionFormOptions } from '@/collections-components/form/collectionFormTypes';
 	import type { CollectionName } from '@/pocketbase/collections-models';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { getCollectionManagerContext } from '../collectionManagerContext';
 	import { CollectionForm } from '@/collections-components';
 	import { Plus } from 'lucide-svelte';

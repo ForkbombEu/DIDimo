@@ -8,7 +8,7 @@
 	import Dialog from '@/components/ui-custom/dialog.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Spinner from '@/components/ui-custom/spinner.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { type CollectionResponses, type RecordIdString } from '@/pocketbase/types';
 	import { CollectionForm } from '@/collections-components';
 	import { currentUser, pb } from '@/pocketbase';
@@ -126,7 +126,10 @@
 						<div class="flex justify-between">
 							<div>
 								{#if authorization}
-									<Button variant="destructive" onclick={() => (formState = 'removeAccess')}>
+									<Button
+										variant="destructive"
+										onclick={() => (formState = 'removeAccess')}
+									>
 										<Icon src={Trash} mr />
 										{m.Remove_access()}
 									</Button>
@@ -160,7 +163,10 @@
 						<Icon src={ArrowLeft} mr />
 						{m.Back()}
 					</Button>
-					<Button variant="destructive" onclick={() => removeAuthorization(authorization.id)}>
+					<Button
+						variant="destructive"
+						onclick={() => removeAuthorization(authorization.id)}
+					>
 						<Icon src={Trash} mr />
 						{m.Yes_remove_access()}
 					</Button>

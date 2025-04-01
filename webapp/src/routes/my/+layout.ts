@@ -9,32 +9,32 @@ import { getUserPublicKeys, RegenerateKeyringSession } from '@/keypairoom/utils'
 
 import { OrganizationInviteSession } from '@/organizations/invites/index.js';
 
-export const load = async ({ url, fetch }) => {
+export const load = async ({ fetch }) => {
 	if (!browser) return;
 	const featureFlags = await loadFeatureFlags(fetch);
 
 	// Auth
 
 	if (!featureFlags.AUTH) error(404);
-	if (!(await verifyUser(fetch))) redirect('/login', url);
+	if (!(await verifyUser(fetch))) redirect('/login');
 
 	// Keypairoom
 
 	if (featureFlags.KEYPAIROOM) {
 		const publicKeys = await getUserPublicKeys();
-		if (!publicKeys) redirect('/keypairoom', url);
+		if (!publicKeys) redirect('/keypairoom');
 
 		const keyring = getKeyringFromLocalStorage();
 		if (!keyring) {
 			RegenerateKeyringSession.start();
-			redirect(`/keypairoom/regenerate`, url);
+			redirect('/keypairoom/regenerate');
 		}
 
 		try {
 			if (publicKeys && keyring) await matchPublicAndPrivateKeys(publicKeys, keyring);
 		} catch {
 			RegenerateKeyringSession.start();
-			redirect(`/keypairoom/regenerate`, url);
+			redirect('/keypairoom/regenerate');
 		}
 	}
 	if (featureFlags.KEYPAIROOM && RegenerateKeyringSession.isActive()) {
@@ -45,6 +45,6 @@ export const load = async ({ url, fetch }) => {
 
 	if (featureFlags.ORGANIZATIONS && OrganizationInviteSession.isActive()) {
 		OrganizationInviteSession.end();
-		redirect(`/my/organizations`, url);
+		redirect('/my/organizations');
 	}
 };

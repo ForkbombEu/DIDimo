@@ -5,7 +5,7 @@
 	import { m } from '@/i18n';
 	import PlainCard from '@/components/ui-custom/itemCard.svelte';
 	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { Badge } from '@/components/ui/badge';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import { PageTop, PageCard, PageContent } from '@/components/layout';

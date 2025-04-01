@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { i18n } from '@/i18n';
-	import { ParaglideJS } from '@inlang/paraglide-sveltekit';
 	import '../app.css';
 	import { appName } from '@/brand';
 	import { Toaster } from '@/components/ui/sonner';
@@ -14,8 +12,6 @@
 	</title>
 </svelte:head>
 
-<ParaglideJS {i18n}>
-	{@render children()}
-</ParaglideJS>
+{@render children()}
 
 <Toaster richColors closeButton />

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { pb } from '@/pocketbase';
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import z from 'zod';
 
 	import { Form, createForm } from '@/forms';
@@ -14,6 +14,7 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import A from '@/components/ui-custom/a.svelte';
 	import Oauth from '@/auth/oauth/oauth.svelte';
+	import { goto } from '@/i18n';
 
 	//
 
@@ -51,7 +52,9 @@
 		return pb.collection('organizations').getOne(id, { requestKey: null });
 	}
 
-	let disableEmail = $derived($featureFlags.ORGANIZATIONS && OrganizationInviteSession.isActive());
+	let disableEmail = $derived(
+		$featureFlags.ORGANIZATIONS && OrganizationInviteSession.isActive()
+	);
 </script>
 
 {#if $featureFlags.ORGANIZATIONS}

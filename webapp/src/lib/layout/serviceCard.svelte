@@ -1,6 +1,6 @@
 <script lang="ts">
 	import T from '@/components/ui-custom/t.svelte';
-	import { m } from '@/i18n';
+	import { m, localizeHref } from '@/i18n';
 	import { type ServicesRecord, type ServicesResponse } from '@/pocketbase/types';
 
 	//
@@ -49,11 +49,12 @@
 </script>
 
 <a
-	href="/providers/{service.id}"
-	class="bg-card text-card-foreground border-primary ring-primary rounded-lg border p-6 shadow-sm transition-all hover:-translate-y-2 hover:ring-2 {className}">
+	href={localizeHref(`/providers/${service.id}`)}
+	class="rounded-lg border border-primary bg-card p-6 text-card-foreground shadow-sm ring-primary transition-all hover:-translate-y-2 hover:ring-2 {className}"
+>
 	<div class="space-y-4">
 		<div class="space-y-1">
-			<T tag="small" class="text-primary block">{serviceType}</T>
+			<T tag="small" class="block text-primary">{serviceType}</T>
 			<T tag="h4" class="block">{service.name}</T>
 			<!-- <T tag="small" class="text-muted-foreground block">{service.organization}</T> -->
 		</div>

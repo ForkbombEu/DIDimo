@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { getUserDidUrl } from '@/did';
 	import { featureFlags } from '@/features';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { m } from '@/i18n';
 
 	let url: string | undefined = $state(undefined);

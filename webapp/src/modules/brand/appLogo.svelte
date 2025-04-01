@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { appName } from '@/brand';
+	import { localizeHref } from '@/i18n';
 
 	interface Props {
 		/*
@@ -11,7 +12,7 @@
 	let { href = '/' }: Props = $props();
 </script>
 
-<a {href}>
+<a href={localizeHref(href)}>
 	<img src={'/logo.svg'} class="h-9" alt={appName} />
 </a>
 
