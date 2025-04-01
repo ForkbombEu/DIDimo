@@ -195,7 +195,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						}
 
 						record := core.NewRecord(config_values)
-						record.Set("provider", "0t4lc1u7ws81tdq") // should be a user provide value
+						record.Set("provider", "0t4lc1u7ws81tdq")   // should be a user provide value
 						record.Set("test_suite", "09oged1pzp20i5l") // should be a user provide value
 						record.Set("credimi_id", credimiId)
 						record.Set("value", v["value"])
