@@ -26,24 +26,14 @@
 
 	//
 
-	const initialData = Object.fromEntries(
-		data.normalized_fields
-			.map((field) => [field.CredimiID, field.Example])
-			.filter(([_, value]) => value !== undefined)
-	);
-	console.log(initialData);
-
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: async ({ form }) => {
-			console.log(form.data);
 			const res = await pb.send(`/api/${testId}/save-variables-and-start`, {
 				method: 'POST',
 				body: form.data
 			});
-			console.log(res);
 		},
-		initialData,
 		options: {
 			resetForm: false
 		}
@@ -104,7 +94,7 @@
 	{/each}
 </div>
 
-<div class="sticky bottom-0 flex justify-between border-t bg-background/80 p-4 backdrop-blur-lg">
+<div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
 	<div class="flex items-center gap-3">
 		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
 			<p>
@@ -138,6 +128,6 @@
 	</div>
 
 	<Form {form} hide={['submit_button']}>
-		<SubmitButton>Save</SubmitButton>
+		<SubmitButton>Next</SubmitButton>
 	</Form>
 </div>

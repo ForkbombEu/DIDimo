@@ -25,10 +25,6 @@
 			`${selectedStandardId}/${standards.find((s) => s.id === selectedStandardId)?.testSuites[0].id}`
 	);
 
-	$effect(() => {
-		$inspect(compositeTestId);
-	});
-
 	const availableTestSuites = $derived(
 		standards.find((s) => s.id === selectedStandardId)?.testSuites ?? []
 	);
@@ -60,7 +56,7 @@
 						'space-y-1 border-b-2 p-4',
 						{
 							'border-b-primary bg-secondary ': selected,
-							'cursor-pointer border-b-transparent hover:bg-secondary/35':
+							'hover:bg-secondary/35 cursor-pointer border-b-transparent':
 								!selected && !disabled,
 							'cursor-not-allowed border-b-transparent opacity-50': disabled
 						}
@@ -70,7 +66,7 @@
 						<RadioGroup.Item value={test.id} id={test.id} {disabled} />
 						<span class="text-lg font-bold">{test.label}</span>
 					</div>
-					<p class="text-sm text-muted-foreground">{test.description}</p>
+					<p class="text-muted-foreground text-sm">{test.description}</p>
 				</Label>
 			{/each}
 		</RadioGroup.Root>

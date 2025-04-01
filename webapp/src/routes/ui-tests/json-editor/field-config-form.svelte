@@ -3,6 +3,7 @@
 	import { createForm, Form } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
+		createInitialDataFromFields,
 		createTestVariablesFormSchema,
 		stringifiedObjectSchema,
 		type SpecificFieldConfig,
@@ -54,8 +55,8 @@
 			})
 		),
 		initialData: {
-			[JSON_CONFIG_KEY]: jsonConfigString
-			// ...Object.fromEntries(fields.map((f) => [f.CredimiID, f.Example]))
+			[JSON_CONFIG_KEY]: jsonConfigString,
+			...createInitialDataFromFields(fields, defaultFieldsIds)
 		},
 		options: {
 			id: nanoid(6)
