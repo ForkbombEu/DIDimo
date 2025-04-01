@@ -144,7 +144,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			})
 		})
 
-		se.Router.POST("/api/:protocol/:author/save-variables-and-start", func(e *core.RequestEvent) error {
+		se.Router.POST("/api/{protocol}/{author}/save-variables-and-start", func(e *core.RequestEvent) error {
 			var req map[string]struct {
 				Format string      `json:"format"`
 				Data   interface{} `json:"data"`
@@ -153,10 +153,23 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			protocol := e.Request.PathValue("protocol")
 			author := e.Request.PathValue("author")
-			filepath := "./config_templates/" + protocol + "/" + author + "/"
+
+			if protocol == "" || author == "" {
+				return apis.NewBadRequestError("protocol and author are required", nil)
+			}
+			if protocol == "openid4vp_wallet" {
+				protocol = "OpenID4VP_Wallet"
+			}
+			if protocol == "openid4vci_wallet" {
+				protocol = "OpenID4VCI_Wallet"
+			}
+			if author == "openid_foundation" {
+				author = "OpenID_foundation"
+			}
+			filepath := "config_templates/" + protocol + "/" + author + "/"
 
 			if _, err := os.Stat(filepath); os.IsNotExist(err) {
-				return apis.NewBadRequestError("directory does not exist for test "+protocol +"/"+author, err)
+				return apis.NewBadRequestError("directory does not exist for test "+protocol+"/"+author, err)
 			}
 
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
