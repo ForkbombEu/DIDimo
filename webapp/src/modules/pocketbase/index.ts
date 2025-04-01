@@ -5,7 +5,7 @@ import type { TypedPocketBase, UsersResponse } from '@/pocketbase/types';
 
 //
 
-export const pb = new PocketBase(baseURL = "/") as TypedPocketBase;
+export const pb = new PocketBase("/") as TypedPocketBase;
 
 export const currentUser = writable(pb.authStore.model as AuthStoreModel);
 export type AuthStoreModel = UsersResponse | null;
