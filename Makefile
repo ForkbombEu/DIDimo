@@ -111,7 +111,8 @@ $(BINARY_NAME)-ui: $(UI_SRC)
 	kill $$PID;
 
 docker: ## 🐳 run docker with all the infrastructure services
-	docker compose up --build
+	docker compose build --build-arg PUBLIC_POCKETBASE_URL="http://localhost:8090"
+	docker compose up
 
 ## Misc
 
