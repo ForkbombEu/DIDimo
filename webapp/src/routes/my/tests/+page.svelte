@@ -3,6 +3,8 @@
 	import { getVariables, type FieldsResponse } from './logic';
 	import TestsDataForm from './tests-data-form.svelte';
 	import T from '@/components/ui-custom/t.svelte';
+	import { ArrowLeft } from 'lucide-svelte';
+	import Button from '@/components/ui-custom/button.svelte';
 
 	//
 
@@ -14,7 +16,8 @@
 
 <!--  -->
 
-<div class="p-8">
+<div class="space-y-2 p-8">
+	<Button href="/my" variant="link" class="p-0"><ArrowLeft size={16} /> Back to dashboard</Button>
 	<T tag="h1">Compliance tests</T>
 </div>
 
