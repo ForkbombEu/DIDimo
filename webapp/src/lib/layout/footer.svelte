@@ -4,7 +4,7 @@
 	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
-	import { PUBLIC_DIDIMO_VERSION } from '$env/static/public';
+	import { appVersion } from '@/utils/appVersion';
 </script>
 
 <div class="bg-primary text-muted">
@@ -14,7 +14,7 @@
 				<div>
 					<T tag="h4">
 						{appName}
-						<span class="pl-1 text-sm text-white/40">{PUBLIC_DIDIMO_VERSION}</span>
+						<span class="pl-1 text-sm text-white/40">{appVersion}</span>
 					</T>
 					<p class="border-b-muted border-b">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
