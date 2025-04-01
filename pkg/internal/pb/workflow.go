@@ -144,12 +144,20 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			})
 		})
 
-		se.Router.POST("/api/openid4vp/save-variables-and-start", func(e *core.RequestEvent) error {
+		se.Router.POST("/api/:protocol/:author/save-variables-and-start", func(e *core.RequestEvent) error {
 			var req map[string]struct {
 				Format string      `json:"format"`
 				Data   interface{} `json:"data"`
 			}
 			appURL := app.Settings().Meta.AppURL
+
+			protocol := e.Request.PathValue("protocol")
+			author := e.Request.PathValue("author")
+			filepath := "./config_templates/" + protocol + "/" + author + "/"
+
+			if _, err := os.Stat(filepath); os.IsNotExist(err) {
+				return apis.NewBadRequestError("directory does not exist for test "+first+"/"+second, err)
+			}
 
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
 				return apis.NewBadRequestError("invalid JSON input", err)
@@ -202,8 +210,6 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						}
 						values[fieldName] = v["value"]
 					}
-
-					filepath := "./config_templates/OpenID4VP_Wallet/OpenID_Foundation/"
 
 					template, err := os.Open(filepath + testName)
 					if err != nil {
