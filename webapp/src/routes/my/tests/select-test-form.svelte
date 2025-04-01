@@ -20,6 +20,11 @@
 
 	let selectedStandardId = $state(standards[0].id);
 
+	let compositeTestId = $derived.by(
+		() =>
+			`${selectedStandardId}/${standards.find((s) => s.id === selectedStandardId)?.testSuites[0].id}`
+	);
+
 	const availableTestSuites = $derived(
 		standards.find((s) => s.id === selectedStandardId)?.testSuites ?? []
 	);
@@ -37,7 +42,7 @@
 	);
 </script>
 
-<div class="flex items-start gap-8">
+<div class="flex items-start gap-8 p-8">
 	<div class="space-y-4">
 		<T tag="h4">Available standards:</T>
 
@@ -48,9 +53,9 @@
 
 				<Label
 					class={[
-						'space-y-1 border-b-2 p-4',
+						'w-[300px] space-y-1 border-b-2 p-4',
 						{
-							'bg-secondary border-b-primary ': selected,
+							'border-b-primary bg-secondary ': selected,
 							'hover:bg-secondary/35 cursor-pointer border-b-transparent':
 								!selected && !disabled,
 							'cursor-not-allowed border-b-transparent opacity-50': disabled
@@ -67,10 +72,14 @@
 		</RadioGroup.Root>
 	</div>
 
-	<div class="space-y-4">
+	<div class="min-w-0 space-y-4">
 		<T tag="h4">Test suites:</T>
 
-		<Check.Group bind:value={selectedTests} name="test-suites" class="flex flex-col gap-2">
+		<Check.Group
+			bind:value={selectedTests}
+			name="test-suites"
+			class="flex flex-col gap-2 overflow-auto"
+		>
 			{#each availableTestSuites as testSuite}
 				<div class="space-y-2">
 					<Check.GroupLabel class="text-sm text-gray-400 underline underline-offset-4">
@@ -88,7 +97,7 @@
 	</div>
 </div>
 
-<div class="mt-8 flex items-center justify-between border-t p-4 px-8">
+<div class="bg-background sticky bottom-0 mt-8 flex items-center justify-between border-t p-4 px-8">
 	<p class="text-gray-400">
 		<span class="rounded-sm bg-gray-200 p-1 font-bold text-black">{selectedTests.length}</span>
 		/ {totalTests}
@@ -96,7 +105,7 @@
 	</p>
 	<Button
 		disabled={selectedTests.length === 0}
-		onclick={() => onSelectTests?.(selectedStandardId, selectedTests)}
+		onclick={() => onSelectTests?.(compositeTestId, selectedTests)}
 	>
 		Next step <ArrowRight />
 	</Button>

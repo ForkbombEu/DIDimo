@@ -31,7 +31,6 @@
 		onChange?: (value: string) => void;
 		onReady?: (value: EditorView) => void;
 		onBlur?: () => void;
-		placeholder?: string;
 	};
 
 	let {
@@ -40,23 +39,14 @@
 		maxHeight,
 		theme = 'dracula',
 		class: className = '',
-		placeholder = undefined,
 		value = $bindable(),
 		extensions = [],
 		onChange,
 		onReady,
 		onBlur = () => {}
 	}: Props = $props();
+
 	//
-
-	if (placeholder) {
-		try {
-			value = JSON.stringify(JSON.parse(placeholder), null, 2);
-		} catch (e) {
-			console.error('Invalid JSON placeholder', e);
-		}
-	}
-
 
 	const languageSupport: LanguageSupport | null = $derived.by(() => {
 		if (typeof lang == 'string') {

@@ -4,6 +4,7 @@
 	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
+	import { appVersion } from '@/utils/appVersion';
 </script>
 
 <div class="bg-primary text-muted">
@@ -11,13 +12,16 @@
 		<div class="px-8 py-12">
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
 				<div>
-					<T tag="h4">{appName}</T>
-					<p class="border-b border-b-muted">{m.Test_and_find_decentralized_IDs()}</p>
+					<T tag="h4">
+						{appName}
+						<span class="pl-1 text-sm text-white/40">{appVersion}</span>
+					</T>
+					<p class="border-b-muted border-b">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
 				<div class="flex gap-2 blur-sm">
 					<Button
 						variant="default"
-						class="grow basis-1 bg-white text-primary hover:bg-white/90 sm:grow-0"
+						class="text-primary grow basis-1 bg-white hover:bg-white/90 sm:grow-0"
 						href={$featureFlags.DEMO ? undefined : '/tests/new'}
 						disabled={$featureFlags.DEMO}
 					>

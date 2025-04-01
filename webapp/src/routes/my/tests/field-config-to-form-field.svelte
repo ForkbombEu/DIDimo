@@ -14,7 +14,7 @@
 </script>
 
 {#if config.Type == 'string'}
-	<Field {form} name={config.CredimiID} options={{ label: config.LabelKey, placeholder:config.Example }} />
+	<Field {form} name={config.CredimiID} options={{ label: config.LabelKey }} />
 {:else if config.Type == 'object'}
 	<CodeEditorField
 		{form}
@@ -22,8 +22,7 @@
 		options={{
 			lang: 'json',
 			label: config.LabelKey,
-			value: config.Example,
-			placeholder: config.Example
+			value: config.Example
 		}}
 	/>
 {/if}
