@@ -53,7 +53,7 @@
 
 				<Label
 					class={[
-						'space-y-1 border-b-2 p-4',
+						'w-[300px] space-y-1 border-b-2 p-4',
 						{
 							'border-b-primary bg-secondary ': selected,
 							'hover:bg-secondary/35 cursor-pointer border-b-transparent':
@@ -93,7 +93,7 @@
 	</div>
 </div>
 
-<div class="mt-8 flex items-center justify-between border-t p-4 px-8">
+<div class="bg-background sticky bottom-0 mt-8 flex items-center justify-between border-t p-4 px-8">
 	<p class="text-gray-400">
 		<span class="rounded-sm bg-gray-200 p-1 font-bold text-black">{selectedTests.length}</span>
 		/ {totalTests}

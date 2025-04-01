@@ -29,7 +29,7 @@
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: async ({ form }) => {
-			const res = await pb.send(`/api/${testId}/save-variables-and-start`, {
+			await pb.send(`/api/${testId}/save-variables-and-start`, {
 				method: 'POST',
 				body: form.data
 			});

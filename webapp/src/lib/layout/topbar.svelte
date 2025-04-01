@@ -8,7 +8,7 @@
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
 </script>
 
-<BaseTopbar class="border-none bg-card">
+<BaseTopbar class="bg-card border-none">
 	{#snippet left()}
 		<!-- <AppLogo /> -->
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>
@@ -27,7 +27,7 @@
 	{#snippet right()}
 		<div class="flex items-center space-x-2">
 			{#if !$featureFlags.DEMO}
-				<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
+				<Button variant="outline" href="/tests/new">[old check]</Button>
 			{/if}
 
 			{#if !$featureFlags.DEMO && $featureFlags.AUTH}
