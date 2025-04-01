@@ -8,7 +8,7 @@ export default defineConfig({
 		paraglideVitePlugin({
 			project: './project.inlang',
 			outdir: './src/modules/i18n/paraglide',
-			strategy: ['url', 'cookie', 'baseLocale']
+			strategy: ['baseLocale']
 		})
 	],
 	optimizeDeps: {
