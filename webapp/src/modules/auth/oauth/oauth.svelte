@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { currentUser, pb } from '@/pocketbase';
-	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
 	import Button from '@/components/ui-custom/button.svelte';
 	import type { ClientResponseError } from 'pocketbase';
 	import Alert from '@/components/ui-custom/alert.svelte';
@@ -31,7 +30,7 @@
 			list.oauth2.providers.map((provider) => {
 				return {
 					displayName: provider.displayName,
-					image: `${PUBLIC_POCKETBASE_URL}_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
+					image: `/_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
 					initializer: async () => {
 						loading = true;
 						try {
