@@ -53,11 +53,18 @@ RUN gunzip overmind-v2.5.1-linux-amd64.gz
 RUN mv overmind-v2.5.1-linux-amd64 /usr/local/bin/overmind
 RUN chmod +x /usr/local/bin/overmind
 
+
+WORKDIR /usr/local/bin/
+COPY pb_hooks .
+COPY pb_migrations .
+COPY migrations .
+RUN didimo migrate up
+
+
 # copy everything
 WORKDIR /app
+RUN ln -s /usr/local/bin/pb_data .
 COPY . ./
-RUN didimo migrate
-RUN didimo migrate --dir /pb_data
 
 WORKDIR /app/webapp
 RUN bun run build
