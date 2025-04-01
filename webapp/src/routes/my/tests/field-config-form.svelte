@@ -20,7 +20,9 @@
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { nanoid } from 'nanoid';
 	import * as Popover from '@/components/ui/popover/index.js';
-	import type { EditorView } from '@codemirror/view';
+	import { Decoration, EditorView } from '@codemirror/view';
+	import { StateEffect, StateField, type Range } from '@codemirror/state';
+
 	//
 
 	type UpdateFunction = (testInput: TestInput) => void;
@@ -171,11 +173,44 @@
 
 	let editorView = $state<EditorView>();
 
+	const highlight_effect = StateEffect.define<Range<Decoration>[]>();
+
+	const highlight_extension = StateField.define({
+		create() {
+			return Decoration.none;
+		},
+		update(value, transaction) {
+			value = value.map(transaction.changes);
+			console.log('update', value, transaction);
+
+			for (let effect of transaction.effects) {
+				if (effect.is(highlight_effect))
+					value = value.update({ add: effect.value, sort: true });
+			}
+
+			return value;
+		},
+		provide: (f) => EditorView.decorations.from(f)
+	});
+
+	const highlight_decoration = Decoration.mark({
+		attributes: { style: 'background-color: yellow' }
+	});
+
 	watch(
 		() => formState.current,
 		() => {
 			if (!editorView) return;
-			editorView.dispatch({});
+			console.log('dispatching');
+			const randomRange = {
+				from: Math.floor(Math.random() * 40),
+				to: 40 + Math.floor(Math.random() * 100)
+			};
+			editorView.dispatch({
+				effects: highlight_effect.of([
+					highlight_decoration.range(randomRange.from, randomRange.to)
+				])
+			});
 		}
 	);
 </script>
@@ -190,6 +225,7 @@
 				lang: 'json',
 				label: 'JSON configuration',
 				class: 'self-stretch',
+				extensions: [highlight_extension],
 				onReady: (view) => {
 					editorView = view;
 				}
