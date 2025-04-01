@@ -20,6 +20,15 @@
 
 	let selectedStandardId = $state(standards[0].id);
 
+	let compositeTestId = $derived.by(
+		() =>
+			`${selectedStandardId}/${standards.find((s) => s.id === selectedStandardId)?.testSuites[0].id}`
+	);
+
+	$effect(() => {
+		$inspect(compositeTestId);
+	});
+
 	const availableTestSuites = $derived(
 		standards.find((s) => s.id === selectedStandardId)?.testSuites ?? []
 	);
@@ -50,8 +59,8 @@
 					class={[
 						'space-y-1 border-b-2 p-4',
 						{
-							'bg-secondary border-b-primary ': selected,
-							'hover:bg-secondary/35 cursor-pointer border-b-transparent':
+							'border-b-primary bg-secondary ': selected,
+							'cursor-pointer border-b-transparent hover:bg-secondary/35':
 								!selected && !disabled,
 							'cursor-not-allowed border-b-transparent opacity-50': disabled
 						}
@@ -61,7 +70,7 @@
 						<RadioGroup.Item value={test.id} id={test.id} {disabled} />
 						<span class="text-lg font-bold">{test.label}</span>
 					</div>
-					<p class="text-muted-foreground text-sm">{test.description}</p>
+					<p class="text-sm text-muted-foreground">{test.description}</p>
 				</Label>
 			{/each}
 		</RadioGroup.Root>
@@ -96,7 +105,7 @@
 	</p>
 	<Button
 		disabled={selectedTests.length === 0}
-		onclick={() => onSelectTests?.(selectedStandardId, selectedTests)}
+		onclick={() => onSelectTests?.(compositeTestId, selectedTests)}
 	>
 		Next step <ArrowRight />
 	</Button>

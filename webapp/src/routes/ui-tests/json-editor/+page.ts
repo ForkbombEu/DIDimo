@@ -9,16 +9,26 @@ const variantsSchema = z.object({
 });
 
 export const load = async ({ fetch }) => {
-	const variantsResponse = await pb.send(
+	const openid4vpVariantsResponse = await pb.send(
 		'/api/conformance-checks/configs/get-configs-templates',
 		{
 			method: 'GET',
 			fetch
 		}
 	);
-	const parseResult = variantsSchema.safeParse(variantsResponse);
 
-	if (!parseResult.success) {
+	const openid4vciVariantsResponse = await pb.send(
+		'/api/conformance-checks/configs/get-configs-templates?test_id=OpenID4VCI_Wallet/eudiw',
+		{
+			method: 'GET',
+			fetch
+		}
+	);
+
+	const parseOpenid4vpResult = variantsSchema.safeParse(openid4vpVariantsResponse);
+	const parseOpenid4vciResult = variantsSchema.safeParse(openid4vciVariantsResponse);
+
+	if (!parseOpenid4vpResult.success || !parseOpenid4vciResult.success) {
 		throw new Error('Failed to parse variants response');
 	}
 
@@ -30,18 +40,24 @@ export const load = async ({ fetch }) => {
 				'Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.',
 			testSuites: [
 				{
-					id: 'openid-foundation-wallet',
-					label: 'OpenID Foundation OpenID4VP Wallet',
-					tests: parseResult.data.variants
+					id: 'openid_foundation',
+					label: 'OpenID4VP Wallet',
+					tests: parseOpenid4vpResult.data.variants
 				}
 			]
 		},
 		{
-			id: 'openid4vp_verifier',
-			label: 'OpenID4VP Verifier',
-			testSuites: [],
+			id: 'openid4vci_wallet',
+			label: 'OpenID4VCI Wallet',
 			description:
-				'Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.'
+				'Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.',
+			testSuites: [
+				{
+					id: 'eudiw',
+					label: 'OpenID4VCI Wallet',
+					tests: parseOpenid4vciResult.data.variants
+				}
+			]
 		}
 	];
 

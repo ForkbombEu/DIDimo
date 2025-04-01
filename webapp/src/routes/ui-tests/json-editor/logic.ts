@@ -85,11 +85,12 @@ const fieldsResponseSchema = z.object({
 
 export type FieldsResponse = z.infer<typeof fieldsResponseSchema>;
 
-export async function getVariables(testId: string, filenames: string[]) {
+export async function getVariables(test_id: string, filenames: string[]) {
+	console.log('getVariables', test_id, filenames);
 	const data = await pb.send('/api/conformance-checks/configs/placeholders-by-filenames', {
 		method: 'POST',
 		body: {
-			test_id: '', //  TODO - Empty string is mandatory right now
+			test_id,
 			filenames
 		}
 	});
