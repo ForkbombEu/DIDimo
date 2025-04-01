@@ -67,6 +67,8 @@ RUN ln -s /usr/local/bin/pb_data .
 COPY . ./
 
 WORKDIR /app/webapp
+ARG PUBLIC_POCKETBASE_URL
+ENV PUBLIC_POCKETBASE_URL ${PUBLIC_POCKETBASE_URL}
 RUN bun run build
 WORKDIR /app
 

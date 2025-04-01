@@ -3,13 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - PUBLIC_POCKETBASE_URL=https://demo.credimi.io
     environment:
       - SERVICE_FQDN_CREDIMI
       - SERVICE_FQDN_CREDIMI_8090
       - ADDRESS_TEMPORAL=http://localhost:8280
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
-      - PUBLIC_POCKETBASE_URL=${COOLIFY_URL:-http://localhost:8090}
       - APP_PATH=${COOLIFY_URL:-http://localhost:8090}
       - DATA_DB_PATH=/usr/local/bin/pb_data/data.db
       - MAIL_SENDER=didimo@forkbomb.eu
