@@ -22,6 +22,5 @@ services:
     ports:
       - 8090:8090
       - 7233:7233
-      - 5100:5100
     volumes:
       - ./pb_data/:/app/pb_data
