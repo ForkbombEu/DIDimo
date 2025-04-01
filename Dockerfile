@@ -59,8 +59,6 @@ COPY . ./
 RUN didimo migrate up
 
 WORKDIR /app/webapp
-ARG PUBLIC_POCKETBASE_URL
-ENV PUBLIC_POCKETBASE_URL ${PUBLIC_POCKETBASE_URL}
 ENV DATA_DB_PATH /app/pb_data/data.db
 RUN bun run build
 WORKDIR /app
