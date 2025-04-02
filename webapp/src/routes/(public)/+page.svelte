@@ -59,10 +59,8 @@
 		name: 'das',
 		locale: 'en',
 		type: 'plc',
-		json: {},
 		collectionId: '',
-		collectionName: Collections.Credentials,
-		key: ''
+		collectionName: Collections.Credentials
 	};
 
 	const schema = z.object({
@@ -120,15 +118,15 @@
 <PageContent class="bg-secondary" contentClass="space-y-12">
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
-			<T tag="h3">{m.Latest_news_and_updates()}</T>
+			<T tag="h3">{m.latest_news_and_updates()}</T>
 
 			{#if $featureFlags.DEMO}
 				<Button variant="default" disabled class="select-none blur">
-					{m.All_news()}
+					{m.all_news()}
 				</Button>
 			{:else}
 				<Button variant="default" href="/news">
-					{m.All_news()}
+					{m.all_news()}
 				</Button>
 			{/if}
 		</div>

@@ -17,7 +17,7 @@
 >
 	{#snippet top({ Search, Filters })}
 		<PageTop>
-			<T tag="h1">{m.News()}</T>
+			<T tag="h1">{m.news()}</T>
 			<div class="flex items-center gap-2">
 				<Search class="border-primary bg-secondary" containerClass="grow" />
 				<Filters>
