@@ -76,20 +76,32 @@
 		<div class="step-container">
 			{@render Step(1, 'Scan this QR with the wallet app to start the check')}
 
-			<div
-				class="ml-16 mt-4 flex flex-col items-center justify-center rounded-md bg-primary/10 p-2 sm:flex-row"
-			>
-				<QrCode src={data.qrContent} class="size-40 rounded-sm" />
+			{#if data.qrContent.trim() !== ''}
+				<div
+					class="ml-16 mt-4 flex flex-col items-center justify-center rounded-md bg-primary/10 p-2 sm:flex-row"
+				>
+					<QrCode src={data.qrContent} class="size-40 rounded-sm" />
 
-				<p class="max-w-sm break-all p-4 font-mono text-xs text-primary hover:underline">
-					{data.qrContent}
-				</p>
-			</div>
+					<p
+						class="max-w-sm break-all p-4 font-mono text-xs text-primary hover:underline"
+					>
+						{data.qrContent}
+					</p>
+				</div>
+			{:else}
+				<div class="ml-16">
+					<Alert variant="destructive">
+						No QR code was provided. Check the logs for more information.
+					</Alert>
+				</div>
+			{/if}
 		</div>
 
 		<div class="step-container">
 			{@render Step(2, 'Follow the procedure on the wallet app')}
-			<WorkflowLogs workflowId={data.workflowId} />
+			<div class="ml-16">
+				<WorkflowLogs workflowId={data.workflowId} />
+			</div>
 		</div>
 
 		<div class="step-container">
