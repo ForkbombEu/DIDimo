@@ -4,8 +4,8 @@ import (
 	"io"
 	"net/http"
 	"os"
+	p "path"
 	"path/filepath"
-	"strings"
 
 	engine "github.com/forkbombeu/didimo/pkg/template_engine"
 
@@ -16,7 +16,7 @@ import (
 
 func getTemplatesByFolder(folder string) ([]*os.File, error) {
 	var templates []*os.File
-	err := filepath.Walk("./config_templates/"+folder, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(os.Getenv("ROOT_DIR")+"/config_templates/"+folder, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -34,7 +34,6 @@ func getTemplatesByFolder(folder string) ([]*os.File, error) {
 
 		return nil
 	})
-
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +54,7 @@ func RouteGetConfigsTemplates(app *pocketbase.PocketBase) {
 			}
 			var variants []string
 			for _, file := range files {
-				variants = append(variants, strings.Replace(file.Name(), "config_templates/"+testId+"/", "", 1))
+				variants = append(variants, p.Base(file.Name()))
 			}
 			return e.JSON(http.StatusOK, map[string]interface{}{
 				"variants": variants,
@@ -87,7 +86,7 @@ func RoutePostPlaceholdersByFilenames(app *pocketbase.PocketBase) {
 
 			var files []io.Reader
 			for _, filename := range requestPayload.Filenames {
-				filePath := filepath.Join("./config_templates", requestPayload.TestID, filename)
+				filePath := filepath.Join(os.Getenv("ROOT_DIR"), "config_templates", requestPayload.TestID, filename)
 				file, err := os.Open(filePath)
 				if err != nil {
 					return apis.NewBadRequestError("Error opening file: "+filename, err)
