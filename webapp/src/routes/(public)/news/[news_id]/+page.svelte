@@ -17,10 +17,10 @@
 	</div>
 	<div class="flex flex-row items-center justify-start gap-2">
 		<a href={news.diff} target="_blank">
-			<Button size="sm">{m.Differences()}</Button>
+			<Button size="sm">{m.differences()}</Button>
 		</a>
 		<a href={news.refer} target="_blank">
-			<Button size="sm">{m.Referer()}</Button>
+			<Button size="sm">{m.referrer()}</Button>
 		</a>
 	</div>
 </PageTop>

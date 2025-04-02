@@ -22,7 +22,7 @@
 	>
 	<a href="/news/{news.id}">
 		<Button variant="outline" size="sm">
-			{m.View_more()}
+			{m.view_more()}
 		</Button>
 	</a>
 </div>
