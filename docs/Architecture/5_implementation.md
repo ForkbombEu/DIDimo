@@ -163,9 +163,9 @@ Rel_U(researcher, reporting_service, "Accesses compliance data")
 
 The Compliance Engine is composed in detail of the following services/containers
 
-#### ⚙️ Credimi-backend (API Gateway)
+#### ⚙️ credimi-backend (API Gateway)
 
-Credimi-didimo is the core service of the project, responsible for handling the primary application logic. It orchestrates all internal processes and ensures that the compliance engine and related functionalities operate cohesively.
+credimi-didimo is the core service of the project, responsible for handling the primary application logic. It orchestrates all internal processes and ensures that the compliance engine and related functionalities operate cohesively.
 This is based on go, specially on pocketbase.io for the API/REST as a framework and Cobra for the CLI.
 
 ::: tip RESOURCES
@@ -178,9 +178,9 @@ This is based on go, specially on pocketbase.io for the API/REST as a framework 
 
 ---
 
-#### 🔄 Credimi-temporal
+#### 🔄 credimi-temporal
 
-Credimi-temporal is the Temporal Workflow service used for managing distributed workflows and task orchestration. It ensures reliability and scalability in handling complex operations by managing dependencies, retries, and task executions.
+credimi-temporal is the Temporal Workflow service used for managing distributed workflows and task orchestration. It ensures reliability and scalability in handling complex operations by managing dependencies, retries, and task executions.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/)
@@ -190,9 +190,9 @@ Credimi-temporal is the Temporal Workflow service used for managing distributed 
 
 ---
 
-#### 📧 Credimi-mailhog
+#### 📧 credimi-mailhog
 
-Credimi-mailhog is a testing tool designed to intercept and inspect emails sent by the application. It allows developers to validate email functionalities during the development and testing phases without sending actual emails. This ensures that all email-related operations, such as notifications or verification links, work as intended.
+credimi-mailhog is a testing tool designed to intercept and inspect emails sent by the application. It allows developers to validate email functionalities during the development and testing phases without sending actual emails. This ensures that all email-related operations, such as notifications or verification links, work as intended.
 
 ::: tip RESOURCES
 [GitHub](https://github.com/mailhog/MailHog)
@@ -200,9 +200,9 @@ Credimi-mailhog is a testing tool designed to intercept and inspect emails sent 
 
 ---
 
-#### 📊 Credimi-grafana
+#### 📊 credimi-grafana
 
-Credimi-grafana is a powerful visualization and monitoring tool integrated into the project to display metrics and logs from the system. It helps teams gain real-time insights into system performance, track key metrics, and debug issues through customizable dashboards.
+credimi-grafana is a powerful visualization and monitoring tool integrated into the project to display metrics and logs from the system. It helps teams gain real-time insights into system performance, track key metrics, and debug issues through customizable dashboards.
 
 ::: tip RESOURCES
 [Documentation](https://grafana.com/docs/)
@@ -213,9 +213,9 @@ Credimi-grafana is a powerful visualization and monitoring tool integrated into 
 ---
 
 
-#### 🛠️ Credimi-temporal-admin-tools
+#### 🛠️ credimi-temporal-admin-tools
 
-Credimi-temporal-admin-tools provides administrative tools for managing the Temporal Workflow service. These tools allow developers to configure, monitor, and debug distributed workflows and ensure smooth task orchestration across the system.
+credimi-temporal-admin-tools provides administrative tools for managing the Temporal Workflow service. These tools allow developers to configure, monitor, and debug distributed workflows and ensure smooth task orchestration across the system.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/)
@@ -226,9 +226,9 @@ Credimi-temporal-admin-tools provides administrative tools for managing the Temp
 ---
 
 
-#### 👀 Credimi-temporal-ui
+#### 👀 credimi-temporal-ui
 
-Credimi-temporal-ui is a user interface for managing and observing workflows in the Temporal service. It provides a visual representation of workflows, their statuses, and debugging tools, making workflow management more intuitive for administrators and developers.
+credimi-temporal-ui is a user interface for managing and observing workflows in the Temporal service. It provides a visual representation of workflows, their statuses, and debugging tools, making workflow management more intuitive for administrators and developers.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/ui/)
@@ -238,9 +238,9 @@ Credimi-temporal-ui is a user interface for managing and observing workflows in 
 
 ---
 
-#### 📈 Credimi-prometheus
+#### 📈 credimi-prometheus
 
-Credimi-prometheus is a metrics collection and monitoring tool integrated into the project. It scrapes, stores, and visualizes application metrics, enabling teams to track performance, detect anomalies, and optimize system behavior proactively.
+credimi-prometheus is a metrics collection and monitoring tool integrated into the project. It scrapes, stores, and visualizes application metrics, enabling teams to track performance, detect anomalies, and optimize system behavior proactively.
 
 ::: tip RESOURCES
 [Documentation](https://prometheus.io/docs/)
@@ -251,9 +251,9 @@ Credimi-prometheus is a metrics collection and monitoring tool integrated into t
 ---
 
 
-#### 🗄️ Credimi-postgresql
+#### 🗄️ credimi-postgresql
 
-Credimi-postgresql is the PostgreSQL database instance used as the backend for data storage. It serves as the core storage layer for compliance data, user information, and reports, ensuring data integrity and efficient query handling.
+credimi-postgresql is the PostgreSQL database instance used as the backend for data storage. It serves as the core storage layer for compliance data, user information, and reports, ensuring data integrity and efficient query handling.
 
 ::: tip RESOURCES
 [Documentation](https://www.postgresql.org/docs/)
@@ -263,9 +263,9 @@ Credimi-postgresql is the PostgreSQL database instance used as the backend for d
 
 ---
 
-#### 🌐 Credimi-thirdparty
+#### 🌐 credimi-thirdparty
 
-Credimi-thirdparty acts as a placeholder service for external integrations or third-party API interactions. This module facilitates seamless connectivity between the core system and various external services, ensuring interoperability and extensibility for future integrations.
+credimi-thirdparty acts as a placeholder service for external integrations or third-party API interactions. This module facilitates seamless connectivity between the core system and various external services, ensuring interoperability and extensibility for future integrations.
 
 ::: tip RESOURCES
 [GitHub](https://github.com/ForkbombEu/didimo)
