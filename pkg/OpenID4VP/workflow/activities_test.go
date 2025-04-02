@@ -292,8 +292,6 @@ tests:
                                     - show_qr_code
                                     - visited
                                     - visitedUrlsWithMethod
-                                    - runners
-                                    - urlsWithMethod
                                 type: object
                             created:
                                 format: date-time
@@ -315,8 +313,6 @@ tests:
                                         type: string
                                 required:
                                     - response_uri
-                                    - nonce
-                                    - client_id
                                 type: object
                             id:
                                 type: string
