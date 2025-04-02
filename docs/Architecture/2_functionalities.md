@@ -10,7 +10,7 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 ## 1. Credential Issuer and Verifier Compliance Testing
 **Description**: 
-The core functionality of DIDimo is to allow developers to submit their credential issuance and verification services for compliance testing against multiple standards, such as OpenID4VCI, OpenID4VP, and OpenID Federation. The service will assess cryptographic methods, data formats, and communication protocols.
+The core functionality of Credimi is to allow developers to submit their credential issuance and verification services for compliance testing against multiple standards, such as OpenID4VCI, OpenID4VP, and OpenID Federation. The service will assess cryptographic methods, data formats, and communication protocols.
 
 **Motivation**:
 Given the fragmentation in standards across decentralized identity ecosystems, developers need an easy way to verify that their services comply with required standards. This ensures interoperability and trust within the ecosystem.
@@ -66,8 +66,8 @@ End-users need the ability to make informed decisions about which identity servi
 
 ## 9. Plugin System for Extensibility
 **Description**:
-Implement a plugin system that allows for the integration of additional checks and standards as the ecosystem evolves. This system will enable third-party developers to contribute plugins that extend the functionality of DIDimo.
+Implement a plugin system that allows for the integration of additional checks and standards as the ecosystem evolves. This system will enable third-party developers to contribute plugins that extend the functionality of Credimi.
 
 **Motivation**:
-As the decentralized identity space grows, new standards and requirements will emerge. A plugin system ensures that DIDimo remains flexible and can adapt to future needs without requiring significant core changes.
+As the decentralized identity space grows, new standards and requirements will emerge. A plugin system ensures that Credimi remains flexible and can adapt to future needs without requiring significant core changes.
 
