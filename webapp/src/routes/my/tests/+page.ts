@@ -34,13 +34,13 @@ export const load = async ({ fetch }) => {
 
 	const standardsAndTestSuites: StandardWithTestSuites[] = [
 		{
-			id: 'openid4vp_wallet',
+			id: 'OpenID4VP_Wallet',
 			label: 'OpenID4VP Wallet',
 			description:
 				'Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.',
 			testSuites: [
 				{
-					id: 'openid_foundation',
+					id: 'OpenID_Foundation',
 					label: 'OpenID4VP Wallet',
 					tests: parseOpenid4vpResult.data.variants
 				}

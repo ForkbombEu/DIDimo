@@ -166,7 +166,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if author == "openid_foundation" {
 				author = "OpenID_foundation"
 			}
-			filepath := "config_templates/" + protocol + "/" + author + "/"
+			filepath := os.Getenv("ROOT_DIR") + "/config_templates/" + protocol + "/" + author + "/"
 
 			if _, err := os.Stat(filepath); os.IsNotExist(err) {
 				return apis.NewBadRequestError("directory does not exist for test "+protocol+"/"+author, err)
@@ -386,6 +386,7 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 		return nil
 	})
 }
+
 func RouteWorkflowList(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
