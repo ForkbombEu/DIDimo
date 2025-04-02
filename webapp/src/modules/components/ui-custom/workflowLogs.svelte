@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { pb } from '@/pocketbase/index.js';
-	import { untrack } from 'svelte';
+	import { onDestroy, untrack } from 'svelte';
 	import { Info } from 'lucide-svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { Badge } from '../ui/badge/index.js';
@@ -15,18 +15,27 @@
 	const { workflowId }: Props = $props();
 
 	$effect(() => {
-		untrack(() => {
-			pb.realtime.subscribe(
-				`${workflowId}openid4vp-wallet-logs`,
-				(data: WorkflowLogEntry[]) => {
-					console.log(data);
-					logs = data;
+		untrack(async () => {
+			try {
+				const result = await pb.send('/wallet-test/send-log-update-start', {
+					method: 'POST',
+					body: {
+						workflow_id: workflowId
+					}
+				});
+				if (result) {
+					pb.realtime.subscribe(
+						`${workflowId}openid4vp-wallet-logs`,
+						(data: WorkflowLogEntry[]) => {
+							console.log(data);
+							logs = data;
+						}
+					);
 				}
-			);
+			} catch (error) {
+				console.error(error);
+			}
 		});
-		return () => {
-			pb.realtime.unsubscribe(`${workflowId}openid4vp-wallet-logs`);
-		};
 	});
 
 	type WorkflowLogEntry = {
@@ -39,6 +48,10 @@
 
 		[key: string]: any;
 	};
+
+	onDestroy(() => {
+		pb.realtime.unsubscribe(`${workflowId}openid4vp-wallet-logs`);
+	});
 </script>
 
 <div class="flex flex-col gap-2 py-2">
