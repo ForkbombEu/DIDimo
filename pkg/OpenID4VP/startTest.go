@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/google/uuid"
@@ -17,7 +16,7 @@ import (
 // containing both the variant and the form payload.
 type OpenID4VPTestInputFile struct {
 	Variant json.RawMessage `json:"variant"`
-	Form    testdata.Form   `json:"form"`
+	Form    any             `json:"form"`
 }
 
 // startWorkflow starts the Temporal workflow

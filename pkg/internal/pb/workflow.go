@@ -144,12 +144,33 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			})
 		})
 
-		se.Router.POST("/api/openid4vp/save-variables-and-start", func(e *core.RequestEvent) error {
+		se.Router.POST("/api/{protocol}/{author}/save-variables-and-start", func(e *core.RequestEvent) error {
 			var req map[string]struct {
 				Format string      `json:"format"`
 				Data   interface{} `json:"data"`
 			}
 			appURL := app.Settings().Meta.AppURL
+
+			protocol := e.Request.PathValue("protocol")
+			author := e.Request.PathValue("author")
+
+			if protocol == "" || author == "" {
+				return apis.NewBadRequestError("protocol and author are required", nil)
+			}
+			if protocol == "openid4vp_wallet" {
+				protocol = "OpenID4VP_Wallet"
+			}
+			if protocol == "openid4vci_wallet" {
+				protocol = "OpenID4VCI_Wallet"
+			}
+			if author == "openid_foundation" {
+				author = "OpenID_foundation"
+			}
+			filepath := os.Getenv("ROOT_DIR") + "/config_templates/" + protocol + "/" + author + "/"
+
+			if _, err := os.Stat(filepath); os.IsNotExist(err) {
+				return apis.NewBadRequestError("directory does not exist for test "+protocol+"/"+author, err)
+			}
 
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
 				return apis.NewBadRequestError("invalid JSON input", err)
@@ -162,14 +183,12 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("invalid JSON format for test "+testName, nil)
 					}
 
-					var parsedData map[string]interface{}
+					var parsedData OpenID4VP.OpenID4VPTestInputFile
 					if err := json.Unmarshal([]byte(jsonData), &parsedData); err != nil {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
 
-					err := OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
-						Variant: json.RawMessage(testData.Data.(string)),
-					}, "test@credimi.io", appURL)
+					err := OpenID4VP.StartWorkflow(parsedData, "test@credimi.io", appURL)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -195,8 +214,6 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						}
 
 						record := core.NewRecord(config_values)
-						record.Set("provider", "0t4lc1u7ws81tdq") // should be a user provide value
-						record.Set("test_suite", "09oged1pzp20i5l") // should be a user provide value
 						record.Set("credimi_id", credimiId)
 						record.Set("value", v["value"])
 						record.Set("field_name", fieldName)
@@ -206,8 +223,6 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						}
 						values[fieldName] = v["value"]
 					}
-
-					filepath := "./config_templates/OpenID4VP_Wallet/OpenID_Foundation/"
 
 					template, err := os.Open(filepath + testName)
 					if err != nil {
@@ -371,6 +386,7 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 		return nil
 	})
 }
+
 func RouteWorkflowList(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {

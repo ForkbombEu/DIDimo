@@ -1,6 +1,6 @@
 import { z, type ZodTypeAny, type ZodRawShape } from 'zod';
 import { getExceptionMessage } from '@/utils/errors';
-import { Record as R, Record } from 'effect';
+import { pipe, Record as R, Record, Tuple } from 'effect';
 import { pb } from '@/pocketbase';
 
 /* Types & Schemas */
@@ -31,8 +31,7 @@ const sharedFieldSchema = z.object({
 export type FieldConfig = z.infer<typeof sharedFieldSchema>;
 
 const specificFieldSchema = sharedFieldSchema.extend({
-	FieldName: z.string(),
-	Example: z.string().optional()
+	FieldName: z.string()
 });
 
 export type SpecificFieldConfig = z.infer<typeof specificFieldSchema>;
@@ -85,11 +84,11 @@ const fieldsResponseSchema = z.object({
 
 export type FieldsResponse = z.infer<typeof fieldsResponseSchema>;
 
-export async function getVariables(testId: string, filenames: string[]) {
+export async function getVariables(test_id: string, filenames: string[]) {
 	const data = await pb.send('/api/conformance-checks/configs/placeholders-by-filenames', {
 		method: 'POST',
 		body: {
-			test_id: '', //  TODO - Empty string is mandatory right now
+			test_id,
 			filenames
 		}
 	});
@@ -121,4 +120,26 @@ export type TestInput = z.infer<typeof testInputSchema>;
 
 export function createTestListInputSchema(fields: FieldsResponse) {
 	return z.object(Record.map(fields.specific_fields, () => testInputSchema));
+}
+
+//
+
+export function createInitialDataFromFields(fields: FieldConfig[], excludeIds: string[] = []) {
+	return pipe(
+		fields
+			.map((field) => {
+				let example: string;
+				if (field.Type == 'string') {
+					example = field.Example ?? '';
+				} else if (field.Type == 'object' && field.Example) {
+					example = JSON.stringify(JSON.parse(field.Example), null, 4);
+				} else {
+					throw new Error(`Invalid field type: ${field.Type}`);
+				}
+				return Tuple.make(field.CredimiID, example);
+			})
+			.filter(([, value]) => value !== undefined && Boolean(value))
+			.filter(([id]) => !excludeIds.includes(id)),
+		(entries) => Object.fromEntries(entries)
+	);
 }

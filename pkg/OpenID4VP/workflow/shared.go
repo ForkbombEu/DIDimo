@@ -1,7 +1,5 @@
 package workflow
 
-import "github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
-
 const OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
 
 // EmailConfig holds the email configuration details
@@ -19,7 +17,7 @@ type EmailConfig struct {
 
 type GenerateYAMLInput struct {
 	Variant  string
-	Form     testdata.Form
+	Form     any
 	FilePath string
 }
 
@@ -34,7 +32,7 @@ type StepCIRunnerResponse struct {
 
 type WorkflowInput struct {
 	Variant  string
-	Form     testdata.Form
+	Form     any
 	UserMail string
 	AppURL   string
 }

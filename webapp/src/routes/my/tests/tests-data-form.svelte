@@ -2,20 +2,22 @@
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
 	import { createTestListInputSchema, type FieldsResponse } from './logic';
-	import { createForm, Form, SubmitButton } from '@/forms';
+	import { createForm, Form, SubmitButton, FormError } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { Store } from 'runed';
 	import * as Popover from '@/components/ui/popover';
 	import Button from '@/components/ui/button/button.svelte';
 	import { pb } from '@/pocketbase';
+	import { goto } from '$app/navigation';
 
 	//
 
 	type Props = {
 		data: FieldsResponse;
+		testId: string;
 	};
 
-	let { data }: Props = $props();
+	let { data, testId = 'openid4vp' }: Props = $props();
 
 	//
 
@@ -28,12 +30,11 @@
 	const form = createForm({
 		adapter: zod(createTestListInputSchema(data)),
 		onSubmit: async ({ form }) => {
-			console.log(form.data);
-			const res = await pb.send('/api/openid4vp/save-variables-and-start', {
+			await pb.send(`/api/${testId}/save-variables-and-start`, {
 				method: 'POST',
 				body: form.data
 			});
-			console.log(res);
+			await goto(`/workflows`);
 		},
 		options: {
 			resetForm: false
@@ -63,7 +64,7 @@
 	const SHARED_FIELDS_ID = 'shared-fields';
 </script>
 
-<div class="space-y-16">
+<div class="space-y-16 p-8">
 	<div class="space-y-4">
 		<h2 id={SHARED_FIELDS_ID} class="text-lg font-bold">Shared fields</h2>
 		<FieldConfigFormShared
@@ -87,6 +88,7 @@
 					$formData[testId] = form;
 				}}
 				onInvalidUpdate={() => {
+					// @ts-expect-error
 					$formData[testId] = undefined;
 				}}
 			/>
@@ -95,40 +97,49 @@
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 flex justify-between border-t p-4 backdrop-blur-lg">
-	<div class="flex items-center gap-3">
-		{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
-			<p>
-				{completeTestsCount}/{testsIds.length} configs complete
-			</p>
-			{#if incompleteTestsIds.length}
-				<Popover.Root>
-					<Popover.Trigger class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200">
-						{#snippet child({ props })}
-							<Button {...props} variant="outline" class="px-3">
-								View incomplete configs ({incompleteTestsIds.length})
-							</Button>
-						{/snippet}
-					</Popover.Trigger>
-					<Popover.Content class="dark w-fit">
-						<ul class="space-y-1 text-sm">
-							{#each incompleteTestsIds as testId}
-								<li>
-									<a class="underline hover:no-underline" href={`#${testId}`}>
-										{testId}
-									</a>
-								</li>
-							{/each}
-						</ul>
-					</Popover.Content>
-				</Popover.Root>
-			{:else}
-				<p>✅</p>
-			{/if}
-		{/await}
-	</div>
+<div class="bg-background/80 sticky bottom-0 border-t p-4 px-8 backdrop-blur-lg">
+	<Form {form} hide={['submit_button', 'error']} class="w-full space-y-4">
+		<div class="flex items-center justify-between">
+			<div class="flex items-center gap-3">
+				{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}
+					<p>
+						{completeTestsCount}/{testsIds.length} configs complete
+					</p>
+					{#if incompleteTestsIds.length}
+						<Popover.Root>
+							<Popover.Trigger
+								class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
+							>
+								{#snippet child({ props })}
+									<Button {...props} variant="outline" class="px-3">
+										View incomplete configs ({incompleteTestsIds.length})
+									</Button>
+								{/snippet}
+							</Popover.Trigger>
+							<Popover.Content class="dark w-fit">
+								<ul class="space-y-1 text-sm">
+									{#each incompleteTestsIds as testId}
+										<li>
+											<a
+												class="underline hover:no-underline"
+												href={`#${testId}`}
+											>
+												{testId}
+											</a>
+										</li>
+									{/each}
+								</ul>
+							</Popover.Content>
+						</Popover.Root>
+					{:else}
+						<p>✅</p>
+					{/if}
+				{/await}
+			</div>
 
-	<Form {form} hide={['submit_button']}>
-		<SubmitButton>Save</SubmitButton>
+			<SubmitButton>Next</SubmitButton>
+		</div>
+
+		<FormError />
 	</Form>
 </div>

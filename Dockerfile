@@ -56,10 +56,12 @@ RUN chmod +x /usr/local/bin/overmind
 # copy everything
 WORKDIR /app
 COPY . ./
-RUN didimo migrate
-RUN didimo migrate --dir /pb_data
+RUN didimo migrate up
 
 WORKDIR /app/webapp
+ARG PUBLIC_POCKETBASE_URL
+ENV PUBLIC_POCKETBASE_URL ${PUBLIC_POCKETBASE_URL}
+ENV DATA_DB_PATH /app/pb_data/data.db
 RUN bun run build
 WORKDIR /app
 

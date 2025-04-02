@@ -17,6 +17,7 @@ export default defineConfig({
 			'codemirror',
 			'@codemirror/language-javascript',
 			'@codemirror/lang-json',
+			'@codemirror/state',
 			'thememirror'
 		]
 	},

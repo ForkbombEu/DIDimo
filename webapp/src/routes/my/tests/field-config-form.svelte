@@ -3,6 +3,7 @@
 	import { createForm, Form } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
+		createInitialDataFromFields,
 		createTestVariablesFormSchema,
 		stringifiedObjectSchema,
 		type SpecificFieldConfig,
@@ -54,7 +55,8 @@
 			})
 		),
 		initialData: {
-			[JSON_CONFIG_KEY]: jsonConfigString
+			[JSON_CONFIG_KEY]: jsonConfigString,
+			...createInitialDataFromFields(fields, defaultFieldsIds)
 		},
 		options: {
 			id: nanoid(6)
@@ -180,7 +182,7 @@
 		/>
 	</div>
 
-	<div class="shrink-0 grow basis-1">
+	<div class="min-w-0 shrink-0 grow basis-1">
 		<div class="mb-8 space-y-2">
 			<Label>Fields</Label>
 			<Separator />
