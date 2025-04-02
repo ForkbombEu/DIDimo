@@ -47,7 +47,7 @@ export const load = async ({ fetch }) => {
 			]
 		},
 		{
-			id: 'openid4vci_wallet',
+			id: 'OpenID4VCI_Wallet',
 			label: 'OpenID4VCI Wallet',
 			description:
 				'Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.',
