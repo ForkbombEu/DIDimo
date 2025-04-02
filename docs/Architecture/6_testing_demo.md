@@ -76,7 +76,7 @@
 
 ## 3. Demonstration Approach
 ### Goals:
-- Showcase the capabilities of **DIDImo** in realistic, user-focused scenarios.
+- Showcase the capabilities of **Credimi** in realistic, user-focused scenarios.
 - Highlight the solution's robustness, usability, and adaptability to changing conditions.
 
 ### Steps:

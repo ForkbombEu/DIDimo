@@ -8,9 +8,9 @@ import umlPlugin from "markdown-it-plantuml";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "DIDimo",
+  title: "Credimi",
   description:
-    "Master the complexities of SSI identity solutions with DIDimo: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem.",
+    "Master the complexities of SSI identity solutions with Credimi: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem.",
   base: "/DIDimo/",
 
   lastUpdated: true,

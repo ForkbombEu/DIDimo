@@ -2,15 +2,15 @@
 
 ## Strategies and Processes
 
-This subsection outlines the specific methods and steps for integrating and deploying the DIDImo solution, emphasizing its evolution through a user-centric approach. The architecture design was refined significantly based on feedback gathered through detailed questionnaires and user interviews. This feedback highlighted the need for robust handling of long-running tasks, seamless scheduling, and fault tolerance, leading to the introduction of Temporal.io into the architecture.
+This subsection outlines the specific methods and steps for integrating and deploying the Credimi solution, emphasizing its evolution through a user-centric approach. The architecture design was refined significantly based on feedback gathered through detailed questionnaires and user interviews. This feedback highlighted the need for robust handling of long-running tasks, seamless scheduling, and fault tolerance, leading to the introduction of Temporal.io into the architecture.
 
-The inclusion of Temporal.io enables DIDImo to deliver enhanced capabilities, such as reliable state management, advanced scheduling, exponential retry mechanisms, and support for human-in-the-loop workflows. These benefits directly address user needs for scalability, resilience, and usability, making the platform more adaptable and effective in managing compliance workflows and reporting processes.
+The inclusion of Temporal.io enables Credimi to deliver enhanced capabilities, such as reliable state management, advanced scheduling, exponential retry mechanisms, and support for human-in-the-loop workflows. These benefits directly address user needs for scalability, resilience, and usability, making the platform more adaptable and effective in managing compliance workflows and reporting processes.
 
-Through this iterative design process, DIDImo now leverages Temporal.io alongside a modular API and robust monitoring stack, ensuring it provides an intuitive, reliable, and user-focused conformance tool for verifying and managing compliance with European digital identity standards.
+Through this iterative design process, Credimi now leverages Temporal.io alongside a modular API and robust monitoring stack, ensuring it provides an intuitive, reliable, and user-focused conformance tool for verifying and managing compliance with European digital identity standards.
 
 ### Step-by-Step Deployment
 
-The deployment process for DIDImo is streamlined through a fully containerized infrastructure managed by Docker. Each component, from the backend services to monitoring tools, is packaged into containers, ensuring consistency across development, testing, and production environments.
+The deployment process for Credimi is streamlined through a fully containerized infrastructure managed by Docker. Each component, from the backend services to monitoring tools, is packaged into containers, ensuring consistency across development, testing, and production environments.
 
 1. Containerized Services: All core components (e.g., API gateway, Temporal.io, PostgreSQL, Grafana, Prometheus) are deployed as Docker containers for seamless integration and scalability.
 2. Mock Services for Testing:
@@ -95,7 +95,7 @@ This containerized and mock-driven approach reduces dependency risks, accelerate
 
 
 ### Technical Components
-The following components are critical to the DIDimo platform within the TrustChain ecosystem:
+The following components are critical to the Credimi platform within the TrustChain ecosystem:
 
 - **Compliance Engine**: Core module for conducting compliance checks and scoring.
 - **API Gateway**: Facilitates secure access to all platform features and supports plugin submissions.
@@ -115,7 +115,7 @@ The following components are critical to the DIDimo platform within the TrustCha
 !include I/presenter.puml
 
 
-title Container Diagram for DIDimo
+title Container Diagram for Credimi
 
 Person(enduser, "End User")
 Person(dev, "Developer")
@@ -126,7 +126,7 @@ Person(cto, "CTO")
 Person(researcher, "Researcher", $sprite="presenter")
 Person(sb, "Standardization Body", $sprite="ribbon")
 
-System_Boundary(didimo, "DIDimo") {
+System_Boundary(didimo, "Credimi") {
     Container(dashboard, "Dashboard", "TypeScript/Svelte", "User interface for managing services and viewing results.")
     Container(comparison_tool, "Marketplace/Comparison Tool", "TypeScript/Svelte", "Tool for comparing credential services.")
     Container_Boundary(api_gateway, "API Gateway (golang)") {
@@ -163,13 +163,13 @@ Rel_U(researcher, reporting_service, "Accesses compliance data")
 
 The Compliance Engine is composed in detail of the following services/containers
 
-#### ⚙️ didimo-backend (API Gateway)
+#### ⚙️ credimi-backend (API Gateway)
 
-didimo-didimo is the core service of the project, responsible for handling the primary application logic. It orchestrates all internal processes and ensures that the compliance engine and related functionalities operate cohesively.
+credimi-didimo is the core service of the project, responsible for handling the primary application logic. It orchestrates all internal processes and ensures that the compliance engine and related functionalities operate cohesively.
 This is based on go, specially on pocketbase.io for the API/REST as a framework and Cobra for the CLI.
 
 ::: tip RESOURCES
-[DIDimo GitHub](https://github.com/ForkbombEu/didimo)
+[Credimi GitHub](https://github.com/ForkbombEu/didimo)
 
 [Pocketbase](https://github.com/pocketbase/pocketbase)
 
@@ -178,9 +178,9 @@ This is based on go, specially on pocketbase.io for the API/REST as a framework 
 
 ---
 
-#### 🔄 didimo-temporal
+#### 🔄 credimi-temporal
 
-didimo-temporal is the Temporal Workflow service used for managing distributed workflows and task orchestration. It ensures reliability and scalability in handling complex operations by managing dependencies, retries, and task executions.
+credimi-temporal is the Temporal Workflow service used for managing distributed workflows and task orchestration. It ensures reliability and scalability in handling complex operations by managing dependencies, retries, and task executions.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/)
@@ -190,9 +190,9 @@ didimo-temporal is the Temporal Workflow service used for managing distributed w
 
 ---
 
-#### 📧 didimo-mailhog
+#### 📧 credimi-mailhog
 
-didimo-mailhog is a testing tool designed to intercept and inspect emails sent by the application. It allows developers to validate email functionalities during the development and testing phases without sending actual emails. This ensures that all email-related operations, such as notifications or verification links, work as intended.
+credimi-mailhog is a testing tool designed to intercept and inspect emails sent by the application. It allows developers to validate email functionalities during the development and testing phases without sending actual emails. This ensures that all email-related operations, such as notifications or verification links, work as intended.
 
 ::: tip RESOURCES
 [GitHub](https://github.com/mailhog/MailHog)
@@ -200,9 +200,9 @@ didimo-mailhog is a testing tool designed to intercept and inspect emails sent b
 
 ---
 
-#### 📊 didimo-grafana
+#### 📊 credimi-grafana
 
-didimo-grafana is a powerful visualization and monitoring tool integrated into the project to display metrics and logs from the system. It helps teams gain real-time insights into system performance, track key metrics, and debug issues through customizable dashboards.
+credimi-grafana is a powerful visualization and monitoring tool integrated into the project to display metrics and logs from the system. It helps teams gain real-time insights into system performance, track key metrics, and debug issues through customizable dashboards.
 
 ::: tip RESOURCES
 [Documentation](https://grafana.com/docs/)
@@ -213,9 +213,9 @@ didimo-grafana is a powerful visualization and monitoring tool integrated into t
 ---
 
 
-#### 🛠️ didimo-temporal-admin-tools
+#### 🛠️ credimi-temporal-admin-tools
 
-didimo-temporal-admin-tools provides administrative tools for managing the Temporal Workflow service. These tools allow developers to configure, monitor, and debug distributed workflows and ensure smooth task orchestration across the system.
+credimi-temporal-admin-tools provides administrative tools for managing the Temporal Workflow service. These tools allow developers to configure, monitor, and debug distributed workflows and ensure smooth task orchestration across the system.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/)
@@ -226,9 +226,9 @@ didimo-temporal-admin-tools provides administrative tools for managing the Tempo
 ---
 
 
-#### 👀 didimo-temporal-ui
+#### 👀 credimi-temporal-ui
 
-didimo-temporal-ui is a user interface for managing and observing workflows in the Temporal service. It provides a visual representation of workflows, their statuses, and debugging tools, making workflow management more intuitive for administrators and developers.
+credimi-temporal-ui is a user interface for managing and observing workflows in the Temporal service. It provides a visual representation of workflows, their statuses, and debugging tools, making workflow management more intuitive for administrators and developers.
 
 ::: tip RESOURCES
 [Documentation](https://docs.temporal.io/ui/)
@@ -238,9 +238,9 @@ didimo-temporal-ui is a user interface for managing and observing workflows in t
 
 ---
 
-#### 📈 didimo-prometheus
+#### 📈 credimi-prometheus
 
-didimo-prometheus is a metrics collection and monitoring tool integrated into the project. It scrapes, stores, and visualizes application metrics, enabling teams to track performance, detect anomalies, and optimize system behavior proactively.
+credimi-prometheus is a metrics collection and monitoring tool integrated into the project. It scrapes, stores, and visualizes application metrics, enabling teams to track performance, detect anomalies, and optimize system behavior proactively.
 
 ::: tip RESOURCES
 [Documentation](https://prometheus.io/docs/)
@@ -251,9 +251,9 @@ didimo-prometheus is a metrics collection and monitoring tool integrated into th
 ---
 
 
-#### 🗄️ didimo-postgresql
+#### 🗄️ credimi-postgresql
 
-didimo-postgresql is the PostgreSQL database instance used as the backend for data storage. It serves as the core storage layer for compliance data, user information, and reports, ensuring data integrity and efficient query handling.
+credimi-postgresql is the PostgreSQL database instance used as the backend for data storage. It serves as the core storage layer for compliance data, user information, and reports, ensuring data integrity and efficient query handling.
 
 ::: tip RESOURCES
 [Documentation](https://www.postgresql.org/docs/)
@@ -263,9 +263,9 @@ didimo-postgresql is the PostgreSQL database instance used as the backend for da
 
 ---
 
-#### 🌐 didimo-thirdparty
+#### 🌐 credimi-thirdparty
 
-didimo-thirdparty acts as a placeholder service for external integrations or third-party API interactions. This module facilitates seamless connectivity between the core system and various external services, ensuring interoperability and extensibility for future integrations.
+credimi-thirdparty acts as a placeholder service for external integrations or third-party API interactions. This module facilitates seamless connectivity between the core system and various external services, ensuring interoperability and extensibility for future integrations.
 
 ::: tip RESOURCES
 [GitHub](https://github.com/ForkbombEu/didimo)
@@ -357,7 +357,7 @@ User feedback influenced iterative refinements:
 ## Platform Identification and Integration
 
 ### Selected Platform: DIDroom Integration
-DIDroom serves as a foundational platform for DIDimo, providing an open-source identity solution that aligns with TrustChain’s goals of interoperability and decentralized identity management.
+DIDroom serves as a foundational platform for Credimi, providing an open-source identity solution that aligns with TrustChain’s goals of interoperability and decentralized identity management.
 
 ### Evaluation
 - **Interoperability**: Supports integration with DIDroom’s existing W3C-compliant identity wallets, facilitating cross-standard compatibility.
@@ -368,7 +368,7 @@ DIDroom serves as a foundational platform for DIDimo, providing an open-source i
 - **Efficiency**: Optimized workflows reduce redundancy, leveraging DIDroom’s reusable identity management components.
 
 ### Integration with Existing Tools
-DIDimo leverages components and tools from DIDroom to strengthen the TrustChain ecosystem:
+Credimi leverages components and tools from DIDroom to strengthen the TrustChain ecosystem:
 - **Identity Wallets**: DIDroom identity wallets provide a secure basis for credential management.
 - **Libraries**: Extends decentralized identity libraries already developed under DIDroom.
 - **External Tools**: Integrates with external conformance and testing tools with the power of our workflow management.
