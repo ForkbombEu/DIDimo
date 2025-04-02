@@ -192,7 +192,6 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 			MaximumAttempts:    3,
 		},
 	}
-
 	subCtx := workflow.WithActivityOptions(ctx, subActivityOptions)
 
 	logInput := GetLogsActivityInput{
@@ -200,36 +199,53 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 		RID:     input.RID,
 		Token:   input.Token,
 	}
+
 	var logs []map[string]any
+	var triggerLogs bool // Flag to track if we should start TriggerLogsUpdateActivity
+
+	signalChan := workflow.GetSignalChannel(ctx, "wallet-test-start-log-update")
+	selector := workflow.NewSelector(ctx)
+	selector.AddReceive(signalChan, func(c workflow.ReceiveChannel, _ bool) {
+		triggerLogs = true
+	})
+
 	for {
+
 		if ctx.Err() != nil {
 			logger.Info("Workflow canceled, returning collected logs")
 			return LogWorkflowResponse{Logs: logs}, nil
 		}
 
+		// Get the logs
 		err := workflow.ExecuteActivity(subCtx, GetLogsActivity, logInput).Get(subCtx, &logs)
 		if err != nil {
 			logger.Error("Failed to get log", "error", err)
 			return LogWorkflowResponse{}, err
 		}
 
-		triggerLogsInput := TriggerLogsUpdateActivityInput{
-			AppURL:     input.AppURL,
-			Logs:       logs,
-			WorkflowID: strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
-		}
-		err = workflow.ExecuteActivity(subCtx, TriggerLogsUpdateActivity, triggerLogsInput).Get(ctx, nil)
-		if err != nil {
-			logger.Error("Failed to send logs", "error", err)
-			return LogWorkflowResponse{}, err
-		}
-		if result, ok := logs[len(logs)-1]["result"].(string); ok {
-			if result == "INTERRUPTED" || result == "FINISHED" {
-				return LogWorkflowResponse{Logs: logs}, nil
+		// Check if we received a signal before running TriggerLogsUpdateActivity
+		selector.Select(ctx)
+
+		if triggerLogs {
+			triggerLogsInput := TriggerLogsUpdateActivityInput{
+				AppURL:     input.AppURL,
+				Logs:       logs,
+				WorkflowID: strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
+			}
+			err = workflow.ExecuteActivity(subCtx, TriggerLogsUpdateActivity, triggerLogsInput).Get(ctx, nil)
+			if err != nil {
+				logger.Error("Failed to send logs", "error", err)
+				return LogWorkflowResponse{}, err
+			}
+			if len(logs) > 0 {
+				if result, ok := logs[len(logs)-1]["result"].(string); ok {
+					if result == "INTERRUPTED" || result == "FINISHED" {
+						return LogWorkflowResponse{Logs: logs}, nil
+					}
+				}
 			}
 		}
 
 		workflow.Sleep(subCtx, input.Interval)
 	}
-
 }

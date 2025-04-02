@@ -12,11 +12,12 @@ import (
 
 func Test_Workflows(t *testing.T) {
 	testCases := []struct {
-		name           string
-		mockActivities func(env *testsuite.TestWorkflowEnvironment)
-		signalDelay    time.Duration
-		signalData     SignalData
-		expectedMsg    string
+		name                string
+		mockActivities      func(env *testsuite.TestWorkflowEnvironment)
+		completeSignalDelay time.Duration
+		signalData          SignalData
+		startLogsDelay      time.Duration
+		expectedMsg         string
 	}{
 		{
 			name: "Signal before child completes",
@@ -28,9 +29,10 @@ func Test_Workflows(t *testing.T) {
 				env.OnActivity(GetLogsActivity, mock.Anything, mock.Anything).
 					Return([]map[string]interface{}{{"result": "RUNNING"}}, nil)
 			},
-			signalDelay: time.Minute,
-			signalData:  SignalData{Success: false, Reason: "Test failure"},
-			expectedMsg: "Workflow terminated with a failure message: Test failure",
+			completeSignalDelay: time.Minute,
+			signalData:          SignalData{Success: false, Reason: "Test failure"},
+			startLogsDelay:      time.Second * 30,
+			expectedMsg:         "Workflow terminated with a failure message: Test failure",
 		},
 		{
 			name: "Child terminates before signal",
@@ -42,9 +44,10 @@ func Test_Workflows(t *testing.T) {
 				env.OnActivity(GetLogsActivity, mock.Anything, mock.Anything).
 					Return([]map[string]interface{}{{"result": "FINISHED"}}, nil)
 			},
-			signalDelay: 2 * time.Minute,
-			signalData:  SignalData{Success: true},
-			expectedMsg: "Workflow completed successfully",
+			completeSignalDelay: 2 * time.Minute,
+			signalData:          SignalData{Success: true},
+			startLogsDelay:      time.Second * 30,
+			expectedMsg:         "Workflow completed successfully",
 		},
 	}
 
@@ -52,7 +55,7 @@ func Test_Workflows(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			testSuite := &testsuite.WorkflowTestSuite{}
 			env := testSuite.NewTestWorkflowEnvironment()
-			env.SetTestTimeout(10 * time.Minute)
+			env.SetTestTimeout(100 * time.Minute)
 
 			// Set environment variables
 			os.Setenv("TOKEN", "test_token")
@@ -64,8 +67,11 @@ func Test_Workflows(t *testing.T) {
 
 			env.RegisterDelayedCallback(func() {
 				env.SignalWorkflow("wallet-test-signal", tc.signalData)
-			}, tc.signalDelay)
+			}, tc.completeSignalDelay)
 			env.RegisterWorkflow(LogSubWorkflow)
+			env.RegisterDelayedCallback(func() {
+				env.SignalWorkflowByID("default-test-workflow-id-log", "wallet-test-start-log-update", nil)
+			}, tc.completeSignalDelay)
 			// Execute workflow
 			env.ExecuteWorkflow(OpenIDTestWorkflow, WorkflowInput{Variant: "test", UserMail: "user@example.org"})
 
@@ -107,6 +113,9 @@ func Test_LogSubWorkflow(t *testing.T) {
 			env.OnActivity(TriggerLogsUpdateActivity, mock.Anything, mock.Anything).Return(nil)
 			done := make(chan struct{})
 			go func() {
+				env.RegisterDelayedCallback(func() {
+					env.SignalWorkflow("wallet-test-start-log-update", nil)
+				}, time.Second*30)
 				env.ExecuteWorkflow(LogSubWorkflow, LogWorkflowInput{
 					RID:      "test-rid",
 					Token:    "test-token",

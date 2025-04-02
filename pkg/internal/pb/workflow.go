@@ -202,6 +202,24 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				"message": "Log update sent successfully",
 			})
 		})
+		se.Router.POST("/wallet-test/send-log-update-start", func(e *core.RequestEvent) error {
+			var request struct {
+				WorkflowID string `json:"workflow_id"`
+			}
+			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
+				return apis.NewBadRequestError("Invalid JSON input", err)
+			}
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
+			if err != nil {
+				return apis.NewBadRequestError("Failed to send start logs update signal", err)
+			}
+
+			return e.JSON(http.StatusOK, map[string]string{"message": "Realtime Logs update started successfully"})
+		})
 
 		return se.Next()
 	})
