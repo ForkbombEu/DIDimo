@@ -21,6 +21,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/types"
 
+	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
 )
@@ -387,7 +388,7 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	})
 }
 
-func RouteWorkflowList(app *pocketbase.PocketBase) {
+func RouteWorkflow(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			namespace := e.Request.URL.Query().Get("namespace")
@@ -421,8 +422,68 @@ func RouteWorkflowList(app *pocketbase.PocketBase) {
 				return apis.NewInternalServerError("failed to list workflows", err)
 			}
 
-			return e.JSON(http.StatusOK, list)
+			if list == nil {
+				return apis.NewNotFoundError("no workflows found", nil)
+			}
+			listJSON, err := json.Marshal(list)
+			if err != nil {
+				return apis.NewInternalServerError("failed to marshal workflow list", err)
+			}
+			return e.JSON(http.StatusOK, listJSON)
 		}).Bind(apis.RequireAuth())
+
+		se.Router.GET("/api/workflows/{workflowId}/{runId}", func(e *core.RequestEvent) error {
+			workflowId := e.Request.PathValue("workflowId")
+			if workflowId == "" {
+				return apis.NewBadRequestError("workflowId is required", nil)
+			}
+			runId := e.Request.PathValue("runId")
+			if runId == "" {
+				return apis.NewBadRequestError("runId is required", nil)
+			}
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				log.Fatalln("unable to create client", err)
+			}
+			workflowExecution, err := c.DescribeWorkflowExecution(context.Background(), workflowId, runId)
+			if err != nil {
+				return apis.NewInternalServerError("failed to describe workflow execution", err)
+			}
+			if workflowExecution == nil {
+				return apis.NewNotFoundError("workflow execution not found", nil)
+			}
+
+			workflowExecutionJSON, err := json.Marshal(workflowExecution)
+			if err != nil {
+				return apis.NewInternalServerError("failed to marshal workflow execution", err)
+			}
+
+			return e.JSON(http.StatusOK, workflowExecutionJSON)
+		}).Bind(apis.RequireAuth())
+
+		se.Router.GET("/api/workflows/{workflowId}/history", func(e *core.RequestEvent) error {
+			workflowId := e.Request.PathValue("workflowId")
+			if workflowId == "" {
+				return apis.NewBadRequestError("workflowId is required", nil)
+			}
+			runId := e.Request.PathValue("runId")
+			if runId == "" {
+				return apis.NewBadRequestError("runId is required", nil)
+			}
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				log.Fatalln("unable to create client", err)
+			}
+			history := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
+
+			historyJSON, err := json.Marshal(history)
+			if err != nil {
+				return apis.NewInternalServerError("failed to marshal workflow history", err)
+			}
+
+			return e.JSON(http.StatusOK, string(historyJSON))
+		}).Bind(apis.RequireAuth())
+
 		return se.Next()
 	})
 }
