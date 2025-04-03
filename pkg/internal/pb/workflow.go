@@ -393,7 +393,12 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
 
-			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user.id={:user} && role.name='owner'", "", 0, 0, dbx.Params{"user": authRecord.Id})
+			ownerRoleRecord, err := e.App.FindFirstRecordByFilter("orgRoles", "name='owner'")
+			if err != nil {
+				return apis.NewInternalServerError("failed to find owner role", err)
+			}
+
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && role={:role}", "", 0, 0, dbx.Params{"user": authRecord.Id, "role": ownerRoleRecord.Id})
 			if err != nil || orgAuthRecord == nil {
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
 			}
