@@ -1,12 +1,16 @@
 package workflow
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"os/exec"
+	"time"
 
 	"github.com/forkbombeu/didimo/pkg/internal/stepci"
 	"gopkg.in/gomail.v2"
@@ -107,6 +111,7 @@ func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
 					JSONPath string `yaml:"jsonpath"`
 				}{
 					"result": {JSONPath: "$.browser.urls[0]"},
+					"rid":    {JSONPath: "$.id"},
 				},
 				Check: struct {
 					Status int `yaml:"status,omitempty"`
@@ -191,6 +196,84 @@ func SendMailActivity(ctx context.Context, config EmailConfig) error {
 
 	if err := d.DialAndSend(m); err != nil {
 		return fmt.Errorf("failed to send email: %w", err)
+	}
+
+	return nil
+}
+
+// GetLogActivity performs the GET request to fetch the log
+func GetLogsActivity(ctx context.Context, input GetLogsActivityInput) ([]map[string]any, error) {
+
+	baseURL, err := url.Parse(input.BaseURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse base URL: %w", err)
+	}
+
+	baseURL.Path += url.PathEscape(input.RID)
+
+	query := baseURL.Query()
+	query.Set("public", "false")
+	baseURL.RawQuery = query.Encode()
+
+	finalURL := baseURL.String()
+
+	req, err := http.NewRequest("GET", finalURL, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", input.Token))
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to perform GET request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var result []map[string]any
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	return result, nil
+}
+
+func TriggerLogsUpdateActivity(ctx context.Context, input TriggerLogsUpdateActivityInput) error {
+
+	requestBody := LogUpdateRequest{
+		WorkflowID: input.WorkflowID,
+		Logs:       input.Logs,
+	}
+
+	logPayload, err := json.Marshal(requestBody)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequest("POST", input.AppURL+"/wallet-test/send-log-update", bytes.NewBuffer(logPayload))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, err := io.ReadAll(resp.Body)
+		if err != nil {
+			return fmt.Errorf("failed to read response body: %v", err)
+		}
+		return fmt.Errorf("failed to send log update, received status: %d, error: %s", resp.StatusCode, string(body))
 	}
 
 	return nil

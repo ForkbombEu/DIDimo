@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import TextareaField from '@/forms/fields/textareaField.svelte';
@@ -11,6 +12,7 @@
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { Label } from '@/components/ui/label';
 	import { MediaQuery } from 'svelte/reactivity';
+	import WorkflowLogs from '@/components/ui-custom/workflowLogs.svelte';
 
 	//
 
@@ -75,11 +77,11 @@
 			{@render Step(1, 'Scan this QR with the wallet app to start the check')}
 
 			<div
-				class="bg-primary/10 ml-16 mt-4 flex flex-col items-center justify-center rounded-md p-2 sm:flex-row"
+				class="ml-16 mt-4 flex flex-col items-center justify-center rounded-md bg-primary/10 p-2 sm:flex-row"
 			>
 				<QrCode src={data.qrContent} class="size-40 rounded-sm" />
 
-				<p class="text-primary max-w-sm break-all p-4 font-mono text-xs hover:underline">
+				<p class="max-w-sm break-all p-4 font-mono text-xs text-primary hover:underline">
 					{data.qrContent}
 				</p>
 			</div>
@@ -87,6 +89,9 @@
 
 		<div class="step-container">
 			{@render Step(2, 'Follow the procedure on the wallet app')}
+			<div class="ml-16">
+				<WorkflowLogs workflowId={data.workflowId} />
+			</div>
 		</div>
 
 		<div class="step-container">
@@ -139,16 +144,16 @@
 {#snippet Step(n: number, text: string)}
 	<div class="flex items-center gap-4">
 		<div
-			class="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
+			class="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground"
 		>
 			<p>{n}</p>
 		</div>
-		<T class="text-primary font-semibold">{text}</T>
+		<T class="font-semibold text-primary">{text}</T>
 	</div>
 {/snippet}
 
 <style lang="postcss">
 	.step-container {
-		@apply bg-secondary rounded-xl p-4;
+		@apply rounded-xl bg-secondary p-4;
 	}
 </style>
