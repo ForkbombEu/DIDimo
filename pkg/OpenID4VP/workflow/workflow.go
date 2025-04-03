@@ -146,7 +146,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 		AppURL:   input.AppURL,
 		RID:      rid,
 		Token:    token,
-		Interval: time.Second * 30,
+		Interval: time.Second,
 	})
 
 	// Wait for either signal or child completion
