@@ -461,7 +461,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			return e.JSON(http.StatusOK, workflowExecutionJSON)
 		}).Bind(apis.RequireAuth())
 
-		se.Router.GET("/api/workflows/{workflowId}/history", func(e *core.RequestEvent) error {
+		se.Router.GET("/api/workflows/{workflowId}/{runId}/history", func(e *core.RequestEvent) error {
 			workflowId := e.Request.PathValue("workflowId")
 			if workflowId == "" {
 				return apis.NewBadRequestError("workflowId is required", nil)
