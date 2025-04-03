@@ -3,6 +3,7 @@ package workflow
 import credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
 
 const FidesIssuersUrl = "https://credential-catalog.fides.community/api/public/credentialtype?includeAllDetails=false&size=200"
+const CredentialsTaskQueue = "CredentialsTaskQueue"
 
 type FetchIssuersActivityResponse struct{ Issuers []string }
 
