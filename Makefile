@@ -8,6 +8,7 @@ MAIN_SRC 		?= $(ROOT_DIR)/cmd/didimo/didimo.go
 DATA			?= $(ROOT_DIR)/pb_data
 WEBAPP			?= $(ROOT_DIR)/webapp
 GO_SRC 			:= $(wildcard **/*.go)
+GODIRS			:= ./pkg/... ./cmd/...
 UI_SRC			:= $(shell find $(WEBAPP)/src -type f \( -name '*.svelte' -o -name '*.js' -o -name '*.ts' -o -name '*.css' \) ! -name '*.generated.ts' ! -path 'webapp/src/modules/i18n/paraglide/*')
 DOCS			?= $(ROOT_DIR)/docs
 GOCMD 			?= go
@@ -16,6 +17,7 @@ GOCLEAN			?= $(GOCMD) clean
 GOTEST			?= $(GOCMD) test
 GOTOOL			?= $(GOCMD) tool
 GOGET			?= $(GOCMD) get
+GOFMT			?= $(GOCMD) fmt
 GOMOD			?= $(GOCMD) mod
 GOINST			?= $(GOCMD) install
 GOGEN			?= $(GOCMD) generate
@@ -25,7 +27,6 @@ GOMOD_FILES 	:= go.mod go.sum
 
 # Tools & Linters
 REVIVE			?= $(GOBIN)/revive
-GOFUMPT 		?= $(GOBIN)/gofumpt
 GOVULNCHECK 	?= $(GOBIN)/govulncheck
 OVERMIND 		?= $(GOBIN)/overmind
 AIR 			?= $(GOBIN)/air
@@ -74,14 +75,14 @@ dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
 	$(OVERMIND) s -f Procfile.dev
 
 test: ## 🧪 run tests with coverage
-	$(GOTEST) $(SUBDIRS) -v -cover
+	$(GOTEST) $(GODIRS) -v -cover
 
 lint: tools ## 📑 lint rules checks
-	$(REVIVE) -formatter stylish cmd
 	$(GOVULNCHECK) $(SUBDIRS)
+	$(REVIVE) $(GODIRS)
 
 fmt: tools ## 🗿 format rules checks
-	$(GOFUMPT) -l -w pocketbase *.go
+	$(GOFMT) $(GODIRS)
 
 tidy: $(GOMOD_FILES)
 	@$(GOMOD) tidy
@@ -110,7 +111,8 @@ $(BINARY_NAME)-ui: $(UI_SRC)
 	kill $$PID;
 
 docker: ## 🐳 run docker with all the infrastructure services
-	docker compose up --build
+	docker compose build --build-arg PUBLIC_POCKETBASE_URL="http://localhost:8090"
+	docker compose up
 
 ## Misc
 
@@ -127,15 +129,12 @@ clean: ## 🧹 Clean files and caches
 	@echo "🧹 cleaned"
 
 generate: $(ROOT_DIR)/pkg/gen.go
-	$(GOGEN) $(SUBDIRS)
+	$(GOGEN) $(ROOT_DIR)/pkg/gen.go
 
 tools: generate
 	mise install
 	@if [ ! -f "$(REVIVE)" ]; then \
 		$(GOINST) github.com/mgechev/revive@latest; \
-	fi
-	@if [ ! -f "$(GOFUMPT)" ]; then \
-		$(GOINST) mvdan.cc/gofumpt@latest; \
 	fi
 	@if [ ! -f "$(GOVULNCHECK)" ]; then \
 		$(GOINST) golang.org/x/vuln/cmd/govulncheck@latest; \

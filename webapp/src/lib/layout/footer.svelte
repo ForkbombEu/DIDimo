@@ -1,9 +1,10 @@
 <script>
 	import { appName } from '@/brand';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
+	import { appVersion } from '@/utils/appVersion';
 </script>
 
 <div class="bg-primary text-muted">
@@ -11,7 +12,10 @@
 		<div class="px-8 py-12">
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
 				<div>
-					<T tag="h4">{appName}</T>
+					<T tag="h4">
+						{appName}
+						<span class="pl-1 text-sm text-white/40">{appVersion}</span>
+					</T>
 					<p class="border-b-muted border-b">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
 				<div class="flex gap-2 blur-sm">

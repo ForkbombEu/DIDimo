@@ -2,9 +2,12 @@
 	import { WelcomeSession } from '@/auth/welcome';
 	import { CollectionManager } from '@/collections-components/index.js';
 	import { RecordCard } from '@/collections-components/manager';
+	import Button from '@/components/ui-custom/button.svelte';
+	import Icon from '@/components/ui-custom/icon.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { Separator } from '@/components/ui/separator';
 	import { currentUser } from '@/pocketbase';
+	import { Sparkle } from 'lucide-svelte';
 
 	if (WelcomeSession.isActive()) WelcomeSession.end();
 
@@ -14,9 +17,16 @@
 <div class="flex flex-col space-y-8 p-4">
 	<Separator />
 
-	<div class="space-y-2">
-		<T tag="h1">Dashboard</T>
-		<T>Welcome back, {$currentUser?.name}</T>
+	<div class="flex items-center justify-between">
+		<div class="space-y-2">
+			<T tag="h1">Dashboard</T>
+			<T>Welcome back, {$currentUser?.name}</T>
+		</div>
+
+		<Button href="/my/tests">
+			<Icon src={Sparkle} />
+			Start a new check
+		</Button>
 	</div>
 
 	<Separator />

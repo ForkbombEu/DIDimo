@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import BaseTopbar from '@/components/layout/topbar.svelte';
@@ -27,7 +27,7 @@
 	{#snippet right()}
 		<div class="flex items-center space-x-2">
 			{#if !$featureFlags.DEMO}
-				<Button variant="default" href="/tests/new">{m.Start_a_new_check()}</Button>
+				<Button variant="outline" href="/tests/new">[old check]</Button>
 			{/if}
 
 			{#if !$featureFlags.DEMO && $featureFlags.AUTH}

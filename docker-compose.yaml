@@ -1,85 +1,28 @@
 services:
-  temporal:
-    depends_on:
-      - postgresql
-    environment:
-      - DB=postgres12
-      - DB_PORT=5432
-      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
-      - POSTGRES_PWD=${SERVICE_PASSWORD_POSTGRES:-d}
-      - POSTGRES_SEEDS=postgresql
-      - PROMETHEUS_ENDPOINT=0.0.0.0:8000
-    image: temporalio/auto-setup:1.21.1
-  temporal-admin-tools:
-    depends_on:
-      - temporal
-    environment:
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_CLI_ADDRESS=temporal:7233
-    image: temporalio/admin-tools:1.21.1
-    stdin_open: true
-    tty: true
-  temporal-ui:
-    depends_on:
-      - temporal
-    environment:
-      - TEMPORAL_OPENAPI_ENABLED=true
-      - TEMPORAL_UI_ENABLED=true
-      - TEMPORAL_ADDRESS=temporal:7233
-      - TEMPORAL_UI_PUBLIC_PATH=/workflows
-      # - TEMPORAL_CODEC_ENDPOINT=http://localhost:8081
-    image: temporalio/ui:2.32.0
-    ports:
-      - 8080:8080
-  prometheus:
-    image: prom/prometheus
-    ports:
-      - 9090:9090
-    volumes:
-      - type: bind
-        source: ./deployment/prometheus/config.yml
-        target: /etc/prometheus/prometheus.yml
-  grafana:
-    build: './deployment/grafana'
-    environment:
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_SERVER_SERVE_FROM_SUB_PATH=true
-      - GF_SERVER_ROOT_URL=http://localhost:8085/monitoring
-      - GF_SECURITY_ALLOWED_CORS_ORIGINS=http://localhost:8090
-      - GF_SECURITY_CSRF_TRUSTED_ORIGINS=http://localhost:8090
-      - GF_SECURITY_COOKIE_SAMESITE=disabled
-      - GF_SECURITY_CONTENT_SECURITY_POLICY=false
-      - GF_SERVER_HTTP_PORT=8085
-      - GF_SECURITY_ACTIONS_ALLOW_POST_URL=/*
-    ports:
-      - 8085:8085
-    volumes:
-      - type: bind
-        source: ./deployment/grafana/provisioning/datasources
-        target: /etc/grafana/provisioning/datasources
-  thirdparty:
-    build: deployment/thirdparty-simulator
-    command: thirdparty-simulator api
-    restart: unless-stopped
-    environment:
-      - TEMPORAL_GRPC_ENDPOINT=temporal:7233
-  postgresql:
-    environment:
-      - POSTGRES_USER=${SERVICE_USER_POSTGRES:-d}
-      - POSTGRES_PASSWORD=${SERVICE_PASSWORD_POSTGRES:-d}
-    image: postgres:13
-  didimo:
+  credimi:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - PUBLIC_POCKETBASE_URL=${PUBLIC_POCKETBASE_URL:-https://demo.credimi.io}
     environment:
-      - ADDRESS_TEMPORAL=http://temporal-ui:8080
+      - SERVICE_FQDN_CREDIMI
+      - SERVICE_FQDN_CREDIMI_8090
+      - ADDRESS_TEMPORAL=http://localhost:8280
       - ADDRESS_GRAFANA=http://grafana:8085
       - ADDRESS_UI=http://localhost:5100
-      - SERVICE_FQDN_DIDIMO_8090
-      - PUBLIC_POCKETBASE_URL=$COOLIFY_URL
+      - APP_PATH=${COOLIFY_URL:-http://localhost:8090}
+      - ROOT_DIR=/app
+      - DATA_DB_PATH=/app/pb_data/data.db
+      - MAIL_SENDER=didimo@forkbomb.eu
+      - RUN_STEPCI_PATH=pkg/OpenID4VP/stepci/runStepCI.js
+      - SCHEMAS_PATH=schemas
+      - SMTP_HOST=smtp.apps.forkbomb.eu
+      - SMTP_PORT=1025
+      - TEMPORAL_ADDRESS=localhost:7233
       - PORT=5100
+    ports:
+      - 8090:8090
+      - 7233:7233
     volumes:
-      - ./pb_data/:/pb_data
+      - ./pb_data/:/app/pb_data

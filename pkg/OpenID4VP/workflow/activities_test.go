@@ -9,7 +9,6 @@ import (
 	"os"
 	"testing"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 	smtpmock "github.com/mocktools/go-smtp-mock"
 	"github.com/stretchr/testify/require"
 	"go.temporal.io/sdk/testsuite"
@@ -21,15 +20,15 @@ func TestGenerateYAMLActivity(t *testing.T) {
 	env.RegisterActivity(GenerateYAMLActivity)
 
 	// Define mock Form
-	mockForm := testdata.Form{
-		Alias:       "MOCK_ALIAS",
-		Description: "Mock description for testing",
-		Server: testdata.Server{
-			AuthorizationEndpoint: "mock-protocol://mock-auth",
+	mockForm := map[string]any{
+		"alias":       "MOCK_ALIAS",
+		"description": "Mock description for testing",
+		"server": map[string]any{
+			"authorization_endpoint": "mock-protocol://mock-auth",
 		},
-		Client: testdata.Client{
-			ClientID: "mock:client:id",
-			PresentationDefinition: map[string]any{
+		"client": map[string]any{
+			"client_id": "mock:client:id",
+			"presentation_definition": map[string]any{
 				"id": "mock_presentation_id",
 				"input_descriptors": []map[string]any{
 					{
@@ -54,7 +53,7 @@ func TestGenerateYAMLActivity(t *testing.T) {
 					},
 				},
 			},
-			JWKS: map[string]any{
+			"jwks": map[string]any{
 				"keys": []map[string]any{
 					{
 						"kty": "MOCK_KTY",
@@ -72,7 +71,7 @@ func TestGenerateYAMLActivity(t *testing.T) {
 	testCases := []struct {
 		name          string
 		variant       string
-		form          testdata.Form
+		form          any
 		setupEnv      func()
 		expectedError bool
 	}{

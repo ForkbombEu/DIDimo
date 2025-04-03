@@ -11,7 +11,7 @@
 	import { FileField, TextareaField } from '@/forms/fields';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 
 	interface Props {
 		onSuccess?: (emails: string[]) => void;
@@ -118,7 +118,9 @@
 			<Alert variant="success" class="!p-4">
 				{#snippet content({ Title })}
 					<div class="flex items-center justify-between gap-2">
-						<Title><span class="mr-1">✅</span> {emails.length} {m.Emails_found()}</Title>
+						<Title
+							><span class="mr-1">✅</span> {emails.length} {m.Emails_found()}</Title
+						>
 						<Button
 							onclick={() => {
 								onSuccess(emails);

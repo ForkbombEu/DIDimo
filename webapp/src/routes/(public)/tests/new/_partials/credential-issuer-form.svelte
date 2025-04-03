@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
-	import { goto, m } from '@/i18n';
+	import { goto } from '$app/navigation';
+	import { m } from '@/i18n';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { pb } from '@/pocketbase';

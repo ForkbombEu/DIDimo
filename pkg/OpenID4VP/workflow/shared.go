@@ -26,7 +26,7 @@ type EmailConfig struct {
 
 type GenerateYAMLInput struct {
 	Variant  string
-	Form     testdata.Form
+	Form     any
 	FilePath string
 }
 
@@ -41,7 +41,7 @@ type StepCIRunnerResponse struct {
 
 type WorkflowInput struct {
 	Variant  string
-	Form     testdata.Form
+	Form     any
 	UserMail string
 	AppURL   string
 }

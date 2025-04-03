@@ -1,20 +1,20 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { HTMLAnchorAttributes } from 'svelte/elements';
+	import { localizeHref } from '@/i18n';
+	import { cn } from '../ui/utils';
 
 	type Props = HTMLAnchorAttributes & {
 		children?: Snippet;
 	};
 
-	let { children, ...rest }: Props = $props();
+	let { class: className, href, children, ...rest }: Props = $props();
 </script>
 
-<a {...rest}>
+<a
+	href={href ? localizeHref(href) : undefined}
+	class={cn(className, 'text-primary hover:underline')}
+	{...rest}
+>
 	{@render children?.()}
 </a>
-
-<style lang="postcss">
-	a {
-		@apply text-primary hover:underline;
-	}
-</style>

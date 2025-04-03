@@ -7,7 +7,7 @@
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
@@ -24,6 +24,7 @@
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
+	import NewsCard from '$lib/layout/newsCard.svelte';
 
 	const fakeService: ServicesResponse = {
 		id: 'das',
@@ -49,6 +50,8 @@
 		created: '2024-12-12',
 		updated: '2024-12-12',
 		credential_issuer: 'das',
+		json: {},
+		key: 'das',
 		description: 'Lorem ipsum',
 		format: CredentialsFormatOptions['jwt_vc_json'],
 		issuer_name: 'das',
@@ -56,10 +59,8 @@
 		name: 'das',
 		locale: 'en',
 		type: 'plc',
-		json: {},
 		collectionId: '',
-		collectionName: Collections.Credentials,
-		key: ''
+		collectionName: Collections.Credentials
 	};
 
 	const schema = z.object({
@@ -115,6 +116,48 @@
 </PageTop>
 
 <PageContent class="bg-secondary" contentClass="space-y-12">
+	<div class="space-y-6">
+		<div class="flex items-center justify-between">
+			<T tag="h3">{m.latest_news_and_updates()}</T>
+
+			{#if $featureFlags.DEMO}
+				<Button variant="default" disabled class="select-none blur">
+					{m.all_news()}
+				</Button>
+			{:else}
+				<Button variant="default" href="/news">
+					{m.all_news()}
+				</Button>
+			{/if}
+		</div>
+
+		{#if $featureFlags.DEMO}
+			<PageGrid class="select-none blur-sm">
+				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
+				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
+				<ServiceCard
+					service={fakeService}
+					class="pointer-events-none hidden grow basis-1 lg:block"
+				/>
+			</PageGrid>
+		{:else}
+			{@const MAX_ITEMS = 3}
+			<CollectionManager
+				collection="news"
+				queryOptions={{ perPage: MAX_ITEMS }}
+				hide={['pagination']}
+			>
+				{#snippet records({ records })}
+					<PageGrid>
+						{#each records as record}
+							<NewsCard news={record} />
+						{/each}
+					</PageGrid>
+				{/snippet}
+			</CollectionManager>
+		{/if}
+	</div>
+
 	<div class="space-y-6">
 		<div class="flex items-center justify-between">
 			<T tag="h3">{m.Find_solutions()}</T>

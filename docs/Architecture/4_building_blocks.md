@@ -10,14 +10,14 @@ SPDX-License-Identifier: CC-BY-NC-SA-4.0
 
 
 
-The following system diagrams provide a visual overview of the DIDimo platform, illustrating its architecture and key components. These diagrams are based on the C4 model, which is a widely-used approach for visualizing software architecture.
+The following system diagrams provide a visual overview of the Credimi platform, illustrating its architecture and key components. These diagrams are based on the C4 model, which is a widely-used approach for visualizing software architecture.
 
-While we follow the principles of the C4 model, our implementation is somewhat loose, focusing on clarity and relevance to the specific context of DIDimo. The diagrams capture different levels of abstraction, from the overall system context down to detailed component interactions within the platform. This structured approach helps in understanding how various parts of the system interact and contribute to its overall functionality.
+While we follow the principles of the C4 model, our implementation is somewhat loose, focusing on clarity and relevance to the specific context of Credimi. The diagrams capture different levels of abstraction, from the overall system context down to detailed component interactions within the platform. This structured approach helps in understanding how various parts of the system interact and contribute to its overall functionality.
 
 
 ## System Context diagrams
 
-Shows the interaction between external actors (developers, service providers, governmental bodies, etc.) and the DIDimo system.
+Shows the interaction between external actors (developers, service providers, governmental bodies, etc.) and the Credimi system.
 
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
@@ -30,7 +30,7 @@ Shows the interaction between external actors (developers, service providers, go
 
 LAYOUT_WITH_LEGEND()
 
-title System Context Diagram for DIDimo
+title System Context Diagram for Credimi
 
 Person(dev, "Developer", "Submits credential issuers and runs compliance checks.")
 Person(sp, "Service Provider", "Manages and publishes compliance results.")
@@ -41,7 +41,7 @@ Person(enduser, "End User", "Browses verified credential issuers.", $sprite="use
 Person(researcher, "Researcher", "Analyzes compliance data.", $sprite="presenter")
 Person(sb, "Standardization Body", "Evaluates standards alignment.", $sprite="ribbon")
 
-System(didimo, "DIDimo", "Platform for verifying compliance of decentralized identity services.")
+System(didimo, "Credimi", "Platform for verifying compliance of decentralized identity services.")
 
 Rel(dev, didimo, "Submits and checks compliance")
 Rel_U(sp, didimo, "Manages and publishes results")
@@ -56,7 +56,7 @@ Lay_U(cto, eu)
 @enduml
 
 ## Container diagrams
-Illustrates the main containers within the DIDimo system (API Gateway, Compliance Engine, Dashboard, etc.) and their interactions.
+Illustrates the main containers within the Credimi system (API Gateway, Compliance Engine, Dashboard, etc.) and their interactions.
 
 @startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
@@ -69,7 +69,7 @@ Illustrates the main containers within the DIDimo system (API Gateway, Complianc
 !include I/presenter.puml
 
 
-title Container Diagram for DIDimo
+title Container Diagram for Credimi
 
 Person(enduser, "End User")
 Person(dev, "Developer")
@@ -80,7 +80,7 @@ Person(cto, "CTO")
 Person(researcher, "Researcher", $sprite="presenter")
 Person(sb, "Standardization Body", $sprite="ribbon")
 
-System_Boundary(didimo, "DIDimo") {
+System_Boundary(didimo, "Credimi") {
     Container(dashboard, "Dashboard", "TypeScript/Svelte", "User interface for managing services and viewing results.")
     Container(comparison_tool, "Marketplace/Comparison Tool", "TypeScript/Svelte", "Tool for comparing credential services.")
     Container_Boundary(api_gateway, "API Gateway (golang)") {

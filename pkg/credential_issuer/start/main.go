@@ -8,12 +8,12 @@ import (
 	schedule "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	"go.temporal.io/sdk/client"
 )
- 
+
 func main() {
 	scheduleID := "schedule_id"
 	workflowID := "schedule_workflow_id"
 	ctx := context.Background()
-	
+
 	temporalClient, err := client.Dial(client.Options{
 		HostPort: client.DefaultHostPort,
 	})
@@ -23,7 +23,7 @@ func main() {
 	defer temporalClient.Close()
 
 	scheduleHandle, err := temporalClient.ScheduleClient().Create(ctx, client.ScheduleOptions{
-		ID:   scheduleID,
+		ID: scheduleID,
 		Spec: client.ScheduleSpec{
 			Intervals: []client.ScheduleIntervalSpec{
 				{

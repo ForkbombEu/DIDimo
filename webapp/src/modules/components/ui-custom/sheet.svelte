@@ -2,7 +2,7 @@
 	import * as Sheet from '@/components/ui/sheet';
 	import type { ComponentProps, Snippet } from 'svelte';
 	import { cn } from '@/components/ui/utils';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import { Separator } from '@/components/ui/separator';
 	import type { GenericRecord } from '@/utils/types';
 
@@ -58,7 +58,9 @@
 
 	<Sheet.Content
 		side="right"
-		class="flex {cn({ '!min-w-[300px] !max-w-none': side == 'right' })} flex-col px-0 {className}"
+		class="flex {cn({
+			'!min-w-[300px] !max-w-none': side == 'right'
+		})} flex-col px-0 {className}"
 	>
 		{#if title}
 			<Sheet.Header class="px-6">

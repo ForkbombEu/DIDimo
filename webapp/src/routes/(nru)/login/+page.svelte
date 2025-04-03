@@ -1,11 +1,12 @@
 <script lang="ts">
-	import { goto, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import { pb } from '@/pocketbase';
 	import { Form, createForm } from '@/forms';
 	import { Field } from '@/forms/fields';
 	import z from 'zod';
 	import { currentEmail } from './+layout.svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
+	import { goto } from '@/i18n';
 
 	//
 

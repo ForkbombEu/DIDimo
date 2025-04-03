@@ -18,7 +18,6 @@ import (
 
 // GenerateYAML generates a YAML file based on provided variant and form
 func GenerateYAMLActivity(ctx context.Context, input GenerateYAMLInput) error {
-
 	schemasPath := os.Getenv("SCHEMAS_PATH")
 	if schemasPath == "" {
 		return fmt.Errorf("SCHEMAS_PATH environment variable not set")
@@ -172,7 +171,6 @@ func RunStepCIJSProgramActivity(ctx context.Context, input StepCIRunnerInput) (S
 
 // SendMailActivity sends an email
 func SendMailActivity(ctx context.Context, config EmailConfig) error {
-
 	// Create email message
 	m := gomail.NewMessage()
 	m.SetHeader("From", config.SenderEmail)

@@ -1,11 +1,12 @@
 <script lang="ts">
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import * as Popover from '@/components/ui/popover';
-	import { Button } from '@/components/ui/button';
+	import Button from '@/components/ui-custom/button.svelte';
 	import BaseLanguageSelect from './baseLanguageSelect.svelte';
 	import type { LanguageSelectTriggerSnippetProps } from './baseLanguageSelect.svelte';
 	import type { Snippet } from 'svelte';
 	import type { GenericRecord } from '@/utils/types';
+	import { setLocale } from './paraglide/runtime';
 
 	type Props = {
 		contentClass?: string;
@@ -38,12 +39,11 @@
 
 		{#snippet languages({ languages })}
 			<Popover.Content class="space-y-0.5 p-1 {contentClass} w-[--bits-popover-anchor-width]">
-				{#each languages as { href, hreflang, name, flag, isCurrent }}
+				{#each languages as { name, flag, isCurrent, tag }}
 					<Button
-						{href}
-						{hreflang}
+						onclick={() => setLocale(tag)}
 						variant={isCurrent ? 'secondary' : 'ghost'}
-						class="flex items-center justify-start gap-2"
+						class="flex w-full items-center justify-start gap-2"
 						size="sm"
 					>
 						<span class="text-2xl">
