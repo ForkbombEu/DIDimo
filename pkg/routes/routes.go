@@ -42,7 +42,7 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.HookCredentialWorkflow(app)
 	pb.AddOpenID4VPTestEndpoints(app)
 	pb.HookUpdateCredentialsIssuers(app)
-	pb.RouteWorkflowList(app)
+	pb.RouteWorkflow(app)
 	pb.Register(app)
 
 	jsvm.MustRegister(app, jsvm.Config{
