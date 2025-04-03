@@ -6,6 +6,7 @@ import TextareaField from './textareaField.svelte';
 import SelectField from './selectField.svelte';
 import DateField from './dateField.svelte';
 import CodeEditorField from './codeEditorField.svelte';
+import PlaceholderHighlightCodeEditorField from './placeholderHighlightCodeEditorField.svelte';
 
 export {
 	Field,
@@ -15,5 +16,6 @@ export {
 	TextareaField,
 	SelectField,
 	DateField,
-	CodeEditorField
+	CodeEditorField,
+	PlaceholderHighlightCodeEditorField
 };
