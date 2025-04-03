@@ -9,7 +9,6 @@
 		toEventHistory,
 		type HistoryEvent
 	} from '@forkbombeu/temporal-ui';
-	import '@forkbombeu/temporal-ui/dist/temporal.css';
 
 	//
 

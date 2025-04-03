@@ -88,7 +88,7 @@
 	},
 	"dependencies": {
 		"@codemirror/lang-json": "^6.0.1",
-		"@forkbombeu/temporal-ui": "https://github.com/ForkbombEu/temporal-ui",
+		"@forkbombeu/temporal-ui": "github:ForkbombEu/temporal-ui",
 		"@melt-ui/svelte": "^0.86.4",
 		"@types/node": "^22.13.11",
 		"date-fns": "2.29",
