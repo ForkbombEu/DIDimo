@@ -391,19 +391,9 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 func RouteWorkflow(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
-			namespace := e.Request.URL.Query().Get("namespace")
-			if namespace == "" {
-				return apis.NewBadRequestError("namespace is required", nil)
-			}
-
 			authRecord := e.Auth
 
-			orgRecord, err := e.App.FindFirstRecordByFilter("organizations", "name={:name}", dbx.Params{"name": namespace})
-			if err != nil || orgRecord == nil {
-				return apis.NewBadRequestError("Organization not found", err)
-			}
-
-			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && organization={:organization}", "", 0, 0, dbx.Params{"user": authRecord.Id, "organization": orgRecord.Id})
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user.id={:user} && role.name='owner'", "", 0, 0, dbx.Params{"user": authRecord.Id})
 			if err != nil || orgAuthRecord == nil {
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
 			}
@@ -415,6 +405,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
+			namespace := orgAuthRecord[0].GetString("organization")
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
@@ -422,9 +413,9 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 				return apis.NewInternalServerError("failed to list workflows", err)
 			}
 
-			if list == nil {
-				return apis.NewNotFoundError("no workflows found", nil)
-			}
+			// if list == nil {
+			// 	return apis.NewNotFoundError("no workflows found", nil)
+			// }
 			listJSON, err := json.Marshal(list)
 			if err != nil {
 				return apis.NewInternalServerError("failed to marshal workflow list", err)
