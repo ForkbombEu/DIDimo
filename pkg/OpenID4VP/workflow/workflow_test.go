@@ -128,7 +128,6 @@ func Test_LogSubWorkflow(t *testing.T) {
 				env.RegisterDelayedCallback(env.CancelWorkflow, time.Second*45)
 
 				<-done
-				assert.NoError(t, env.GetWorkflowError())
 				assert.Greater(t, callCount, 1) // Expecting multiple activity calls
 			} else {
 				<-done

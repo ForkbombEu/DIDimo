@@ -177,11 +177,10 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 
 	return WorkflowResponse{Message: "Workflow completed successfully", Logs: subWorkflowResponse.Logs}, nil
 }
-
 func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowResponse, error) {
 	logger := workflow.GetLogger(ctx)
 
-	// Configure activity options for the sub-workflow
+	// Configure activity options
 	subActivityOptions := workflow.ActivityOptions{
 		ScheduleToCloseTimeout: time.Minute * 10,
 		StartToCloseTimeout:    time.Minute * 5,
@@ -201,32 +200,59 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 	}
 
 	var logs []map[string]any
-	var triggerLogs bool // Flag to track if we should start TriggerLogsUpdateActivity
 
 	signalChan := workflow.GetSignalChannel(ctx, "wallet-test-start-log-update")
 	selector := workflow.NewSelector(ctx)
-	selector.AddReceive(signalChan, func(c workflow.ReceiveChannel, _ bool) {
-		triggerLogs = true
-	})
+	var triggerEnabled bool // Persistent flag to enable activity executions
+
+	// Timer setup
+	var timerFuture workflow.Future
+	startTimer := func() {
+		timerCtx, _ := workflow.WithCancel(ctx)
+		timerFuture = workflow.NewTimer(timerCtx, input.Interval)
+	}
+
+	// Initialize the timer
+	startTimer()
 
 	for {
-
 		if ctx.Err() != nil {
 			logger.Info("Workflow canceled, returning collected logs")
 			return LogWorkflowResponse{Logs: logs}, nil
 		}
 
-		// Get the logs
+		// Fetch logs
 		err := workflow.ExecuteActivity(subCtx, GetLogsActivity, logInput).Get(subCtx, &logs)
 		if err != nil {
-			logger.Error("Failed to get log", "error", err)
+			logger.Error("Failed to get logs", "error", err)
 			return LogWorkflowResponse{}, err
 		}
 
-		// Check if we received a signal before running TriggerLogsUpdateActivity
+		// Check termination condition
+		if len(logs) > 0 {
+			if result, ok := logs[len(logs)-1]["result"].(string); ok {
+				if result == "INTERRUPTED" || result == "FINISHED" {
+					return LogWorkflowResponse{Logs: logs}, nil
+				}
+			}
+		}
+
+		// Register events in the selector
+		selector.AddReceive(signalChan, func(c workflow.ReceiveChannel, _ bool) {
+			var signalVal interface{}
+			c.Receive(ctx, &signalVal)
+			triggerEnabled = true // Enable activity execution
+		})
+		selector.AddFuture(timerFuture, func(f workflow.Future) {
+			// Timer expired; reset the timer for the next interval
+			startTimer()
+		})
+
+		// Wait for either a signal or the timer to expire
 		selector.Select(ctx)
 
-		if triggerLogs {
+		// Execute TriggerLogsUpdateActivity if enabled
+		if triggerEnabled {
 			triggerLogsInput := TriggerLogsUpdateActivityInput{
 				AppURL:     input.AppURL,
 				Logs:       logs,
@@ -237,15 +263,6 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 				logger.Error("Failed to send logs", "error", err)
 				return LogWorkflowResponse{}, err
 			}
-			if len(logs) > 0 {
-				if result, ok := logs[len(logs)-1]["result"].(string); ok {
-					if result == "INTERRUPTED" || result == "FINISHED" {
-						return LogWorkflowResponse{Logs: logs}, nil
-					}
-				}
-			}
 		}
-
-		workflow.Sleep(subCtx, input.Interval)
 	}
 }
