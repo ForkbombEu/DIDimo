@@ -9,6 +9,8 @@
 
 /** @typedef {MailerMessage["to"][number]} Address */
 
+/** @typedef {import('./auditLogger.js')} AuditLogger */
+
 //
 
 /* -- Error codes -- */
@@ -446,6 +448,46 @@ function copyFile(record, field) {
     return file;
 }
 
+/**
+ *
+ * @param {core.RecordRequestEvent} e
+ * @param {string} organizationId
+ * @param {string} userId
+ * @param {string} [organizationName]
+ */
+function createOwnerRoleForOrganization(
+    e,
+    organizationId,
+    userId,
+    organizationName = organizationId
+) {
+    /** @type {AuditLogger} */
+    const auditLogger = require(`${__hooks}/auditLogger.js`);
+
+    //
+
+    const ownerRole = getRoleByName("owner");
+    const ownerRoleId = ownerRole?.id;
+
+    const collection = $app.findCollectionByNameOrId("orgAuthorizations");
+    const record = new Record(collection, {
+        organization: organizationId,
+        role: ownerRoleId,
+        user: userId,
+    });
+    $app.save(record);
+
+    auditLogger(e).info(
+        "Created owner role for organization",
+        "organizationId",
+        e.record?.id,
+        "organizationName",
+        organizationName,
+        "userId",
+        userId
+    );
+}
+
 //
 
 module.exports = {
@@ -474,5 +516,6 @@ module.exports = {
     getRequestAgent,
     getRequestAgentName,
     copyFile,
+    createOwnerRoleForOrganization,
     errors,
 };
