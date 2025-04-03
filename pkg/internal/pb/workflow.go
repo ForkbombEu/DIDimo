@@ -413,7 +413,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 
 			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
-				log.Fatalln("unable to create client", err)
+				return apis.NewInternalServerError("unable to create client", err)
 			}
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
@@ -443,7 +443,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
-				log.Fatalln("unable to create client", err)
+				return apis.NewInternalServerError("unable to create client", err)
 			}
 			workflowExecution, err := c.DescribeWorkflowExecution(context.Background(), workflowId, runId)
 			if err != nil {
@@ -472,7 +472,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
-				log.Fatalln("unable to create client", err)
+				return apis.NewInternalServerError("unable to create client", err)
 			}
 			history := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
 
