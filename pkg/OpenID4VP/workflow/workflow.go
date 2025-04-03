@@ -94,7 +94,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 
 	result, ok := response.Result["result"].(string)
 	if !ok {
-		result = " "
+		result = ""
 	}
 
 	query := u.Query()

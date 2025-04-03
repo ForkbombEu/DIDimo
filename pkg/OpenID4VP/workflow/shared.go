@@ -2,8 +2,6 @@ package workflow
 
 import (
 	"time"
-
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/testdata"
 )
 
 const (
