@@ -20,13 +20,10 @@
 <!-- <pre>{JSON.stringify(executions, null, 2)}</pre> -->
 
 {#each executions as workflow}
+	{@const path = `/my/workflows/${workflow.execution.workflow_id}/${workflow.execution.run_id}`}
 	<div class="flex items-center gap-2">
 		<T>{workflow.execution.run_id}</T>
-		<T
-			><A href={`/my/workflows/${workflow.execution.workflow_id}`}
-				>{workflow.execution.workflow_id}</A
-			></T
-		>
+		<T><A href={path}>{workflow.execution.workflow_id}</A></T>
 		<T>{workflow.type.name}</T>
 		<T>{workflow.status}</T>
 		<T>{workflow.execution_time.seconds}</T>

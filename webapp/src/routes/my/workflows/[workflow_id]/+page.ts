@@ -1,7 +1,5 @@
-export const load = async ({ params }) => {
-	const { workflow_id } = params;
+import { error } from '@sveltejs/kit';
 
-	return {
-		workflow_id
-	};
+export const load = async () => {
+	error(404);
 };

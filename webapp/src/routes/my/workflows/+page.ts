@@ -14,6 +14,8 @@ export const load = async () => {
 		});
 	}
 
+	console.log(workflows.data.executions);
+
 	return {
 		executions: workflows.data.executions
 	};
