@@ -601,19 +601,13 @@ func HookAtUserCreation(app *pocketbase.PocketBase) {
 			return nil
 		}
 		user := e.Record
-		return createNamespaceForUser(e.App, user)
-	})
-}
-func HookAtUserLogin(app *pocketbase.PocketBase) { 
-	app.OnRecordAuthRequest().BindFunc(func(e *core.RecordAuthRequestEvent) error {
-		user := e.Record
-		return createNamespaceForUser(e.App, user)
+		return createNamespaceForUser(e, user)
 	})
 }
 
-func createNamespaceForUser(app core.App, user *core.Record) error {
+func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 	log.Println("Creating namespace for user:", user.Id)
-	err := app.RunInTransaction(func(txApp core.App) error {
+	err := e.App.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
 		if err != nil {
 			return apis.NewInternalServerError("failed to find organizations collection", err)
