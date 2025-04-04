@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { CodeEditorField } from '@/forms/fields';
+	import { PlaceholderHighlightCodeEditorField } from '@/forms/fields';
 	import { createForm, Form } from '@/forms';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
@@ -113,8 +114,11 @@
 
 	/* Trigger onValidUpdate */
 
-	const { validateForm, validate } = form;
+	const { validateForm, validate, errors } = form;
 	const formState = new Store(formData); // Readonly
+	const errorsState = new Store(errors); // Track errors reactively
+
+	// Remove the field-specific watchers that might cause infinite loops
 
 	watch(
 		() => formState.current,
@@ -157,6 +161,20 @@
 		}
 	);
 
+	// Create a reactive store for the field validation state using a simpler approach
+	let fieldValidationStateValue =
+		$state<Record<string, { valid: boolean; value: string }>>(getFieldValidationState());
+
+	// Update validation state when form data or errors change
+	$effect(() => {
+		// Access these to track changes
+		formState.current;
+		errorsState.current;
+
+		// Update validation state
+		fieldValidationStateValue = getFieldValidationState();
+	});
+
 	/* Utils */
 
 	function previewValue(value: unknown, type: SpecificFieldConfig['Type']): string {
@@ -166,20 +184,94 @@
 		if (type === 'object') return JSON.stringify(JSON.parse(value as string), null, 4);
 		return NULL_VALUE;
 	}
+
+	function getPlaceholdersFromJson(jsonString: string): string[] {
+		const placeholderRegex = /\{\{\s*\.(\w+)\s*\}\}/g;
+		const placeholders = new Set<string>();
+		let match;
+
+		while ((match = placeholderRegex.exec(jsonString)) !== null) {
+			placeholders.add(match[1]);
+		}
+
+		return [...placeholders];
+	}
+
+	function getFieldValidationState() {
+		const validationState: Record<string, { valid: boolean; value: string }> = {};
+		const jsonString = formState.current[JSON_CONFIG_KEY] as string;
+
+		// Get all placeholders from the JSON
+		const jsonPlaceholders = getPlaceholdersFromJson(jsonString);
+
+		// Process fields from formData
+		for (const field of fields) {
+			const fieldId = field.CredimiID;
+			const value = formState.current[fieldId] as string;
+			if (!value) continue;
+
+			// Check for errors using the Superforms errors object
+			const fieldErrors = errorsState.current?.[fieldId];
+			const hasErrors = Array.isArray(fieldErrors) && fieldErrors.length > 0;
+			const isValid = !hasErrors;
+
+			validationState[field.FieldName] = {
+				valid: isValid,
+				value: field.Type === 'object' ? truncateObjectPreview(value) : value
+			};
+		}
+
+		// Add placeholders without values to the validation state
+		for (const placeholder of jsonPlaceholders) {
+			if (!validationState[placeholder]) {
+				validationState[placeholder] = {
+					valid: false,
+					value: '' // Empty value will trigger default placeholder behavior
+				};
+			}
+		}
+
+		return validationState;
+	}
+
+	function truncateObjectPreview(jsonValue: string): string {
+		try {
+			// For JSON objects, we want to preserve the actual stringified value
+			// but clean it up to remove extra whitespace
+			const parsed = JSON.parse(jsonValue);
+			return JSON.stringify(parsed);
+		} catch (e) {
+			// If we can't parse it, just return it as is
+			return jsonValue || '';
+		}
+	}
 </script>
 
 <Form {form} hide={['submit_button']} hideRequiredIndicator class="flex flex-col gap-8 md:flex-row">
 	<!--  -->
 	<div class="flex min-w-0 shrink-0 grow basis-1 flex-col">
-		<CodeEditorField
-			{form}
-			name={JSON_CONFIG_KEY}
-			options={{
-				lang: 'json',
-				label: 'JSON configuration',
-				class: 'self-stretch'
-			}}
-		/>
+		{#if isJsonConfigTainted}
+			<CodeEditorField
+				{form}
+				name={JSON_CONFIG_KEY}
+				options={{
+					lang: 'json',
+					label: 'JSON configuration',
+					class: 'self-stretch'
+				}}
+			/>
+		{:else}
+			<PlaceholderHighlightCodeEditorField
+				{form}
+				name={JSON_CONFIG_KEY}
+				fieldValues={fieldValidationStateValue}
+				options={{
+					lang: 'json',
+					label: 'JSON configuration',
+					class: 'self-stretch'
+				}}
+			/>
+		{/if}
 	</div>
 
 	<div class="min-w-0 shrink-0 grow basis-1">
@@ -188,7 +280,7 @@
 			<Separator />
 		</div>
 		{#if isJsonConfigTainted}
-			<div class="text-muted-foreground text-sm">
+			<div class="text-sm text-muted-foreground">
 				<Alert variant="info" icon={Info}>
 					{#snippet content({ Title, Description })}
 						<Title class="font-bold">Info</Title>
@@ -217,7 +309,7 @@
 					<div class="relative">
 						<div class="absolute right-0 top-0">
 							<button
-								class="text-primary flex items-center gap-2 text-sm underline hover:no-underline"
+								class="flex items-center gap-2 text-sm text-primary underline hover:no-underline"
 								onclick={() => {
 									resetOverride(config.CredimiID);
 								}}
