@@ -85,7 +85,7 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 
 			workflowOptions := client.StartWorkflowOptions{
 				ID:        "credentials-workflow-" + uuid.New().String(),
-				TaskQueue: "CredentialsTaskQueue",
+				TaskQueue: credential_workflow.CredentialsTaskQueue,
 			}
 			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
