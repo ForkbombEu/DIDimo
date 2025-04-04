@@ -44,6 +44,7 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.AddOpenID4VPTestEndpoints(app)
 	pb.HookUpdateCredentialsIssuers(app)
 	pb.RouteWorkflow(app)
+	pb.HookAtUserCreation(app)
 	pb.Register(app)
 	temporalclient.WorkersHook(app)
 
