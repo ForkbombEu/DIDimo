@@ -1,0 +1,2 @@
+For the prganization of packages we try to follow the `Clean Architecture` paradigm of go project structures as described in the §4 of this article https://medium.com/@smart_byte_labs/organize-like-a-pro-a-simple-guide-to-go-project-folder-structures-e85e9c1769c2
+and in case of more explicit need we fallback on §11 the `Common Architecture`
