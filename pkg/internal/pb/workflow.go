@@ -537,16 +537,8 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return apis.NewInternalServerError("failed to describe workflow execution", err)
 			}
-			if workflowExecution == nil {
-				return apis.NewNotFoundError("workflow execution not found", nil)
-			}
 
-			workflowExecutionJSON, err := json.Marshal(workflowExecution)
-			if err != nil {
-				return apis.NewInternalServerError("failed to marshal workflow execution", err)
-			}
-
-			return e.JSON(http.StatusOK, workflowExecutionJSON)
+			return e.JSON(http.StatusOK, workflowExecution)
 		}).Bind(apis.RequireAuth())
 
 		se.Router.GET("/api/workflows/{workflowId}/{runId}/history", func(e *core.RequestEvent) error {
@@ -583,12 +575,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 			history := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
 
-			historyJSON, err := json.Marshal(history)
-			if err != nil {
-				return apis.NewInternalServerError("failed to marshal workflow history", err)
-			}
-
-			return e.JSON(http.StatusOK, string(historyJSON))
+			return e.JSON(http.StatusOK, history)
 		}).Bind(apis.RequireAuth())
 
 		return se.Next()
