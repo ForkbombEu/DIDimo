@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import TextareaField from '@/forms/fields/textareaField.svelte';
@@ -77,11 +76,11 @@
 			{@render Step(1, 'Scan this QR with the wallet app to start the check')}
 
 			<div
-				class="ml-16 mt-4 flex flex-col items-center justify-center rounded-md bg-primary/10 p-2 sm:flex-row"
+				class="bg-primary/10 ml-16 mt-4 flex flex-col items-center justify-center rounded-md p-2 sm:flex-row"
 			>
 				<QrCode src={data.qrContent} class="size-40 rounded-sm" />
 
-				<p class="max-w-sm break-all p-4 font-mono text-xs text-primary hover:underline">
+				<p class="text-primary max-w-sm break-all p-4 font-mono text-xs hover:underline">
 					{data.qrContent}
 				</p>
 			</div>
@@ -144,16 +143,16 @@
 {#snippet Step(n: number, text: string)}
 	<div class="flex items-center gap-4">
 		<div
-			class="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-semibold text-primary-foreground"
+			class="bg-primary text-primary-foreground flex size-12 shrink-0 items-center justify-center rounded-full text-lg font-semibold"
 		>
 			<p>{n}</p>
 		</div>
-		<T class="font-semibold text-primary">{text}</T>
+		<T class="text-primary font-semibold">{text}</T>
 	</div>
 {/snippet}
 
 <style lang="postcss">
 	.step-container {
-		@apply rounded-xl bg-secondary p-4;
+		@apply bg-secondary rounded-xl p-4;
 	}
 </style>
