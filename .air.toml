@@ -1,3 +1,0 @@
-[build]
-  cmd = "go run cmd/didimo/didimo.go serve"
-  exclude_dir = ["deployment", "docs", "webapp", "pkg/internal/pb/client_zencode"]
