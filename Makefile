@@ -95,13 +95,13 @@ lint: devtools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)
 	$(REVIVE) $(GODIRS)
 
-lint-svelte: devtools ## 📑 lint svelte rules checks
+lint-svelte: devtools ## 👀 lint svelte webapp
 	cd $(WEBAPP) && bun run lint
 
 fmt: devtools ## 🗿 format rules checks
 	$(GOFMT) $(GODIRS)
 
-fmt-svelte: devtools ## 🗿 format svelte rules checks
+fmt-svelte: devtools ## 📝 format svelte webapp
 	cd $(WEBAPP) && bun run format
 
 tidy: $(GOMOD_FILES)
