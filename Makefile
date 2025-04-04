@@ -24,6 +24,7 @@ GOGEN			?= $(GOCMD) generate
 GOPATH 			?= $(shell $(GOCMD) env GOPATH)
 GOBIN 			?= $(GOPATH)/bin
 GOMOD_FILES 	:= go.mod go.sum
+COVOUT			:= coverage.out
 
 # Tools & Linters
 REVIVE			?= $(GOBIN)/revive
@@ -84,6 +85,10 @@ endif
 test.p: tools ## 🍷 watch tests and run on change for a certain folder
 	$(GOW) test -run "^$(test_name)$$" $(GODIRS)
 
+coverage: tools # ☂️ run test and open code coverage report
+	-$(GOTEST) $(GODIRS) -coverprofile=$(COVOUT)
+	$(GOTOOL) cover -html=$(COVOUT)
+
 lint: tools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)
 	$(REVIVE) $(GODIRS)
@@ -133,6 +138,7 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
+	@rm -f $(COVOUT)
 	@echo "🧹 cleaned"
 
 generate: $(ROOT_DIR)/pkg/gen.go
