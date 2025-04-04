@@ -16,3 +16,4 @@ didimo-ui
 /pkg/OpenID4VP/stepci/node_modules
 dist/
 coverage.out
+coverage.svg
