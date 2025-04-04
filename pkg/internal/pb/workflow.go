@@ -357,7 +357,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
 				return apis.NewBadRequestError("Invalid JSON input", err)
 			}
-			c, err := temporalclient.GetTemporalClient()
+			c, err := temporalclient.GetTemporalClient("default")
 			if err != nil {
 				return err
 			}
@@ -600,17 +600,21 @@ func HookAtUserCreation(app *pocketbase.PocketBase) {
 		if e.Record.Collection().Name != "users" {
 			return nil
 		}
-		log.Println("User created:", e.Record.Id)
 		user := e.Record
-		return createNamespaceForUser(e, user)
+		return createNamespaceForUser(e.App, user)
+	})
+}
+func HookAtUserLogin(app *pocketbase.PocketBase) { 
+	app.OnRecordAuthRequest().BindFunc(func(e *core.RecordAuthRequestEvent) error {
+		user := e.Record
+		return createNamespaceForUser(e.App, user)
 	})
 }
 
-func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
+func createNamespaceForUser(app core.App, user *core.Record) error {
 	log.Println("Creating namespace for user:", user.Id)
-	err := e.App.RunInTransaction(func(txApp core.App) error {
+	err := app.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
-		log.Println("OrgCollection: ", orgCollection.Id)
 		if err != nil {
 			return apis.NewInternalServerError("failed to find organizations collection", err)
 		}
@@ -629,7 +633,7 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 			return apis.NewInternalServerError("failed to find orgAuthorizations collection", err)
 		}
 		newOrgAuth := core.NewRecord(orgAuthCollection)
-		newOrgAuth.Set("user", e.Record.Id)
+		newOrgAuth.Set("user", user.Id)
 		newOrgAuth.Set("organization", newOrg.Id)
 		newOrgAuth.Set("role", ownerRoleRecord.Id)
 		txApp.Save(newOrgAuth)
@@ -639,14 +643,12 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		client, err := client.NewNamespaceClient(client.Options{})
 
 		if err != nil {
-			log.Println("Error creating Temporal client:", err)
 			return apis.NewInternalServerError("failed to create Temporal client", err)
 		}
 		defer client.Close()
 		// Check if the namespace already exists
 		_, err = client.Describe(context.Background(), namespace)
 		if err == nil {
-			log.Println("Namespace already exists for user:", user.Id)
 			return nil
 		}
 		err = client.Register(context.Background(), &workflowservice.RegisterNamespaceRequest{
@@ -654,11 +656,8 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 			WorkflowExecutionRetentionPeriod: retention,
 		})
 		if err != nil {
-			log.Println("Error registering namespace:", err)
 			return apis.NewInternalServerError("failed to register namespace", err)
 		}
-		log.Println("Namespace created successfully for user:", user.Id)
-
 		return nil
 	})
 
