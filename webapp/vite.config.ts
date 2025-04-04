@@ -12,6 +12,7 @@ export default defineConfig({
 		})
 	],
 	optimizeDeps: {
+		include: ['date-fns', 'date-fns-tz'],
 		exclude: [
 			'svelte-codemirror-editor',
 			'codemirror',

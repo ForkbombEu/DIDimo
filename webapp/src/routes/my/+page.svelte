@@ -7,7 +7,7 @@
 	import T from '@/components/ui-custom/t.svelte';
 	import { Separator } from '@/components/ui/separator';
 	import { currentUser } from '@/pocketbase';
-	import { Sparkle } from 'lucide-svelte';
+	import { Sparkle, Workflow } from 'lucide-svelte';
 
 	if (WelcomeSession.isActive()) WelcomeSession.end();
 
@@ -23,10 +23,16 @@
 			<T>Welcome back, {$currentUser?.name}</T>
 		</div>
 
-		<Button href="/my/tests">
-			<Icon src={Sparkle} />
-			Start a new check
-		</Button>
+		<div class="flex items-center gap-2">
+			<Button href="/my/workflows" variant="outline">
+				<Icon src={Workflow} />
+				All workflows
+			</Button>
+			<Button href="/my/tests">
+				<Icon src={Sparkle} />
+				Start a new check
+			</Button>
+		</div>
 	</div>
 
 	<Separator />
