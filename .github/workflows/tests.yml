@@ -1,0 +1,23 @@
+name: 🦕 Tests
+
+on:
+    pull_request:
+        paths:
+            - "**.go"
+            - "go.mod"
+            - "go.sum"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        name: 🧪 Run Go Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+            - uses: jdx/mise-action@v2
+            - run: go test ./pkg/... ./cmd/... -v -cover
