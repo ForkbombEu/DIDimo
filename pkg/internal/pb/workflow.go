@@ -596,17 +596,19 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 }
 
 func HookAtUserCreation(app *pocketbase.PocketBase) {
-	app.OnRecordAfterCreateSuccess().BindFunc(func(e *core.RecordEvent) error {
-		if e.Record.Collection().Name != "users" {
-			return nil
-		}
+	app.OnRecordAfterCreateSuccess("users").BindFunc(func(e *core.RecordEvent) error {
 		user := e.Record
-		return createNamespaceForUser(e, user)
+		err := createNamespaceForUser(e, user)
+		if err != nil {
+			return err
+		}
+		return e.Next()
 	})
 }
 
 func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 	log.Println("Creating namespace for user:", user.Id)
+
 	err := e.App.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
 		if err != nil {
