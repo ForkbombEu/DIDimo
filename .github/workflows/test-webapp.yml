@@ -1,0 +1,22 @@
+name: 🕳️ Webapp Tests
+
+on:
+    pull_request:
+        paths:
+            - "webapp/**"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        name: 🐦‍🔥 Run Webapp Tests
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  submodules: true
+            - uses: oven-sh/setup-bun@v2
+            - run: bun install --frozen-lockfile
+            - run: bun run test

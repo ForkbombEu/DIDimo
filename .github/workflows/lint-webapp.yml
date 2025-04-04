@@ -1,0 +1,18 @@
+name: 🦷 Lint Webapp
+
+on:
+    pull_request:
+        paths:
+            - "webapp/**"
+
+jobs:
+    lint-svelte:
+        name: Lint Webapp
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+            - run: |
+                  cd webapp
+                  bun install --frozen-lockfile
+                  bun run lint

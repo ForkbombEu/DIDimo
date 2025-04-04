@@ -1,4 +1,4 @@
-name: 🦕 Tests
+name: 🦕 Go Tests
 
 on:
     pull_request:

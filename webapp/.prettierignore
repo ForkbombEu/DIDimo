@@ -1,9 +1,45 @@
+test-results
+node_modules
+
+# Output
+.output
+.vercel
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Generated files
+*.generated.*
+
 # Package Managers
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
-node_modules
-client_zencode
-.vscode
+bun.lock
+
+# Inlang
 messages
+project.inlang/cache/
+
+# Emails
+emails
+
+# Static
 static
+
+# Client Zencode
+client_zencode
+didimo-ui

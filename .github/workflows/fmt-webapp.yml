@@ -1,0 +1,27 @@
+name: 📝 Format Webapp
+
+on:
+    pull_request:
+        paths:
+            - "webapp/**"
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref_name }}
+    cancel-in-progress: true
+
+jobs:
+    fmt-svelte:
+        name: Format Webapp
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: oven-sh/setup-bun@v2
+            - run: |
+                  cd webapp
+                  bun install --frozen-lockfile
+                  bun run format
+            - name: Save changes
+              uses: actions/upload-artifact@v4
+              with:
+                  name: webapp
+                  path: webapp
