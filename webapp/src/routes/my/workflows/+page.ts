@@ -1,7 +1,6 @@
 import { pb } from '@/pocketbase';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
-import { toWorkflowExecutions, type ListWorkflowExecutionsResponse } from '@forkbombeu/temporal-ui';
 
 export const load = async () => {
 	const data = await pb.send('/api/workflows', {
@@ -15,11 +14,8 @@ export const load = async () => {
 		});
 	}
 
-	const executions: ListWorkflowExecutionsResponse = workflows.data.executions;
-	const d = toWorkflowExecutions(executions);
-
 	return {
-		workflows: d
+		executions: workflows.data.executions
 	};
 };
 

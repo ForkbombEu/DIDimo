@@ -1,7 +1,7 @@
 export const load = async ({ params }) => {
-	const { namespace } = params;
+	const { workflow_id } = params;
 
 	return {
-		namespace
+		workflow_id
 	};
 };
