@@ -39,7 +39,7 @@ func StartWorker(client client.Client, config WorkerConfig, wg *sync.WaitGroup) 
 
 // StartAllWorkers initializes and starts multiple Temporal workers
 func StartAllWorkers() {
-	c, err := GetTemporalClient()
+	c, err := GetTemporalClient("default")
 	if err != nil {
 		log.Fatalf("Failed to connect to Temporal: %v", err)
 	}
