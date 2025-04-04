@@ -89,11 +89,13 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				ID:        "credentials-workflow-" + uuid.New().String(),
 				TaskQueue: credential_workflow.CredentialsTaskQueue,
 			}
-			c, err := temporalclient.GetTemporalClient("default")
 
+			c, err := temporalclient.GetTemporalClient("default")
 			if err != nil {
 				return err
 			}
+			defer c.Close()
+
 			we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, credential_workflow.CredentialWorkflow, workflowInput)
 			if err != nil {
 				return fmt.Errorf("error starting workflow for URL %s: %v", req.URL, err)
@@ -301,10 +303,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			data := openid4vp_workflow.SignalData{
 				Success: true,
 			}
+
 			c, err := temporalclient.GetTemporalClient("default")
 			if err != nil {
 				return err
 			}
+			defer c.Close()
+
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send success signal", err)
@@ -325,10 +330,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Success: false,
 				Reason:  request.Reason,
 			}
+
 			c, err := temporalclient.GetTemporalClient("default")
 			if err != nil {
 				return err
 			}
+			defer c.Close()
+
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send failure signal", err)
@@ -357,10 +365,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
 				return apis.NewBadRequestError("Invalid JSON input", err)
 			}
+
 			c, err := temporalclient.GetTemporalClient("default")
 			if err != nil {
 				return err
 			}
+			defer c.Close()
+
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
 			if err != nil {
 				return apis.NewBadRequestError("Failed to send start logs update signal", err)
@@ -485,6 +496,8 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
+			defer c.Close()
+
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
@@ -525,14 +538,18 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if orgAuthRecord == nil {
 				return apis.NewBadRequestError("user is not authorized to access this organization", nil)
 			}
+
 			namespace := orgAuthRecord.GetString("organization")
 			if namespace == "" {
 				return apis.NewBadRequestError("organization is empty", nil)
 			}
+
 			c, err := temporalclient.GetTemporalClient(namespace)
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
+			defer c.Close()
+
 			workflowExecution, err := c.DescribeWorkflowExecution(context.Background(), workflowId, runId)
 			if err != nil {
 				return apis.NewInternalServerError("failed to describe workflow execution", err)
@@ -569,10 +586,13 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if runId == "" {
 				return apis.NewBadRequestError("runId is required", nil)
 			}
+
 			c, err := temporalclient.GetTemporalClient(namespace)
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
+			defer c.Close()
+
 			history := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
 
 			return e.JSON(http.StatusOK, history)
@@ -624,11 +644,11 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 
 		namespace := newOrg.Id
 		client, err := client.NewNamespaceClient(client.Options{})
-
 		if err != nil {
 			return apis.NewInternalServerError("failed to create Temporal client", err)
 		}
 		defer client.Close()
+
 		// Check if the namespace already exists
 		_, err = client.Describe(context.Background(), namespace)
 		if err == nil {
