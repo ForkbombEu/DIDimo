@@ -6,6 +6,7 @@ docs/.vitepress/cache/
 /tmp
 /pb_data
 .DS_Store
+.bin
 .env
 pb.env
 /didimo
