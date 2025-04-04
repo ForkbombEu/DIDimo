@@ -1,0 +1,17 @@
+name: 🐹 Lint & Vuln Check
+
+on:
+    pull_request:
+        paths:
+            - "**.go"
+            - "go.mod"
+            - "go.sum"
+
+jobs:
+    lint-go:
+        name: Lint Go
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: docker://morphy/revive-action:v2
+            - uses: golang/govulncheck-action@v1
