@@ -11,21 +11,21 @@ const (
 
 // EmailConfig holds the email configuration details
 type EmailConfig struct {
-	SMTPHost      string
-	SMTPPort      int
-	Username      string
-	Password      string
-	SenderEmail   string
-	ReceiverEmail string
-	Subject       string
-	Body          string
-	Attachments   map[string][]byte
+	SMTPHost      string            `json:"smtp_host"`
+	SMTPPort      int               `json:"smtp_port"`
+	Username      string            `json:"username"`
+	Password      string            `json:"password"`
+	SenderEmail   string            `json:"sender_email"`
+	ReceiverEmail string            `json:"receiver_email"`
+	Subject       string            `json:"subject"`
+	Body          string            `json:"body"`
+	Attachments   map[string][]byte `json:"attachments"`
 }
 
 type GenerateYAMLInput struct {
-	Variant  string
-	Form     any
-	FilePath string
+	Variant  string `json:"variant"`
+	Form     any    `json:"form"`
+	FilePath string `json:"file_path"`
 }
 
 type StepCIRunnerInput struct {
@@ -38,10 +38,10 @@ type StepCIRunnerResponse struct {
 }
 
 type WorkflowInput struct {
-	Variant  string
-	Form     any
-	UserMail string
-	AppURL   string
+	Variant  string `json:"variant"`
+	Form     any    `json:"form"`
+	UserMail string `json:"user_mail"`
+	AppURL   string `json:"app_url"`
 }
 
 type LogWorkflowInput struct {
@@ -71,10 +71,12 @@ type TriggerLogsUpdateActivityInput struct {
 	WorkflowID string
 	Logs       []map[string]any
 }
+
 type LogUpdateRequest struct {
 	WorkflowID string           `json:"workflow_id"`
 	Logs       []map[string]any `json:"logs"`
 }
+
 type SignalData struct {
 	Success bool
 	Reason  string

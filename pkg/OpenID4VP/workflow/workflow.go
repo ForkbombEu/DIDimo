@@ -164,7 +164,6 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 		c.Receive(ctx, &data)
 		cancelHandler()
 		logsWorkflow.Get(ctx, &subWorkflowResponse)
-
 	})
 	for !signalSent {
 		selector.Select(ctx)
@@ -172,11 +171,18 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 
 	// Process the signal data
 	if !data.Success {
-		return WorkflowResponse{Message: fmt.Sprintf("Workflow terminated with a failure message: %s", data.Reason), Logs: subWorkflowResponse.Logs}, nil
+		return WorkflowResponse{
+			Message: fmt.Sprintf("Workflow terminated with a failure message: %s", data.Reason),
+			Logs:    subWorkflowResponse.Logs,
+		}, nil
 	}
 
-	return WorkflowResponse{Message: "Workflow completed successfully", Logs: subWorkflowResponse.Logs}, nil
+	return WorkflowResponse{
+		Message: "Workflow completed successfully",
+		Logs:    subWorkflowResponse.Logs,
+	}, nil
 }
+
 func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowResponse, error) {
 	logger := workflow.GetLogger(ctx)
 
@@ -258,7 +264,8 @@ func LogSubWorkflow(ctx workflow.Context, input LogWorkflowInput) (LogWorkflowRe
 				Logs:       logs,
 				WorkflowID: strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
 			}
-			err = workflow.ExecuteActivity(subCtx, TriggerLogsUpdateActivity, triggerLogsInput).Get(ctx, nil)
+			err = workflow.ExecuteActivity(subCtx, TriggerLogsUpdateActivity, triggerLogsInput).
+				Get(ctx, nil)
 			if err != nil {
 				logger.Error("Failed to send logs", "error", err)
 				return LogWorkflowResponse{}, err
