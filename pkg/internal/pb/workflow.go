@@ -19,6 +19,7 @@ import (
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
 	"google.golang.org/protobuf/types/known/durationpb"
 
@@ -86,7 +87,7 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 
 			workflowOptions := client.StartWorkflowOptions{
 				ID:        "credentials-workflow-" + uuid.New().String(),
-				TaskQueue: "CredentialsTaskQueue",
+				TaskQueue: credential_workflow.CredentialsTaskQueue,
 			}
 			c, err := temporalclient.GetTemporalClient("default")
 
@@ -335,10 +336,60 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
 		})
+
+		se.Router.POST("/wallet-test/send-log-update", func(e *core.RequestEvent) error {
+			var logData openid4vp_workflow.LogUpdateRequest
+			if err := json.NewDecoder(e.Request.Body).Decode(&logData); err != nil {
+				return apis.NewBadRequestError("invalid JSON input", err)
+			}
+			if err := notifyLogsUpdate(app, logData.WorkflowID+"openid4vp-wallet-logs", logData.Logs); err != nil {
+				return apis.NewBadRequestError("failed to send real-time log update", err)
+			}
+
+			return e.JSON(http.StatusOK, map[string]string{
+				"message": "Log update sent successfully",
+			})
+		})
+		se.Router.POST("/wallet-test/send-log-update-start", func(e *core.RequestEvent) error {
+			var request struct {
+				WorkflowID string `json:"workflow_id"`
+			}
+			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
+				return apis.NewBadRequestError("Invalid JSON input", err)
+			}
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
+			if err != nil {
+				return apis.NewBadRequestError("Failed to send start logs update signal", err)
+			}
+
+			return e.JSON(http.StatusOK, map[string]string{"message": "Realtime Logs update started successfully"})
+		})
+
 		return se.Next()
 	})
 }
+func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 
+	rawData, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	message := subscriptions.Message{
+		Name: subscription,
+		Data: rawData,
+	}
+	clients := app.SubscriptionsBroker().Clients()
+	for _, client := range clients {
+		if client.HasSubscription(subscription) {
+			client.Send(message)
+		}
+	}
+	return nil
+}
 func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
 		if e.Record.Collection().Name != "features" || e.Record.Get("name") != "updateIssuers" {

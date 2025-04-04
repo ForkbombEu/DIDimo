@@ -1,6 +1,13 @@
 package workflow
 
-const OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
+import (
+	"time"
+)
+
+const (
+	OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
+	LogsBaseURL         = "https://www.certification.openid.net/api/log/"
+)
 
 // EmailConfig holds the email configuration details
 type EmailConfig struct {
@@ -37,10 +44,37 @@ type WorkflowInput struct {
 	AppURL   string
 }
 
-type WorkflowResponse struct {
-	Message string
+type LogWorkflowInput struct {
+	AppURL   string
+	RID      string
+	Token    string
+	Interval time.Duration
 }
 
+type WorkflowResponse struct {
+	Message string
+	Logs    []map[string]any
+}
+
+type LogWorkflowResponse struct {
+	Logs []map[string]any
+}
+
+type GetLogsActivityInput struct {
+	BaseURL string
+	RID     string
+	Token   string
+}
+
+type TriggerLogsUpdateActivityInput struct {
+	AppURL     string
+	WorkflowID string
+	Logs       []map[string]any
+}
+type LogUpdateRequest struct {
+	WorkflowID string           `json:"workflow_id"`
+	Logs       []map[string]any `json:"logs"`
+}
 type SignalData struct {
 	Success bool
 	Reason  string

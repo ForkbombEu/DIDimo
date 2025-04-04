@@ -28,17 +28,17 @@ GOMOD_FILES 	:= go.mod go.sum
 # Tools & Linters
 REVIVE			?= $(GOBIN)/revive
 GOVULNCHECK 	?= $(GOBIN)/govulncheck
-OVERMIND 		?= $(GOBIN)/overmind
-AIR 			?= $(GOBIN)/air
+HIVEMIND 		?= $(GOBIN)/hivemind
+GOW				?= $(GOBIN)/gow
 
 # Submodules
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
-DEPS 			= slangroom-exec mise wget git tmux temporal
+DEPS 			= mise git temporal
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
-.PHONY: submodules version dev test lint tidy purge build docker doc clean tools help
+.PHONY: submodules version dev test lint tidy purge build docker doc clean tools help w
 
 $(BIN):
 	@mkdir $(BIN)
@@ -72,10 +72,17 @@ $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
 dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
-	$(OVERMIND) s -f Procfile.dev
+	$(HIVEMIND) Procfile.dev
 
 test: ## 🧪 run tests with coverage
 	$(GOTEST) $(GODIRS) -v -cover
+
+ifeq (test.p, $(firstword $(MAKECMDGOALS)))
+  test_name := $(wordlist 2, $(words $(MAKECMDGOALS)), $(MAKECMDGOALS))
+  $(eval $(test_name):;@true)
+endif
+test.p: tools ## 🍷 watch tests and run on change for a certain folder
+	$(GOW) test -run "^$(test_name)$$" $(GODIRS)
 
 lint: tools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)
@@ -139,11 +146,11 @@ tools: generate
 	@if [ ! -f "$(GOVULNCHECK)" ]; then \
 		$(GOINST) golang.org/x/vuln/cmd/govulncheck@latest; \
 	fi
-	@if [ ! -f "$(OVERMIND)" ]; then \
-		$(GOINST) github.com/DarthSim/overmind/v2@latest; \
+	@if [ ! -f "$(HIVEMIND)" ]; then \
+		$(GOINST) github.com/DarthSim/hivemind@latest; \
 	fi
-	@if [ ! -f "$(AIR)" ]; then \
-		$(GOINST) github.com/air-verse/air@latest; \
+	@if [ ! -f "$(GOW)" ]; then \
+		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
 
 ## Help:
