@@ -2,9 +2,10 @@ import { pb } from '@/pocketbase';
 import { error } from '@sveltejs/kit';
 import { z } from 'zod';
 
-export const load = async () => {
+export const load = async ({ fetch }) => {
 	const data = await pb.send('/api/workflows', {
-		method: 'GET'
+		method: 'GET',
+		fetch
 	});
 
 	const workflows = WorkflowResponseSchema.safeParse(data);
@@ -13,8 +14,6 @@ export const load = async () => {
 			message: 'Failed to parse workflows'
 		});
 	}
-
-	console.log(workflows.data.executions);
 
 	return {
 		executions: workflows.data.executions

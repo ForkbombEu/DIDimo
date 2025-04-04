@@ -9,15 +9,13 @@
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 
-	//
-
 	import TemporalI18nProvider from './components/temporal-i18n-provider.svelte';
 	import TemporalWorkflow from './components/temporal-workflow.svelte';
-	import { workflowResponse, eventHistory } from './components/data';
 
 	//
 
 	let { data } = $props();
+	const { workflowId, workflowResponse, eventHistory } = data;
 </script>
 
 <!--  -->
@@ -33,14 +31,14 @@
 
 <!--  -->
 
-<div class="bg-black text-white">
+<div class="bg-[#220e7c] text-white">
 	<div class="mx-auto max-w-screen-xl !px-2 md:!px-4 lg:!px-8">
 		<BackButton href="/my/workflows" class="text-white">Back to workflows</BackButton>
 	</div>
 </div>
 
 <PageTop contentClass="!space-y-0 !px-2 md:!px-4 lg:!px-8">
-	<T tag="h1">Workflow {data.workflow_id}</T>
+	<T tag="h1">Workflow {workflowId}</T>
 </PageTop>
 
 <div class="mx-auto max-w-screen-xl">
