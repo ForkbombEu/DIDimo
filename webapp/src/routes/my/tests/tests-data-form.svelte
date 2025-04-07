@@ -34,7 +34,7 @@
 				method: 'POST',
 				body: form.data
 			});
-			await goto(`/workflows`);
+			await goto(`/my/workflows`);
 		},
 		options: {
 			resetForm: false
