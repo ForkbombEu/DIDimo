@@ -21,6 +21,7 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
+	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"go.temporal.io/api/enums/v1"
@@ -107,8 +108,6 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				return fmt.Errorf("error running workflow for URL %s: %v", req.URL, err)
 			}
 
-			log.Printf("Workflow completed successfully for URL %s: %s", req.URL, result.Message)
-
 			providers, err := app.FindCollectionByNameOrId("services")
 			if err != nil {
 				return err
@@ -119,7 +118,6 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 			newRecord.Set("name", "TestName")
 			// Save the new record in providers
 			if err := app.Save(newRecord); err != nil {
-				log.Println("Failed to create related record:", err)
 				return err
 			}
 			return e.JSON(http.StatusOK, map[string]string{
@@ -479,15 +477,17 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
 
-			log.Println("AuthRecord: ", authRecord)
 
 			ownerRoleRecord, err := e.App.FindFirstRecordByFilter("orgRoles", "name='owner'")
 			if err != nil {
 				return apis.NewInternalServerError("failed to find owner role", err)
 			}
+			log.Println("OwnerRoleRecord: ", ownerRoleRecord.Id)
 
-			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user} && role={:role}", "", 0, 0, dbx.Params{"user": authRecord.Id, "role": ownerRoleRecord.Id})
-			if err != nil || orgAuthRecord == nil {
+
+			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user}", "", 0, 0, dbx.Params{"user": authRecord.Id})
+			if err != nil {
+				log.Println("Error finding orgAuthRecord:", err)
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
 			}
 			namespace := orgAuthRecord[0].GetString("organization")
@@ -501,17 +501,20 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
-			log.Printf("ListWorkflowExecutions: %v", list)
 			if err != nil {
 				log.Println("Error listing workflows:", err)
 				return apis.NewInternalServerError("failed to list workflows", err)
 			}
-
-			// listJSON, err := json.Marshal(list)
-			// if err != nil {
-			// 	return apis.NewInternalServerError("failed to marshal workflow list", err)
-			// }
-			return e.JSON(http.StatusOK, list)
+			listJson, err := protojson.Marshal(list)
+			if err != nil {
+				return apis.NewInternalServerError("failed to marshal workflow list", err)
+			}
+			finalJson := make(map[string]interface{})
+			err = json.Unmarshal(listJson, &finalJson)
+			if err != nil {
+				return apis.NewInternalServerError("failed to unmarshal workflow list", err)
+			}
+			return e.JSON(http.StatusOK, finalJson)
 		}).Bind(apis.RequireAuth())
 
 		se.Router.GET("/api/workflows/{workflowId}/{runId}", func(e *core.RequestEvent) error {
@@ -614,7 +617,6 @@ func HookAtUserCreation(app *pocketbase.PocketBase) {
 }
 
 func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
-	log.Println("Creating namespace for user:", user.Id)
 
 	err := e.App.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
@@ -661,6 +663,8 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		if err != nil {
 			return apis.NewInternalServerError("failed to register namespace", err)
 		}
+		temporalclient.StartUserWorker(namespace)
+
 		return nil
 	})
 
