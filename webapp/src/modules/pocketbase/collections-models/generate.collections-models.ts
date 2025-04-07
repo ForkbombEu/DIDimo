@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { type CollectionModel } from 'pocketbase';
 import fs from 'fs';
 import 'dotenv/config';

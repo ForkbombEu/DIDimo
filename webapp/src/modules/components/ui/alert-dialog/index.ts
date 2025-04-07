@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { AlertDialog as AlertDialogPrimitive } from "bits-ui";
 import Title from "./alert-dialog-title.svelte";
 import Action from "./alert-dialog-action.svelte";

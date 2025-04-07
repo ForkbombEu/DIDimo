@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import RecordCreate from './recordCreate.svelte';
 import RecordEdit from './recordEdit.svelte';
 import RecordDelete from './recordDelete.svelte';

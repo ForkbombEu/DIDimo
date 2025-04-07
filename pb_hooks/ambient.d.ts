@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 /// <reference path="../pb_data/types.d.ts" />
 /// <reference path="../webapp/static/emails/_emailData.d.ts" />
 

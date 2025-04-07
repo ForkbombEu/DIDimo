@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 PROJECT_NAME 	?= didimo
 ORGANIZATION 	?= forkbombeu
 DESCRIPTION  	?= "SSI Compliance tool"
@@ -37,6 +41,7 @@ GOCOVERTREEMAP	?= $(GOBIN)/go-cover-treemap
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 DEPS 			= mise git temporal
+DEV_DEPS		= pre-commit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
@@ -159,6 +164,9 @@ devtools: generate
 	@if [ ! -f "$(GOW)" ]; then \
 		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
+	pre-commit install
+	pre-commit autoupdate
+	-$(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 tools: generate
 	mise install

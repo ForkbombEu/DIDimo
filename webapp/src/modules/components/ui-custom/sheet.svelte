@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import * as Sheet from '@/components/ui/sheet';
 	import type { ComponentProps, Snippet } from 'svelte';

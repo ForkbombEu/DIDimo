@@ -69,7 +69,7 @@ Click the link above to dive into our comprehensive documentation, where you’l
 ***
 ## 😍 Acknowledgements
 
-Copyleft 🄯 2024 by [The Forkbomb Company](https://www.forkbomb.solutions), Amsterdam
+Copyright © 2023-2025 by [Forkbomb BV](https://www.forkbomb.solutions), Amsterdam
 
 <img align="left" src="https://github.com/ForkbombEu/DIDroom/raw/main/images/logo-ngi-trustchain-positive-rgb-PNG.png" width="145">
 

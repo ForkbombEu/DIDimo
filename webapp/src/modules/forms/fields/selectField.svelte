@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts" generics="Data extends GenericRecord, T extends SelectType">
 	import type { GenericRecord } from '@/utils/types';
 	import type { SuperForm } from 'sveltekit-superforms';

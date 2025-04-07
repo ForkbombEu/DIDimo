@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 ## Intro
 
 The following worklow is written in a YAML file, processed by step.ci (which allows to easy check the REST outputs against values) and executed by temporal.io.

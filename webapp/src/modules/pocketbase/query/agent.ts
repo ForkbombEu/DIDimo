@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import type { Simplify } from 'type-fest';
 import type Pocketbase from 'pocketbase';
 import type { CollectionResponses, CollectionExpands } from '@/pocketbase/types';
