@@ -29,7 +29,7 @@
 		</Table.Header>
 		<Table.Body>
 			{#each executions as workflow (workflow.execution.runId)}
-				{@const path = `/my/workflows/${workflow.execution.workflowId}/${workflow.execution.run_id}`}
+				{@const path = `/my/workflows/${workflow.execution.workflowId}/${workflow.execution.runId}`}
 				<Table.Row>
 					<Table.Cell>{workflow.status}</Table.Cell>
 					<Table.Cell class="font-medium">
