@@ -37,6 +37,7 @@ GOCOVERTREEMAP	?= $(GOBIN)/go-cover-treemap
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 DEPS 			= mise git temporal
+DEV_DEPS		= pre-commit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
@@ -159,6 +160,7 @@ devtools: generate
 	@if [ ! -f "$(GOW)" ]; then \
 		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
+	D := $(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 tools: generate
 	mise install
