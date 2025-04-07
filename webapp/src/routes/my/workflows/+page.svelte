@@ -8,36 +8,7 @@
 	import { toWorkflowExecution } from '@forkbombeu/temporal-ui';
 
 	let { data } = $props();
-	const executions = $derived(data.executions);
-
-	/**
-	 * TODO - This has to work
-	 *
-	 * The error is:
-	 * Cannot read properties of undefined (reading 'searchAttributes')
-	 *
-	 * - `status` must be converted from code to string
-	 * - `execution_time` should be converted
-	 */
-	const parsedExecutions = $derived(
-		executions.map((e) => toWorkflowExecution({ workflowExecutionInfo: e }))
-	);
-	$inspect(parsedExecutions);
-	/**
-	 * `e` should have shape:
-	 *
-	 * export type WorkflowExecutionInfo = Replace<WorkflowExeuctionWithAssignedBuildId, {
-	 * 	status: WorkflowExecutionStatus | WorkflowStatus;
-	 * 	stateTransitionCount: string;
-	 * 	startTime: string;
-	 * 	closeTime: string;
-	 * 	executionTime: string;
-	 * 	historySizeBytes: string;
-	 * 	historyLength: string;
-	 * 	searchAttributes?: WorkflowSearchAttributes;
-	 * 	memo?: Memo;
-	 * }>;
-	 */
+	const { executions } = $derived(data);
 </script>
 
 <PageTop contentClass="!space-y-0">
@@ -52,19 +23,21 @@
 				<Table.Head>Status</Table.Head>
 				<Table.Head>Workflow ID</Table.Head>
 				<Table.Head>Type</Table.Head>
-				<Table.Head class="text-right">Execution time</Table.Head>
+				<Table.Head class="text-right">Start</Table.Head>
+				<Table.Head class="text-right">End</Table.Head>
 			</Table.Row>
 		</Table.Header>
 		<Table.Body>
-			{#each executions as workflow (workflow.execution.workflow_id)}
-				{@const path = `/my/workflows/${workflow.execution.workflow_id}/${workflow.execution.run_id}`}
+			{#each executions as workflow (workflow.execution.runId)}
+				{@const path = `/my/workflows/${workflow.execution.workflowId}/${workflow.execution.run_id}`}
 				<Table.Row>
 					<Table.Cell>{workflow.status}</Table.Cell>
 					<Table.Cell class="font-medium">
-						<A href={path}>{workflow.execution.workflow_id}</A>
+						<A href={path}>{workflow.execution.workflowId}</A>
 					</Table.Cell>
 					<Table.Cell>{workflow.type.name}</Table.Cell>
-					<Table.Cell class="text-right">{workflow.execution_time.seconds}</Table.Cell>
+					<Table.Cell class="text-right">{workflow.startTime}</Table.Cell>
+					<Table.Cell class="text-right">{workflow.endTime}</Table.Cell>
 				</Table.Row>
 			{/each}
 		</Table.Body>
