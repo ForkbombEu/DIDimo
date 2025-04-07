@@ -24,6 +24,7 @@
 	$: workflow = properToWorkflow(workflowResponse);
 
 	function properToWorkflow(workflowResponse: Record<string, unknown>) {
+		// Note: Run this function ONLY IN THE BROWSER
 		const w = toWorkflowExecution(workflowResponse);
 		/* HACK */
 		// canBeTerminated a property of workflow object is a getter that requires a svelte `store` to work
