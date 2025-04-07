@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts" generics="C extends CollectionName">
 	import { toast } from 'svelte-sonner';
 	import { getExceptionMessage } from '@/utils/errors';

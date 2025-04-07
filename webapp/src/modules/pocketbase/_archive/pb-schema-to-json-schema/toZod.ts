@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // import { Array, Effect, pipe, Record } from 'effect';
 // import GeneratedSchema from './schema.generated';
 // import { jsonSchemaToZod } from 'json-schema-to-zod';

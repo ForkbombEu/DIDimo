@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 PROJECT_NAME 	?= didimo
 ORGANIZATION 	?= forkbombeu
 DESCRIPTION  	?= "SSI Compliance tool"
@@ -24,21 +28,24 @@ GOGEN			?= $(GOCMD) generate
 GOPATH 			?= $(shell $(GOCMD) env GOPATH)
 GOBIN 			?= $(GOPATH)/bin
 GOMOD_FILES 	:= go.mod go.sum
+COVOUT			:= coverage.out
 
 # Tools & Linters
 REVIVE			?= $(GOBIN)/revive
 GOVULNCHECK 	?= $(GOBIN)/govulncheck
 HIVEMIND 		?= $(GOBIN)/hivemind
 GOW				?= $(GOBIN)/gow
+GOCOVERTREEMAP	?= $(GOBIN)/go-cover-treemap
 
 # Submodules
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 DEPS 			= mise git temporal
+DEV_DEPS		= pre-commit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
-.PHONY: submodules version dev test lint tidy purge build docker doc clean tools help w
+.PHONY: submodules version dev test lint tidy purge build docker doc clean tools help w devtools
 
 $(BIN):
 	@mkdir $(BIN)
@@ -71,7 +78,7 @@ version: ## ℹ️ Display version information
 $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
-dev: $(WEBENV) tools submodules ## 🚀 run in watch mode
+dev: $(WEBENV) tools devtools submodules ## 🚀 run in watch mode
 	$(HIVEMIND) Procfile.dev
 
 test: ## 🧪 run tests with coverage
@@ -84,11 +91,16 @@ endif
 test.p: tools ## 🍷 watch tests and run on change for a certain folder
 	$(GOW) test -run "^$(test_name)$$" $(GODIRS)
 
-lint: tools ## 📑 lint rules checks
+coverage: devtools # ☂️ run test and open code coverage report
+	-$(GOTEST) $(GODIRS) -coverprofile=$(COVOUT)
+	$(GOTOOL) cover -html=$(COVOUT)
+	$(GOCOVERTREEMAP) -coverprofile $(COVOUT) > coverage.svg && open coverage.svg
+
+lint: devtools ## 📑 lint rules checks
 	$(GOVULNCHECK) $(SUBDIRS)
 	$(REVIVE) $(GODIRS)
 
-fmt: tools ## 🗿 format rules checks
+fmt: devtools ## 🗿 format rules checks
 	$(GOFMT) $(GODIRS)
 
 tidy: $(GOMOD_FILES)
@@ -133,24 +145,33 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
+	@rm -f $(COVOUT) coverage.svg
 	@echo "🧹 cleaned"
 
 generate: $(ROOT_DIR)/pkg/gen.go
 	$(GOGEN) $(ROOT_DIR)/pkg/gen.go
 
-tools: generate
-	mise install
+devtools: generate
 	@if [ ! -f "$(REVIVE)" ]; then \
 		$(GOINST) github.com/mgechev/revive@latest; \
 	fi
 	@if [ ! -f "$(GOVULNCHECK)" ]; then \
 		$(GOINST) golang.org/x/vuln/cmd/govulncheck@latest; \
 	fi
-	@if [ ! -f "$(HIVEMIND)" ]; then \
-		$(GOINST) github.com/DarthSim/hivemind@latest; \
+	@if [ ! -f "$(GOCOVERTREEMAP)" ]; then \
+		$(GOINST) github.com/nikolaydubina/go-cover-treemap@latest; \
 	fi
 	@if [ ! -f "$(GOW)" ]; then \
 		$(GOINST) github.com/mitranim/gow@latest; \
+	fi
+	pre-commit install
+	pre-commit autoupdate
+	-$(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
+
+tools: generate
+	mise install
+	@if [ ! -f "$(HIVEMIND)" ]; then \
+		$(GOINST) github.com/DarthSim/hivemind@latest; \
 	fi
 
 ## Help:

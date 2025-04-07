@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { pipe } from 'effect';
 import z from 'zod';
 import type { SchemaFields } from '@/pocketbase/collections-models';

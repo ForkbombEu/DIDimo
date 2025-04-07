@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package utils
 
 import (
@@ -7,9 +11,9 @@ import (
 
 func Test_GetEnvironmentVariable(t *testing.T) {
 	t.Run("test with an existing variable", func(t *testing.T) {
-		envVar := GetEnvironmentVariable("GOPATH")
+		envVar := GetEnvironmentVariable("PWD")
 		if envVar == "" {
-			t.Errorf("Expected a value for the environment variable GOPATH, got an empty string")
+			t.Errorf("Expected a value for the environment variable PWD, got an empty string")
 		}
 	})
 
@@ -28,9 +32,9 @@ func Test_GetEnvironmentVariable(t *testing.T) {
 		}
 	})
 	t.Run("test a required variable", func(t *testing.T) {
-		envVar := GetEnvironmentVariable("GOPATH", "", true)
+		envVar := GetEnvironmentVariable("PWD", "", true)
 		if envVar == "" {
-			t.Errorf("Expected a value for the environment variable GOPATH, got an empty string")
+			t.Errorf("Expected a value for the environment variable PWD, got an empty string")
 		}
 	})
 

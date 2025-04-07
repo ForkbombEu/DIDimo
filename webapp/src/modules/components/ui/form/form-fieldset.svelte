@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts" module>
 	import type { FormPath as _FormPath } from "sveltekit-superforms";
 	type T = Record<string, unknown>;

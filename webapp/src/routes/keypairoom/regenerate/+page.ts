@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { loadFeatureFlags } from '@/features';
 import { getUserPublicKeys } from '@/keypairoom/utils';
 import { redirect } from '@/i18n';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // import type { Schema as S } from '@effect/schema'; // eslint-disable-line @typescript-eslint/no-unused-vars
 // import type { FieldType, AnyCollectionModel } from '@/pocketbase/collections-models/types';
 
