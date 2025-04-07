@@ -604,7 +604,23 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 			defer c.Close()
 
-			history := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
+			historyIterator := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
+			var history []map[string]interface{}
+			for historyIterator.HasNext() {
+				event, err := historyIterator.Next()
+				if err != nil {
+					return apis.NewInternalServerError("failed to iterate workflow history", err)
+				}
+				eventData, err := protojson.Marshal(event)
+				if err != nil {
+					return apis.NewInternalServerError("failed to marshal history event", err)
+				}
+				var eventMap map[string]interface{}
+				if err := json.Unmarshal(eventData, &eventMap); err != nil {
+					return apis.NewInternalServerError("failed to unmarshal history event", err)
+				}
+				history = append(history, eventMap)
+			}
 
 			return e.JSON(http.StatusOK, history)
 		}).Bind(apis.RequireAuth())
