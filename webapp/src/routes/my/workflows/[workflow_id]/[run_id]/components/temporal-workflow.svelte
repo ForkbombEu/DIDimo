@@ -7,7 +7,8 @@
 		toWorkflowExecution,
 		WorkflowHistoryLayout,
 		toEventHistory,
-		type HistoryEvent
+		type HistoryEvent,
+		WorkflowStatus
 		// pauseLiveUpdates
 	} from '@forkbombeu/temporal-ui';
 
@@ -46,6 +47,31 @@
 </script>
 
 <div class="temporal-ui-workflow space-y-4">
+	{#if workflow.status}
+		<WorkflowStatus status={workflow.status} />
+	{/if}
+	<table>
+		<tbody>
+			<tr>
+				<td class="italic"> Start </td>
+				<td>
+					{workflow.startTime}
+				</td>
+			</tr>
+			<tr>
+				<td class="italic"> End </td>
+				<td>
+					{workflow.endTime ?? '-'}
+				</td>
+			</tr>
+			<tr>
+				<td class="italic"> Run ID </td>
+				<td>
+					{workflow.runId}
+				</td>
+			</tr>
+		</tbody>
+	</table>
 	<WorkflowHistoryLayout></WorkflowHistoryLayout>
 </div>
 
