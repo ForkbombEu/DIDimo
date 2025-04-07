@@ -14,7 +14,7 @@
 
 	type Props = {
 		workflowResponse: Record<string, unknown>;
-		eventHistory: { history: { events: HistoryEvent[] } };
+		eventHistory: HistoryEvent[];
 	};
 
 	let { workflowResponse, eventHistory }: Props = $props();
@@ -22,8 +22,8 @@
 	//
 
 	$workflowRun = { ...$workflowRun, workflow: toWorkflowExecution(workflowResponse) };
-	$fullEventHistory = toEventHistory(eventHistory.history.events);
-	$currentEventHistory = toEventHistory(eventHistory.history.events);
+	$fullEventHistory = toEventHistory(eventHistory);
+	$currentEventHistory = toEventHistory(eventHistory);
 
 	//
 
