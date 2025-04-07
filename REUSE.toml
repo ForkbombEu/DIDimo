@@ -20,6 +20,7 @@ path = [
     "webapp/.env.example",
     "webapp/bun.lock",
     "webapp/messages/**/*",
+    ".vscode/settings.json",
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "Forkbomb BV"
