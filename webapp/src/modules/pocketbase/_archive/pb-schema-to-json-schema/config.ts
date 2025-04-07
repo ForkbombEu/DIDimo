@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // import { FieldType as FT, type CollectionConfig } from '@/pocketbase/collections-config/types';
 // import { Schema as S } from '@effect/schema';
 // import { FileSchema, UrlSchema } from '@/utils/schema';

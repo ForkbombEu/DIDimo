@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 FROM node:lts-alpine AS builder
 
 RUN apk add --no-cache libc6-compat git

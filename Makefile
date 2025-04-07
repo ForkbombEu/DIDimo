@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 PROJECT_NAME 	?= didimo
 ORGANIZATION 	?= forkbombeu
 DESCRIPTION  	?= "SSI Compliance tool"
@@ -160,7 +164,9 @@ devtools: generate
 	@if [ ! -f "$(GOW)" ]; then \
 		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
-	D := $(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
+	pre-commit install
+	pre-commit autoupdate
+	-$(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 tools: generate
 	mise install

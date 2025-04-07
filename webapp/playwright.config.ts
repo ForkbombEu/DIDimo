@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { defineConfig } from '@playwright/test';
 
 export const storageState = 'test-results/.auth/user.json';

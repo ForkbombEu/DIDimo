@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // import { Option as O, pipe, Record as R, Array as A, Effect, Tuple } from 'effect';
 // import { Schema as S } from '@effect/schema';
 

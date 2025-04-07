@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import ChevronDown from "lucide-svelte/icons/chevron-down";
 	import { Select as SelectPrimitive, type WithoutChildrenOrChild } from "bits-ui";

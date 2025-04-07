@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import ChevronRight from "lucide-svelte/icons/chevron-right";
 	import type { WithElementRef } from "bits-ui";
