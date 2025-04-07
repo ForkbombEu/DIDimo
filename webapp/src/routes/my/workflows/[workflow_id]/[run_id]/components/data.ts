@@ -1,3 +1,6 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
 import type { HistoryEvent } from '@forkbombeu/temporal-ui';
 
 export const workflowResponse = {
