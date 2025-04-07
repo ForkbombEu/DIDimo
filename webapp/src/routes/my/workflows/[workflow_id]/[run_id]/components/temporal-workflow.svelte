@@ -8,28 +8,31 @@
 		WorkflowHistoryLayout,
 		toEventHistory,
 		type HistoryEvent,
-		WorkflowStatus
+		WorkflowStatus,
+		calculateElapsedTime
 		// pauseLiveUpdates
 	} from '@forkbombeu/temporal-ui';
 
 	//
 
-	type Props = {
-		workflowResponse: Record<string, unknown>;
-		eventHistory: HistoryEvent[];
-	};
-
-	let { workflowResponse, eventHistory }: Props = $props();
+	export let workflowResponse: Record<string, unknown>;
+	export let eventHistory: HistoryEvent[];
 
 	//
 
-	const workflow = toWorkflowExecution(workflowResponse);
-	/* HACK */
-	// canBeTerminated a property of workflow object is a getter that requires a svelte `store` to work
-	// by removing it, we can avoid the store dependency and solve a svelte error about state not updating
-	Object.defineProperty(workflow, 'canBeTerminated', {
-		value: false
-	});
+	let workflow = properToWorkflow(workflowResponse);
+	$: workflow = properToWorkflow(workflowResponse);
+
+	function properToWorkflow(workflowResponse: Record<string, unknown>) {
+		const w = toWorkflowExecution(workflowResponse);
+		/* HACK */
+		// canBeTerminated a property of workflow object is a getter that requires a svelte `store` to work
+		// by removing it, we can avoid the store dependency and solve a svelte error about state not updating
+		Object.defineProperty(w, 'canBeTerminated', {
+			value: false
+		});
+		return w;
+	}
 
 	//
 
@@ -46,7 +49,7 @@
 	});
 </script>
 
-<div class="temporal-ui-workflow space-y-4">
+<div class="space-y-4 border-b-2 px-2 py-4 md:px-4 lg:px-8">
 	{#if workflow.status}
 		<WorkflowStatus status={workflow.status} />
 	{/if}
@@ -54,24 +57,33 @@
 		<tbody>
 			<tr>
 				<td class="italic"> Start </td>
-				<td>
+				<td class="pl-4">
 					{workflow.startTime}
 				</td>
 			</tr>
 			<tr>
 				<td class="italic"> End </td>
-				<td>
+				<td class="pl-4">
 					{workflow.endTime ?? '-'}
 				</td>
 			</tr>
 			<tr>
+				<td class="italic"> Elapsed </td>
+				<td class="pl-4">
+					{calculateElapsedTime(workflow)}
+				</td>
+			</tr>
+			<tr>
 				<td class="italic"> Run ID </td>
-				<td>
+				<td class="pl-4">
 					{workflow.runId}
 				</td>
 			</tr>
 		</tbody>
 	</table>
+</div>
+
+<div class="temporal-ui-workflow space-y-4">
 	<WorkflowHistoryLayout></WorkflowHistoryLayout>
 </div>
 
