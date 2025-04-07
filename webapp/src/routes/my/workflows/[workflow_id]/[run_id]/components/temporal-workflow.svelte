@@ -18,6 +18,7 @@
 	};
 
 	let { workflowResponse, eventHistory }: Props = $props();
+	$inspect(workflowResponse, eventHistory);
 
 	//
 

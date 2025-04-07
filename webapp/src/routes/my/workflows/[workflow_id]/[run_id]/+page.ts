@@ -1,8 +1,4 @@
 import { pb } from '@/pocketbase/index.js';
-import {
-	workflowResponse as SAMPLE_WORKFLOW_RESPONSE,
-	eventHistory as SAMPLE_EVENT_HISTORY
-} from './components/data';
 
 //
 
@@ -25,7 +21,7 @@ export const load = async ({ params, fetch }) => {
 
 	return {
 		workflowId: workflow_id,
-		workflowResponse: SAMPLE_WORKFLOW_RESPONSE,
-		eventHistory: SAMPLE_EVENT_HISTORY
+		workflowResponse,
+		eventHistory: { history: { events: [] } }
 	};
 };
