@@ -101,3 +101,28 @@ func WorkersHook(app *pocketbase.PocketBase) {
 	})
 
 }
+
+func StartUserWorker(namespace string) {
+	c, err := GetTemporalClient(namespace)
+	if err != nil {
+		log.Fatalf("Failed to connect to Temporal: %v", err)
+	}
+	defer c.Close()
+
+	worker := WorkerConfig{
+		TaskQueue: openidWorkflow.OpenIDTestTaskQueue,
+		Workflows: []interface{}{
+			openidWorkflow.OpenIDTestWorkflow,
+			openidWorkflow.LogSubWorkflow,
+		},
+		Activities: []interface{}{
+			openidWorkflow.GenerateYAMLActivity,
+			openidWorkflow.RunStepCIJSProgramActivity,
+			openidWorkflow.SendMailActivity,
+			openidWorkflow.GetLogsActivity,
+			openidWorkflow.TriggerLogsUpdateActivity,
+		},
+	}
+
+	go StartWorker(c, worker, &sync.WaitGroup{})
+}

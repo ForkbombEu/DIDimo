@@ -557,8 +557,16 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return apis.NewInternalServerError("failed to describe workflow execution", err)
 			}
-
-			return e.JSON(http.StatusOK, workflowExecution)
+			weJson, err := protojson.Marshal(workflowExecution)
+			if err != nil {
+				return apis.NewInternalServerError("failed to marshal workflow execution", err)
+			}
+			finalJson := make(map[string]interface{})
+			err = json.Unmarshal(weJson, &finalJson)
+			if err != nil {
+				return apis.NewInternalServerError("failed to unmarshal workflow execution", err)
+			}
+			return e.JSON(http.StatusOK, finalJson)
 		}).Bind(apis.RequireAuth())
 
 		se.Router.GET("/api/workflows/{workflowId}/{runId}/history", func(e *core.RequestEvent) error {
