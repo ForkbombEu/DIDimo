@@ -663,7 +663,6 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		if err != nil {
 			return apis.NewInternalServerError("failed to register namespace", err)
 		}
-		temporalclient.StartUserWorker(namespace)
 
 		return nil
 	})
