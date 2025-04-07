@@ -61,6 +61,48 @@ export const workflowResponse = {
 	}
 };
 
+export const badWorkflowResponse = {
+	executionConfig: {
+		taskQueue: {
+			name: 'OpenIDTestTaskQueue',
+			kind: 'TASK_QUEUE_KIND_NORMAL'
+		},
+		workflowExecutionTimeout: '0s',
+		workflowRunTimeout: '0s',
+		defaultWorkflowTaskTimeout: '10s'
+	},
+	workflowExecutionInfo: {
+		execution: {
+			workflowId: 'OpenIDTestWorkflow8fb36888-be2e-49b1-b6a3-05ed68a28650',
+			runId: 'e45c06c4-2db0-4bdf-8249-cfd1995a39bb'
+		},
+		type: {
+			name: 'OpenIDTestWorkflow'
+		},
+		startTime: '2025-04-07T15:53:02.652055Z',
+		status: 'WORKFLOW_EXECUTION_STATUS_RUNNING', // Issue here!
+		historyLength: '2',
+		executionTime: '2025-04-07T15:53:02.652055Z',
+		memo: {},
+		searchAttributes: {},
+		autoResetPoints: {},
+		taskQueue: 'OpenIDTestTaskQueue',
+		stateTransitionCount: '1',
+		historySizeBytes: '1392',
+		rootExecution: {
+			workflowId: 'OpenIDTestWorkflow8fb36888-be2e-49b1-b6a3-05ed68a28650',
+			runId: 'e45c06c4-2db0-4bdf-8249-cfd1995a39bb'
+		},
+		firstRunId: 'e45c06c4-2db0-4bdf-8249-cfd1995a39bb'
+	},
+	pendingWorkflowTask: {
+		state: 'PENDING_WORKFLOW_TASK_STATE_SCHEDULED',
+		scheduledTime: '2025-04-07T15:53:02.652123Z',
+		originalScheduledTime: '2025-04-07T15:53:02.652122Z',
+		attempt: 1
+	}
+};
+
 export const eventHistory: { history: { events: Array<HistoryEvent> } } = {
 	history: {
 		events: [

@@ -1,6 +1,5 @@
 import { pb } from '@/pocketbase/index.js';
 import { z } from 'zod';
-import { workflowResponse as SAMPLE_WORKFLOW_RESPONSE } from './components/data';
 import { error } from '@sveltejs/kit';
 import type { HistoryEvent } from '@forkbombeu/temporal-ui';
 
@@ -11,12 +10,16 @@ export const load = async ({ params, fetch }) => {
 
 	const basePath = `/api/workflows/${workflow_id}/${run_id}`;
 
-	// TODO - Make sure that the result of these requests matches the shape of the data imported from `./components/data.ts`
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	//
+
 	const workflowResponse = await pb.send(basePath, {
 		method: 'GET',
 		fetch
 	});
+	const workflowResponseValidation = rawWorkflowResponseSchema.safeParse(workflowResponse);
+	if (!workflowResponseValidation.success) {
+		error(500, { message: 'Failed to parse workflow response' });
+	}
 
 	//
 
@@ -33,7 +36,7 @@ export const load = async ({ params, fetch }) => {
 
 	return {
 		workflowId: workflow_id,
-		workflowResponse: SAMPLE_WORKFLOW_RESPONSE,
+		workflowResponse: workflowResponseValidation.data,
 		eventHistory: historyResponseValidation.data as HistoryEvent[]
 	};
 };
