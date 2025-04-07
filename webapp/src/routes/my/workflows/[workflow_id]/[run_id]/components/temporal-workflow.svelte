@@ -24,7 +24,7 @@
 
 	const workflow = toWorkflowExecution(workflowResponse);
 	/* HACK */
-	// canBeTerminated a property of workflow defined as a getter that requires a svelte `store` to work
+	// canBeTerminated a property of workflow object is a getter that requires a svelte `store` to work
 	// by removing it, we can avoid the store dependency and solve a svelte error about state not updating
 	Object.defineProperty(workflow, 'canBeTerminated', {
 		value: false
