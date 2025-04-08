@@ -15,7 +15,7 @@ import (
 
 func main() {
 	godotenv.Load()
-	c, err := temporalclient.GetTemporalClient("default")
+	c, err := temporalclient.GetTemporalClient()
 	if err != nil {
 		log.Fatalf("Failed to connect to Temporal: %v", err)
 	}

@@ -95,7 +95,7 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				TaskQueue: credential_workflow.CredentialsTaskQueue,
 			}
 
-			c, err := temporalclient.GetTemporalClient("default")
+			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
 				return err
 			}
@@ -306,7 +306,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Success: true,
 			}
 
-			c, err := temporalclient.GetTemporalClient("default")
+			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
 				return err
 			}
@@ -333,7 +333,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Reason:  request.Reason,
 			}
 
-			c, err := temporalclient.GetTemporalClient("default")
+			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
 				return err
 			}
@@ -368,7 +368,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("Invalid JSON input", err)
 			}
 
-			c, err := temporalclient.GetTemporalClient("default")
+			c, err := temporalclient.GetTemporalClient()
 			if err != nil {
 				return err
 			}
@@ -481,13 +481,11 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
 
-
 			ownerRoleRecord, err := e.App.FindFirstRecordByFilter("orgRoles", "name='owner'")
 			if err != nil {
 				return apis.NewInternalServerError("failed to find owner role", err)
 			}
 			log.Println("OwnerRoleRecord: ", ownerRoleRecord.Id)
-
 
 			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user}", "", 0, 0, dbx.Params{"user": authRecord.Id})
 			if err != nil {
@@ -496,7 +494,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 			namespace := orgAuthRecord[0].GetString("organization")
 
-			c, err := temporalclient.GetTemporalClient(namespace)
+			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
@@ -551,7 +549,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("organization is empty", nil)
 			}
 
-			c, err := temporalclient.GetTemporalClient(namespace)
+			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
@@ -602,7 +600,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("runId is required", nil)
 			}
 
-			c, err := temporalclient.GetTemporalClient(namespace)
+			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}

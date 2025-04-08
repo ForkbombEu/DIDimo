@@ -27,7 +27,7 @@ type OpenID4VPTestInputFile struct {
 func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namespace string) error {
 	// Load environment variables.
 	godotenv.Load()
-	c, err := temporalclient.GetTemporalClient(namespace)
+	c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
 
 	if err != nil {
 		return fmt.Errorf("unable to create client: %v", err)

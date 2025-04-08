@@ -7,7 +7,7 @@ package temporalclient
 import "testing"
 
 func TestTemporalClientGet(t *testing.T) {
-	have, err := GetTemporalClient("default")
+	have, err := GetTemporalClient()
 	if err != nil {
 		t.Error(err)
 	}
