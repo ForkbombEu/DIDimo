@@ -17,7 +17,7 @@ function addDefaultOrganization(app) {
     const collection = app.findCollectionByNameOrId(ORGANIZATIONS_NAME);
     const record = new Record(collection);
     record.set("name", name);
-    record.set("description", "Default organization");
+    record.set("description", "Credimi public organization");
     app.save(record);
 }
 
