@@ -58,6 +58,7 @@ func StartAllWorkers() {
 				openidWorkflow.OpenIDTestWorkflow,
 				openidWorkflow.LogSubWorkflow,
 			},
+			// Get the activities via a function/method in a dynamic way
 			Activities: []interface{}{
 				openidWorkflow.GenerateYAMLActivity,
 				openidWorkflow.RunStepCIJSProgramActivity,
