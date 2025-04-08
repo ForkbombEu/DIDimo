@@ -10,9 +10,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
 		createInitialDataFromFields,
-		createTestVariablesFormSchema,
+		createTestConfigFormSchema,
 		stringifiedObjectSchema,
-		type SpecificFieldConfig,
+		type ConfigFieldSpecific,
 		type TestInput
 	} from './logic';
 	import { Record as R, Record, pipe, Array as A } from 'effect';
@@ -32,7 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	type UpdateFunction = (testInput: TestInput) => void;
 
 	type Props = {
-		fields: SpecificFieldConfig[];
+		fields: ConfigFieldSpecific[];
 		jsonConfig: Record<string, unknown>;
 		defaultFieldsIds?: string[];
 		defaultValues?: Record<string, unknown>;
@@ -56,7 +56,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	const form = createForm({
 		adapter: zod(
-			createTestVariablesFormSchema(fields).extend({
+			createTestConfigFormSchema(fields).extend({
 				jsonConfig: stringifiedObjectSchema.optional()
 			})
 		),
@@ -165,7 +165,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	/* Utils */
 
-	function previewValue(value: unknown, type: SpecificFieldConfig['Type']): string {
+	function previewValue(value: unknown, type: ConfigFieldSpecific['Type']): string {
 		const NULL_VALUE = '<null>';
 		if (!value) return NULL_VALUE;
 		if (type === 'string') return value as string;

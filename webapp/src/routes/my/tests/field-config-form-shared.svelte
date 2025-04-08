@@ -9,8 +9,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { zod } from 'sveltekit-superforms/adapters';
 	import {
 		createInitialDataFromFields,
-		createTestVariablesFormSchema,
-		type FieldConfig
+		createTestConfigFormSchema,
+		type ConfigField
 	} from './logic';
 	import { Store, watch } from 'runed';
 	import FieldConfigToFormField from './field-config-to-form-field.svelte';
@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	type Props = {
-		fields: FieldConfig[];
+		fields: ConfigField[];
 		initialData?: Record<string, unknown>;
 		onUpdate?: (form: Record<string, unknown>) => void;
 	};
@@ -30,7 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	//
 
 	const form = createForm({
-		adapter: zod(createTestVariablesFormSchema(fields)),
+		adapter: zod(createTestConfigFormSchema(fields)),
 		initialData: createInitialDataFromFields(fields),
 		options: {
 			id: nanoid(6)

@@ -15,6 +15,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Button from '@/components/ui/button/button.svelte';
 	import { pb } from '@/pocketbase';
 	import { goto } from '$app/navigation';
+	import { TestConfigsSharedFieldsForm } from './test-configs-shared-fields-form.svelte';
+	import TestConfigsSharedFieldsFormComponent from './test-configs-shared-fields-form-component.svelte';
+	import { TestConfigFieldsForm } from './test-config-fields-form.svelte';
+	import TestConfigFieldsFormComponent from './test-config-fields-form-component.svelte';
+	import { fromStore } from 'svelte/store';
 
 	//
 
@@ -25,51 +30,73 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	let { data, testId = 'openid4vp' }: Props = $props();
 
-	//
-
 	let sharedData = $state<Record<string, unknown>>({});
 
-	const defaultFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
-
-	//
-
-	const form = createForm({
-		adapter: zod(createTestListInputSchema(data)),
-		onSubmit: async ({ form }) => {
-			await pb.send(`/api/${testId}/save-variables-and-start`, {
-				method: 'POST',
-				body: form.data
-			});
-			await goto(`/my/workflows`);
-		},
-		options: {
-			resetForm: false
-		}
+	const sharedFieldsForm = new TestConfigsSharedFieldsForm(data.normalized_fields, (data) => {
+		sharedData = data;
 	});
 
-	const { form: formData, validateForm } = form;
-	const formState = new Store(formData);
+	const sharedFieldsIds = Object.values(data.normalized_fields).map((f) => f.CredimiID);
 
-	const testsIds = $derived(Object.keys(data.specific_fields));
-
-	const incompleteTestsIdsPromise = $derived.by(() => {
-		formState.current;
-		return validateForm().then((result) => testsIds.filter((test) => test in result.errors));
-	});
-
-	const completeTestsCount = $derived(
-		incompleteTestsIdsPromise.then((tests) => testsIds.length - tests.length)
-	);
-
-	const completionStatusPromise = $derived(
-		Promise.all([completeTestsCount, incompleteTestsIdsPromise])
+	const testConfigFieldsForms = Object.entries(data.specific_fields).map(
+		([id, data]) => new TestConfigFieldsForm(id, data.fields, sharedFieldsIds, () => sharedData)
 	);
 
 	//
 
-	const SHARED_FIELDS_ID = 'shared-fields';
+	// let sharedData = $state<Record<string, unknown>>({});
+
+	// //
+
+	// const form = createForm({
+	// 	adapter: zod(createTestListInputSchema(data)),
+	// 	onSubmit: async ({ form }) => {
+	// 		await pb.send(`/api/${testId}/save-variables-and-start`, {
+	// 			method: 'POST',
+	// 			body: form.data
+	// 		});
+	// 		await goto(`/my/workflows`);
+	// 	},
+	// 	options: {
+	// 		resetForm: false
+	// 	}
+	// });
+
+	// const { form: formData, validateForm } = form;
+	// const formState = new Store(formData);
+
+	// const testsIds = $derived(Object.keys(data.specific_fields));
+
+	// const incompleteTestsIdsPromise = $derived.by(() => {
+	// 	formState.current;
+	// 	return validateForm().then((result) => testsIds.filter((test) => test in result.errors));
+	// });
+
+	// const completeTestsCount = $derived(
+	// 	incompleteTestsIdsPromise.then((tests) => testsIds.length - tests.length)
+	// );
+
+	// const completionStatusPromise = $derived(
+	// 	Promise.all([completeTestsCount, incompleteTestsIdsPromise])
+	// );
+
+	// //
+
+	// const SHARED_FIELDS_ID = 'shared-fields';
 </script>
 
+<div class="space-y-16 p-8">
+	<TestConfigsSharedFieldsFormComponent form={sharedFieldsForm} />
+
+	<hr />
+
+	{#each testConfigFieldsForms as form}
+		<TestConfigFieldsFormComponent {form} />
+		<hr />
+	{/each}
+</div>
+
+<!-- 
 <div class="space-y-16 p-8">
 	<div class="space-y-4">
 		<h2 id={SHARED_FIELDS_ID} class="text-lg font-bold">Shared fields</h2>
@@ -148,4 +175,4 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 		<FormError />
 	</Form>
-</div>
+</div> -->

@@ -32,13 +32,13 @@ const sharedFieldSchema = z.object({
 	Example: z.string().optional()
 });
 
-export type FieldConfig = z.infer<typeof sharedFieldSchema>;
+export type ConfigField = z.infer<typeof sharedFieldSchema>;
 
 const specificFieldSchema = sharedFieldSchema.extend({
 	FieldName: z.string()
 });
 
-export type SpecificFieldConfig = z.infer<typeof specificFieldSchema>;
+export type ConfigFieldSpecific = z.infer<typeof specificFieldSchema>;
 
 //
 
@@ -56,7 +56,7 @@ export const stringifiedObjectSchema = z.string().superRefine((v, ctx) => {
 	}
 });
 
-export function createTestVariablesFormSchema(fields: FieldConfig[]) {
+export function createTestConfigFormSchema(fields: ConfigField[]) {
 	const schemaRawShape: ZodRawShape = Object.fromEntries(
 		fields.map((f) => {
 			let schema: ZodTypeAny;
@@ -128,7 +128,7 @@ export function createTestListInputSchema(fields: FieldsResponse) {
 
 //
 
-export function createInitialDataFromFields(fields: FieldConfig[], excludeIds: string[] = []) {
+export function createInitialDataFromFields(fields: ConfigField[], excludeIds: string[] = []) {
 	return pipe(
 		fields
 			.map((field) => {

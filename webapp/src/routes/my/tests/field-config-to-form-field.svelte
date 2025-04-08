@@ -6,13 +6,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import { CodeEditorField, Field } from '@/forms/fields';
-	import type { FieldConfig } from './logic';
+	import type { ConfigField } from './logic';
 	import type { SuperForm } from 'sveltekit-superforms';
 
 	//
 
 	type Props = {
-		config: FieldConfig;
+		config: ConfigField;
 		form: SuperForm<Record<string, unknown>>;
 	};
 
@@ -27,8 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		name={config.CredimiID}
 		options={{
 			lang: 'json',
-			label: config.LabelKey,
-			value: config.Example
+			label: config.LabelKey
 		}}
 	/>
 {/if}
