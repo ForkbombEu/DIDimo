@@ -20,10 +20,10 @@
 
 	//
 
-	let workflow = properToWorkflow(workflowResponse);
-	$: workflow = properToWorkflow(workflowResponse);
+	let workflow = toWorkflowExecutionHack(workflowResponse);
+	$: workflow = toWorkflowExecutionHack(workflowResponse);
 
-	function properToWorkflow(workflowResponse: Record<string, unknown>) {
+	function toWorkflowExecutionHack(workflowResponse: Record<string, unknown>) {
 		// Note: Run this function ONLY IN THE BROWSER
 		const w = toWorkflowExecution(workflowResponse);
 		/* HACK */
