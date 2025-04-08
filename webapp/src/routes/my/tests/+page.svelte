@@ -12,6 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { ArrowLeft } from 'lucide-svelte';
 	import Button from '@/components/ui-custom/button.svelte';
 	import * as Tabs from '@/components/ui/tabs/index.js';
+	import BackButton from '$lib/layout/back-button.svelte';
 
 	//
 
@@ -34,9 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <div class="space-y-12 p-8 pb-0">
 	<div>
-		<Button href="/my" variant="link" class="p-0">
-			<ArrowLeft size={16} /> Back to dashboard
-		</Button>
+		<BackButton href="/my">Back to dashboard</BackButton>
 		<T tag="h1">Compliance tests</T>
 	</div>
 

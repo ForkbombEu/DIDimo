@@ -58,6 +58,7 @@ func StartAllWorkers() {
 				openidWorkflow.OpenIDTestWorkflow,
 				openidWorkflow.LogSubWorkflow,
 			},
+			// Get the activities via a function/method in a dynamic way
 			Activities: []interface{}{
 				openidWorkflow.GenerateYAMLActivity,
 				openidWorkflow.RunStepCIJSProgramActivity,
@@ -104,4 +105,29 @@ func WorkersHook(app *pocketbase.PocketBase) {
 		return se.Next()
 	})
 
+}
+
+func StartUserWorker(namespace string) {
+	c, err := GetTemporalClientWithNamespace(namespace)
+	if err != nil {
+		log.Fatalf("Failed to connect to Temporal: %v", err)
+	}
+	defer c.Close()
+
+	worker := WorkerConfig{
+		TaskQueue: openidWorkflow.OpenIDTestTaskQueue,
+		Workflows: []interface{}{
+			openidWorkflow.OpenIDTestWorkflow,
+			openidWorkflow.LogSubWorkflow,
+		},
+		Activities: []interface{}{
+			openidWorkflow.GenerateYAMLActivity,
+			openidWorkflow.RunStepCIJSProgramActivity,
+			openidWorkflow.SendMailActivity,
+			openidWorkflow.GetLogsActivity,
+			openidWorkflow.TriggerLogsUpdateActivity,
+		},
+	}
+
+	go StartWorker(c, worker, &sync.WaitGroup{})
 }

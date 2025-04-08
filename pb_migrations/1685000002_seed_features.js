@@ -48,6 +48,13 @@ const features = [
         name: "demo",
         active: false,
     },
+    {
+        name: "updateIssuers",
+        active: false,
+        envVariables: {
+            interval: "daily",
+        },
+    }
 ];
 
 //
