@@ -26,8 +26,6 @@ import (
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
 	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
@@ -703,28 +701,7 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		newOrgAuth.Set("organization", newOrg.Id)
 		newOrgAuth.Set("role", ownerRoleRecord.Id)
 		txApp.Save(newOrgAuth)
-		retention := durationpb.New(24 * time.Hour)
-
-		namespace := newOrg.Id
-		client, err := client.NewNamespaceClient(client.Options{})
-		defer client.Close()
-		if err != nil {
-			return apis.NewInternalServerError("failed to create Temporal client", err)
-		}
-
-		// Check if the namespace already exists
-		_, err = client.Describe(context.Background(), namespace)
-		if err == nil {
-			return nil
-		}
-		err = client.Register(context.Background(), &workflowservice.RegisterNamespaceRequest{
-			Namespace:                        namespace,
-			WorkflowExecutionRetentionPeriod: retention,
-		})
-		if err != nil {
-			return apis.NewInternalServerError("failed to register namespace", err)
-		}
-
+		
 		return nil
 	})
 
