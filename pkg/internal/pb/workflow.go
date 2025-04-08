@@ -96,10 +96,10 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 			}
 
 			c, err := temporalclient.GetTemporalClient()
+			defer c.Close()
 			if err != nil {
 				return err
 			}
-			defer c.Close()
 
 			we, err := c.ExecuteWorkflow(context.Background(), workflowOptions, credential_workflow.CredentialWorkflow, workflowInput)
 			if err != nil {
@@ -142,7 +142,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			// Start the workflow
-			err := OpenID4VP.StartWorkflow(req.Input, req.UserMail, appURL, "default")
+			err := OpenID4VP.StartWorkflow(req.Input, req.UserMail, appURL)
 			if err != nil {
 				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
 			}
@@ -204,7 +204,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
 
-					err := OpenID4VP.StartWorkflow(parsedData, User, appURL, namespace)
+					err := OpenID4VP.StartWorkflowWithNamespace(parsedData, User, appURL, namespace)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -241,16 +241,16 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					}
 
 					template, err := os.Open(filepath + testName)
+					defer template.Close()
 					if err != nil {
 						return apis.NewBadRequestError("failed to open template for test "+testName, err)
 					}
-					defer template.Close()
 
 					templateFile, err := os.Open(filepath + testName)
+					defer templateFile.Close()
 					if err != nil {
 						return apis.NewBadRequestError("failed to open template for test "+testName, err)
 					}
-					defer templateFile.Close()
 
 					renderedTemplate, err := engine.RenderTemplate(templateFile, values)
 					if err != nil {
@@ -263,7 +263,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
 					}
 
-					err = OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
+					err = OpenID4VP.StartWorkflowWithNamespace(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(parsedVariant.Variant),
 						Form:    parsedVariant.Form,
 					}, email, appURL, namespace)
@@ -293,10 +293,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			c, err := temporalclient.GetTemporalClient()
+			defer c.Close()
 			if err != nil {
 				return err
 			}
-			defer c.Close()
 
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
@@ -320,10 +320,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			c, err := temporalclient.GetTemporalClient()
+			defer c.Close()
+
 			if err != nil {
 				return err
 			}
-			defer c.Close()
 
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID, "", "wallet-test-signal", data)
 			if err != nil {
@@ -355,10 +356,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			c, err := temporalclient.GetTemporalClient()
+			defer c.Close()
 			if err != nil {
 				return err
 			}
-			defer c.Close()
 
 			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
 			if err != nil {
@@ -433,11 +434,11 @@ func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 		temporalClient, err := client.Dial(client.Options{
 			HostPort: client.DefaultHostPort,
 		})
+		defer temporalClient.Close()
+
 		if err != nil {
 			log.Fatalln("Unable to create Temporal Client", err)
 		}
-		defer temporalClient.Close()
-
 		scheduleHandle, err := temporalClient.ScheduleClient().Create(ctx, client.ScheduleOptions{
 			ID: scheduleID,
 			Spec: client.ScheduleSpec{
@@ -466,26 +467,15 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		se.Router.GET("/api/workflows", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
-
-			ownerRoleRecord, err := e.App.FindFirstRecordByFilter("orgRoles", "name='owner'")
+			namespace, err := getUserNamespace(e.App, authRecord.Id)
 			if err != nil {
-				return apis.NewInternalServerError("failed to find owner role", err)
-			}
-			log.Println("OwnerRoleRecord: ", ownerRoleRecord.Id)
-
-			orgAuthRecord, err := e.App.FindRecordsByFilter("orgAuthorizations", "user={:user}", "", 0, 0, dbx.Params{"user": authRecord.Id})
-			if err != nil {
-				log.Println("Error finding orgAuthRecord:", err)
 				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
 			}
-			namespace := orgAuthRecord[0].GetString("organization")
-
 			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
+			defer c.Close()
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
-			defer c.Close()
-
 			list, err := c.ListWorkflow(context.Background(), &workflowservice.ListWorkflowExecutionsRequest{
 				Namespace: namespace,
 			})
@@ -515,32 +505,20 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 				return apis.NewBadRequestError("runId is required", nil)
 			}
 			authRecord := e.Auth
-			orgAuthCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
-			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", err)
-			}
-			if orgAuthCollection == nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", nil)
-			}
-			orgAuthRecord, err := e.App.FindFirstRecordByFilter(orgAuthCollection.Id, "user={:user}", dbx.Params{"user": authRecord.Id})
-			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations record", err)
-			}
-			if orgAuthRecord == nil {
-				return apis.NewBadRequestError("user is not authorized to access this organization", nil)
-			}
 
-			namespace := orgAuthRecord.GetString("organization")
+			namespace, err := getUserNamespace(e.App, authRecord.Id)
+			if err != nil {
+				return apis.NewUnauthorizedError("User is not authorized to access this organization", err)
+			}
 			if namespace == "" {
 				return apis.NewBadRequestError("organization is empty", nil)
 			}
 
 			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
+			defer c.Close()
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
-			defer c.Close()
-
 			workflowExecution, err := c.DescribeWorkflowExecution(context.Background(), workflowId, runId)
 			if err != nil {
 				return apis.NewInternalServerError("failed to describe workflow execution", err)
@@ -587,10 +565,10 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			}
 
 			c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
+			defer c.Close()
 			if err != nil {
 				return apis.NewInternalServerError("unable to create client", err)
 			}
-			defer c.Close()
 
 			historyIterator := c.GetWorkflowHistory(context.Background(), workflowId, runId, false, enums.HISTORY_EVENT_FILTER_TYPE_ALL_EVENT)
 			var history []map[string]interface{}
@@ -646,37 +624,21 @@ func getUserNamespace(app core.App, userId string) (string, error) {
 		return "", apis.NewInternalServerError("failed to find owner role", err)
 	}
 
-	for _, record := range authOrgRecords {
-		if record.GetString("role") == ownerRoleRecord.Id {
-			return record.GetString("organization"), nil
+	if len(authOrgRecords) > 1 {
+		for _, record := range authOrgRecords {
+			if record.GetString("role") == ownerRoleRecord.Id {
+				return record.GetString("organization"), nil
+			}
 		}
 	}
-
-	for _, record := range authOrgRecords {
-		if record.GetString("organization") == "default" {
-			return "default", nil
-		}
+	if authOrgRecords[0].GetString("role") == ownerRoleRecord.Id {
+		return authOrgRecords[0].GetString("organization"), nil
 	}
-
-	return "", apis.NewInternalServerError("user does not belong to any valid organization", nil)
+	return "default", nil
 }
 
 func addUserToDefaultOrganization(e *core.RecordEvent) error {
 	user := e.Record
-
-	orgAuthCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
-	if err != nil {
-		return apis.NewInternalServerError("failed to find orgAuthorizations collection", err)
-	}
-
-	authOrgRecord, err := e.App.FindFirstRecordByFilter(orgAuthCollection.Id, "user={:user}", dbx.Params{"user": user.Id})
-	if err != nil {
-		return apis.NewInternalServerError("failed to find orgAuthorizations record", err)
-	}
-	if authOrgRecord != nil && authOrgRecord.GetString("organization") == "default" {
-		return nil
-	}
-
 	errTx := e.App.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
 		if err != nil {
@@ -696,11 +658,11 @@ func addUserToDefaultOrganization(e *core.RecordEvent) error {
 		newOrgAuth := core.NewRecord(orgAuthCollection)
 		newOrgAuth.Set("user", user.Id)
 		newOrgAuth.Set("organization", defaultOrgRecord.Id)
-		ownerRoleRecord, err := txApp.FindFirstRecordByFilter("orgRoles", "name='owner'")
+		memberRoleRecord, err := txApp.FindFirstRecordByFilter("orgRoles", "name='member'")
 		if err != nil {
 			return apis.NewInternalServerError("failed to find owner role", err)
 		}
-		newOrgAuth.Set("role", ownerRoleRecord.Id)
+		newOrgAuth.Set("role", memberRoleRecord.Id)
 		err = txApp.Save(newOrgAuth)
 		if err != nil {
 			return apis.NewInternalServerError("failed to save orgAuthorization record", err)
@@ -745,10 +707,10 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 
 		namespace := newOrg.Id
 		client, err := client.NewNamespaceClient(client.Options{})
+		defer client.Close()
 		if err != nil {
 			return apis.NewInternalServerError("failed to create Temporal client", err)
 		}
-		defer client.Close()
 
 		// Check if the namespace already exists
 		_, err = client.Describe(context.Background(), namespace)

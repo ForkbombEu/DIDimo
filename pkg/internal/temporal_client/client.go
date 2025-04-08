@@ -6,8 +6,9 @@ package temporalclient
 
 import (
 	"fmt"
-	"go.temporal.io/sdk/client"
+
 	"github.com/forkbombeu/didimo/pkg/utils"
+	"go.temporal.io/sdk/client"
 )
 
 func getTemporalClient(args ...string) (client.Client, error) {
@@ -39,7 +40,7 @@ func GetTemporalClient() (client.Client, error) {
 }
 
 func GetTemporalClientWithNamespace(namespace string) (client.Client, error) {
-	c, err := GetTemporalClientWithNamespace(namespace)
+	c, err := getTemporalClient(namespace)
 	if err != nil {
 		return nil, fmt.Errorf("unable to create client: %v", err)
 	}
