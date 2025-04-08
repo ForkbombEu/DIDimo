@@ -162,23 +162,9 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			User := e.Auth.Id
 			email := e.Auth.GetString("email")
 
-			authOrgCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
+			namespace, err := getUserNamespace(app, User)
 			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", err)
-			}
-			if authOrgCollection == nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", nil)
-			}
-			authOrgRecord, err := e.App.FindFirstRecordByFilter(authOrgCollection.Id, "user={:user}", dbx.Params{"user": User})
-			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations record", err)
-			}
-			if authOrgRecord == nil {
-				return apis.NewBadRequestError("user is not authorized to access this organization", nil)
-			}
-			organization := authOrgRecord.GetString("organization")
-			if organization == "" {
-				return apis.NewBadRequestError("organization is empty", nil)
+				return apis.NewBadRequestError("failed to get user namespace", err)
 			}
 
 			protocol := e.Request.PathValue("protocol")
@@ -218,7 +204,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
 
-					err := OpenID4VP.StartWorkflow(parsedData, User, appURL, organization)
+					err := OpenID4VP.StartWorkflow(parsedData, User, appURL, namespace)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -280,7 +266,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					err = OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(parsedVariant.Variant),
 						Form:    parsedVariant.Form,
-					}, email, appURL, organization)
+					}, email, appURL, namespace)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -633,8 +619,7 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 
 func HookAtUserCreation(app *pocketbase.PocketBase) {
 	app.OnRecordAfterCreateSuccess("users").BindFunc(func(e *core.RecordEvent) error {
-		user := e.Record
-		err := createNamespaceForUser(e, user)
+		err := addUserToDefaultOrganization(e)
 		if err != nil {
 			return err
 		}
@@ -642,6 +627,94 @@ func HookAtUserCreation(app *pocketbase.PocketBase) {
 	})
 }
 
+func getUserNamespace(app core.App, userId string) (string, error) {
+	orgAuthCollection, err := app.FindCollectionByNameOrId("orgAuthorizations")
+	if err != nil {
+		return "", apis.NewInternalServerError("failed to find orgAuthorizations collection", err)
+	}
+
+	authOrgRecords, err := app.FindRecordsByFilter(orgAuthCollection.Id, "user={:user}", "", 0, 0, dbx.Params{"user": userId})
+	if err != nil {
+		return "", apis.NewInternalServerError("failed to find orgAuthorizations records", err)
+	}
+	if len(authOrgRecords) == 0 {
+		return "", apis.NewInternalServerError("user is not authorized to access any organization", nil)
+	}
+
+	ownerRoleRecord, err := app.FindFirstRecordByFilter("orgRoles", "name='owner'")
+	if err != nil {
+		return "", apis.NewInternalServerError("failed to find owner role", err)
+	}
+
+	for _, record := range authOrgRecords {
+		if record.GetString("role") == ownerRoleRecord.Id {
+			return record.GetString("organization"), nil
+		}
+	}
+
+	for _, record := range authOrgRecords {
+		if record.GetString("organization") == "default" {
+			return "default", nil
+		}
+	}
+
+	return "", apis.NewInternalServerError("user does not belong to any valid organization", nil)
+}
+
+func addUserToDefaultOrganization(e *core.RecordEvent) error {
+	user := e.Record
+
+	orgAuthCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
+	if err != nil {
+		return apis.NewInternalServerError("failed to find orgAuthorizations collection", err)
+	}
+
+	authOrgRecord, err := e.App.FindFirstRecordByFilter(orgAuthCollection.Id, "user={:user}", dbx.Params{"user": user.Id})
+	if err != nil {
+		return apis.NewInternalServerError("failed to find orgAuthorizations record", err)
+	}
+	if authOrgRecord != nil && authOrgRecord.GetString("organization") == "default" {
+		return nil
+	}
+
+	errTx := e.App.RunInTransaction(func(txApp core.App) error {
+		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
+		if err != nil {
+			return apis.NewInternalServerError("failed to find organizations collection", err)
+		}
+		defaultOrgRecord, err := txApp.FindFirstRecordByFilter(orgCollection.Id, "name='default'")
+		if err != nil {
+			return apis.NewInternalServerError("failed to find default organization", err)
+		}
+		if defaultOrgRecord == nil {
+			return apis.NewInternalServerError("default organization not found", nil)
+		}
+		orgAuthCollection, err := txApp.FindCollectionByNameOrId("orgAuthorizations")
+		if err != nil {
+			return apis.NewInternalServerError("failed to find orgAuthorizations collection", err)
+		}
+		newOrgAuth := core.NewRecord(orgAuthCollection)
+		newOrgAuth.Set("user", user.Id)
+		newOrgAuth.Set("organization", defaultOrgRecord.Id)
+		ownerRoleRecord, err := txApp.FindFirstRecordByFilter("orgRoles", "name='owner'")
+		if err != nil {
+			return apis.NewInternalServerError("failed to find owner role", err)
+		}
+		newOrgAuth.Set("role", ownerRoleRecord.Id)
+		err = txApp.Save(newOrgAuth)
+		if err != nil {
+			return apis.NewInternalServerError("failed to save orgAuthorization record", err)
+		}
+		return nil
+	})
+
+	if errTx != nil {
+		return apis.NewInternalServerError("failed to add user to default organization", errTx)
+	}
+	return nil
+}
+
+// This function will be used when user will claim the organization
 func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 
 	err := e.App.RunInTransaction(func(txApp core.App) error {
