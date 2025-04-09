@@ -7,6 +7,25 @@ migrate(
     (app) => {
         const collection = app.findCollectionByNameOrId("pbc_987692768");
 
+        // add field
+        collection.fields.addAt(
+            7,
+            new Field({
+                autogeneratePattern: "",
+                hidden: false,
+                id: "text1874629670",
+                max: 0,
+                min: 0,
+                name: "tags",
+                pattern: "#(\\w+)",
+                presentable: false,
+                primaryKey: false,
+                required: false,
+                system: false,
+                type: "text",
+            })
+        );
+
         // update collection data
         unmarshal(
             {
@@ -29,6 +48,9 @@ migrate(
             },
             collection
         );
+
+        // remove field
+        collection.fields.removeById("text1874629670");
 
         return app.save(collection);
     }
