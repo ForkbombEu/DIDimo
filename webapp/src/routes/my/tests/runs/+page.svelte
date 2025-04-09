@@ -13,14 +13,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import * as Table from '@/components/ui/table/index.js';
 	import { toWorkflowStatusReadable, WorkflowStatus } from '@forkbombeu/temporal-ui';
 	import TemporalI18nProvider from './[workflow_id]/[run_id]/components/temporal-i18n-provider.svelte';
+	import { m } from '@/i18n';
 
 	let { data } = $props();
 	const { executions } = $derived(data);
 </script>
 
 <PageTop contentClass="!space-y-0">
-	<BackButton href="/my">Back to dashboard</BackButton>
-	<T tag="h1">Workflows</T>
+	<BackButton href="/my">{m.Back_to_dashboard()}</BackButton>
+	<T tag="h1">{m.My_test_runs()}</T>
 </PageTop>
 
 <TemporalI18nProvider>

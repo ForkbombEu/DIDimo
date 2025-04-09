@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				method: 'POST',
 				body: form.data
 			});
-			await goto(`/my/workflows`);
+			await goto(`/my/tests/runs`);
 		},
 		options: {
 			resetForm: false

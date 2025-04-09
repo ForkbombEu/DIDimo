@@ -17,6 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	import TemporalI18nProvider from './components/temporal-i18n-provider.svelte';
 	import TemporalWorkflow from './components/temporal-workflow.svelte';
+	import { m } from '@/i18n';
 
 	//
 
@@ -39,12 +40,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <div class="bg-[#220e7c] text-white">
 	<div class="mx-auto max-w-screen-xl !px-2 md:!px-4 lg:!px-8">
-		<BackButton href="/my/workflows" class="text-white">Back to workflows</BackButton>
+		<BackButton href="/my/workflows" class="text-white">{m.Back_to_test_runs()}</BackButton>
 	</div>
 </div>
 
 <PageTop contentClass="!space-y-0 !px-2 md:!px-4 lg:!px-8">
-	<T tag="h1">Workflow {workflowId}</T>
+	<T tag="h2">{m.Test_run()}: {workflowId}</T>
 </PageTop>
 
 <div class="mx-auto max-w-screen-xl">

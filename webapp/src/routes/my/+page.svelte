@@ -12,6 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { Separator } from '@/components/ui/separator';
+	import { m } from '@/i18n/index.js';
 	import { currentUser } from '@/pocketbase';
 	import { Sparkle, Workflow } from 'lucide-svelte';
 
@@ -32,7 +33,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<div class="flex items-center gap-2">
 			<Button href="/my/workflows" variant="outline">
 				<Icon src={Workflow} />
-				All workflows
+				{m.View_test_runs()}
 			</Button>
 			<Button href="/my/tests">
 				<Icon src={Sparkle} />
