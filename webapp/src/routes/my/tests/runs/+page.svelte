@@ -19,42 +19,35 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const { executions } = $derived(data);
 </script>
 
-<PageTop contentClass="!space-y-0">
-	<BackButton href="/my">{m.Back_to_dashboard()}</BackButton>
-	<T tag="h1">{m.My_test_runs()}</T>
-</PageTop>
-
 <TemporalI18nProvider>
-	<PageContent class="bg-secondary grow">
-		<Table.Root class="rounded-lg bg-white">
-			<Table.Header>
+	<Table.Root class="rounded-lg bg-white">
+		<Table.Header>
+			<Table.Row>
+				<Table.Head>Status</Table.Head>
+				<Table.Head>Workflow ID</Table.Head>
+				<Table.Head>Type</Table.Head>
+				<Table.Head class="text-right">Start</Table.Head>
+				<Table.Head class="text-right">End</Table.Head>
+			</Table.Row>
+		</Table.Header>
+		<Table.Body>
+			{#each executions as workflow (workflow.execution.runId)}
+				{@const path = `/my/tests/runs/${workflow.execution.workflowId}/${workflow.execution.runId}`}
+				{@const status = toWorkflowStatusReadable(workflow.status)}
 				<Table.Row>
-					<Table.Head>Status</Table.Head>
-					<Table.Head>Workflow ID</Table.Head>
-					<Table.Head>Type</Table.Head>
-					<Table.Head class="text-right">Start</Table.Head>
-					<Table.Head class="text-right">End</Table.Head>
+					<Table.Cell>
+						{#if status !== null}
+							<WorkflowStatus {status} />
+						{/if}
+					</Table.Cell>
+					<Table.Cell class="font-medium">
+						<A href={path}>{workflow.execution.workflowId}</A>
+					</Table.Cell>
+					<Table.Cell>{workflow.type.name}</Table.Cell>
+					<Table.Cell class="text-right">{workflow.startTime}</Table.Cell>
+					<Table.Cell class="text-right">{workflow.endTime}</Table.Cell>
 				</Table.Row>
-			</Table.Header>
-			<Table.Body>
-				{#each executions as workflow (workflow.execution.runId)}
-					{@const path = `/my/tests/runs/${workflow.execution.workflowId}/${workflow.execution.runId}`}
-					{@const status = toWorkflowStatusReadable(workflow.status)}
-					<Table.Row>
-						<Table.Cell>
-							{#if status !== null}
-								<WorkflowStatus {status} />
-							{/if}
-						</Table.Cell>
-						<Table.Cell class="font-medium">
-							<A href={path}>{workflow.execution.workflowId}</A>
-						</Table.Cell>
-						<Table.Cell>{workflow.type.name}</Table.Cell>
-						<Table.Cell class="text-right">{workflow.startTime}</Table.Cell>
-						<Table.Cell class="text-right">{workflow.endTime}</Table.Cell>
-					</Table.Row>
-				{/each}
-			</Table.Body>
-		</Table.Root>
-	</PageContent>
+			{/each}
+		</Table.Body>
+	</Table.Root>
 </TemporalI18nProvider>

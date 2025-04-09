@@ -11,6 +11,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import { appVersion } from '@/utils/appVersion';
+	import { Sparkle } from 'lucide-svelte';
+	import { currentUser } from '@/pocketbase';
 </script>
 
 <div class="bg-primary text-muted">
@@ -24,15 +26,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					</T>
 					<p class="border-b-muted border-b">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
-				<div class="flex gap-2 blur-sm">
+
+				{#if $currentUser}
 					<Button
 						variant="default"
 						class="text-primary grow basis-1 bg-white hover:bg-white/90 sm:grow-0"
 						href={$featureFlags.DEMO ? undefined : '/tests/new'}
 						disabled={$featureFlags.DEMO}
 					>
+						<Sparkle />
 						{m.Start_a_new_test()}
 					</Button>
+				{:else}
 					<Button
 						variant="ghost"
 						class="grow basis-1 border sm:grow-0"
@@ -41,7 +46,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					>
 						{m.Login()}
 					</Button>
-				</div>
+				{/if}
 			</div>
 		</div>
 	</div>

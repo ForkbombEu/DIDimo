@@ -22,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			'inline-block text-sm font-medium text-center p-4 py-3 border-b-2 flex items-center whitespace-nowrap',
 			{
 				'border-transparent hover:border-primary/20': !isActive,
-				'text-primary border-primary border-b-2': isActive
+				'text-primary border-primary border-b-2 bg-secondary rounded-t-sm': isActive
 			}
 		)
 	);
