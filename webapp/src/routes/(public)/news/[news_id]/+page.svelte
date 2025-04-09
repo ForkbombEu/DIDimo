@@ -20,7 +20,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="flex flex-col gap-4">
 		<T tag="h1">{news.title}</T>
 		<T tag="small" class="text-muted-foreground">{new Date(news.updated).toLocaleString()}</T>
-		<HTML className="prose prose-sm xl:prose-lg" content={news.summary} />
+		<HTML class="prose prose-sm xl:prose-lg" content={news.summary} />
 	</div>
 	<div class="flex flex-row items-center justify-start gap-2">
 		{#if news.diff}

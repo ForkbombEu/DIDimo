@@ -11,12 +11,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	type Props = {
 		content: string;
-		className?: string;
+		class?: string;
 	};
 
-	const { content, className }: Props = $props();
+	const { content, class: className }: Props = $props();
 </script>
 
-<div>
-	<HTML {className} content={marked.parse(content, { async: false })} />
-</div>
+<HTML class={className} content={marked.parse(content, { async: false })} />
