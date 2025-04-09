@@ -20,16 +20,21 @@ import (
 func HookNamespaceOrgs(app *pocketbase.PocketBase) {
 	app.OnRecordAfterCreateSuccess("organizations").BindFunc(func(e *core.RecordEvent) error {
 		c, err := client.NewNamespaceClient(client.Options{})
+		defer c.Close()
+
 		if err != nil {
 			log.Fatalln("Unable to create client", err)
 		}
-		defer c.Close()
+
+		name := e.Record.Get("name").(string)
+		if name == "default" {
+			return e.Next()
+		}
 
 		err = c.Register(context.Background(), &workflowservice.RegisterNamespaceRequest{
-			Namespace:                        e.Record.Get("name").(string),
+			Namespace:                        name,
 			WorkflowExecutionRetentionPeriod: durationpb.New(7 * 24 * time.Hour),
 		})
-
 		if err != nil {
 			log.Fatalf("Unable to create namespace %s: %v", e.Record.Get("name").(string), err)
 		}
