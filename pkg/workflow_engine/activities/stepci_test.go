@@ -1,8 +1,10 @@
 package activities
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -28,14 +30,13 @@ func TestConfigure(t *testing.T) {
 	activity := &StepCIWorkflowActivity{}
 
 	tests := []struct {
-		name           string
-		config         map[string]string
-		payload        map[string]interface{}
-		templateBody   string
-		expectedYAML   string
-		expectedSecret string
-		expectError    bool
-		errorContains  string
+		name          string
+		config        map[string]string
+		payload       map[string]interface{}
+		templateBody  string
+		expectedYAML  string
+		expectError   bool
+		errorContains string
 	}{
 		{
 			name: "Success - valid template",
@@ -45,9 +46,8 @@ func TestConfigure(t *testing.T) {
 			payload: map[string]interface{}{
 				"name": "world",
 			},
-			templateBody:   `hello: {{ .name }}`,
-			expectedYAML:   "hello: world",
-			expectedSecret: "secret-value",
+			templateBody: `hello: [[ .name ]]`,
+			expectedYAML: "hello: world",
 		},
 		{
 			name:          "Failure - missing template path",
@@ -61,7 +61,7 @@ func TestConfigure(t *testing.T) {
 				"template": "/not/found.yaml",
 			},
 			expectError:   true,
-			errorContains: "failed to read template file",
+			errorContains: "failed to open template file",
 		},
 		{
 			name:   "Failure - invalid template syntax",
@@ -69,15 +69,14 @@ func TestConfigure(t *testing.T) {
 			payload: map[string]interface{}{
 				"name": "bad",
 			},
-			templateBody:  `{{ .name }`, // malformed
+			templateBody:  `[[ .name ]`, // malformed
 			expectError:   true,
-			errorContains: "failed to parse template",
+			errorContains: "failed to render YAML",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			// Create temp file if template body is provided but no path given
 			if tc.templateBody != "" && tc.config["template"] == "" {
 				tmp := createTempTemplate(t, tc.templateBody)
 				defer os.Remove(tmp)
@@ -101,7 +100,6 @@ func TestConfigure(t *testing.T) {
 				yaml, ok := input.Payload["yaml"].(string)
 				require.True(t, ok, "expected payload to contain string field 'yaml'")
 				require.Equal(t, tc.expectedYAML, strings.TrimSpace(yaml))
-				require.Equal(t, tc.expectedSecret, activity.secrets["token"])
 			}
 		})
 	}
@@ -141,17 +139,61 @@ func TestExecute(t *testing.T) {
 	tests := []struct {
 		name             string
 		payload          map[string]interface{}
-		prepareBinary    bool
-		secrets          map[string]string
+		config           map[string]string
 		expectedError    bool
 		expectedErrorMsg string
-		expectedInOutput string
+		expectedInOutput any
 	}{
 		{
 			name: "Success - valid execution",
 			payload: map[string]interface{}{
-				"yaml": `version: "1.1"
+				"yaml": `
+version: "1.1"
+tests:
+  example:
+    steps:
+      - name: Notfound test
+        http:
+          url: "${{secrets.test_secret}}"
+          method: GET
+          check:
+            status: 404
 
+      - name: GET request
+        http:
+          url: https://jsonplaceholder.typicode.com/posts/1
+          method: GET
+          check:
+            jsonpath:
+              $.id: 1
+          captures:
+            test:
+              jsonpath: $.id
+`,
+			},
+			config:           map[string]string{"test_secret": "https://httpbin.org/status/404"},
+			expectedInOutput: map[string]any{"test": float64(1)},
+		},
+		{
+			name: "Failure - missing runner binary",
+			payload: map[string]interface{}{
+				"yaml": "version: 1.0",
+			},
+			expectedError:    true,
+			expectedErrorMsg: "stepci runner failed",
+		},
+		{
+			name:             "Failure - incorrect secrets",
+			payload:          map[string]any{"yaml": "version: 1.0"},
+			config:           map[string]string{"wrongToken": "invalid-token"},
+			expectedError:    true,
+			expectedErrorMsg: "stepci runner failed",
+		},
+		{
+			name: "Failure - stepCI fails",
+			payload: map[string]any{
+				"yaml": `
+version: "1.1"
 tests:
   example:
     steps:
@@ -166,54 +208,95 @@ tests:
           url: "${{secrets.test_secret}}"
           method: GET
           check:
-            status: 404
+            status: 200
           captures:
             test:
-              jsonpath: $`,
+              jsonpath: $
+`,
 			},
-			prepareBinary:    true,
-			secrets:          map[string]string{"test_secret": "https://httpbin.org/status/404"},
-			expectedInOutput: "{}",
-		},
-		{
-			name:             "Failure - incorrect secrets",
-			payload:          map[string]interface{}{"yaml": "version: 1.0"},
-			secrets:          map[string]string{"wrongToken": "invalid-token"},
+			config:           map[string]string{"test_secret": "https://httpbin.org/status/404"},
 			expectedError:    true,
-			expectedErrorMsg: "stepci runner failed", // Adjust to match your actual error
+			expectedErrorMsg: "Workflow failed. Details:\n\n🔴 Step Failed: Notfound test",
 		},
 	}
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.prepareBinary {
-				_, err := os.Stat(binPath)
-				if err != nil {
-					require.Fail(t, "Binary not found", "Ensure the real binary exists at: %s", binPath)
-				}
-			}
 			tmpYAMLFile, err := os.CreateTemp("", "test-*.yaml")
 			require.NoError(t, err, "Failed to create temporary YAML file")
-			defer os.Remove(tmpYAMLFile.Name())
+			defer os.Remove(tmpYAMLFile.Name()) // Ensure the file is removed after the test
 
 			_, err = tmpYAMLFile.WriteString(tc.payload["yaml"].(string))
 			require.NoError(t, err, "Failed to write to temporary YAML file")
-			activity := &StepCIWorkflowActivity{secrets: tc.secrets}
+			activity := &StepCIWorkflowActivity{}
 			input := workflowengine.ActivityInput{
 				Payload: map[string]interface{}{
 					"yaml": tmpYAMLFile.Name(),
 				},
+				Config: tc.config,
 			}
-
 			result, err := activity.Execute(context.Background(), input)
-
 			if tc.expectedError {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expectedErrorMsg)
 			} else {
 				require.NoError(t, err)
-				require.Contains(t, result.Output, tc.expectedInOutput)
+				require.Equal(t, tc.expectedInOutput, result.Output)
 			}
+		})
+	}
+}
+
+func TestRenderYAML(t *testing.T) {
+	tests := []struct {
+		name     string
+		tmpl     string
+		data     map[string]any
+		expected string
+	}{
+		{
+			name:     "Simple string",
+			tmpl:     "Hello, [[.Name]]!",
+			data:     map[string]any{"Name": "Alice"},
+			expected: "Hello, Alice!",
+		},
+		{
+			name: "Complex object",
+			tmpl: `test: [[ .Test | toJSON ]]
+nested:
+  [[ .Nested | toYAML | nindent 2 | trim ]]
+nested2: [[ .Nested2 ]]`,
+			data: map[string]any{
+				"Test": map[string]string{
+					"Username": "jdoe",
+					"Email":    "jdoe@example.com",
+				},
+				"Nested": map[string]any{
+					"nested": map[string]any{
+						"test1": map[string]string{"Key": "value"},
+						"test2": map[string]string{"Key2": "value2"},
+					},
+				},
+				"Nested2": "nested_value2",
+			},
+			expected: `test: {"Email":"jdoe@example.com","Username":"jdoe"}
+nested:
+  nested:
+      test1:
+          Key: value
+      test2:
+          Key2: value2
+nested2: nested_value2`,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+
+			reader := io.NopCloser(bytes.NewBufferString(tt.tmpl))
+			output, err := RenderYAML(reader, tt.data)
+			require.NoError(t, err, "RenderYAML should not return an error")
+			require.Equal(t, strings.TrimSpace(tt.expected), strings.TrimSpace(output), "Rendered output should match expected")
+
 		})
 	}
 }
