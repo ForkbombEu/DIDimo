@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 export function downloadFileFromUrl(url: string, fileName: string) {
 	const a = document.createElement('a');
 	a.href = url;

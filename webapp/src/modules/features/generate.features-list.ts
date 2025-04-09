@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import fs from 'fs';
 import path from 'node:path';
 import { formatCode, GENERATED, openDb, logCodegenResult } from '@/utils/codegen';

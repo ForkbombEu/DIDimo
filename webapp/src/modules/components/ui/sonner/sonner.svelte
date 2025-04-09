@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import { Toaster as Sonner, type ToasterProps as SonnerProps } from "svelte-sonner";
 	import { mode } from "mode-watcher";

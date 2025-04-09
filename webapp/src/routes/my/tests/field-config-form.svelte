@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import { CodeEditorField } from '@/forms/fields';
 	import { PlaceholderHighlightCodeEditorField } from '@/forms/fields';
@@ -280,7 +286,7 @@
 			<Separator />
 		</div>
 		{#if isJsonConfigTainted}
-			<div class="text-sm text-muted-foreground">
+			<div class="text-muted-foreground text-sm">
 				<Alert variant="info" icon={Info}>
 					{#snippet content({ Title, Description })}
 						<Title class="font-bold">Info</Title>
@@ -290,7 +296,8 @@
 
 						<Button
 							variant="outline"
-							onclick={() => {
+							onclick={(e) => {
+								e.preventDefault();
 								resetJsonConfig();
 							}}
 						>
@@ -309,8 +316,9 @@
 					<div class="relative">
 						<div class="absolute right-0 top-0">
 							<button
-								class="flex items-center gap-2 text-sm text-primary underline hover:no-underline"
-								onclick={() => {
+								class="text-primary flex items-center gap-2 text-sm underline hover:no-underline"
+								onclick={(e) => {
+									e.preventDefault(); // Important to prevent form submission
 									resetOverride(config.CredimiID);
 								}}
 							>
@@ -346,7 +354,8 @@
 
 									<button
 										class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
-										onclick={() => {
+										onclick={(e) => {
+											e.preventDefault(); // Important to prevent form submission
 											overriddenFieldsIds.push(CredimiID);
 										}}
 									>

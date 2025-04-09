@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <mj-attributes>
   <mj-section background-color="#FFF" padding="8px 8px 0px 0px" />
   <mj-column padding="0px 8px 16px 16px" />

@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import FieldConfigFormShared from './field-config-form-shared.svelte';
 	import FieldConfigForm from './field-config-form.svelte';
@@ -34,7 +40,7 @@
 				method: 'POST',
 				body: form.data
 			});
-			await goto(`/workflows`);
+			await goto(`/my/workflows`);
 		},
 		options: {
 			resetForm: false

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // @ts-check
 
 /// <reference path="../pb_data/types.d.ts" />
@@ -104,26 +108,7 @@ onRecordCreateRequest((e) => {
     const organizationId = e.record.id;
     const organizationName = e.record.getString("name");
 
-    const ownerRole = utils.getRoleByName("owner");
-    const ownerRoleId = ownerRole?.id;
-
-    const collection = $app.findCollectionByNameOrId("orgAuthorizations");
-    const record = new Record(collection, {
-        organization: organizationId,
-        role: ownerRoleId,
-        user: user.id,
-    });
-    $app.save(record);
-
-    auditLogger(e).info(
-        "Created owner role for organization",
-        "organizationId",
-        e.record?.id,
-        "organizationName",
-        organizationName,
-        "userId",
-        user.id
-    );
+    utils.createOwnerRoleForOrganization(e, organizationId, user.id);
 
     // 3 - Finally, notifying user
 

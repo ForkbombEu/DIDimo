@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import Ellipsis from "lucide-svelte/icons/ellipsis";
 	import type { WithElementRef, WithoutChildren } from "bits-ui";

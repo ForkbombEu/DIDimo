@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import type { StandardWithTestSuites } from './logic';
 	import * as RadioGroup from '@/components/ui/radio-group/index.js';

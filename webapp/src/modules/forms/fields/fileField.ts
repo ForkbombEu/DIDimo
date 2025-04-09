@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { pipe, Tuple } from 'effect';
 import type { FORM_ERROR_PATH } from '../form';
 import type { FileManagerValidator, RejectedFile } from '@/components/ui-custom/fileManager.svelte';

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package workflow
 
 import credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"

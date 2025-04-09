@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import Field from './field.svelte';
 import FileField from './fileField.svelte';
 import SwitchField from './switchField.svelte';

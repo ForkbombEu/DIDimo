@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts" module>
 	import * as Avatar from '@/components/ui/avatar';
 	import type { ComponentProps } from 'svelte';

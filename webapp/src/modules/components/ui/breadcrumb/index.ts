@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import Root from "./breadcrumb.svelte";
 import Ellipsis from "./breadcrumb-ellipsis.svelte";
 import Item from "./breadcrumb-item.svelte";

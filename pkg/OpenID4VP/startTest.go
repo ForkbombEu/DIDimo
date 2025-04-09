@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package OpenID4VP
 
 import (
@@ -19,11 +23,10 @@ type OpenID4VPTestInputFile struct {
 	Form    any             `json:"form"`
 }
 
-// startWorkflow starts the Temporal workflow
-func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error {
+func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namespace string) error {
 	// Load environment variables.
 	godotenv.Load()
-	c, err := temporalclient.GetTemporalClient()
+	c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
 
 	if err != nil {
 		return fmt.Errorf("unable to create client: %v", err)
@@ -55,3 +58,22 @@ func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error 
 
 	return nil
 }
+
+
+func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error {
+	if err := startWorkflow(input, userMail, appURL, "default"); err != nil {
+		return fmt.Errorf("failed to start workflow: %v", err)
+	}
+
+	return nil
+}
+
+func StartWorkflowWithNamespace(input OpenID4VPTestInputFile, userMail, appURL, namespace string) error {
+	if err := startWorkflow(input, userMail, appURL, namespace); err != nil {
+		return fmt.Errorf("failed to start workflow: %v", err)
+	}
+
+	return nil
+}
+
+

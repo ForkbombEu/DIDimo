@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package routes
 
 import (
@@ -43,7 +47,8 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.HookCredentialWorkflow(app)
 	pb.AddOpenID4VPTestEndpoints(app)
 	pb.HookUpdateCredentialsIssuers(app)
-	pb.RouteWorkflowList(app)
+	pb.RouteWorkflow(app)
+	pb.HookAtUserCreation(app)
 	pb.Register(app)
 	temporalclient.WorkersHook(app)
 

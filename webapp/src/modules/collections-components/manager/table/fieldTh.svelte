@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts" generics="T">
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import Button from '@/components/ui-custom/button.svelte';

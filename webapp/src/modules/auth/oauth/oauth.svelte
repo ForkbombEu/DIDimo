@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import { currentUser, pb } from '@/pocketbase';
 	import { PUBLIC_POCKETBASE_URL } from '$env/static/public';
@@ -31,7 +37,7 @@
 			list.oauth2.providers.map((provider) => {
 				return {
 					displayName: provider.displayName,
-					image: `${PUBLIC_POCKETBASE_URL}_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
+					image: `${PUBLIC_POCKETBASE_URL}/_/images/oauth2/${provider.name}.svg`, // TODO - This won't work with `oidc2` for example
 					initializer: async () => {
 						loading = true;
 						try {

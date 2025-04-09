@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // @ts-check
 /// <reference path="../pb_data/types.d.ts" />
 
@@ -44,6 +48,13 @@ const features = [
         name: "demo",
         active: false,
     },
+    {
+        name: "updateIssuers",
+        active: false,
+        envVariables: {
+            interval: "daily",
+        },
+    }
 ];
 
 //
