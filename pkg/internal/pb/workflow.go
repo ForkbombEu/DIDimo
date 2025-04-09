@@ -191,6 +191,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			for testName, testData := range req {
+				memo := map[string]interface{}{
+					"test":     testName,
+					"standard": protocol,
+					"author":   author,
+				}
 				if testData.Format == "json" {
 					jsonData, ok := testData.Data.(string)
 					if !ok {
@@ -202,7 +207,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
 
-					err := OpenID4VP.StartWorkflowWithNamespace(parsedData, User, appURL, namespace)
+					err := OpenID4VP.StartWorkflowWithNamespaceAndMemo(parsedData, User, appURL, namespace, memo)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -261,10 +266,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
 					}
 
-					err = OpenID4VP.StartWorkflowWithNamespace(OpenID4VP.OpenID4VPTestInputFile{
+					err = OpenID4VP.StartWorkflowWithNamespaceAndMemo(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(parsedVariant.Variant),
 						Form:    parsedVariant.Form,
-					}, email, appURL, namespace)
+					}, email, appURL, namespace, memo)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
