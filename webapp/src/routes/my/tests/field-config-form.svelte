@@ -224,7 +224,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						<div class="absolute right-0 top-0">
 							<button
 								class="text-primary flex items-center gap-2 text-sm underline hover:no-underline"
-								onclick={() => {
+								onclick={(e) => {
+									e.preventDefault(); // Important to prevent form submission
 									resetOverride(config.CredimiID);
 								}}
 							>
@@ -260,7 +261,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 									<button
 										class="rounded-md p-1 hover:cursor-pointer hover:bg-gray-200"
-										onclick={() => {
+										onclick={(e) => {
+											e.preventDefault(); // Important to prevent form submission
 											overriddenFieldsIds.push(CredimiID);
 										}}
 									>
