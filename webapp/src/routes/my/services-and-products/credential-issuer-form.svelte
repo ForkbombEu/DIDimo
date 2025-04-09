@@ -7,15 +7,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
-	import { goto } from '$app/navigation';
 	import { m } from '@/i18n';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
 	import { pb } from '@/pocketbase';
-	import type { CredentialIssuersRecord, Data, ServicesRecord } from '@/pocketbase/types';
-	import { nanoid } from 'nanoid';
 
 	//
+
+	type Props = {
+		onSuccess?: () => void;
+	};
+
+	let { onSuccess }: Props = $props();
 
 	const form = createForm({
 		adapter: zod(
@@ -33,9 +36,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					credentialIssuerUrl: url
 				}
 			});
-			console.log(response);
 
-			// goto(`/providers/${service.id}`);
+			onSuccess?.();
 		}
 	});
 </script>
