@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import HTML from '@/components/ui-custom/renderHTML.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { Button } from '@/components/ui/button';
 	import { cn } from '@/components/ui/utils';
@@ -20,11 +21,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <div class={cn('flex flex-col gap-6 text-card-foreground', className)}>
-	<div class="flex flex-col">
+	<div class="flex flex-col gap-3">
 		<T tag="h3" class="block">{news.title}</T>
-		<T tag="small" class="block">{@html news.summary}</T>
+		<T tag="small" class="block"><HTML content={news.summary} /></T>
 	</div>
-	<T tag="small" class="block font-normal leading-snug">{@html `${news.news.slice(0, 200)}...`}</T
+	<T tag="small" class="block font-normal leading-snug"
+		><HTML className="prose-sm" content={`${news.news.slice(0, 200)}...`} /></T
 	>
 	<a href="/news/{news.id}">
 		<Button variant="outline" size="sm">
