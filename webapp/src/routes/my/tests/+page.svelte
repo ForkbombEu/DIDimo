@@ -31,7 +31,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <!--  -->
 
-<div class="space-y-12 p-8 pb-0">
+<div class="mx-auto w-full max-w-screen-xl space-y-12 p-8 pb-0">
 	<div>
 		<BackButton href="/my">Back to dashboard</BackButton>
 		<T tag="h1">Compliance tests</T>

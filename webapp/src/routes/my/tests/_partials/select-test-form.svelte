@@ -48,7 +48,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	);
 </script>
 
-<div class="flex items-start gap-8 p-8">
+<div class="mx-auto flex w-full max-w-screen-xl items-start gap-8 p-8">
 	<div class="space-y-4">
 		<T tag="h4">Available standards:</T>
 
@@ -103,16 +103,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </div>
 
-<div class="bg-background sticky bottom-0 mt-8 flex items-center justify-between border-t p-4 px-8">
-	<p class="text-gray-400">
-		<span class="rounded-sm bg-gray-200 p-1 font-bold text-black">{selectedTests.length}</span>
-		/ {totalTests}
-		selected
-	</p>
-	<Button
-		disabled={selectedTests.length === 0}
-		onclick={() => onSelectTests?.(compositeTestId, selectedTests)}
-	>
-		Next step <ArrowRight />
-	</Button>
+<div class="bg-background sticky bottom-0 mt-8 border-t p-4 px-8">
+	<div class="mx-auto flex w-full max-w-screen-xl items-center justify-between">
+		<p class="text-gray-400">
+			<span class="rounded-sm bg-gray-200 p-1 font-bold text-black"
+				>{selectedTests.length}</span
+			>
+			/ {totalTests}
+			selected
+		</p>
+		<Button
+			disabled={selectedTests.length === 0}
+			onclick={() => onSelectTests?.(compositeTestId, selectedTests)}
+		>
+			Next step <ArrowRight />
+		</Button>
+	</div>
 </div>

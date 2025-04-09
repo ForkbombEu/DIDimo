@@ -70,7 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const SHARED_FIELDS_ID = 'shared-fields';
 </script>
 
-<div class="space-y-16 p-8">
+<div class="mx-auto w-full max-w-screen-xl space-y-16 p-8">
 	<div class="space-y-4">
 		<h2 id={SHARED_FIELDS_ID} class="text-lg font-bold">Shared fields</h2>
 		<FieldConfigFormShared
@@ -103,8 +103,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	{/each}
 </div>
 
-<div class="bg-background/80 sticky bottom-0 border-t p-4 px-8 backdrop-blur-lg">
-	<Form {form} hide={['submit_button', 'error']} class="w-full space-y-4">
+<div class="bg-background/80 sticky bottom-0 border-t p-4 backdrop-blur-lg">
+	<Form
+		{form}
+		hide={['submit_button', 'error']}
+		class="mx-auto w-full max-w-screen-xl space-y-4 px-8"
+	>
 		<div class="flex items-center justify-between">
 			<div class="flex items-center gap-3">
 				{#await completionStatusPromise then [completeTestsCount, incompleteTestsIds]}

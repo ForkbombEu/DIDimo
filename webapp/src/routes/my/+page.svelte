@@ -21,7 +21,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	let { data } = $props();
 </script>
 
-<div class="flex flex-col space-y-8 p-4">
+<div class="mx-auto flex w-full max-w-screen-xl flex-col space-y-8 p-4">
 	<Separator />
 
 	<div class="flex items-center justify-between">
