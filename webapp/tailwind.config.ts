@@ -10,7 +10,10 @@ import tailwindcssTypography from '@tailwindcss/typography';
 const config: Config = {
 	darkMode: ['class'],
 	content: ['./src/**/*.{html,js,svelte,ts}'],
-	safelist: ['dark'],
+	safelist: [
+		'dark',
+		{ pattern: /bg-/ } // Needed for temporal components to work, specifically `WorkflowStatus`
+	],
 	theme: {
 		container: {
 			center: true,

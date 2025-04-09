@@ -1579,7 +1579,7 @@
     {
         "id": "pbc_987692768",
         "listRule": "",
-        "viewRule": "published = true",
+        "viewRule": null,
         "createRule": "",
         "updateRule": null,
         "deleteRule": null,
