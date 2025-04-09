@@ -6,6 +6,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import BaseLayout from '$lib/layout/baseLayout.svelte';
+	import PageTop from '$lib/layout/pageTop.svelte';
+	import NavigationTabs from '@/components/ui-custom/navigationTabs.svelte';
+	import T from '@/components/ui-custom/t.svelte';
+	import { m } from '@/i18n';
+	import { currentUser } from '@/pocketbase';
 	// import OrganizationSwitcher from '$lib/layout/organizationSwitcher.svelte';
 	// import Button from '@/components/ui-custom/button.svelte'
 	// import { m } from '@/i18n';
@@ -34,6 +39,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <BaseLayout>
+	<PageTop>
+		<T tag="h1">{m.hello_user({ username: $currentUser?.name! })}</T>
+
+		<NavigationTabs
+			tabs={[
+				{ title: 'Services', href: '/my/services' },
+				{ title: 'Test runs', href: '/my/tests/runs' },
+				{ title: 'Profile', href: '/my/profile' }
+			]}
+		/>
+	</PageTop>
+
 	<!-- <div class="border-y">
 		<div class="mx-auto flex max-w-screen-xl items-center px-2 py-2">
 			{#await organizationsPromise then organizations}
