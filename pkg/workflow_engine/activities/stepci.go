@@ -50,7 +50,7 @@ func (a *StepCIWorkflowActivity) Execute(ctx context.Context, input workflowengi
 
 	yamlContent, ok := input.Payload["yaml"].(string)
 	if !ok || yamlContent == "" {
-		return fail(&result, "missing rendered YAML in payload")
+		return workflowengine.Fail(&result, "missing rendered YAML in payload")
 	}
 
 	var secretString bytes.Buffer
@@ -72,21 +72,15 @@ func (a *StepCIWorkflowActivity) Execute(ctx context.Context, input workflowengi
 	cmd := exec.CommandContext(ctx, binPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return fail(&result, fmt.Sprintf("stepci runner failed: %v\nOutput: %s", err, output))
+		return workflowengine.Fail(&result, fmt.Sprintf("stepci runner failed: %v\nOutput: %s", err, output))
 	}
 	var outputJSON map[string]any
 
 	if err := json.Unmarshal(output, &outputJSON); err != nil {
-		return fail(&result, fmt.Sprintf("failed to unmarshal JSON output: %v", err))
+		return workflowengine.Fail(&result, fmt.Sprintf("failed to unmarshal JSON output: %v", err))
 	}
 	result.Output = outputJSON
 	return result, nil
-}
-
-func fail(result *workflowengine.ActivityResult, msg string) (workflowengine.ActivityResult, error) {
-	err := errors.New(msg)
-	result.Errors = append(result.Errors, err)
-	return *result, err
 }
 
 func RenderYAML(reader io.Reader, data map[string]interface{}) (string, error) {

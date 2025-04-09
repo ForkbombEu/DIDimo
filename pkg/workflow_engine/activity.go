@@ -1,6 +1,9 @@
 package workflowengine
 
-import "context"
+import (
+	"context"
+	"errors"
+)
 
 type ActivityInput struct {
 	Payload map[string]any
@@ -19,4 +22,10 @@ type ExecutableActivity interface {
 
 type ConfigurableActivity interface {
 	Configure(input *ActivityInput) error
+}
+
+func Fail(result *ActivityResult, msg string) (ActivityResult, error) {
+	err := errors.New(msg)
+	result.Errors = append(result.Errors, err)
+	return *result, err
 }

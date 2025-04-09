@@ -2,7 +2,6 @@ package activities
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"io"
 	"os"
@@ -26,7 +25,7 @@ func createTempTemplate(t *testing.T, content string) string {
 	return tmpFile.Name()
 }
 
-func TestConfigure(t *testing.T) {
+func TestStepCIlActivity_Configure(t *testing.T) {
 	activity := &StepCIWorkflowActivity{}
 
 	tests := []struct {
@@ -105,7 +104,7 @@ func TestConfigure(t *testing.T) {
 	}
 }
 
-func TestExecute(t *testing.T) {
+func TestStepCIActivity_Execute(t *testing.T) {
 	var ts testsuite.WorkflowTestSuite
 	env := ts.NewTestActivityEnvironment()
 	activity := &StepCIWorkflowActivity{}
@@ -235,12 +234,14 @@ tests:
 				},
 				Config: tc.config,
 			}
-			result, err := activity.Execute(context.Background(), input)
+			var result workflowengine.ActivityResult
+			future, err := env.ExecuteActivity(activity.Execute, input)
 			if tc.expectedError {
 				require.Error(t, err)
 				require.Contains(t, err.Error(), tc.expectedErrorMsg)
 			} else {
 				require.NoError(t, err)
+				future.Get(&result)
 				require.Equal(t, tc.expectedInOutput, result.Output)
 			}
 		})
