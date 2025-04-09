@@ -40,7 +40,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <div class="bg-[#220e7c] text-white">
 	<div class="mx-auto max-w-screen-xl !px-2 md:!px-4 lg:!px-8">
-		<BackButton href="/my/workflows" class="text-white">{m.Back_to_test_runs()}</BackButton>
+		<BackButton href="/my/tests/runs" class="text-white">{m.Back_to_test_runs()}</BackButton>
 	</div>
 </div>
 

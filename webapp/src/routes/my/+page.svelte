@@ -31,7 +31,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</div>
 
 		<div class="flex items-center gap-2">
-			<Button href="/my/workflows" variant="outline">
+			<Button href="/my/tests/runs" variant="outline">
 				<Icon src={Workflow} />
 				{m.View_test_runs()}
 			</Button>
