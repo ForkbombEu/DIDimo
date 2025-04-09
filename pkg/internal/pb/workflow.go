@@ -25,10 +25,10 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
-	"google.golang.org/protobuf/encoding/protojson"
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type OpenID4VPRequest struct {
@@ -535,24 +535,12 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 
 		se.Router.GET("/api/workflows/{workflowId}/{runId}/history", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
-			orgAuthCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
+
+			namespace, err := getUserNamespace(e.App, authRecord.Id)
 			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", err)
+				return apis.NewBadRequestError("failed to get user namespace", err)
 			}
-			if orgAuthCollection == nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", nil)
-			}
-			orgAuthRecord, err := e.App.FindFirstRecordByFilter(orgAuthCollection.Id, "user={:user}", dbx.Params{"user": authRecord.Id})
-			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations record", err)
-			}
-			if orgAuthRecord == nil {
-				return apis.NewBadRequestError("user is not authorized to access this organization", nil)
-			}
-			namespace := orgAuthRecord.GetString("organization")
-			if namespace == "" {
-				return apis.NewBadRequestError("organization is empty", nil)
-			}
+
 			workflowId := e.Request.PathValue("workflowId")
 			if workflowId == "" {
 				return apis.NewBadRequestError("workflowId is required", nil)
@@ -701,7 +689,7 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		newOrgAuth.Set("organization", newOrg.Id)
 		newOrgAuth.Set("role", ownerRoleRecord.Id)
 		txApp.Save(newOrgAuth)
-		
+
 		return nil
 	})
 
