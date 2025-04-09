@@ -5,12 +5,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import SelectTestForm from './select-test-form.svelte';
-	import { getVariables, type FieldsResponse } from './logic';
-	import TestsDataForm from './tests-data-form.svelte';
+	import SelectTestForm from './_partials/select-test-form.svelte';
+	import { getVariables, type FieldsResponse } from './_partials/logic';
+	import TestsDataForm from './_partials/tests-data-form.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { ArrowLeft } from 'lucide-svelte';
-	import Button from '@/components/ui-custom/button.svelte';
 	import * as Tabs from '@/components/ui/tabs/index.js';
 	import BackButton from '$lib/layout/back-button.svelte';
 

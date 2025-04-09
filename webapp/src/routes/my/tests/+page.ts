@@ -4,7 +4,7 @@
 
 import { pb } from '@/pocketbase';
 import { z } from 'zod';
-import type { StandardWithTestSuites } from './logic';
+import type { StandardWithTestSuites } from './_partials/logic';
 
 //
 
