@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
 	import { currentUser } from '@/pocketbase';
-	import { Home, Shapes, TestTubeDiagonalIcon, User } from 'lucide-svelte';
+	import { GlobeIcon, Home, Shapes, TestTubeDiagonalIcon, User } from 'lucide-svelte';
 	import type { Snippet } from 'svelte';
 
 	//
@@ -32,6 +32,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			tabs={[
 				{ title: 'Services and Products', href: '/my/services-and-products', icon: Shapes },
 				{ title: 'Test runs', href: '/my/tests/runs', icon: TestTubeDiagonalIcon },
+				{ title: 'Organization page', href: '/my/organization-page', icon: GlobeIcon },
 				{ title: 'Profile', href: '/my/profile', icon: User }
 			]}
 		/>
