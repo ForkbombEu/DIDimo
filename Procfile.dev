@@ -3,4 +3,4 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 pocketbase: gow run cmd/didimo/didimo.go serve
 ui: ./scripts/wait-for-it.sh -s -t 0 localhost:8090 && cd webapp && bun i && bun dev
-temporal: temporal server start-dev --ui-port 8080 --db-filename pb_data/temporal.db
+temporal: temporal server start-dev --db-filename pb_data/temporal.db
