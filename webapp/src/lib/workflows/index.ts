@@ -10,7 +10,6 @@ export async function fetchUserWorkflows(fetchFn = fetch) {
 		method: 'GET',
 		fetch: fetchFn
 	});
-
 	return genericResponseSchema.safeParse(data);
 }
 
