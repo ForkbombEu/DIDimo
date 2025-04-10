@@ -36,7 +36,6 @@ import { footer } from "./data";
 .columns {
     display: grid;
     gap: 24px;
-    /* Responsive grid columns */
     grid-template-columns: repeat(1, 1fr);
 }
 
@@ -54,10 +53,7 @@ import { footer } from "./data";
 
 @media (min-width: 1280px) {
     .columns {
-        grid-template-columns: repeat(
-            auto-fit,
-            minmax(150px, 1fr)
-        ); /* Adjust based on number of columns/desired width */
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
     }
 }
 

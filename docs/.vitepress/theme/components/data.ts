@@ -62,7 +62,7 @@ export const footer = {
         { label: "Partner Network", url: "/partners" },
     ],
     Company: [
-        { label: "About Didimo", url: "/about" },
+        { label: "About Credimi", url: "/about" },
         { label: "Our Vision & Approach", url: "/about/approach" },
         { label: "Careers", url: "/careers" },
         { label: "Security", url: "/security" },
