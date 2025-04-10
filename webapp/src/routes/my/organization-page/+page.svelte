@@ -12,7 +12,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Button from '@/components/ui-custom/button.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { currentUser } from '@/pocketbase/index.js';
-	import { InfoIcon, Plus, Pencil } from 'lucide-svelte';
+	import { InfoIcon, Plus, Pencil, Undo } from 'lucide-svelte';
 	import OrganizationPageDemo from '$lib/pages/organization-page.svelte';
 
 	let { data } = $props();
@@ -32,9 +32,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				Edit organization info
 			</Button>
 		</div>
-		<div class="rounded-lg bg-white p-6">
-			<OrganizationPageDemo {organizationInfo} />
-		</div>
+		<PageCard>
+			<div class="overflow-hidden rounded-lg border">
+				<OrganizationPageDemo {organizationInfo} />
+			</div>
+		</PageCard>
 	{:else}
 		<Alert variant="info" icon={InfoIcon}>
 			{#snippet content({ Title, Description })}
@@ -58,10 +60,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</Alert>
 	{/if}
 {:else}
-	<PageCard>
+	<div class="mb-6 flex items-center justify-between">
 		<T tag="h3">
 			{organizationInfo ? 'Update your organization page' : 'Create your organization page'}
 		</T>
+
+		<Button onclick={() => (showOrganizationForm = false)}>
+			<Undo />
+			Back
+		</Button>
+	</div>
+
+	<PageCard>
 		<!-- TODO - Set owner via hook -->
 		<CollectionForm
 			collection="organization_info"
