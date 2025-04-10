@@ -7,11 +7,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import { createForm, Form } from '@/forms';
 	import { Field } from '@/forms/fields';
-	import SelectField from '@/forms/fields/selectField.svelte';
 	import { pb } from '@/pocketbase/index.js';
-	import type { GenericRecord } from '@/utils/types';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
+	import Table from './conformance_checks_table.svelte';
 
 	const schema = z.object({
 		name: z.string().min(1, 'Name is required'),
@@ -23,7 +22,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		conformance_checks: z.array(z.string())
 	});
 
-	const form = createForm<GenericRecord>({
+	const form = createForm<z.infer<typeof schema>>({
 		adapter: zod(schema),
 		onSubmit: async ({ form }) => {
 			const { data } = form;
@@ -45,16 +44,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		}
 	});
 
-	const { form: formData } = form;
 	let { data } = $props();
 	const { executions } = $derived(data);
 
-	const items = executions.map((execution) => ({
-		value: execution.execution.runId,
-		label: execution.execution.workflowId
-	}));
-
-	$inspect(executions);
+	const tableData = $derived(
+		executions.map((execution) => ({
+			runId: execution.execution.runId,
+			// @ts-ignore
+			standard: atob(execution.memo.fields.standard.data),
+			// @ts-ignore
+			test: atob(execution.memo.fields.test.data)
+		}))
+	);
 </script>
 
 <Form {form}>
@@ -112,13 +113,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			placeholder: 'Enter home URL'
 		}}
 	/>
-	<SelectField
+	<Table
+		data={tableData}
 		{form}
 		name="conformance_checks"
-		options={{
-			type: 'multiple',
-			label: 'Conformance Checks',
-			items: items
-		}}
+		options={{ label: 'Conformance Checks' }}
 	/>
 </Form>
