@@ -31,7 +31,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <CollectionManager
 	collection="credentials"
-	queryOptions={{ searchFields: ['name', 'format'], perPage: 20 }}
+	queryOptions={{
+		searchFields: ['name', 'format'],
+		perPage: 20,
+		filter: 'published = true'
+	}}
 	{filters}
 >
 	{#snippet top({ Search, Filters })}
