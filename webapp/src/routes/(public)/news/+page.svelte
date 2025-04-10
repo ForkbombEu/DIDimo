@@ -18,7 +18,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	collection="news"
 	queryOptions={{
 		searchFields: ['title', 'summary', 'news'],
-		perPage: 20
+		perPage: 20,
+		sort: ['created', 'DESC']
 	}}
 >
 	{#snippet top({ Search, Filters })}
