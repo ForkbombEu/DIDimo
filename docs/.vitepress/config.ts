@@ -27,7 +27,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "Home", link: "/" },
-      { text: "Get Started", link: "/Architecture/1_start.html" },
+	  { text: "Manual", link: "/Manual/index.html" },
+      { text: "Architecture", link: "/Software_Architecture/1_start.html" },
       { text: "API Reference", target: "_self", link: "/API/index.html" },
     ],
 
