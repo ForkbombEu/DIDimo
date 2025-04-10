@@ -8,14 +8,15 @@ import (
 	"strings"
 	"time"
 
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
-	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
-	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/workflow"
+
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
 )
 
 type SignalData struct {
@@ -29,18 +30,21 @@ type OpenIDNetWorkflow struct{}
 
 type OpenIDNetLogsWorkflow struct{}
 
-func (w *OpenIDNetWorkflow) Workflow(ctx workflow.Context, input workflowengine.WorkflowInput) (workflowengine.WorkflowResult, error) {
+func (w *OpenIDNetWorkflow) Workflow(
+	ctx workflow.Context,
+	input workflowengine.WorkflowInput,
+) (workflowengine.WorkflowResult, error) {
 	logger := workflow.GetLogger(ctx)
 	ctx = workflow.WithActivityOptions(ctx, *input.ActvityOptions)
 
-	var stepCIWorkflowActivities = activities.StepCIWorkflowActivity{}
-	var stepCIInput = workflowengine.ActivityInput{
+	stepCIWorkflowActivities := activities.StepCIWorkflowActivity{}
+	stepCIInput := workflowengine.ActivityInput{
 		Payload: map[string]any{
 			"variant": input.Payload["variant"],
 			"form":    input.Payload["form"],
 		},
 		Config: map[string]string{
-			"template": "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.txt",
+			"template": "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.yaml",
 			"token":    os.Getenv("TOKEN"),
 		},
 	}
@@ -50,7 +54,8 @@ func (w *OpenIDNetWorkflow) Workflow(ctx workflow.Context, input workflowengine.
 		logger.Error(" StepCI configure failed", "error", err)
 		return workflowengine.WorkflowResult{}, err
 	}
-	err = workflow.ExecuteActivity(ctx, stepCIWorkflowActivities.Execute, stepCIInput).Get(ctx, &stepCIResult)
+	err = workflow.ExecuteActivity(ctx, stepCIWorkflowActivities.Execute, stepCIInput).
+		Get(ctx, &stepCIResult)
 	if err != nil {
 		logger.Error("StepCIExecution failed", "error", err)
 		return workflowengine.WorkflowResult{}, err
@@ -68,7 +73,7 @@ func (w *OpenIDNetWorkflow) Workflow(ctx workflow.Context, input workflowengine.
 	query.Set("workflow-id", workflow.GetInfo(ctx).WorkflowExecution.ID)
 	query.Set("qr", result)
 	u.RawQuery = query.Encode()
-	var emailActivity = activities.SendMailActivity{}
+	emailActivity := activities.SendMailActivity{}
 
 	emailInput := workflowengine.ActivityInput{
 		Config: map[string]string{
@@ -110,18 +115,22 @@ func (w *OpenIDNetWorkflow) Workflow(ctx workflow.Context, input workflowengine.
 		ParentClosePolicy: enums.PARENT_CLOSE_POLICY_TERMINATE,
 	}
 	childCtx = workflow.WithChildOptions(childCtx, childOptions)
-	var logsW = OpenIDNetLogsWorkflow{}
+	logsW := OpenIDNetLogsWorkflow{}
 	// Execute child workflow asynchronously
-	logsWorkflow := workflow.ExecuteChildWorkflow(childCtx, logsW.SubWorkflow, workflowengine.WorkflowInput{
-		Payload: map[string]any{
-			"rid":     rid,
-			"token":   os.Getenv("TOKEN"),
-			"app_url": input.Payload["app_url"].(string),
+	logsWorkflow := workflow.ExecuteChildWorkflow(
+		childCtx,
+		logsW.SubWorkflow,
+		workflowengine.WorkflowInput{
+			Payload: map[string]any{
+				"rid":     rid,
+				"token":   os.Getenv("TOKEN"),
+				"app_url": input.Payload["app_url"].(string),
+			},
+			Config: map[string]any{
+				"interval": time.Second,
+			},
 		},
-		Config: map[string]any{
-			"interval": time.Second,
-		},
-	})
+	)
 
 	// Wait for either signal or child completion
 	selector := workflow.NewSelector(ctx)
@@ -157,17 +166,24 @@ func (w *OpenIDNetWorkflow) Workflow(ctx workflow.Context, input workflowengine.
 	}, nil
 }
 
-func (w *OpenIDNetLogsWorkflow) SubWorkflow(ctx workflow.Context, input workflowengine.WorkflowInput) (workflowengine.WorkflowResult, error) {
+func (w *OpenIDNetLogsWorkflow) SubWorkflow(
+	ctx workflow.Context,
+	input workflowengine.WorkflowInput,
+) (workflowengine.WorkflowResult, error) {
 	logger := workflow.GetLogger(ctx)
 
 	subCtx := workflow.WithActivityOptions(ctx, *input.ActvityOptions)
 
-	var HTTPActivity = activities.HTTPActivity{}
+	HTTPActivity := activities.HTTPActivity{}
 
 	GetLogsInput := workflowengine.ActivityInput{
 		Config: map[string]string{
 			"method": "GET",
-			"url":    fmt.Sprintf("%s/%s?public=false", "https://www.certification.openid.net/api/log/", url.PathEscape(input.Payload["rid"].(string))),
+			"url": fmt.Sprintf(
+				"%s/%s?public=false",
+				"https://www.certification.openid.net/api/log/",
+				url.PathEscape(input.Payload["rid"].(string)),
+			),
 		},
 		Payload: map[string]any{
 			"headers": map[string]any{
@@ -198,7 +214,8 @@ func (w *OpenIDNetLogsWorkflow) SubWorkflow(ctx workflow.Context, input workflow
 		}
 
 		// Fetch logs
-		err := workflow.ExecuteActivity(subCtx, HTTPActivity.Execute, GetLogsInput).Get(subCtx, &logs)
+		err := workflow.ExecuteActivity(subCtx, HTTPActivity.Execute, GetLogsInput).
+			Get(subCtx, &logs)
 		if err != nil {
 			logger.Error("Failed to get logs", "error", err)
 			return workflowengine.WorkflowResult{}, err
@@ -232,15 +249,22 @@ func (w *OpenIDNetLogsWorkflow) SubWorkflow(ctx workflow.Context, input workflow
 			triggerLogsInput := workflowengine.ActivityInput{
 				Config: map[string]string{
 					"method": "POST",
-					"url":    fmt.Sprintf("%s/%s", input.Payload["app_url"].(string), "wallet-test/send-log-update"),
+					"url": fmt.Sprintf(
+						"%s/%s",
+						input.Payload["app_url"].(string),
+						"wallet-test/send-log-update",
+					),
 				},
 				Payload: map[string]any{
 					"headers": map[string]any{
 						"Content-Type": "application/json",
 					},
 					"body": map[string]any{
-						"workflow_id": strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
-						"logs":        logs,
+						"workflow_id": strings.TrimSuffix(
+							workflow.GetInfo(ctx).WorkflowExecution.ID,
+							"-log",
+						),
+						"logs": logs,
 					},
 				},
 			}
@@ -255,11 +279,12 @@ func (w *OpenIDNetLogsWorkflow) SubWorkflow(ctx workflow.Context, input workflow
 	}
 }
 
-func (w *OpenIDNetWorkflow) Start(input workflowengine.WorkflowInput) (result workflowengine.WorkflowResult, err error) {
+func (w *OpenIDNetWorkflow) Start(
+	input workflowengine.WorkflowInput,
+) (result workflowengine.WorkflowResult, err error) {
 	// Load environment variables.
 	godotenv.Load()
 	c, err := temporalclient.GetTemporalClient()
-
 	if err != nil {
 		return workflowengine.WorkflowResult{}, fmt.Errorf("unable to create client: %v", err)
 	}

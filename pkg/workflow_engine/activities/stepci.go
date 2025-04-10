@@ -13,17 +13,20 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/forkbombeu/didimo/pkg/utils"
-	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 	"github.com/go-sprout/sprout"
 	"github.com/go-sprout/sprout/group/all"
+
+	"github.com/forkbombeu/didimo/pkg/utils"
+	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 )
 
 type StepCIWorkflowActivity struct{}
 
 // Configure injects the parsed template and token into the payload
-func (a *StepCIWorkflowActivity) Configure(ctx context.Context, input *workflowengine.ActivityInput) error {
-
+func (a *StepCIWorkflowActivity) Configure(
+	ctx context.Context,
+	input *workflowengine.ActivityInput,
+) error {
 	templatePath := input.Config["template"]
 	if templatePath == "" {
 		return errors.New("missing required config: 'template'")
@@ -45,7 +48,10 @@ func (a *StepCIWorkflowActivity) Configure(ctx context.Context, input *workflowe
 	return nil
 }
 
-func (a *StepCIWorkflowActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
+func (a *StepCIWorkflowActivity) Execute(
+	ctx context.Context,
+	input workflowengine.ActivityInput,
+) (workflowengine.ActivityResult, error) {
 	var result workflowengine.ActivityResult
 
 	yamlContent, ok := input.Payload["yaml"].(string)
@@ -72,7 +78,10 @@ func (a *StepCIWorkflowActivity) Execute(ctx context.Context, input workflowengi
 	cmd := exec.CommandContext(ctx, binPath, args...)
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return workflowengine.Fail(&result, fmt.Sprintf("stepci runner failed: %v\nOutput: %s", err, output))
+		return workflowengine.Fail(
+			&result,
+			fmt.Sprintf("stepci runner failed: %v\nOutput: %s", err, output),
+		)
 	}
 	var outputJSON map[string]any
 
@@ -99,7 +108,6 @@ func RenderYAML(reader io.Reader, data map[string]interface{}) (string, error) {
 	tmpl, err := template.New("yaml").Delims("[[", "]]").
 		Funcs(funcs).
 		Parse(templateContent)
-
 	if err != nil {
 		return "", err
 	}

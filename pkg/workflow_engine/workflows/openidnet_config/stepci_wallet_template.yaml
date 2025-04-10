@@ -3,6 +3,7 @@ components:
   token:
     bearer:
       token: ${{secrets.token}}
+
 tests:
   OPENID4VP:
     steps:
