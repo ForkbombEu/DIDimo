@@ -36,7 +36,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<div class="flex items-center space-x-2">
 			{#if !$featureFlags.DEMO && $featureFlags.AUTH}
 				{#if $currentUser}
-					<Button href="/my/tests">
+					<Button href="/my/tests/new">
 						<Icon src={Sparkle} />
 						{m.Start_a_new_test()}
 					</Button>
