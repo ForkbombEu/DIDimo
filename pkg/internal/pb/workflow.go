@@ -494,6 +494,9 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return apis.NewInternalServerError("failed to unmarshal workflow list", err)
 			}
+			if finalJson["executions"] == nil {
+				finalJson["executions"] = []map[string]interface{}{}
+			}
 			return e.JSON(http.StatusOK, finalJson)
 		}).Bind(apis.RequireAuth())
 
