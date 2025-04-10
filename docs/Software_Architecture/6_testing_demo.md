@@ -1,9 +1,3 @@
-<!--
-SPDX-FileCopyrightText: 2025 Forkbomb BV
-
-SPDX-License-Identifier: AGPL-3.0-or-later
--->
-
 # 🧪 Testing and demo strategy
 
 ## 1. Technical Scope of Testing
@@ -82,7 +76,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 ## 3. Demonstration Approach
 ### Goals:
-- Showcase the capabilities of **Credimi** in realistic, user-focused scenarios.
+- Showcase the capabilities of **DIDImo** in realistic, user-focused scenarios.
 - Highlight the solution's robustness, usability, and adaptability to changing conditions.
 
 ### Steps:

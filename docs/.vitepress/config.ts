@@ -8,7 +8,7 @@ import umlPlugin from "markdown-it-plantuml";
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Credimi",
+  title: "EUDI-ARF Compliance/Interop",
   description:
     "Master the complexities of SSI identity solutions with Credimi: Your go-to platform for testing, validating, and ensuring compliance in the ever-evolving digital identity ecosystem.",
   base: "/DIDimo/",
@@ -27,7 +27,8 @@ export default defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       { text: "Home", link: "/" },
-      { text: "Get Started", link: "/Architecture/1_start.html" },
+	  { text: "Manual", link: "/Manual/index.html" },
+      { text: "Architecture", link: "/Software_Architecture/1_start.html" },
       { text: "API Reference", target: "_self", link: "/API/index.html" },
     ],
 
@@ -45,7 +46,7 @@ export default defineConfig({
       message:
         'Released under the <a href="https://github.com/forkbombeu/didimo/blob/main/LICENSE">AGPLv3 License</a>.',
       copyright:
-        'Copyleft 🄯 2024-present <a href="https://forkbomb.solutions">The Forkbomb company</a>',
+        'Copyleft 🄯 2024-present <a href="https://forkbomb.solutions">Forkbomb B.V.</a>',
     },
   },
   markdown: {
