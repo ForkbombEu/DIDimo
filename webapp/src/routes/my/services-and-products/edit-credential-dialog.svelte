@@ -7,9 +7,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import { CollectionForm } from '@/collections-components';
 	import * as Dialog from '@/components/ui/dialog';
-	import { buttonVariants } from '@/components/ui/button';
-	import { Pencil } from 'lucide-svelte';
 	import type { CredentialsRecord } from '@/pocketbase/types';
+	import Button from '@/components/ui/button/button.svelte';
 
 	type Props = {
 		credential: CredentialsRecord;
@@ -21,8 +20,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Trigger class={buttonVariants({ variant: 'default' })}>
-		<Pencil />
+	<Dialog.Trigger>
+		{#snippet child({ props })}
+			<Button {...props} variant="outline" size="sm" class="h-fit py-1 text-xs">
+				Edit deeplink
+			</Button>
+		{/snippet}
 	</Dialog.Trigger>
 
 	<Dialog.Content class=" sm:max-w-[425px]">
@@ -46,7 +49,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						'description',
 						'credential_issuer',
 						'json',
-						'key'
+						'key',
+						'published'
 					],
 					order: ['published']
 				}}

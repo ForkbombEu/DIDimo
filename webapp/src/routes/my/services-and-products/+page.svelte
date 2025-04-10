@@ -17,11 +17,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Button from '@/components/ui-custom/button.svelte';
 	import EditCredentialDialog from './edit-credential-dialog.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
+	import { RecordDelete, RecordEdit } from '@/collections-components/manager';
+	import PublishButton from './publish-button.svelte';
+	import { invalidateAll } from '$app/navigation';
+	import Separator from '@/components/ui/separator/separator.svelte';
+	import { currentUser } from '@/pocketbase';
 
 	//
 
 	let { data } = $props();
 	const { organizationInfo } = $derived(data);
+	const canPublish = $derived(Boolean(organizationInfo));
 
 	let isCredentialIssuerModalOpen = $state(false);
 </script>
@@ -54,8 +60,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="space-y-4">
 		<CollectionManager
 			collection="credential_issuers"
-			queryOptions={{ expand: ['credentials_via_credential_issuer'] }}
-			editFormFieldsOptions={{ exclude: ['owner', 'url'], order: ['published'] }}
+			queryOptions={{
+				expand: ['credentials_via_credential_issuer'],
+				filter: `owner.id = "${$currentUser?.id}"`
+			}}
+			editFormFieldsOptions={{ exclude: ['owner', 'url', 'published'], order: ['published'] }}
 			subscribe="expanded_collections"
 		>
 			{#snippet top({ Header })}
@@ -69,38 +78,90 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{#snippet records({ records, Card })}
 				{#each records as record}
 					{@const credentials = record.expand?.credentials_via_credential_issuer ?? []}
-					<Card {record} hide={['select', 'share']} class="bg-background">
+					<Card
+						{record}
+						hide={['select', 'share', 'delete', 'edit']}
+						class="bg-background"
+					>
 						{@const title = String.isNonEmpty(record.name) ? record.name : record.url}
-						<T class="font-bold">
-							{title}
-						</T>
-						{#if title != record.url}
-							<T class="">
-								{record.url}
-							</T>
-						{/if}
-						{#if record.published}
-							<Badge variant="default">{m.Published()}</Badge>
-						{/if}
-
-						{#if credentials.length === 0}
-							<T>{m.No_credentials_available()}</T>
-						{:else}
-							<T>{m.count_available_credentials({ number: credentials.length })}</T>
-
-							<ul>
-								{#each credentials as credential}
-									<li>
-										{credential.key}
-										{#if credential.published}
+						<div class="space-y-4">
+							<div class="flex items-center justify-between gap-4">
+								<div>
+									<div class="flex items-center gap-2">
+										<T class="font-bold">
+											{title}
+										</T>
+										{#if record.published}
 											<Badge variant="default">{m.Published()}</Badge>
 										{/if}
+									</div>
 
-										<EditCredentialDialog {credential} />
-									</li>
-								{/each}
-							</ul>
-						{/if}
+									{#if title != record.url}
+										<T class="">
+											{record.url}
+										</T>
+									{/if}
+								</div>
+
+								<div class="flex items-center gap-1">
+									{#if canPublish}
+										<PublishButton {record}>
+											{#snippet button({ togglePublish, label })}
+												<Button variant="outline" onclick={togglePublish}>
+													{label}
+												</Button>
+											{/snippet}
+										</PublishButton>
+									{/if}
+									<RecordEdit {record} />
+									<RecordDelete {record} />
+								</div>
+							</div>
+
+							<Separator />
+
+							{#if credentials.length === 0}
+								<T class="text-gray-300">{m.No_credentials_available()}</T>
+							{:else}
+								<T>
+									{m.count_available_credentials({
+										number: credentials.length
+									})}
+								</T>
+
+								<ul class="space-y-2">
+									{#each credentials as credential}
+										<li
+											class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
+										>
+											<div class="flex items-center gap-2">
+												{credential.key}
+												{#if credential.published}
+													<Badge variant="default">{m.Published()}</Badge>
+												{/if}
+											</div>
+
+											<div class="flex items-center gap-1">
+												{#if canPublish}
+													<PublishButton record={credential}>
+														{#snippet button({ togglePublish, label })}
+															<Button
+																variant="outline"
+																onclick={togglePublish}
+																class="h-fit py-1 text-xs"
+															>
+																{label}
+															</Button>
+														{/snippet}
+													</PublishButton>
+												{/if}
+												<EditCredentialDialog {credential} />
+											</div>
+										</li>
+									{/each}
+								</ul>
+							{/if}
+						</div>
 					</Card>
 				{/each}
 			{/snippet}
