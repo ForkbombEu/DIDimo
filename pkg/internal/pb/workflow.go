@@ -74,14 +74,13 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 				// Create a new record
 				newRecord := core.NewRecord(collection)
 				newRecord.Set("url", req.URL)
-
+				newRecord.Set("owner", e.Auth.Id)
 				if err := app.Save(newRecord); err != nil {
 					return err
 				}
 
 				issuerID = newRecord.Id
 			}
-
 			// Start the workflow
 			workflowInput := credential_workflow.CredentialWorkflowInput{
 				BaseURL:  req.URL,
@@ -109,23 +108,23 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 			if err != nil {
 				return fmt.Errorf("error running workflow for URL %s: %v", req.URL, err)
 			}
-
-			providers, err := app.FindCollectionByNameOrId("services")
-			if err != nil {
-				return err
-			}
-
-			newRecord := core.NewRecord(providers)
-			newRecord.Set("credential_issuers", issuerID)
-			newRecord.Set("name", "TestName")
-			// Save the new record in providers
-			if err := app.Save(newRecord); err != nil {
-				return err
-			}
+			//
+			// providers, err := app.FindCollectionByNameOrId("services")
+			// if err != nil {
+			// 	return err
+			// }
+			//
+			// newRecord := core.NewRecord(providers)
+			// newRecord.Set("credential_issuers", issuerID)
+			// newRecord.Set("name", "TestName")
+			// // Save the new record in providers
+			// if err := app.Save(newRecord); err != nil {
+			// 	return err
+			// }
 			return e.JSON(http.StatusOK, map[string]string{
 				"credentialIssuerUrl": req.URL,
 			})
-		})
+		}).Bind(apis.RequireAuth())
 		return se.Next()
 	})
 }
