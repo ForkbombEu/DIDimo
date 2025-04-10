@@ -47,6 +47,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					<Table.Cell class="text-right">{workflow.startTime}</Table.Cell>
 					<Table.Cell class="text-right">{workflow.endTime}</Table.Cell>
 				</Table.Row>
+			{:else}
+				<Table.Row class="hover:bg-transparent">
+					<Table.Cell colspan={5} class="text-center text-gray-300 py-20">
+						Test runs will appear here
+					</Table.Cell>
+				</Table.Row>
 			{/each}
 		</Table.Body>
 	</Table.Root>
