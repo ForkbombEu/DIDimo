@@ -19,6 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { m, localizeHref } from '@/i18n/index.js';
 	import { QrCode } from '@/qr/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
+	import { String } from 'effect';
 
 	let { data } = $props();
 	const { credential } = $derived(data);
@@ -107,12 +108,23 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				<InfoBox label="Type" value={credential.type} />
 			</div>
 
-			{#if credential.deeplink}
-				<div>
-					<PageHeader title="QR code" id="qr" />
-					<QrCode src={credential.deeplink} cellSize={10} class="w-52 rounded-md" />
-				</div>
-			{/if}
+			<div>
+				<PageHeader title="QR code" id="qr" />
+				{#if String.isNonEmpty(credential.deeplink)}
+					<QrCode
+						src={credential.deeplink}
+						cellSize={10}
+						class={[
+							'w-52 rounded-md',
+							{ 'blur-md': String.isEmpty(credential.deeplink) }
+						]}
+					/>
+				{:else}
+					<div class="flex size-52 items-center justify-center rounded-md bg-white">
+						<p class="text-xs text-gray-300">Missing QR deeplink</p>
+					</div>
+				{/if}
+			</div>
 		</div>
 
 		<div class="space-y-6">
