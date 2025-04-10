@@ -27,7 +27,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	{#each sections as section}
 		<li>
 			<a href="#{section.anchor}" class="flex items-center gap-2 hover:underline">
-				<section.icon class="size-4" />
+				<section.icon class="size-4 shrink-0" />
 				{section.label}
 			</a>
 		</li>
