@@ -5,9 +5,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import { CollectionForm, CollectionManager } from '@/collections-components';
+	import { CollectionManager } from '@/collections-components';
 	import { m } from '@/i18n';
-	import { InfoIcon, Pencil, Plus } from 'lucide-svelte';
+	import { Pencil, Plus } from 'lucide-svelte';
 	import * as Dialog from '@/components/ui/dialog';
 	import { buttonVariants } from '@/components/ui/button';
 	import CredentialIssuerForm from './credential-issuer-form.svelte';
@@ -16,11 +16,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Badge } from '@/components/ui/badge';
 	import Button from '@/components/ui-custom/button.svelte';
 	import EditCredentialDialog from './edit-credential-dialog.svelte';
-	import Alert from '@/components/ui-custom/alert.svelte';
 	import { RecordDelete, RecordEdit } from '@/collections-components/manager';
 	import PublishButton from './publish-button.svelte';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { currentUser } from '@/pocketbase';
+	import Sheet from '@/components/ui-custom/sheet.svelte';
+	import NewWalletForm from './wallet-form.svelte';
+	import type { WalletsResponse } from '@/pocketbase/types';
 
 	//
 
@@ -140,7 +142,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="space-y-4">
 		<CollectionManager collection="verifiers">
 			{#snippet top({ Header })}
-				<Header title="Verifiers" />
+				<Header title="Verifiers">
+					{#snippet right()}
+						<Button disabled><Plus />Add new verifier</Button>
+					{/snippet}
+				</Header>
 			{/snippet}
 		</CollectionManager>
 	</div>
@@ -148,7 +154,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="space-y-4">
 		<CollectionManager collection="wallets">
 			{#snippet top({ Header })}
-				<Header title={m.Wallets()} />
+				<Header title="Wallets">
+					{#snippet right()}
+						{@render NewWalletFormSnippet()}
+					{/snippet}
+				</Header>
+			{/snippet}
+
+			{#snippet records({ records, Card })}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each records as record}
+						<Card
+							{record}
+							class="bg-background"
+							hide={['select', 'share', 'delete', 'edit']}
+						>
+							<div class="">
+								<T class="font-bold">{record.name}</T>
+								<T>{record.description}</T>
+							</div>
+
+							{@render UpdateWalletFormSnippet(record.id, record)}
+						</Card>
+					{/each}
+				</div>
 			{/snippet}
 		</CollectionManager>
 	</div>
@@ -192,4 +221,36 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{m.Create_organization()}
 		</Button>
 	</div>
+{/snippet}
+
+<!--  -->
+
+{#snippet NewWalletFormSnippet()}
+	<Sheet>
+		{#snippet trigger({ sheetTriggerAttributes })}
+			<Button {...sheetTriggerAttributes}><Plus />Add new wallet</Button>
+		{/snippet}
+
+		{#snippet content({ closeSheet })}
+			<div class="space-y-6">
+				<T tag="h3">Add a new wallet</T>
+				<NewWalletForm onSuccess={closeSheet} ownerId={$currentUser?.id} />
+			</div>
+		{/snippet}
+	</Sheet>
+{/snippet}
+
+{#snippet UpdateWalletFormSnippet(walletId: string, initialData: Partial<WalletsResponse>)}
+	<Sheet>
+		{#snippet trigger({ sheetTriggerAttributes })}
+			<Button variant="outline" size="icon" {...sheetTriggerAttributes}><Pencil /></Button>
+		{/snippet}
+
+		{#snippet content({ closeSheet })}
+			<div class="space-y-6">
+				<T tag="h3">Add a new wallet</T>
+				<NewWalletForm {walletId} {initialData} onSuccess={closeSheet} />
+			</div>
+		{/snippet}
+	</Sheet>
 {/snippet}
