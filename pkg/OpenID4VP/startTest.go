@@ -23,7 +23,7 @@ type OpenID4VPTestInputFile struct {
 	Form    any             `json:"form"`
 }
 
-func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namespace string) error {
+func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namespace string, memo map[string]interface{}) error {
 	// Load environment variables.
 	godotenv.Load()
 	c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
@@ -48,6 +48,7 @@ func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namesp
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        "OpenIDTestWorkflow" + uuid.NewString(),
 		TaskQueue: workflow.OpenIDTestTaskQueue,
+		Memo:      memo,
 	}
 
 	// Start the workflow execution.
@@ -59,9 +60,8 @@ func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namesp
 	return nil
 }
 
-
 func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error {
-	if err := startWorkflow(input, userMail, appURL, "default"); err != nil {
+	if err := startWorkflow(input, userMail, appURL, "default", map[string]interface{}{}); err != nil {
 		return fmt.Errorf("failed to start workflow: %v", err)
 	}
 
@@ -69,11 +69,21 @@ func StartWorkflow(input OpenID4VPTestInputFile, userMail, appURL string) error 
 }
 
 func StartWorkflowWithNamespace(input OpenID4VPTestInputFile, userMail, appURL, namespace string) error {
-	if err := startWorkflow(input, userMail, appURL, namespace); err != nil {
+	if err := startWorkflow(input, userMail, appURL, namespace, map[string]interface{}{}); err != nil {
 		return fmt.Errorf("failed to start workflow: %v", err)
 	}
-
 	return nil
 }
 
-
+func StartWorkflowWithNamespaceAndMemo(input OpenID4VPTestInputFile, userMail, appURL, namespace string, memo map[string]interface{}) error {
+	if err := startWorkflow(input, userMail, appURL, namespace, memo); err != nil {
+		return fmt.Errorf("failed to start workflow: %v", err)
+	}
+	return nil
+}
+func StartWorkflowWithMemo(input OpenID4VPTestInputFile, userMail, appURL string, memo map[string]interface{}) error {
+	if err := startWorkflow(input, userMail, appURL, "default", memo); err != nil {
+		return fmt.Errorf("failed to start workflow: %v", err)
+	}
+	return nil
+}
