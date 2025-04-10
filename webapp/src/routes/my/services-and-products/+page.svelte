@@ -51,97 +51,96 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{/snippet}
 
 			{#snippet records({ records, Card })}
-				{#each records as record}
-					{@const credentials = record.expand?.credentials_via_credential_issuer ?? []}
-					<Card
-						{record}
-						hide={['select', 'share', 'delete', 'edit']}
-						class="bg-background"
-					>
-						{@const title = String.isNonEmpty(record.name) ? record.name : record.url}
-						<div class="space-y-4">
-							<div class="flex items-center justify-between gap-4">
-								<div>
-									<div class="flex items-center gap-2">
-										<T class="font-bold">
-											{title}
-										</T>
-										{#if record.published}
-											<Badge variant="default">{m.Published()}</Badge>
-										{/if}
-									</div>
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each records as record}
+						{@const credentials =
+							record.expand?.credentials_via_credential_issuer ?? []}
+						<Card
+							{record}
+							hide={['select', 'share', 'delete', 'edit']}
+							class="bg-background"
+						>
+							{@const title = String.isNonEmpty(record.name)
+								? record.name
+								: '[undefined]'}
+							<div class="space-y-4">
+								<div class="flex items-center justify-between gap-6">
+									<div>
+										<div class="flex items-center gap-2">
+											<T class="font-bold">
+												{title}
+											</T>
+											{#if record.published}
+												<Badge variant="default">{m.Published()}</Badge>
+											{/if}
+										</div>
 
-									{#if title != record.url}
-										<T class="">
+										<T class="mt-1 text-xs text-gray-400">
 											{record.url}
 										</T>
-									{/if}
+									</div>
+
+									<div class="flex items-center gap-1">
+										<PublishButton {record} {canPublish} {cannotPublishMessage}>
+											{#snippet button({ togglePublish, label })}
+												<Button variant="outline" onclick={togglePublish}>
+													{label}
+												</Button>
+											{/snippet}
+										</PublishButton>
+
+										<RecordEdit {record} />
+										<RecordDelete {record} />
+									</div>
 								</div>
 
-								<div class="flex items-center gap-1">
-									<PublishButton {record} {canPublish} {cannotPublishMessage}>
-										{#snippet button({ togglePublish, label })}
-											<Button variant="outline" onclick={togglePublish}>
-												{label}
-											</Button>
-										{/snippet}
-									</PublishButton>
+								<Separator />
 
-									<RecordEdit {record} />
-									<RecordDelete {record} />
-								</div>
+								{#if credentials.length === 0}
+									<T class="text-gray-300">{m.No_credentials_available()}</T>
+								{:else}
+									<T>
+										{m.count_available_credentials({
+											number: credentials.length
+										})}
+									</T>
+
+									<ul class="space-y-2">
+										{#each credentials as credential}
+											<li
+												class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
+											>
+												<div class="flex items-center gap-2">
+													{credential.key}
+													{#if credential.published}
+														<Badge variant="default"
+															>{m.Published()}</Badge
+														>
+													{/if}
+												</div>
+
+												<div class="flex items-center gap-1">
+													<EditCredentialDialog
+														{credential}
+														{canPublish}
+													/>
+												</div>
+											</li>
+										{/each}
+									</ul>
+								{/if}
 							</div>
+						</Card>
+					{/each}
+				</div>
+			{/snippet}
+		</CollectionManager>
+	</div>
 
-							<Separator />
-
-							{#if credentials.length === 0}
-								<T class="text-gray-300">{m.No_credentials_available()}</T>
-							{:else}
-								<T>
-									{m.count_available_credentials({
-										number: credentials.length
-									})}
-								</T>
-
-								<ul class="space-y-2">
-									{#each credentials as credential}
-										<li
-											class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
-										>
-											<div class="flex items-center gap-2">
-												{credential.key}
-												{#if credential.published}
-													<Badge variant="default">{m.Published()}</Badge>
-												{/if}
-											</div>
-
-											<div class="flex items-center gap-1">
-												{#if record.published}
-													<PublishButton
-														record={credential}
-														{cannotPublishMessage}
-														canPublish={record.published && canPublish}
-													>
-														{#snippet button({ togglePublish, label })}
-															<Button
-																variant="outline"
-																onclick={togglePublish}
-																class="h-fit py-1 text-xs"
-															>
-																{label}
-															</Button>
-														{/snippet}
-													</PublishButton>
-												{/if}
-												<EditCredentialDialog {credential} />
-											</div>
-										</li>
-									{/each}
-								</ul>
-							{/if}
-						</div>
-					</Card>
-				{/each}
+	<div class="space-y-4">
+		<CollectionManager collection="verifiers">
+			{#snippet top({ Header })}
+				<Header title="Verifiers" />
 			{/snippet}
 		</CollectionManager>
 	</div>

@@ -17,6 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m, localizeHref } from '@/i18n/index.js';
+	import { QrCode } from '@/qr/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
 
 	let { data } = $props();
@@ -74,35 +75,44 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
-		<div class="space-y-6">
-			<PageHeader
-				title={sections.credential_properties.label}
-				id={sections.credential_properties.anchor}
-			/>
+		<div class="flex items-start gap-6">
+			<div class="grow space-y-6">
+				<PageHeader
+					title={sections.credential_properties.label}
+					id={sections.credential_properties.anchor}
+				/>
 
-			<div class="flex gap-6">
-				<InfoBox label="Issuer" value={credential.issuer_name} />
-				<InfoBox label="Format" value={credential.format} />
-				<InfoBox label="Locale" value={credential.locale} />
+				<div class="flex gap-6">
+					<InfoBox label="Issuer" value={credential.issuer_name} />
+					<InfoBox label="Format" value={credential.format} />
+					<InfoBox label="Locale" value={credential.locale} />
+				</div>
+
+				<div class="flex gap-6">
+					<InfoBox
+						label="Signing algorithms supported"
+						value={credentialConfiguration?.credential_signing_alg_values_supported?.join(
+							', '
+						)}
+					/>
+					<InfoBox
+						label="Cryptographic binding methods supported"
+						value={credentialConfiguration?.cryptographic_binding_methods_supported?.join(
+							', '
+						)}
+					/>
+				</div>
+
+				<InfoBox label="Description" value={credential.description} />
+				<InfoBox label="Type" value={credential.type} />
 			</div>
 
-			<div class="flex gap-6">
-				<InfoBox
-					label="Signing algorithms supported"
-					value={credentialConfiguration?.credential_signing_alg_values_supported?.join(
-						', '
-					)}
-				/>
-				<InfoBox
-					label="Cryptographic binding methods supported"
-					value={credentialConfiguration?.cryptographic_binding_methods_supported?.join(
-						', '
-					)}
-				/>
-			</div>
-
-			<InfoBox label="Description" value={credential.description} />
-			<InfoBox label="Type" value={credential.type} />
+			{#if credential.deeplink}
+				<div>
+					<PageHeader title="QR code" id="qr" />
+					<QrCode src={credential.deeplink} cellSize={10} class="w-52 rounded-md" />
+				</div>
+			{/if}
 		</div>
 
 		<div class="space-y-6">

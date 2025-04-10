@@ -7,23 +7,28 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import { CollectionForm } from '@/collections-components';
 	import * as Dialog from '@/components/ui/dialog';
-	import type { CredentialsRecord } from '@/pocketbase/types';
+	import type { CredentialsFormData, CredentialsRecord } from '@/pocketbase/types';
 	import Button from '@/components/ui/button/button.svelte';
+	import { Pencil } from 'lucide-svelte';
+	import { m } from '@/i18n';
 
 	type Props = {
 		credential: CredentialsRecord;
+		canPublish: boolean;
 	};
 
-	let { credential }: Props = $props();
+	let { credential, canPublish }: Props = $props();
 
 	let open = $state(false);
+
+	const excludedFields: (keyof CredentialsFormData)[] = canPublish ? [] : ['published'];
 </script>
 
 <Dialog.Root bind:open>
 	<Dialog.Trigger>
 		{#snippet child({ props })}
 			<Button {...props} variant="outline" size="sm" class="h-fit py-1 text-xs">
-				Edit deeplink
+				<Pencil size={10} />
 			</Button>
 		{/snippet}
 	</Dialog.Trigger>
@@ -50,9 +55,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						'credential_issuer',
 						'json',
 						'key',
-						'published'
+						...excludedFields
 					],
-					order: ['published']
+					order: ['deeplink'],
+					labels: {
+						published: m.Publish_to_marketplace()
+					}
 				}}
 				onSuccess={() => {
 					open = false;
