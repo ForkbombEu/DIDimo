@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <CollectionManager
 	collection="credential_issuers"
-	queryOptions={{ expand: ['credentials_via_credential_issuer'] }}
+	queryOptions={{ expand: ['credentials_via_credential_issuer'], filter: 'published = true' }}
 >
 	{#snippet top({ Search })}
 		<PageTop>

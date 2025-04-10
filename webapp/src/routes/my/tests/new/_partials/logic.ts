@@ -18,6 +18,7 @@ export type StandardWithTestSuites = {
 		label: string;
 		tests: string[];
 	}>;
+	disabled?: boolean;
 };
 
 //

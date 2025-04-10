@@ -55,7 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<RadioGroup.Root bind:value={selectedStandardId} class="!gap-0">
 			{#each standards as test}
 				{@const selected = selectedStandardId === test.id}
-				{@const disabled = test.testSuites.length === 0}
+				{@const disabled = test.testSuites.length === 0 || test.disabled}
 
 				<Label
 					class={[

@@ -308,5 +308,11 @@
 	"Add_new_credential_issuer": "Add new credential issuer",
 	"Published": "Published",
 	"No_credentials_available": "No credentials available",
-	"count_available_credentials": "{number} available credentials:"
+	"count_available_credentials": "{number} available credentials:",
+	"openid4vp_wallet_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"openid4vp_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"openid4vci_wallet_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"openid4vci_issuer_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"vc_api_issuer_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"vc_api_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum."
 }
