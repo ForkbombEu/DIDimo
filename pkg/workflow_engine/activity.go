@@ -21,7 +21,7 @@ type ExecutableActivity interface {
 }
 
 type ConfigurableActivity interface {
-	Configure(input *ActivityInput) error
+	Configure(ctx context.Context, input *ActivityInput) error
 }
 
 func Fail(result *ActivityResult, msg string) (ActivityResult, error) {

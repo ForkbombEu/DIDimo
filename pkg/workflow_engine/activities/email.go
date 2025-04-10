@@ -14,7 +14,7 @@ import (
 
 type SendMailActivity struct{}
 
-func (a *SendMailActivity) Configure(input *workflowengine.ActivityInput) error {
+func (a *SendMailActivity) Configure(ctx context.Context, input *workflowengine.ActivityInput) error {
 	SMTPHost := os.Getenv("SMTP_HOST")
 	if SMTPHost == "" {
 		return errors.New("SMTP_HOST environment variable not set")

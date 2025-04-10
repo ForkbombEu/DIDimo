@@ -8,7 +8,7 @@ import (
 	"os"
 
 	"github.com/forkbombeu/didimo/pkg/internal/pb"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/worker_engine"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -45,7 +45,7 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.HookUpdateCredentialsIssuers(app)
 	pb.RouteWorkflowList(app)
 	pb.Register(app)
-	temporalclient.WorkersHook(app)
+	worker_engine.WorkersHook(app)
 
 	jsvm.MustRegister(app, jsvm.Config{
 		HooksWatch: true,

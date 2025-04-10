@@ -64,7 +64,7 @@ func TestSendMailActivity_Configure(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setupEnv()
-			err := activity.Configure(input)
+			err := activity.Configure(t.Context(), input)
 			if tt.expectedErr != "" {
 				require.Error(t, err)
 				require.Equal(t, tt.expectedErr, err.Error())

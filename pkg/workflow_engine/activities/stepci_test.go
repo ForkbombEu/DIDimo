@@ -87,7 +87,7 @@ func TestStepCIlActivity_Configure(t *testing.T) {
 				Payload: tc.payload,
 			}
 
-			err := activity.Configure(input)
+			err := activity.Configure(t.Context(), input)
 
 			if tc.expectError {
 				require.Error(t, err)

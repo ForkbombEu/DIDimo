@@ -22,7 +22,7 @@ import (
 type StepCIWorkflowActivity struct{}
 
 // Configure injects the parsed template and token into the payload
-func (a *StepCIWorkflowActivity) Configure(input *workflowengine.ActivityInput) error {
+func (a *StepCIWorkflowActivity) Configure(ctx context.Context, input *workflowengine.ActivityInput) error {
 
 	templatePath := input.Config["template"]
 	if templatePath == "" {

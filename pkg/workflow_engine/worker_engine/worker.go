@@ -1,11 +1,13 @@
-package temporalclient
+package worker_engine
 
 import (
 	"log"
 	"sync"
 
-	openidWorkflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	credentialWorkflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/workflows"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"go.temporal.io/sdk/client"
@@ -39,7 +41,7 @@ func StartWorker(client client.Client, config WorkerConfig, wg *sync.WaitGroup) 
 
 // StartAllWorkers initializes and starts multiple Temporal workers
 func StartAllWorkers() {
-	c, err := GetTemporalClient()
+	c, err := temporalclient.GetTemporalClient()
 	if err != nil {
 		log.Fatalf("Failed to connect to Temporal: %v", err)
 	}
@@ -47,19 +49,19 @@ func StartAllWorkers() {
 
 	var wg sync.WaitGroup
 
+	var OpenIDNetWorkflow = workflows.OpenIDNetWorkflow{}
+	var OpenIDNetLogsWorkflow = workflows.OpenIDNetLogsWorkflow{}
 	workers := []WorkerConfig{
 		{
-			TaskQueue: openidWorkflow.OpenIDTestTaskQueue,
+			TaskQueue: workflows.OpenIDTestTaskQueue,
 			Workflows: []interface{}{
-				openidWorkflow.OpenIDTestWorkflow,
-				openidWorkflow.LogSubWorkflow,
+				OpenIDNetWorkflow.Workflow,
+				OpenIDNetLogsWorkflow.SubWorkflow,
 			},
 			Activities: []interface{}{
-				openidWorkflow.GenerateYAMLActivity,
-				openidWorkflow.RunStepCIJSProgramActivity,
-				openidWorkflow.SendMailActivity,
-				openidWorkflow.GetLogsActivity,
-				openidWorkflow.TriggerLogsUpdateActivity,
+				&activities.StepCIWorkflowActivity{},
+				&activities.SendMailActivity{},
+				&activities.HTTPActivity{},
 			},
 		},
 		{

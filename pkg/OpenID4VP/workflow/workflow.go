@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"context"
 	"fmt"
 	"net/url"
 	"os"
@@ -8,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
@@ -35,34 +38,26 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 	if token == "" {
 		return WorkflowResponse{}, fmt.Errorf("TOKEN environment variable not set")
 	}
-
-	// Create a temporary file to pass to GenerateYAML
-	tempFile, err := os.CreateTemp("", "generated-*.yaml")
-	if err != nil {
-		logger.Error("Failed to create temporary file", "error", err)
-		return WorkflowResponse{}, fmt.Errorf("failed to create temporary file: %w", err)
+	var stepCIWorkflowActivities = activities.StepCIWorkflowActivity{}
+	var ActivityInput = workflowengine.ActivityInput{
+		Payload: map[string]any{
+			"variant": input.Variant,
+			"form":    input.Form,
+		},
+		Config: map[string]string{
+			"template": "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.txt",
+			"token":    token,
+		},
 	}
-	defer os.Remove(tempFile.Name()) // Ensure the temp file is cleaned up after workflow execution
-	YAMLInput := GenerateYAMLInput{
-		Variant:  input.Variant,
-		Form:     input.Form,
-		FilePath: tempFile.Name(),
-	}
-	// Pass the temporary file path to the GenerateYAML activity
-	err = workflow.ExecuteActivity(ctx, GenerateYAMLActivity, YAMLInput).Get(ctx, nil)
+	var activityResult workflowengine.ActivityResult
+	err := stepCIWorkflowActivities.Configure(context.Background(), &ActivityInput)
 	if err != nil {
-		logger.Error("GenerateYAML failed", "error", err)
+		logger.Error("Configure failed", "error", err)
 		return WorkflowResponse{}, err
 	}
-	stepCIInput := StepCIRunnerInput{
-		FilePath: tempFile.Name(),
-		Token:    token,
-	}
-
-	var response StepCIRunnerResponse
-	err = workflow.ExecuteActivity(ctx, RunStepCIJSProgramActivity, stepCIInput).Get(ctx, &response)
+	err = workflow.ExecuteActivity(ctx, stepCIWorkflowActivities.Execute, ActivityInput).Get(ctx, &activityResult)
 	if err != nil {
-		logger.Error("RunStepCIJSProgram failed", "error", err)
+		logger.Error("GenerateYAML failed", "error", err)
 		return WorkflowResponse{}, err
 	}
 
@@ -91,8 +86,11 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 	if err != nil {
 		return WorkflowResponse{}, fmt.Errorf("unexpected error parsing URL: %v", err)
 	}
-
-	result, ok := response.Result["result"].(string)
+	outputMap, ok := activityResult.Output.(map[string]interface{})
+	if !ok {
+		return WorkflowResponse{}, fmt.Errorf("expected Output to be a map, got %T", activityResult.Output)
+	}
+	result, ok := outputMap["result"].(string)
 	if !ok {
 		result = ""
 	}
@@ -127,7 +125,7 @@ func OpenIDTestWorkflow(ctx workflow.Context, input WorkflowInput) (WorkflowResp
 		return WorkflowResponse{}, fmt.Errorf("failed to print QR code to terminal: %w", err)
 	}
 
-	rid, ok := response.Result["rid"].(string)
+	rid, ok := outputMap["rid"].(string)
 	if !ok {
 		return WorkflowResponse{}, fmt.Errorf("failed to get id from response: %v", err)
 	}

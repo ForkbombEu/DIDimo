@@ -14,6 +14,8 @@ import (
 	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	engine "github.com/forkbombeu/didimo/pkg/template_engine"
+	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/workflows"
 	"github.com/google/uuid"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -135,7 +137,17 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			// Start the workflow
-			err := OpenID4VP.StartWorkflow(req.Input, req.UserMail, appURL)
+			input := workflowengine.WorkflowInput{
+				Payload: map[string]any{
+					"variant":   string(req.Input.Variant),
+					"form":      req.Input.Form,
+					"user_mail": req.UserMail,
+					"app_url":   appURL,
+				},
+				ActvityOptions: &workflows.ActivityOptions,
+			}
+			var w workflows.OpenIDNetWorkflow
+			_, err := w.Start(input)
 			if err != nil {
 				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
 			}
