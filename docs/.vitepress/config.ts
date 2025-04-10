@@ -44,7 +44,7 @@ export default defineConfig({
 
     footer: {
       message:
-        'Released under the <a href="https://github.com/forkbombeu/didimo/blob/main/LICENSE">AGPLv3 License</a>.',
+        'Released under the <a href="https://github.com/ForkbombEu/DIDimo?tab=readme-ov-file#-license">AGPLv3 License</a>.',
       copyright:
         'Copyleft 🄯 2024-present <a href="https://forkbomb.solutions">Forkbomb B.V.</a>',
     },

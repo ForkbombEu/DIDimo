@@ -23,7 +23,7 @@ Once you have logged-in, you can start a new check from the Developer Dashboard
 (documentation coming soon)
 
 ## Automatized mobile testing
-Credimi integrates with [Maestro.dev](Maestro.dev) for automatized mobile testing (documentation coming soon).
+Credimi integrates with [Maestro](https://maestro.dev/) for automatized mobile testing (documentation coming soon).
 
 ## Scheduled Checks  
 Credimi also allows you schedule tests via Web-GUI or REST API (documentation coming soon).
