@@ -32,30 +32,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <div class="space-y-12">
-	{#if !organizationInfo}
-		<Alert variant="warning" icon={InfoIcon}>
-			{#snippet content({ Title, Description })}
-				<Title>Important!</Title>
-				<Description class="mt-2">
-					Before effectively publishing your services and products to the marketplace, you
-					need to create a public organization page.
-				</Description>
-				<div class="mt-2 flex justify-end">
-					<Button
-						variant="outline"
-						href="/my/organization-page"
-						onclick={() => {
-							isCredentialIssuerModalOpen = true;
-						}}
-					>
-						<Plus />
-						Create organization page
-					</Button>
-				</div>
-			{/snippet}
-		</Alert>
-	{/if}
-
 	<div class="space-y-4">
 		<CollectionManager
 			collection="credential_issuers"
@@ -103,15 +79,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 								</div>
 
 								<div class="flex items-center gap-1">
-									{#if canPublish}
-										<PublishButton {record}>
-											{#snippet button({ togglePublish, label })}
-												<Button variant="outline" onclick={togglePublish}>
-													{label}
-												</Button>
-											{/snippet}
-										</PublishButton>
-									{/if}
+									<PublishButton {record} {canPublish} {cannotPublishMessage}>
+										{#snippet button({ togglePublish, label })}
+											<Button variant="outline" onclick={togglePublish}>
+												{label}
+											</Button>
+										{/snippet}
+									</PublishButton>
+
 									<RecordEdit {record} />
 									<RecordDelete {record} />
 								</div>
@@ -141,8 +116,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 											</div>
 
 											<div class="flex items-center gap-1">
-												{#if canPublish}
-													<PublishButton record={credential}>
+												{#if record.published}
+													<PublishButton
+														record={credential}
+														{cannotPublishMessage}
+														canPublish={record.published && canPublish}
+													>
 														{#snippet button({ togglePublish, label })}
 															<Button
 																variant="outline"
@@ -199,4 +178,19 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			</div>
 		</Dialog.Content>
 	</Dialog.Root>
+{/snippet}
+
+<!--  -->
+
+{#snippet cannotPublishMessage()}
+	<T>
+		Before you can publish your service, you need to create a public profile for your
+		organization.
+	</T>
+	<div class="flex justify-end">
+		<Button href="/my/organization-page">
+			<Plus />
+			{m.Create_organization()}
+		</Button>
+	</div>
 {/snippet}

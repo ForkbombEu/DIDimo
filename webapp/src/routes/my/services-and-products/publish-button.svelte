@@ -5,6 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import Dialog from '@/components/ui-custom/dialog.svelte';
 	import LoadingDialog from '@/components/ui-custom/loadingDialog.svelte';
 	import { pb } from '@/pocketbase';
 	import type { BaseSystemFields } from '@/pocketbase/types';
@@ -14,9 +15,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		record: Omit<BaseSystemFields, 'expand'> & { published: boolean };
 		button: Snippet<[{ togglePublish: () => void; label: string }]>;
 		onSuccess?: () => void;
+		canPublish?: boolean;
+		cannotPublishMessage?: Snippet;
 	};
 
-	let { record, button, onSuccess }: Props = $props();
+	let { record, button, onSuccess, canPublish, cannotPublishMessage }: Props = $props();
 
 	let loading = $state(false);
 
@@ -30,12 +33,21 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	}
 
 	const togglePublish = $derived(() => {
+		if (!canPublish) {
+			cannotPublishDialogOpen = true;
+			return;
+		}
+
 		publish(!record.published);
 	});
 
 	const label = $derived.by(() => {
 		return record.published ? 'Unpublish' : 'Publish';
 	});
+
+	//
+
+	let cannotPublishDialogOpen = $state(false);
 </script>
 
 {@render button({ togglePublish, label })}
@@ -43,3 +55,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 {#if loading}
 	<LoadingDialog />
 {/if}
+
+<Dialog bind:open={cannotPublishDialogOpen} title="Warning">
+	{#snippet content()}
+		{@render cannotPublishMessage?.()}
+	{/snippet}
+</Dialog>
