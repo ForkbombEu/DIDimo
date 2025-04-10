@@ -19,7 +19,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import { RecordDelete, RecordEdit } from '@/collections-components/manager';
 	import PublishButton from './publish-button.svelte';
-	import { invalidateAll } from '$app/navigation';
 	import Separator from '@/components/ui/separator/separator.svelte';
 	import { currentUser } from '@/pocketbase';
 

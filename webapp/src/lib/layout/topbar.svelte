@@ -22,8 +22,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>
 			{m.Getting_started()}
 		</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Tests()}</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/providers'}>
+		<!-- <Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Tests()}</Button> -->
+		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/services'}>
 			{m.Services()}
 		</Button>
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Apps()}</Button>

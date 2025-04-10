@@ -12,10 +12,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
-	import * as Sheet from '@/components/ui/sheet';
 </script>
 
-<CollectionManager collection="services" queryOptions={{ expand: ['credential_issuers'] }}>
+<CollectionManager
+	collection="credential_issuers"
+	queryOptions={{ expand: ['credentials_via_credential_issuer'] }}
+>
 	{#snippet top({ Search })}
 		<PageTop>
 			<T tag="h1">{m.Find_identity_solutions()}</T>

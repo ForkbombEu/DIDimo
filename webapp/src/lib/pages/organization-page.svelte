@@ -11,12 +11,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import PageTop from '$lib/layout/pageTop.svelte';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import { m, localizeHref } from '@/i18n';
-	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
+	import { m } from '@/i18n';
+	import { Building2, Layers, ScanEye } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
 	import { pb } from '@/pocketbase/index.js';
 	import type { OrganizationInfoResponse } from '@/pocketbase/types';
+	import ServiceCard from '$lib/layout/serviceCard.svelte';
 
 	type Props = {
 		organizationInfo: OrganizationInfoResponse;
@@ -32,20 +33,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			anchor: 'general_info',
 			label: m.General_info()
 		},
-		credentials: {
+		apps: {
 			icon: Layers,
-			anchor: 'credentials',
-			label: m.OID4VCI_Meta_Data()
+			anchor: 'apps',
+			label: m.Apps()
 		},
-		test_results: {
-			icon: FolderCheck,
-			anchor: 'test_results',
-			label: m.Test_results()
-		},
-		compatible_verifiers: {
+		issuers: {
 			icon: ScanEye,
-			anchor: 'compatible_verifiers',
-			label: m.Compatible_verifiers()
+			anchor: 'issuers',
+			label: m.Issuers()
 		}
 	};
 
@@ -108,23 +104,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<PageHeader title={m.Issuers()} id="issuers" />
 
 			{#await credentialIssuersPromise then credential_issuers}
-				<ul>
+				<div class="space-y-2">
 					{#each credential_issuers as issuer, index (issuer.id)}
-						<li class="flex items-start gap-2">
-							{@render CircledNumber(index + 1)}
-							<div class="space-y-1">
-								<InfoBox label={m.OpenID_Issuance_URL()}>
-									<a
-										href={localizeHref(`/credential-issuers/${issuer.id}`)}
-										class="hover:underline"
-									>
-										{issuer.url}
-									</a>
-								</InfoBox>
-							</div>
-						</li>
+						<ServiceCard service={issuer} />
+					{:else}
+						<div class="p-4 border border-black/20 rounded-md">
+							<T class="text-center text-black/30">No issuers found</T>
+						</div>
 					{/each}
-				</ul>
+				</div>
 			{/await}
 		</div>
 	</div>

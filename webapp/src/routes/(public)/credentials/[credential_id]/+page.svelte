@@ -5,12 +5,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import BackButton from '$lib/layout/back-button.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import PageHeader from '$lib/layout/pageHeader.svelte';
 	import PageIndex from '$lib/layout/pageIndex.svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
+	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import type { CredentialConfiguration } from '$lib/types/openid.js';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
@@ -57,7 +59,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const credentialIssuer = $derived(credential.expand?.credential_issuer);
 </script>
 
-<PageTop>
+<PageTop contentClass="!space-y-4">
+	<BackButton href="/credentials">Back to credentials</BackButton>
 	<div class="flex items-center gap-2">
 		<Avatar src={credential.logo} class="!rounded-sm" hideIfLoadingError />
 		<div class="">
@@ -67,7 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
+<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
@@ -158,19 +161,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			/>
 
 			{#if credentialIssuer}
-				<InfoBox label="OpenID issuance URL">
-					<a
-						href={localizeHref(`/credential-issuers/${credentialIssuer.id}`)}
-						class="hover:underline"
-					>
-						{credentialIssuer.url}
-					</a>
-				</InfoBox>
+				<ServiceCard service={credentialIssuer} />
 			{/if}
 		</div>
-
-		<!-- <div>
-			<PageHeader title={sections.test_results.label} id={sections.test_results.anchor} />
-		</div> -->
 	</div>
 </PageContent>
