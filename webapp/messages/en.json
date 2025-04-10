@@ -314,5 +314,7 @@
 	"openid4vci_wallet_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
 	"openid4vci_issuer_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
 	"vc_api_issuer_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
-	"vc_api_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum."
+	"vc_api_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
+	"Organizations": "Organizations",
+	"Find_providers_of_identity_solutions": "Find providers of identity solutions"
 }

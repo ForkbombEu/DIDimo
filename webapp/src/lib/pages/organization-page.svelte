@@ -68,12 +68,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-12 items-start">
-	<div class="sticky top-5">
+<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-16 items-start">
+	<div class="sticky top-5 shrink-0">
 		<PageIndex sections={Object.values(sections)} />
 	</div>
 
-	<div class="grow space-y-12">
+	<div class="max-w-prose grow space-y-12">
 		<div class="space-y-6">
 			<PageHeader title={sections.general_info.label} id={sections.general_info.anchor} />
 			<div class="flex gap-6">
