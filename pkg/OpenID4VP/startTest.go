@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/credimi/pkg/OpenID4VP/workflow"
+	temporalclient "github.com/forkbombeu/credimi/pkg/internal/temporal_client"
 	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/client"
@@ -27,7 +27,6 @@ func startWorkflow(input OpenID4VPTestInputFile, userMail, appURL string, namesp
 	// Load environment variables.
 	godotenv.Load()
 	c, err := temporalclient.GetTemporalClientWithNamespace(namespace)
-
 	if err != nil {
 		return fmt.Errorf("unable to create client: %v", err)
 	}
@@ -81,6 +80,7 @@ func StartWorkflowWithNamespaceAndMemo(input OpenID4VPTestInputFile, userMail, a
 	}
 	return nil
 }
+
 func StartWorkflowWithMemo(input OpenID4VPTestInputFile, userMail, appURL string, memo map[string]interface{}) error {
 	if err := startWorkflow(input, userMail, appURL, "default", memo); err != nil {
 		return fmt.Errorf("failed to start workflow: %v", err)

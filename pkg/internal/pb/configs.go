@@ -11,7 +11,7 @@ import (
 	p "path"
 	"path/filepath"
 
-	engine "github.com/forkbombeu/didimo/pkg/template_engine"
+	engine "github.com/forkbombeu/credimi/pkg/template_engine"
 
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/apis"

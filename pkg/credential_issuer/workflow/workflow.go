@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
+	credentialissuer "github.com/forkbombeu/credimi/pkg/credential_issuer"
 	"go.temporal.io/sdk/temporal"
 	"go.temporal.io/sdk/workflow"
 )
@@ -103,7 +103,6 @@ func FetchIssuersWorkflow(ctx workflow.Context) error {
 	var response FetchIssuersActivityResponse
 
 	err := workflow.ExecuteActivity(ctx, FetchIssuersActivity).Get(ctx, &response)
-
 	if err != nil {
 		return err
 	}

@@ -2,14 +2,14 @@
 //
 // SPDX-License-Identifier: AGPL-3.0-or-later
 
-// DIDimo is your companion tool for be compliant with your SSI system.
+// credimi is your companion tool for be compliant with your SSI system.
 package main
 
 import (
 	"log"
 
-	_ "github.com/forkbombeu/didimo/migrations"
-	"github.com/forkbombeu/didimo/pkg/routes"
+	_ "github.com/forkbombeu/credimi/migrations"
+	"github.com/forkbombeu/credimi/pkg/routes"
 
 	"github.com/pocketbase/pocketbase"
 )

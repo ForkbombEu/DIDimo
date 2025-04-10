@@ -13,11 +13,11 @@ import (
 	"os"
 	"time"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
-	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
-	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
-	engine "github.com/forkbombeu/didimo/pkg/template_engine"
+	"github.com/forkbombeu/credimi/pkg/OpenID4VP"
+	openid4vp_workflow "github.com/forkbombeu/credimi/pkg/OpenID4VP/workflow"
+	credential_workflow "github.com/forkbombeu/credimi/pkg/credential_issuer/workflow"
+	temporalclient "github.com/forkbombeu/credimi/pkg/internal/temporal_client"
+	engine "github.com/forkbombeu/credimi/pkg/template_engine"
 	"github.com/google/uuid"
 	"github.com/pocketbase/dbx"
 	"github.com/pocketbase/pocketbase"
@@ -375,8 +375,8 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 		return se.Next()
 	})
 }
-func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 
+func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 	rawData, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -393,6 +393,7 @@ func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) 
 	}
 	return nil
 }
+
 func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
 		if e.Record.Collection().Name != "features" || e.Record.Get("name") != "updateIssuers" {
@@ -669,7 +670,6 @@ func addUserToDefaultOrganization(e *core.RecordEvent) error {
 
 // This function will be used when user will claim the organization
 func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
-
 	err := e.App.RunInTransaction(func(txApp core.App) error {
 		orgCollection, err := txApp.FindCollectionByNameOrId("organizations")
 		if err != nil {
@@ -697,7 +697,6 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 
 		return nil
 	})
-
 	if err != nil {
 		return err
 	}

@@ -10,8 +10,8 @@ import (
 	"io"
 	"os"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
-	crIss "github.com/forkbombeu/didimo/pkg/credential_issuer"
+	"github.com/forkbombeu/credimi/pkg/OpenID4VP"
+	crIss "github.com/forkbombeu/credimi/pkg/credential_issuer"
 	"github.com/spf13/cobra"
 )
 
@@ -79,7 +79,6 @@ func OpenID4VPTestCommand() *cobra.Command {
 		Use:   "openid4vp-test",
 		Short: "Start an OpenID Test workflow using a JSON input file and a user email flag",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			file, err := os.Open(inputFile)
 			if err != nil {
 				return fmt.Errorf("error opening JSON file: %v", err)

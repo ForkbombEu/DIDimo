@@ -13,7 +13,7 @@ import (
 	"os"
 	"testing"
 
-	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
+	credentialissuer "github.com/forkbombeu/credimi/pkg/credential_issuer"
 	"github.com/stretchr/testify/assert"
 	"go.temporal.io/sdk/testsuite"
 	_ "modernc.org/sqlite"
@@ -65,7 +65,6 @@ func TestFetchCredentialsIssuerActivity(t *testing.T) {
 }
 
 func TestStoreOrUpdateCredentialsActivity(t *testing.T) {
-
 	var issuerData credentialissuer.OpenidCredentialIssuerSchemaJson
 	err := json.Unmarshal([]byte(wellKnownJSON), &issuerData)
 	assert.NoError(t, err, "Did not expect an error")
@@ -381,7 +380,7 @@ func TestCheckIfCredentialIssuersExist(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			//I need to implement with a test database
+			// I need to implement with a test database
 		})
 	}
 }

@@ -7,8 +7,8 @@ package main
 import (
 	"log"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/credimi/pkg/OpenID4VP/workflow"
+	temporalclient "github.com/forkbombeu/credimi/pkg/internal/temporal_client"
 	"github.com/joho/godotenv"
 	"go.temporal.io/sdk/worker"
 )

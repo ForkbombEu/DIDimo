@@ -10,7 +10,7 @@ import (
 	"log"
 	"strings"
 
-	metadata "github.com/forkbombeu/didimo/pkg/internal/metadata"
+	metadata "github.com/forkbombeu/credimi/pkg/internal/metadata"
 )
 
 var credentialIssuerEndpoint string = "/.well-known/openid-credential-issuer"

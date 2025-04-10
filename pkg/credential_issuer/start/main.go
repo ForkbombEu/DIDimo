@@ -9,7 +9,7 @@ import (
 	"log"
 	"time"
 
-	schedule "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	schedule "github.com/forkbombeu/credimi/pkg/credential_issuer/workflow"
 	"go.temporal.io/sdk/client"
 )
 
@@ -41,7 +41,6 @@ func main() {
 			TaskQueue: schedule.FetchIssuersTaskQueue,
 		},
 	})
-
 	if err != nil {
 		log.Fatalln("Unable to create schedule", err)
 	}

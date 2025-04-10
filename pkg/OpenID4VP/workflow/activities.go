@@ -16,7 +16,7 @@ import (
 	"os/exec"
 	"time"
 
-	"github.com/forkbombeu/didimo/pkg/internal/stepci"
+	"github.com/forkbombeu/credimi/pkg/internal/stepci"
 	"gopkg.in/gomail.v2"
 )
 
@@ -207,7 +207,6 @@ func SendMailActivity(ctx context.Context, config EmailConfig) error {
 
 // GetLogActivity performs the GET request to fetch the log
 func GetLogsActivity(ctx context.Context, input GetLogsActivityInput) ([]map[string]any, error) {
-
 	baseURL, err := url.Parse(input.BaseURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse base URL: %w", err)
@@ -248,7 +247,6 @@ func GetLogsActivity(ctx context.Context, input GetLogsActivityInput) ([]map[str
 }
 
 func TriggerLogsUpdateActivity(ctx context.Context, input TriggerLogsUpdateActivityInput) error {
-
 	requestBody := LogUpdateRequest{
 		WorkflowID: input.WorkflowID,
 		Logs:       input.Logs,
