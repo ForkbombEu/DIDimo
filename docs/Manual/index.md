@@ -1,6 +1,8 @@
 # Welcome to Credimi 😊
 
-Credimi is one 
+**Credimi** was built to enable EUDI-ARF developers, government organizations and end-users to test compliance and interoperability of Digital Identity solutions. 
+
+Below is a summary of Credimi's features organized by stakeholder category.
 
 ## Are you a Developer? 
 Create an **User Account**, access the **Developer Dashboard** and: 
