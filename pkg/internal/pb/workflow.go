@@ -25,12 +25,10 @@ import (
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/tools/subscriptions"
 	"github.com/pocketbase/pocketbase/tools/types"
-	"google.golang.org/protobuf/encoding/protojson"
-	"google.golang.org/protobuf/types/known/durationpb"
-
 	"go.temporal.io/api/enums/v1"
 	"go.temporal.io/api/workflowservice/v1"
 	"go.temporal.io/sdk/client"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 type OpenID4VPRequest struct {
@@ -193,6 +191,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 
 			for testName, testData := range req {
+				memo := map[string]interface{}{
+					"test":     testName,
+					"standard": protocol,
+					"author":   author,
+				}
 				if testData.Format == "json" {
 					jsonData, ok := testData.Data.(string)
 					if !ok {
@@ -204,7 +207,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
 
-					err := OpenID4VP.StartWorkflowWithNamespace(parsedData, User, appURL, namespace)
+					err := OpenID4VP.StartWorkflowWithNamespaceAndMemo(parsedData, User, appURL, namespace, memo)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -263,10 +266,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
 					}
 
-					err = OpenID4VP.StartWorkflowWithNamespace(OpenID4VP.OpenID4VPTestInputFile{
+					err = OpenID4VP.StartWorkflowWithNamespaceAndMemo(OpenID4VP.OpenID4VPTestInputFile{
 						Variant: json.RawMessage(parsedVariant.Variant),
 						Form:    parsedVariant.Form,
-					}, email, appURL, namespace)
+					}, email, appURL, namespace, memo)
 					if err != nil {
 						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
 					}
@@ -537,24 +540,12 @@ func RouteWorkflow(app *pocketbase.PocketBase) {
 
 		se.Router.GET("/api/workflows/{workflowId}/{runId}/history", func(e *core.RequestEvent) error {
 			authRecord := e.Auth
-			orgAuthCollection, err := e.App.FindCollectionByNameOrId("orgAuthorizations")
+
+			namespace, err := getUserNamespace(e.App, authRecord.Id)
 			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", err)
+				return apis.NewBadRequestError("failed to get user namespace", err)
 			}
-			if orgAuthCollection == nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations collection", nil)
-			}
-			orgAuthRecord, err := e.App.FindFirstRecordByFilter(orgAuthCollection.Id, "user={:user}", dbx.Params{"user": authRecord.Id})
-			if err != nil {
-				return apis.NewBadRequestError("failed to find orgAuthorizations record", err)
-			}
-			if orgAuthRecord == nil {
-				return apis.NewBadRequestError("user is not authorized to access this organization", nil)
-			}
-			namespace := orgAuthRecord.GetString("organization")
-			if namespace == "" {
-				return apis.NewBadRequestError("organization is empty", nil)
-			}
+
 			workflowId := e.Request.PathValue("workflowId")
 			if workflowId == "" {
 				return apis.NewBadRequestError("workflowId is required", nil)
@@ -703,27 +694,6 @@ func createNamespaceForUser(e *core.RecordEvent, user *core.Record) error {
 		newOrgAuth.Set("organization", newOrg.Id)
 		newOrgAuth.Set("role", ownerRoleRecord.Id)
 		txApp.Save(newOrgAuth)
-		retention := durationpb.New(24 * time.Hour)
-
-		namespace := newOrg.Id
-		client, err := client.NewNamespaceClient(client.Options{})
-		defer client.Close()
-		if err != nil {
-			return apis.NewInternalServerError("failed to create Temporal client", err)
-		}
-
-		// Check if the namespace already exists
-		_, err = client.Describe(context.Background(), namespace)
-		if err == nil {
-			return nil
-		}
-		err = client.Register(context.Background(), &workflowservice.RegisterNamespaceRequest{
-			Namespace:                        namespace,
-			WorkflowExecutionRetentionPeriod: retention,
-		})
-		if err != nil {
-			return apis.NewInternalServerError("failed to register namespace", err)
-		}
 
 		return nil
 	})

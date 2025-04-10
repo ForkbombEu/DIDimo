@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi 
-# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+# SPDX-FileCopyrightText: 2025 Puria Nafisi Azizi 
+# SPDX-FileCopyrightText: 2025 The Forkbomb Company
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -17,10 +17,16 @@ path = [
     "schemas/**/*",
     "VERSION",
     "webapp/project.inlang/project_id",
+    "webapp/src/lib/types/openid-credential-issuer.ts",
+    "webapp/src/modules/i18n/paraglide/.gitignore",
+    "webapp/src/modules/i18n/paraglide/.prettierignore",
     "webapp/.env.example",
     "webapp/bun.lock",
     "webapp/messages/**/*",
     ".vscode/settings.json",
+    "webapp/src/lib/types/openid-credential-issuer.ts",
+    "webapp/src/modules/i18n/paraglide/.gitignore",
+    "webapp/src/modules/i18n/paraglide/.prettierignore"
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "Forkbomb BV"
