@@ -30,7 +30,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
             const { data } = form;
             // Handle form submission
             console.log("Form submitted:", data);
-            pb.collection("wallets").create(data);
+            pb.collection("wallets").create({...data, conformace_checks: {runs: data.conformance_checks}});
         },
         initialData: {
             name: "",
