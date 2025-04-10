@@ -113,9 +113,9 @@ docker: ## 🐳 run docker with all the infrastructure services
 
 ## Misc
 
-doc: ## 📚 Serve documentation on localhost
+doc: ## 📚 Serve documentation on localhost and expose using --host
 	cd $(DOCS) && bun i
-	cd $(DOCS) && bun run docs:dev --open
+	cd $(DOCS) && bun run docs:dev --open --host
 
 clean: ## 🧹 Clean files and caches
 	@$(GOCLEAN)
