@@ -150,7 +150,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{@const MAX_ITEMS = 2}
 			<CollectionManager
 				collection="news"
-				queryOptions={{ perPage: MAX_ITEMS }}
+				queryOptions={{ perPage: MAX_ITEMS, sort: ['created', 'DESC'] }}
 				hide={['pagination']}
 			>
 				{#snippet records({ records })}
