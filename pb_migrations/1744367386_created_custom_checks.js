@@ -114,7 +114,7 @@ migrate((app) => {
         "autogeneratePattern": "",
         "hidden": false,
         "id": "text3206337475",
-        "max": 10,
+        "max": 25,
         "min": 0,
         "name": "version",
         "pattern": "",
