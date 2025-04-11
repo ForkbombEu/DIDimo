@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	URL "net/url"
 	"strconv"
 	"time"
 
@@ -24,6 +25,23 @@ func (a *HTTPActivity) Execute(ctx context.Context, input workflowengine.Activit
 
 	method := input.Config["method"]
 	url := input.Config["url"]
+	if queryParams, ok := input.Payload["query_params"].(map[string]any); ok {
+		parsedURL, err := URL.Parse(url)
+		if err != nil {
+			return workflowengine.Fail(&result, fmt.Sprintf("failed to parse URL: %v", err))
+		}
+
+		// Add query parameters
+		query := parsedURL.Query()
+		for key, value := range queryParams {
+			if strValue, ok := value.(string); ok {
+				query.Add(key, strValue)
+			}
+		}
+
+		parsedURL.RawQuery = query.Encode()
+		url = parsedURL.String() // Update the URL with query parameters
+	}
 	if method == "" || url == "" {
 		return workflowengine.Fail(&result, "missing 'method' or 'url' in config")
 	}

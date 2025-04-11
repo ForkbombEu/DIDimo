@@ -120,6 +120,41 @@ func TestHTTPActivity_Execute(t *testing.T) {
 			expectStatus:   http.StatusOK,
 			expectResponse: "plain response",
 		},
+		{
+			name: "Failure - malformed URL",
+			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "bad request", http.StatusBadRequest)
+			},
+			input: workflowengine.ActivityInput{
+				Config: map[string]string{
+					"method": "GET",
+					"url":    "://example.com/api/resource",
+				},
+			},
+			expectError: true,
+		},
+		{
+			name: "Success - GET request with query parameters",
+			handlerFunc: func(w http.ResponseWriter, r *http.Request) {
+				query := r.URL.Query()
+				require.Equal(t, "value", query.Get("key"))
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write([]byte(`{"message": "query received"}`))
+			},
+			input: workflowengine.ActivityInput{
+				Config: map[string]string{
+					"method": "GET",
+					"url":    "", // Set dynamically
+				},
+				Payload: map[string]any{
+					"query_params": map[string]any{
+						"key": "value",
+					},
+				},
+			},
+			expectStatus:   http.StatusOK,
+			expectResponse: map[string]any{"message": "query received"},
+		},
 	}
 
 	for _, tt := range tests {

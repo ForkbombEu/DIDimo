@@ -208,7 +208,7 @@ func (w *OpenIDNetLogsWorkflow) Workflow(
 		Config: map[string]string{
 			"method": "GET",
 			"url": fmt.Sprintf(
-				"%s/%s?public=false",
+				"%s/%s",
 				"https://www.certification.openid.net/api/log/",
 				url.PathEscape(input.Payload["rid"].(string)),
 			),
@@ -216,6 +216,9 @@ func (w *OpenIDNetLogsWorkflow) Workflow(
 		Payload: map[string]any{
 			"headers": map[string]any{
 				"Authorization": fmt.Sprintf("Bearer %s", input.Payload["token"].(string)),
+			},
+			"query_params": map[string]any{
+				"public": "false",
 			},
 		},
 	}

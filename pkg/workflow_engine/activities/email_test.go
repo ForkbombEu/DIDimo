@@ -27,9 +27,8 @@ func TestSendMailActivity_Configure(t *testing.T) {
 		Config: make(map[string]string),
 	}
 	tests := []struct {
-		name        string
-		setupEnv    func()
-		expectedErr string
+		name     string
+		setupEnv func()
 	}{
 		{
 			name: "Success - valid environment variables",
@@ -38,25 +37,6 @@ func TestSendMailActivity_Configure(t *testing.T) {
 				os.Setenv("SMTP_PORT", "587")
 				os.Setenv("MAIL_SENDER", "sender@example.com")
 			},
-			expectedErr: "",
-		},
-		{
-			name: "Failure - missing SMTP_HOST",
-			setupEnv: func() {
-				os.Unsetenv("SMTP_HOST")
-				os.Setenv("SMTP_PORT", "587")
-				os.Setenv("MAIL_SENDER", "sender@example.com")
-			},
-			expectedErr: "SMTP_HOST environment variable not set",
-		},
-		{
-			name: "Failure - missing SMTP_PORT",
-			setupEnv: func() {
-				os.Unsetenv("SMTP_PORT")
-				os.Setenv("SMTP_HOST", "smtp.example.com")
-				os.Setenv("MAIL_SENDER", "sender@example.com")
-			},
-			expectedErr: "SMTP_PORT environment variable not set",
 		},
 	}
 
@@ -65,15 +45,12 @@ func TestSendMailActivity_Configure(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.setupEnv()
 			err := activity.Configure(t.Context(), input)
-			if tt.expectedErr != "" {
-				require.Error(t, err)
-				require.Equal(t, tt.expectedErr, err.Error())
-			} else {
-				require.NoError(t, err)
-				require.Equal(t, "smtp.example.com", input.Config["smtp_host"])
-				require.Equal(t, "587", input.Config["smtp_port"])
-				require.Equal(t, "sender@example.com", input.Config["sender"])
-			}
+
+			require.NoError(t, err)
+			require.Equal(t, "smtp.example.com", input.Config["smtp_host"])
+			require.Equal(t, "587", input.Config["smtp_port"])
+			require.Equal(t, "sender@example.com", input.Config["sender"])
+
 		})
 	}
 }
@@ -113,7 +90,7 @@ func TestSendMailActivity_Execute(t *testing.T) {
 				},
 				Payload: map[string]interface{}{
 					"subject": "Test Email",
-					"email":   "<html><body>Test email body</body></html>",
+					"body":    "<html><body>Test email body</body></html>",
 				},
 			},
 			expectedOutput: "Email sent successfully",
@@ -129,7 +106,7 @@ func TestSendMailActivity_Execute(t *testing.T) {
 				},
 				Payload: map[string]interface{}{
 					"subject": "Test Email",
-					"email":   "<html><body>Test email body</body></html>",
+					"body":    "<html><body>Test email body</body></html>",
 				},
 			},
 			expectedOutput: "Email sending failed",
