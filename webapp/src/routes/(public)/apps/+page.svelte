@@ -33,17 +33,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	{#snippet records({ records })}
 		<PageGrid>
-			{#each records as organization}
-				<CardLink href={`/organizations/${organization.id}`}>
+			{#each records as app}
+				<CardLink href={`/apps/${app.id}`}>
 					<div class="flex items-center gap-2">
-						{#if organization.logo}
-							<Avatar
-								src={organization.logo}
-								class="!rounded-sm"
-								hideIfLoadingError
-							/>
+						{#if app.logo}
+							<Avatar src={app.logo} class="!rounded-sm" hideIfLoadingError />
 						{/if}
-						<T class="font-semibold">{organization.name}</T>
+						<T class="font-semibold">{app.name}</T>
 					</div>
 				</CardLink>
 			{/each}

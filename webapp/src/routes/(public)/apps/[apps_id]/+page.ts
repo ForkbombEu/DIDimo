@@ -5,12 +5,12 @@
 import { PocketbaseQueryAgent } from '@/pocketbase/query/index.js';
 
 export const load = async ({ params, fetch }) => {
-	const organization = await new PocketbaseQueryAgent(
+	const wallet = await new PocketbaseQueryAgent(
 		{
-			collection: 'organization_info'
+			collection: 'wallets'
 		},
 		{ fetch }
-	).getOne(params.organization_id);
+	).getOne(params.apps_id);
 
-	return { organization };
+	return { wallet };
 };
