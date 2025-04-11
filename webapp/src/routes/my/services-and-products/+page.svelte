@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import { CollectionManager } from '@/collections-components';
-	import { m } from '@/i18n';
+	import { localizeHref, m } from '@/i18n';
 	import { Pencil, Plus } from 'lucide-svelte';
 	import * as Dialog from '@/components/ui/dialog';
 	import { buttonVariants } from '@/components/ui/button';
@@ -24,6 +24,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import NewWalletForm from './wallet-form.svelte';
 	import type { WalletsResponse } from '@/pocketbase/types';
 	import type { ConformanceCheck } from './wallet-form-checks-table.svelte';
+	import A from '@/components/ui-custom/a.svelte';
 
 	//
 
@@ -53,7 +54,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</Header>
 			{/snippet}
 
-			{#snippet records({ records, Card })}
+			{#snippet records({ records, Card, reloadRecords })}
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					{#each records as record}
 						{@const credentials =
@@ -71,7 +72,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									<div>
 										<div class="flex items-center gap-2">
 											<T class="font-bold">
-												{title}
+												{#if !record.published}
+													{title}
+												{:else}
+													<A href="/services/{record.id}">{title}</A>
+												{/if}
 											</T>
 											{#if record.published}
 												<Badge variant="default">{m.Published()}</Badge>
@@ -84,7 +89,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									</div>
 
 									<div class="flex items-center gap-1">
-										<PublishButton {record} {canPublish} {cannotPublishMessage}>
+										<PublishButton
+											{record}
+											{canPublish}
+											{cannotPublishMessage}
+											onSuccess={reloadRecords}
+										>
 											{#snippet button({ togglePublish, label })}
 												<Button variant="outline" onclick={togglePublish}>
 													{label}
@@ -111,10 +121,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									<ul class="space-y-2">
 										{#each credentials as credential}
 											<li
-												class="flex items-center justify-between rounded-md bg-muted p-2 px-4"
+												class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
 											>
 												<div class="flex items-center gap-2">
-													{credential.key}
+													{#if !credential.published}
+														{credential.key}
+													{:else}
+														<A href="/credentials/{credential.id}">
+															{credential.key}
+														</A>
+													{/if}
+
 													{#if credential.published}
 														<Badge variant="default"
 															>{m.Published()}</Badge
@@ -162,22 +179,26 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				</Header>
 			{/snippet}
 
-			{#snippet records({ records, Card })}
+			{#snippet records({ records, Card, reloadRecords })}
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					{#each records as record (record.id)}
 						<Card
 							{record}
-							class="bg-background"
+							class="bg-background overflow-auto"
 							hide={['select', 'share', 'delete', 'edit']}
 						>
 							{@const conformanceChecks =
 								record.conformance_checks as ConformanceCheck[]}
-							<div class="space-y-4">
+							<div class="space-y-4 overflow-scroll">
 								<div class="flex flex-row justify-between">
 									<div>
 										<div class="flex items-center gap-2">
 											<T class="font-bold">
-												{record.name}
+												{#if !record.published}
+													{record.name}
+												{:else}
+													<A href="/apps/{record.id}">{record.name}</A>
+												{/if}
 											</T>
 											{#if record.published}
 												<Badge variant="default">{m.Published()}</Badge>
@@ -188,7 +209,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 										</T>
 									</div>
 									<div class="flex items-center gap-1">
-										<PublishButton {record} {canPublish} {cannotPublishMessage}>
+										<PublishButton
+											{record}
+											{canPublish}
+											{cannotPublishMessage}
+											onSuccess={reloadRecords}
+										>
 											{#snippet button({ togglePublish, label })}
 												<Button variant="outline" onclick={togglePublish}>
 													{label}
