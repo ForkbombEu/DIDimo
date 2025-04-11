@@ -137,7 +137,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			}
 			template, err := os.ReadFile(workflows.OpenIDNetStepCITemplatePath)
 			if err != nil {
-				return fmt.Errorf("failed to open template file: %w", err)
+				return apis.NewBadRequestError("failed to open template file: %w", err)
 			}
 			// Start the workflow
 			input := workflowengine.WorkflowInput{
@@ -150,12 +150,11 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				Config: map[string]any{
 					"template": string(template),
 				},
-				ActivityOptions: &workflows.ActivityOptions,
 			}
 			var w workflows.OpenIDNetWorkflow
 			_, err = w.Start(input)
 			if err != nil {
-				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
+				return apis.NewBadRequestError("failed to start openidnet wallet workflow", err)
 			}
 
 			return e.JSON(http.StatusOK, map[string]bool{
@@ -206,10 +205,26 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					if err := json.Unmarshal([]byte(jsonData), &parsedData); err != nil {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
-
-					err := OpenID4VP.StartWorkflow(parsedData, "test@credimi.io", appURL)
+					stepCItemplate, err := os.ReadFile(workflows.OpenIDNetStepCITemplatePath)
 					if err != nil {
-						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
+						return apis.NewBadRequestError("failed to open template file: %w", err)
+					}
+					// Start the workflow
+					input := workflowengine.WorkflowInput{
+						Payload: map[string]any{
+							"variant":   string(parsedData.Variant),
+							"form":      parsedData.Form,
+							"user_mail": "test@credimi.io",
+							"app_url":   appURL,
+						},
+						Config: map[string]any{
+							"template": string(stepCItemplate),
+						},
+					}
+					var w workflows.OpenIDNetWorkflow
+					_, err = w.Start(input)
+					if err != nil {
+						return apis.NewBadRequestError("failed to start openidnet wallet for test "+testName, err)
 					}
 				} else if testData.Format == "variables" {
 					variables, ok := testData.Data.(map[string]interface{})
@@ -265,13 +280,27 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					if errParsing != nil {
 						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
 					}
-
-					err = OpenID4VP.StartWorkflow(OpenID4VP.OpenID4VPTestInputFile{
-						Variant: json.RawMessage(parsedVariant.Variant),
-						Form:    parsedVariant.Form,
-					}, "test@credimi.io", appURL)
+					stepCItemplate, err := os.ReadFile(workflows.OpenIDNetStepCITemplatePath)
 					if err != nil {
-						return apis.NewBadRequestError("failed to start OpenID4VP workflow for test "+testName, err)
+						return apis.NewBadRequestError("failed to open template file: %w", err)
+					}
+					// Start the workflow
+					input := workflowengine.WorkflowInput{
+						Payload: map[string]any{
+							"variant":   string(parsedVariant.Variant),
+							"form":      parsedVariant.Form,
+							"user_mail": "test@credimi.io",
+							"app_url":   appURL,
+						},
+						Config: map[string]any{
+							"template": string(stepCItemplate),
+						},
+					}
+					var w workflows.OpenIDNetWorkflow
+					_, err = w.Start(input)
+
+					if err != nil {
+						return apis.NewBadRequestError("failed to start openidnet wallet for test "+testName, err)
 					}
 
 				} else {

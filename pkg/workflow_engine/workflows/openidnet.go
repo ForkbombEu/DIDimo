@@ -25,7 +25,7 @@ type SignalData struct {
 }
 
 const (
-	OpenIDTestTaskQueue         = "OpenIDTestTaskQueue"
+	OpenIDNetTaskQueue          = "OpenIDNetTaskQueue"
 	OpenIDNetStepCITemplatePath = "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.yaml"
 )
 
@@ -35,12 +35,16 @@ func (OpenIDNetWorkflow) Name() string {
 	return "OpenIDNetWorkflow"
 }
 
+func (OpenIDNetWorkflow) GetOptions() workflow.ActivityOptions {
+	return ActivityOptions
+}
+
 func (w *OpenIDNetWorkflow) Workflow(
 	ctx workflow.Context,
 	input workflowengine.WorkflowInput,
 ) (workflowengine.WorkflowResult, error) {
 	logger := workflow.GetLogger(ctx)
-	ctx = workflow.WithActivityOptions(ctx, *input.ActivityOptions)
+	ctx = workflow.WithActivityOptions(ctx, w.GetOptions())
 
 	stepCIWorkflowActivity := activities.StepCIWorkflowActivity{}
 	stepCIInput := workflowengine.ActivityInput{
@@ -130,7 +134,6 @@ func (w *OpenIDNetWorkflow) Workflow(
 			Config: map[string]any{
 				"interval": time.Second,
 			},
-			ActivityOptions: input.ActivityOptions,
 		},
 	)
 
@@ -181,7 +184,7 @@ func (w *OpenIDNetWorkflow) Start(
 
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        "OpenIDTestWorkflow" + uuid.NewString(),
-		TaskQueue: OpenIDTestTaskQueue,
+		TaskQueue: OpenIDNetTaskQueue,
 	}
 
 	// Start the workflow execution.
@@ -198,6 +201,9 @@ type OpenIDNetLogsWorkflow struct{}
 func (OpenIDNetLogsWorkflow) Name() string {
 	return "OpenIDNetLogsChildWorkflow"
 }
+func (OpenIDNetLogsWorkflow) GetOptions() workflow.ActivityOptions {
+	return ActivityOptions
+}
 
 func (w *OpenIDNetLogsWorkflow) Workflow(
 	ctx workflow.Context,
@@ -205,7 +211,7 @@ func (w *OpenIDNetLogsWorkflow) Workflow(
 ) (workflowengine.WorkflowResult, error) {
 	logger := workflow.GetLogger(ctx)
 
-	subCtx := workflow.WithActivityOptions(ctx, *input.ActivityOptions)
+	subCtx := workflow.WithActivityOptions(ctx, w.GetOptions())
 
 	GetLogsInput := workflowengine.ActivityInput{
 		Config: map[string]string{
