@@ -317,5 +317,6 @@
 	"vc_api_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
 	"Organizations": "Organizations",
 	"Find_providers_of_identity_solutions": "Find providers of identity solutions",
-	"Publish_to_marketplace": "Publish to marketplace"
+	"Publish_to_marketplace": "Publish to marketplace",
+	"No_conformance_checks": "No conformance checks"
 }

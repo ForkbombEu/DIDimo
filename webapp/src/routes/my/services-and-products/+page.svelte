@@ -23,6 +23,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import Sheet from '@/components/ui-custom/sheet.svelte';
 	import NewWalletForm from './wallet-form.svelte';
 	import type { WalletsResponse } from '@/pocketbase/types';
+	import type { ConformanceCheck } from './wallet-form-checks-table.svelte';
 
 	//
 
@@ -110,7 +111,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									<ul class="space-y-2">
 										{#each credentials as credential}
 											<li
-												class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
+												class="flex items-center justify-between rounded-md bg-muted p-2 px-4"
 											>
 												<div class="flex items-center gap-2">
 													{credential.key}
@@ -163,18 +164,61 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			{#snippet records({ records, Card })}
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					{#each records as record}
+					{#each records as record (record.id)}
 						<Card
 							{record}
 							class="bg-background"
 							hide={['select', 'share', 'delete', 'edit']}
 						>
-							<div class="">
-								<T class="font-bold">{record.name}</T>
-								<T>{record.description}</T>
-							</div>
+							{@const conformanceChecks =
+								record.conformance_checks as ConformanceCheck[]}
+							<div class="space-y-4">
+								<div class="flex flex-row justify-between">
+									<div>
+										<div class="flex items-center gap-2">
+											<T class="font-bold">
+												{record.name}
+											</T>
+											{#if record.published}
+												<Badge variant="default">{m.Published()}</Badge>
+											{/if}
+										</div>
+										<T class="mt-1 text-xs text-gray-400">
+											{record.description}
+										</T>
+									</div>
+									<div class="flex items-center gap-1">
+										<PublishButton {record} {canPublish} {cannotPublishMessage}>
+											{#snippet button({ togglePublish, label })}
+												<Button variant="outline" onclick={togglePublish}>
+													{label}
+												</Button>
+											{/snippet}
+										</PublishButton>
 
-							{@render UpdateWalletFormSnippet(record.id, record)}
+										{@render UpdateWalletFormSnippet(record.id, record)}
+										<RecordDelete {record} />
+									</div>
+								</div>
+
+								<Separator />
+
+								<div class="flex flex-wrap gap-2">
+									{#if conformanceChecks.length > 0}
+										{#each conformanceChecks as check}
+											<Badge
+												variant={check.status === 'success'
+													? 'secondary'
+													: 'destructive'}
+											>
+												{check.test}
+											</Badge>
+										{/each}
+									{:else}
+										<T class="text-gray-300">{m.No_conformance_checks()}</T>
+									{/if}
+								</div>
+							</div>
 						</Card>
 					{/each}
 				</div>
