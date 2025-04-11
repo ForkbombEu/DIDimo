@@ -1,0 +1,326 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<script lang="ts">
+	import { CollectionManager } from '@/collections-components';
+	import { localizeHref, m } from '@/i18n';
+	import { Pencil, Plus } from 'lucide-svelte';
+	import * as Dialog from '@/components/ui/dialog';
+	import { buttonVariants } from '@/components/ui/button';
+	import CredentialIssuerForm from './credential-issuer-form.svelte';
+	import T from '@/components/ui-custom/t.svelte';
+	import { String } from 'effect';
+	import { Badge } from '@/components/ui/badge';
+	import Button from '@/components/ui-custom/button.svelte';
+	import EditCredentialDialog from './edit-credential-dialog.svelte';
+	import { RecordDelete, RecordEdit } from '@/collections-components/manager';
+	import PublishButton from './publish-button.svelte';
+	import Separator from '@/components/ui/separator/separator.svelte';
+	import { currentUser } from '@/pocketbase';
+	import Sheet from '@/components/ui-custom/sheet.svelte';
+	import NewWalletForm from './wallet-form.svelte';
+	import type { WalletsResponse } from '@/pocketbase/types';
+	import type { ConformanceCheck } from './wallet-form-checks-table.svelte';
+	import A from '@/components/ui-custom/a.svelte';
+
+	//
+
+	let { data } = $props();
+	const { organizationInfo } = $derived(data);
+	const canPublish = $derived(Boolean(organizationInfo));
+
+	let isCredentialIssuerModalOpen = $state(false);
+</script>
+
+<div class="space-y-12">
+	<div class="space-y-4">
+		<CollectionManager
+			collection="credential_issuers"
+			queryOptions={{
+				expand: ['credentials_via_credential_issuer'],
+				filter: `owner.id = "${$currentUser?.id}"`
+			}}
+			editFormFieldsOptions={{ exclude: ['owner', 'url', 'published'], order: ['published'] }}
+			subscribe="expanded_collections"
+		>
+			{#snippet top({ Header })}
+				<Header title={m.Credential_issuers()}>
+					{#snippet right()}
+						{@render CreateCredentialIssuerModal()}
+					{/snippet}
+				</Header>
+			{/snippet}
+
+			{#snippet records({ records, Card, reloadRecords })}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each records as record}
+						{@const credentials =
+							record.expand?.credentials_via_credential_issuer ?? []}
+						<Card
+							{record}
+							hide={['select', 'share', 'delete', 'edit']}
+							class="bg-background"
+						>
+							{@const title = String.isNonEmpty(record.name)
+								? record.name
+								: '[undefined]'}
+							<div class="space-y-4">
+								<div class="flex items-center justify-between gap-6">
+									<div>
+										<div class="flex items-center gap-2">
+											<T class="font-bold">
+												{#if !record.published}
+													{title}
+												{:else}
+													<A href="/services/{record.id}">{title}</A>
+												{/if}
+											</T>
+											{#if record.published}
+												<Badge variant="default">{m.Published()}</Badge>
+											{/if}
+										</div>
+
+										<T class="mt-1 text-xs text-gray-400">
+											{record.url}
+										</T>
+									</div>
+
+									<div class="flex items-center gap-1">
+										<PublishButton
+											{record}
+											{canPublish}
+											{cannotPublishMessage}
+											onSuccess={reloadRecords}
+										>
+											{#snippet button({ togglePublish, label })}
+												<Button variant="outline" onclick={togglePublish}>
+													{label}
+												</Button>
+											{/snippet}
+										</PublishButton>
+
+										<RecordEdit {record} />
+										<RecordDelete {record} />
+									</div>
+								</div>
+
+								<Separator />
+
+								{#if credentials.length === 0}
+									<T class="text-gray-300">{m.No_credentials_available()}</T>
+								{:else}
+									<T>
+										{m.count_available_credentials({
+											number: credentials.length
+										})}
+									</T>
+
+									<ul class="space-y-2">
+										{#each credentials as credential}
+											<li
+												class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
+											>
+												<div class="flex items-center gap-2">
+													{#if !credential.published}
+														{credential.key}
+													{:else}
+														<A href="/credentials/{credential.id}">
+															{credential.key}
+														</A>
+													{/if}
+
+													{#if credential.published}
+														<Badge variant="default"
+															>{m.Published()}</Badge
+														>
+													{/if}
+												</div>
+
+												<div class="flex items-center gap-1">
+													<EditCredentialDialog
+														{credential}
+														{canPublish}
+													/>
+												</div>
+											</li>
+										{/each}
+									</ul>
+								{/if}
+							</div>
+						</Card>
+					{/each}
+				</div>
+			{/snippet}
+		</CollectionManager>
+	</div>
+
+	<div class="space-y-4">
+		<CollectionManager collection="verifiers">
+			{#snippet top({ Header })}
+				<Header title="Verifiers">
+					{#snippet right()}
+						<Button disabled><Plus />Add new verifier</Button>
+					{/snippet}
+				</Header>
+			{/snippet}
+		</CollectionManager>
+	</div>
+
+	<div class="space-y-4">
+		<CollectionManager collection="wallets">
+			{#snippet top({ Header })}
+				<Header title="Wallets">
+					{#snippet right()}
+						{@render NewWalletFormSnippet()}
+					{/snippet}
+				</Header>
+			{/snippet}
+
+			{#snippet records({ records, Card, reloadRecords })}
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+					{#each records as record (record.id)}
+						<Card
+							{record}
+							class="bg-background overflow-auto"
+							hide={['select', 'share', 'delete', 'edit']}
+						>
+							{@const conformanceChecks =
+								record.conformance_checks as ConformanceCheck[]}
+							<div class="space-y-4 overflow-scroll">
+								<div class="flex flex-row justify-between">
+									<div>
+										<div class="flex items-center gap-2">
+											<T class="font-bold">
+												{#if !record.published}
+													{record.name}
+												{:else}
+													<A href="/apps/{record.id}">{record.name}</A>
+												{/if}
+											</T>
+											{#if record.published}
+												<Badge variant="default">{m.Published()}</Badge>
+											{/if}
+										</div>
+										<T class="mt-1 text-xs text-gray-400">
+											{record.description}
+										</T>
+									</div>
+									<div class="flex items-center gap-1">
+										<PublishButton
+											{record}
+											{canPublish}
+											{cannotPublishMessage}
+											onSuccess={reloadRecords}
+										>
+											{#snippet button({ togglePublish, label })}
+												<Button variant="outline" onclick={togglePublish}>
+													{label}
+												</Button>
+											{/snippet}
+										</PublishButton>
+
+										{@render UpdateWalletFormSnippet(record.id, record)}
+										<RecordDelete {record} />
+									</div>
+								</div>
+
+								<Separator />
+
+								<div class="flex flex-wrap gap-2">
+									{#if conformanceChecks.length > 0}
+										{#each conformanceChecks as check}
+											<Badge
+												variant={check.status === 'success'
+													? 'secondary'
+													: 'destructive'}
+											>
+												{check.test}
+											</Badge>
+										{/each}
+									{:else}
+										<T class="text-gray-300">{m.No_conformance_checks()}</T>
+									{/if}
+								</div>
+							</div>
+						</Card>
+					{/each}
+				</div>
+			{/snippet}
+		</CollectionManager>
+	</div>
+</div>
+
+<!--  -->
+
+{#snippet CreateCredentialIssuerModal()}
+	<Dialog.Root bind:open={isCredentialIssuerModalOpen}>
+		<Dialog.Trigger class={buttonVariants({ variant: 'default' })}>
+			<Plus />
+			{m.Add_new_credential_issuer()}
+		</Dialog.Trigger>
+
+		<Dialog.Content class=" sm:max-w-[425px]">
+			<Dialog.Header>
+				<Dialog.Title>{m.Add_new_credential_issuer()}</Dialog.Title>
+			</Dialog.Header>
+
+			<div class="pt-8">
+				<CredentialIssuerForm
+					onSuccess={() => {
+						isCredentialIssuerModalOpen = false;
+					}}
+				/>
+			</div>
+		</Dialog.Content>
+	</Dialog.Root>
+{/snippet}
+
+<!--  -->
+
+{#snippet cannotPublishMessage()}
+	<T>
+		Before you can publish your service, you need to create a public profile for your
+		organization.
+	</T>
+	<div class="flex justify-end">
+		<Button href="/my/organization-page">
+			<Plus />
+			{m.Create_organization()}
+		</Button>
+	</div>
+{/snippet}
+
+<!--  -->
+
+{#snippet NewWalletFormSnippet()}
+	<Sheet>
+		{#snippet trigger({ sheetTriggerAttributes })}
+			<Button {...sheetTriggerAttributes}><Plus />Add new wallet</Button>
+		{/snippet}
+
+		{#snippet content({ closeSheet })}
+			<div class="space-y-6">
+				<T tag="h3">Add a new wallet</T>
+				<NewWalletForm onSuccess={closeSheet} ownerId={$currentUser?.id} />
+			</div>
+		{/snippet}
+	</Sheet>
+{/snippet}
+
+{#snippet UpdateWalletFormSnippet(walletId: string, initialData: Partial<WalletsResponse>)}
+	<Sheet>
+		{#snippet trigger({ sheetTriggerAttributes })}
+			<Button variant="outline" size="icon" {...sheetTriggerAttributes}><Pencil /></Button>
+		{/snippet}
+
+		{#snippet content({ closeSheet })}
+			<div class="space-y-6">
+				<T tag="h3">Add a new wallet</T>
+				<NewWalletForm {walletId} {initialData} onSuccess={closeSheet} />
+			</div>
+		{/snippet}
+	</Sheet>
+{/snippet}

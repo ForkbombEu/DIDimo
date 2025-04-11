@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	} from '@/components/ui-custom/selectInput.svelte';
 	import type { FieldOptions } from './types';
 	import type { Writable } from 'svelte/store';
-	import type { MaybeArray } from 'date-fns';
+	import type { MaybeArray } from '@/utils/other';
 
 	//
 

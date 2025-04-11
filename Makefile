@@ -145,6 +145,8 @@ clean: ## 🧹 Clean files and caches
 	@rm -f $(BINARY_NAME)
 	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
+	@rm -fr $(WEBAPP)/node_modules
+	@rm -fr $(WEBAPP)/.svelte-kit
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
 	@rm -f $(COVOUT) coverage.svg
 	@echo "🧹 cleaned"

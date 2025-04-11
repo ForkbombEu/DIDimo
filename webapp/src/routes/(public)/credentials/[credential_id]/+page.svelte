@@ -5,17 +5,21 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
+	import BackButton from '$lib/layout/back-button.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import PageHeader from '$lib/layout/pageHeader.svelte';
 	import PageIndex from '$lib/layout/pageIndex.svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
+	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import type { CredentialConfiguration } from '$lib/types/openid.js';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m, localizeHref } from '@/i18n/index.js';
+	import { QrCode } from '@/qr/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
+	import { String } from 'effect';
 
 	let { data } = $props();
 	const { credential } = $derived(data);
@@ -57,7 +61,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const credentialIssuer = $derived(credential.expand?.credential_issuer);
 </script>
 
-<PageTop>
+<PageTop contentClass="!space-y-4">
+	<BackButton href="/credentials">Back to credentials</BackButton>
 	<div class="flex items-center gap-2">
 		<Avatar src={credential.logo} class="!rounded-sm" hideIfLoadingError />
 		<div class="">
@@ -67,39 +72,59 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
+<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
-		<div class="space-y-6">
-			<PageHeader
-				title={sections.credential_properties.label}
-				id={sections.credential_properties.anchor}
-			/>
+		<div class="flex items-start gap-6">
+			<div class="grow space-y-6">
+				<PageHeader
+					title={sections.credential_properties.label}
+					id={sections.credential_properties.anchor}
+				/>
 
-			<div class="flex gap-6">
-				<InfoBox label="Issuer" value={credential.issuer_name} />
-				<InfoBox label="Format" value={credential.format} />
-				<InfoBox label="Locale" value={credential.locale} />
+				<div class="flex gap-6">
+					<InfoBox label="Issuer" value={credential.issuer_name} />
+					<InfoBox label="Format" value={credential.format} />
+					<InfoBox label="Locale" value={credential.locale} />
+				</div>
+
+				<div class="flex gap-6">
+					<InfoBox
+						label="Signing algorithms supported"
+						value={credentialConfiguration?.credential_signing_alg_values_supported?.join(
+							', '
+						)}
+					/>
+					<InfoBox
+						label="Cryptographic binding methods supported"
+						value={credentialConfiguration?.cryptographic_binding_methods_supported?.join(
+							', '
+						)}
+					/>
+				</div>
+
+				<InfoBox label="Description" value={credential.description} />
+				<InfoBox label="Type" value={credential.type} />
 			</div>
 
-			<div class="flex gap-6">
-				<InfoBox
-					label="Signing algorithms supported"
-					value={credentialConfiguration?.credential_signing_alg_values_supported?.join(
-						', '
-					)}
-				/>
-				<InfoBox
-					label="Cryptographic binding methods supported"
-					value={credentialConfiguration?.cryptographic_binding_methods_supported?.join(
-						', '
-					)}
-				/>
+			<div>
+				<PageHeader title="QR code" id="qr" />
+				{#if String.isNonEmpty(credential.deeplink)}
+					<QrCode
+						src={credential.deeplink}
+						cellSize={10}
+						class={[
+							'w-52 rounded-md',
+							{ 'blur-md': String.isEmpty(credential.deeplink) }
+						]}
+					/>
+				{:else}
+					<div class="flex size-52 items-center justify-center rounded-md bg-white">
+						<p class="text-xs text-gray-300">Missing QR deeplink</p>
+					</div>
+				{/if}
 			</div>
-
-			<InfoBox label="Description" value={credential.description} />
-			<InfoBox label="Type" value={credential.type} />
 		</div>
 
 		<div class="space-y-6">
@@ -158,19 +183,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			/>
 
 			{#if credentialIssuer}
-				<InfoBox label="OpenID issuance URL">
-					<a
-						href={localizeHref(`/credential-issuers/${credentialIssuer.id}`)}
-						class="hover:underline"
-					>
-						{credentialIssuer.url}
-					</a>
-				</InfoBox>
+				<ServiceCard service={credentialIssuer} />
 			{/if}
 		</div>
-
-		<!-- <div>
-			<PageHeader title={sections.test_results.label} id={sections.test_results.anchor} />
-		</div> -->
 	</div>
 </PageContent>

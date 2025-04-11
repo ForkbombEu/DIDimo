@@ -61,6 +61,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					Card: typeof Card;
 					Table: typeof Table;
 					Pagination: typeof Pagination;
+					reloadRecords: () => void;
 				}
 			]
 		>;
@@ -166,7 +167,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			icon={MessageCircleWarning}
 		/>
 	{:else if manager.records.length > 0}
-		{@render records?.({ records: manager.records, Card, Table, Pagination })}
+		{@render records?.({
+			records: manager.records,
+			Card,
+			Table,
+			Pagination,
+			reloadRecords: () => {
+				manager.loadRecords();
+			}
+		})}
 
 		{#if !hide.includes('pagination')}
 			<Pagination class="mt-6" />
