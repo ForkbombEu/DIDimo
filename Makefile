@@ -79,7 +79,7 @@ $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
 dev: $(WEBENV) tools devtools submodules ## 🚀 run in watch mode
-	$(HIVEMIND) Procfile.dev
+	DEBUG=1 $(HIVEMIND) -T Procfile.dev
 
 test: ## 🧪 run tests with coverage
 	$(GOTEST) $(GODIRS) -v -cover
@@ -109,6 +109,7 @@ tidy: $(GOMOD_FILES)
 purge: ## ⛔ Purge the database
 	@echo "⛔ Purge the database"
 	@rm -rf $(DATA)
+	@mkdir $(DATA)
 
 ## Deployment
 
@@ -135,9 +136,9 @@ docker: ## 🐳 run docker with all the infrastructure services
 
 ## Misc
 
-doc: ## 📚 Serve documentation on localhost
+doc: ## 📚 Serve documentation on localhost with --host
 	cd $(DOCS) && bun i
-	cd $(DOCS) && bun run docs:dev --open
+	cd $(DOCS) && bun run docs:dev --open --host
 
 clean: ## 🧹 Clean files and caches
 	@$(GOCLEAN)

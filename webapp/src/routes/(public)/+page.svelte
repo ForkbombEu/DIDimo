@@ -148,14 +148,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				/>
 			</PageGrid>
 		{:else}
-			{@const MAX_ITEMS = 3}
+			{@const MAX_ITEMS = 2}
 			<CollectionManager
 				collection="news"
-				queryOptions={{ perPage: MAX_ITEMS }}
+				queryOptions={{ perPage: MAX_ITEMS, sort: ['created', 'DESC'] }}
 				hide={['pagination']}
 			>
 				{#snippet records({ records })}
-					<PageGrid>
+					<PageGrid class="lg:grid-cols-2">
 						{#each records as record}
 							<NewsCard news={record} />
 						{/each}

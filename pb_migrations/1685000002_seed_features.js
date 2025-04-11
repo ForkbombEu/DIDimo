@@ -9,12 +9,14 @@
 const features = [
     {
         name: "keypairoom",
+        active: false,
         envVariables: {
             SALT: "bWltbW8K",
         },
     },
     {
         name: "DID",
+        active: false,
         envVariables: {
             DID_URL: "url",
             DID_SPEC: "string",
@@ -54,7 +56,7 @@ const features = [
         envVariables: {
             interval: "daily",
         },
-    }
+    },
 ];
 
 //
