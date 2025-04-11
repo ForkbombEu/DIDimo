@@ -26,7 +26,9 @@ path = [
     ".vscode/settings.json",
     "webapp/src/lib/types/openid-credential-issuer.ts",
     "webapp/src/modules/i18n/paraglide/.gitignore",
-    "webapp/src/modules/i18n/paraglide/.prettierignore"
+    "webapp/src/modules/i18n/paraglide/.prettierignore",
+    "pkg/credential_issuer/openid-credential-issuer.schema.go",
+    "pb_migrations/*"
 ]
 precedence = "override"
 SPDX-FileCopyrightText = "Forkbomb BV"

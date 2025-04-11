@@ -21,10 +21,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { pb } from '@/pocketbase';
 	import {
 		Collections,
-		ServicesCountryOptions,
+		OrganizationInfoCountryOptions,
 		CredentialsFormatOptions,
 		type CredentialsResponse,
-		type ServicesResponse
+		type OrganizationInfoResponse
 	} from '@/pocketbase/types';
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
@@ -32,22 +32,21 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 	import NewsCard from '$lib/layout/newsCard.svelte';
 
-	const fakeService: ServicesResponse = {
+	const fakeService: OrganizationInfoResponse = {
 		id: 'das',
-		country: ServicesCountryOptions.IT,
+		country: OrganizationInfoCountryOptions.IT,
 		created: '2024-12-12',
 		updated: '2024-12-12',
-		credential_issuers: [],
+
 		description: 'Lorem ipsum',
-		wallets: [],
+
 		legal_entity: 'ForkbombEu',
 		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
 		name: 'Test credential issuer',
 		owner: 'id',
 		collectionId: '',
-		collectionName: Collections.Services,
+		collectionName: Collections.OrganizationInfo,
 		contact_email: 'asd@asd.com',
-		documentation_url: 'https://google.com',
 		external_website_url: 'https://google.com'
 	};
 
@@ -66,7 +65,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		locale: 'en',
 		type: 'plc',
 		collectionId: '',
-		collectionName: Collections.Credentials
+		collectionName: Collections.Credentials,
+		deeplink: '',
+		published: false
 	};
 
 	const schema = z.object({
@@ -191,7 +192,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{:else}
 			{@const MAX_ITEMS = 3}
 			<CollectionManager
-				collection="services"
+				collection="organization_info"
 				queryOptions={{ perPage: MAX_ITEMS }}
 				hide={['pagination']}
 			>
