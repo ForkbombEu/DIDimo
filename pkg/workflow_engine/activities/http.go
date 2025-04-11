@@ -15,6 +15,10 @@ import (
 
 type HTTPActivity struct{}
 
+func (HTTPActivity) Name() string {
+	return "HTTPRequest"
+}
+
 func (a *HTTPActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
 	var result workflowengine.ActivityResult
 

@@ -15,6 +15,10 @@ import (
 
 type SendMailActivity struct{}
 
+func (SendMailActivity) Name() string {
+	return "SendMail"
+}
+
 func (a *SendMailActivity) Configure(
 	ctx context.Context,
 	input *workflowengine.ActivityInput,
@@ -35,7 +39,7 @@ func (a *SendMailActivity) Execute(
 	m.SetHeader("From", input.Config["sender"])
 	m.SetHeader("To", input.Config["recipient"])
 	m.SetHeader("Subject", input.Payload["subject"].(string))
-	m.SetBody("text/html", input.Payload["email"].(string))
+	m.SetBody("text/html", input.Payload["body"].(string))
 
 	// Attach any files if necessary
 	attachments, ok := input.Payload["attachments"].(map[string][]byte)

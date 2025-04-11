@@ -17,7 +17,8 @@ type ActivityResult struct {
 }
 
 type ExecutableActivity interface {
-	Execute(ctx context.Context, input ActivityInput) (result ActivityResult, err error)
+	Execute(ctx context.Context, input ActivityInput) (ActivityResult, error)
+	Name() string
 }
 
 type ConfigurableActivity interface {

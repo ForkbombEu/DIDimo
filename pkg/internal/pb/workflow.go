@@ -144,7 +144,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					"user_mail": req.UserMail,
 					"app_url":   appURL,
 				},
-				ActvityOptions: &workflows.ActivityOptions,
+				ActivityOptions: &workflows.ActivityOptions,
 			}
 			var w workflows.OpenIDNetWorkflow
 			_, err := w.Start(input)

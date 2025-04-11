@@ -5,9 +5,9 @@ import (
 )
 
 type WorkflowInput struct {
-	Payload        map[string]any
-	Config         map[string]any
-	ActvityOptions *workflow.ActivityOptions
+	Payload         map[string]any
+	Config          map[string]any
+	ActivityOptions *workflow.ActivityOptions
 }
 
 type WorkflowResult struct {
@@ -17,6 +17,14 @@ type WorkflowResult struct {
 }
 
 type Workflow interface {
-	Workflow(ctx workflow.Context, input WorkflowInput) (result WorkflowResult, err error)
-	Start(input WorkflowInput) (result WorkflowResult, err error)
+	Workflow(ctx workflow.Context, input WorkflowInput) (WorkflowResult, error)
+	Name() string
+}
+
+type StartableWorkflow interface {
+	Start(input WorkflowInput) (WorkflowResult, error)
+}
+
+type ConfigurableChild interface {
+	Configure(ctx workflow.Context) workflow.Context
 }

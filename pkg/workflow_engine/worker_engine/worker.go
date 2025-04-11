@@ -4,21 +4,23 @@ import (
 	"log"
 	"sync"
 
-	credentialWorkflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/workflows"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
+	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"
+	"go.temporal.io/sdk/workflow"
 )
 
 // WorkerConfig defines a worker setup
 type WorkerConfig struct {
 	TaskQueue  string
-	Workflows  []interface{}
-	Activities []interface{}
+	Workflows  []workflowengine.Workflow
+	Activities []workflowengine.ExecutableActivity
 }
 
 // StartWorker initializes and runs a single Temporal worker
@@ -27,11 +29,15 @@ func StartWorker(client client.Client, config WorkerConfig, wg *sync.WaitGroup) 
 	w := worker.New(client, config.TaskQueue, worker.Options{})
 
 	for _, wf := range config.Workflows {
-		w.RegisterWorkflow(wf)
+		w.RegisterWorkflowWithOptions(wf.Workflow, workflow.RegisterOptions{
+			Name: wf.Name(),
+		})
 	}
 
 	for _, act := range config.Activities {
-		w.RegisterActivity(act)
+		w.RegisterActivityWithOptions(act.Execute, activity.RegisterOptions{
+			Name: act.Name(),
+		})
 	}
 
 	if err := w.Run(worker.InterruptCh()); err != nil {
@@ -49,40 +55,17 @@ func StartAllWorkers() {
 
 	var wg sync.WaitGroup
 
-	var OpenIDNetWorkflow = workflows.OpenIDNetWorkflow{}
-	var OpenIDNetLogsWorkflow = workflows.OpenIDNetLogsWorkflow{}
 	workers := []WorkerConfig{
 		{
 			TaskQueue: workflows.OpenIDTestTaskQueue,
-			Workflows: []interface{}{
-				OpenIDNetWorkflow.Workflow,
-				OpenIDNetLogsWorkflow.SubWorkflow,
+			Workflows: []workflowengine.Workflow{
+				&workflows.OpenIDNetWorkflow{},
+				&workflows.OpenIDNetLogsWorkflow{},
 			},
-			Activities: []interface{}{
+			Activities: []workflowengine.ExecutableActivity{
 				&activities.StepCIWorkflowActivity{},
 				&activities.SendMailActivity{},
 				&activities.HTTPActivity{},
-			},
-		},
-		{
-			TaskQueue: credentialWorkflow.CredentialsTaskQueue,
-			Workflows: []interface{}{
-				credentialWorkflow.CredentialWorkflow,
-			},
-			Activities: []interface{}{
-				credentialWorkflow.FetchCredentialIssuerActivity,
-				credentialWorkflow.StoreOrUpdateCredentialsActivity,
-				credentialWorkflow.CleanupCredentialsActivity,
-			},
-		},
-		{
-			TaskQueue: credentialWorkflow.FetchIssuersTaskQueue,
-			Workflows: []interface{}{
-				credentialWorkflow.FetchIssuersWorkflow,
-			},
-			Activities: []interface{}{
-				credentialWorkflow.FetchIssuersActivity,
-				credentialWorkflow.CreateCredentialIssuersActivity,
 			},
 		},
 	}

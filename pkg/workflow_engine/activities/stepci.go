@@ -22,6 +22,10 @@ import (
 
 type StepCIWorkflowActivity struct{}
 
+func (StepCIWorkflowActivity) Name() string {
+	return "StepCI"
+}
+
 // Configure injects the parsed template and token into the payload
 func (a *StepCIWorkflowActivity) Configure(
 	ctx context.Context,
