@@ -350,7 +350,7 @@
 	"View_test_runs": "View test runs",
 	"Back_to_test_runs": "Back to test runs",
 	"Test_run": "Test run",
-	"hello_user": "Hi, ",
+	"hello_user": "Hi, {username}",
 	"Credential_issuers": "Credential issuers",
 	"Wallets": "Wallets",
 	"Add_new_credential_issuer": "Add new credential issuer",
