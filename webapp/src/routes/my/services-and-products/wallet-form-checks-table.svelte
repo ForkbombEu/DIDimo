@@ -44,7 +44,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	const tableData: Promise<ConformanceCheck[]> = fetchUserWorkflows().then((res) => {
 		if (!res.success) return [];
-		return res.data.executions.map((execution) => ({
+		const executions = res.data.executions.filter((execution) => execution.memo.fields);
+		return executions.map((execution) => ({
 			runId: execution.execution.runId,
 			// @ts-ignore
 			standard: atob(execution.memo.fields.standard.data).replaceAll(`"`, ''),
