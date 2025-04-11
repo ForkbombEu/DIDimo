@@ -24,7 +24,10 @@ type SignalData struct {
 	Reason  string
 }
 
-const OpenIDTestTaskQueue = "OpenIDTestTaskQueue"
+const (
+	OpenIDTestTaskQueue         = "OpenIDTestTaskQueue"
+	OpenIDNetStepCITemplatePath = "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.yaml"
+)
 
 type OpenIDNetWorkflow struct{}
 
@@ -46,7 +49,7 @@ func (w *OpenIDNetWorkflow) Workflow(
 			"form":    input.Payload["form"],
 		},
 		Config: map[string]string{
-			"template": "pkg/workflow_engine/workflows/openidnet_config/stepci_wallet_template.yaml",
+			"template": input.Config["template"].(string),
 			"token":    os.Getenv("TOKEN"),
 		},
 	}

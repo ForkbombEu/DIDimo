@@ -57,7 +57,7 @@ func StartAllWorkers() {
 
 	workers := []WorkerConfig{
 		{
-			TaskQueue: workflows.OpenIDTestTaskQueue,
+			TaskQueue: workflows.OpenIDNetTaskQueue,
 			Workflows: []workflowengine.Workflow{
 				&workflows.OpenIDNetWorkflow{},
 				&workflows.OpenIDNetLogsWorkflow{},

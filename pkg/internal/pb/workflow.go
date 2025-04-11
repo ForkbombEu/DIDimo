@@ -135,7 +135,10 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := json.NewDecoder(e.Request.Body).Decode(&req); err != nil {
 				return apis.NewBadRequestError("invalid JSON input", err)
 			}
-
+			template, err := os.ReadFile(workflows.OpenIDNetStepCITemplatePath)
+			if err != nil {
+				return fmt.Errorf("failed to open template file: %w", err)
+			}
 			// Start the workflow
 			input := workflowengine.WorkflowInput{
 				Payload: map[string]any{
@@ -144,10 +147,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					"user_mail": req.UserMail,
 					"app_url":   appURL,
 				},
+				Config: map[string]any{
+					"template": string(template),
+				},
 				ActivityOptions: &workflows.ActivityOptions,
 			}
 			var w workflows.OpenIDNetWorkflow
-			_, err := w.Start(input)
+			_, err = w.Start(input)
 			if err != nil {
 				return apis.NewBadRequestError("failed to start OpenID4VP workflow", err)
 			}

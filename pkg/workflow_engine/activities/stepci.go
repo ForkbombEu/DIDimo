@@ -7,8 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"html"
-	"io"
-	"os"
 	"os/exec"
 	"strings"
 	"text/template"
@@ -31,18 +29,12 @@ func (a *StepCIWorkflowActivity) Configure(
 	ctx context.Context,
 	input *workflowengine.ActivityInput,
 ) error {
-	templatePath := input.Config["template"]
-	if templatePath == "" {
+	yamlString := input.Config["template"]
+	if yamlString == "" {
 		return errors.New("missing required config: 'template'")
 	}
 
-	file, err := os.Open(templatePath)
-	if err != nil {
-		return fmt.Errorf("failed to open template file: %w", err)
-	}
-	defer file.Close()
-
-	rendered, err := RenderYAML(file, input.Payload)
+	rendered, err := RenderYAML(yamlString, input.Payload)
 	if err != nil {
 		return fmt.Errorf("failed to render YAML: %w", err)
 	}
@@ -95,28 +87,20 @@ func (a *StepCIWorkflowActivity) Execute(
 	result.Output = outputJSON
 	return result, nil
 }
-
-func RenderYAML(reader io.Reader, data map[string]interface{}) (string, error) {
+func RenderYAML(yamlString string, data map[string]interface{}) (string, error) {
 	handler := sprout.New(
 		sprout.WithGroups(all.RegistryGroup()),
 	)
 	funcs := handler.Build()
 
-	var buf bytes.Buffer
-	if _, err := io.Copy(&buf, reader); err != nil {
-		return "", err
-	}
-
-	templateContent := buf.String()
-
 	tmpl, err := template.New("yaml").Delims("[[", "]]").
 		Funcs(funcs).
-		Parse(templateContent)
+		Parse(yamlString)
 	if err != nil {
 		return "", err
 	}
 
-	buf.Reset()
+	var buf bytes.Buffer
 	if err := tmpl.Execute(&buf, data); err != nil {
 		return "", err
 	}

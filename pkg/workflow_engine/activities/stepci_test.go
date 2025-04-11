@@ -1,9 +1,7 @@
 package activities
 
 import (
-	"bytes"
 	"fmt"
-	"io"
 	"os"
 	"os/exec"
 	"runtime"
@@ -32,7 +30,6 @@ func TestStepCIlActivity_Configure(t *testing.T) {
 		name          string
 		config        map[string]string
 		payload       map[string]interface{}
-		templateBody  string
 		expectedYAML  string
 		expectError   bool
 		errorContains string
@@ -40,35 +37,27 @@ func TestStepCIlActivity_Configure(t *testing.T) {
 		{
 			name: "Success - valid template",
 			config: map[string]string{
-				"token": "secret-value",
+				"token":    "secret-value",
+				"template": `hello: [[ .name ]]`,
 			},
 			payload: map[string]interface{}{
 				"name": "world",
 			},
-			templateBody: `hello: [[ .name ]]`,
 			expectedYAML: "hello: world",
 		},
 		{
-			name:          "Failure - missing template path",
+			name:          "Failure - missing template",
 			config:        map[string]string{},
 			expectError:   true,
 			errorContains: "missing required config",
 		},
 		{
-			name: "Failure - invalid template path",
+			name: "Failure - invalid template syntax",
 			config: map[string]string{
-				"template": "/not/found.yaml",
-			},
-			expectError:   true,
-			errorContains: "failed to open template file",
-		},
-		{
-			name:   "Failure - invalid template syntax",
-			config: map[string]string{},
+				"template": `[[ .name ]`},
 			payload: map[string]interface{}{
 				"name": "bad",
 			},
-			templateBody:  `[[ .name ]`, // malformed
 			expectError:   true,
 			errorContains: "failed to render YAML",
 		},
@@ -76,11 +65,6 @@ func TestStepCIlActivity_Configure(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			if tc.templateBody != "" && tc.config["template"] == "" {
-				tmp := createTempTemplate(t, tc.templateBody)
-				defer os.Remove(tmp)
-				tc.config["template"] = tmp
-			}
 
 			input := &workflowengine.ActivityInput{
 				Config:  tc.config,
@@ -292,9 +276,7 @@ nested2: nested_value2`,
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-
-			reader := io.NopCloser(bytes.NewBufferString(tt.tmpl))
-			output, err := RenderYAML(reader, tt.data)
+			output, err := RenderYAML(tt.tmpl, tt.data)
 			require.NoError(t, err, "RenderYAML should not return an error")
 			require.Equal(t, strings.TrimSpace(tt.expected), strings.TrimSpace(output), "Rendered output should match expected")
 
