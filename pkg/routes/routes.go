@@ -10,7 +10,6 @@ import (
 	"github.com/forkbombeu/didimo/pkg/internal/pb"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/worker_engine"
 	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
@@ -26,16 +25,11 @@ func bindAppHooks(app core.App) {
 		for path, target := range routes {
 			se.Router.Any(path, createReverseProxy(target))
 		}
-
-		se.Router.POST("/api/keypairoom-server", pb.KeypairoomServerHandler(app)).Bind(apis.RequireAuth())
-
-		se.Router.GET("/api/did", pb.DidHandler(app)).Bind(apis.RequireAuth())
-
 		return se.Next()
 	})
 }
-func Setup(app *pocketbase.PocketBase) {
 
+func Setup(app *pocketbase.PocketBase) {
 	bindAppHooks(app)
 	pb.RouteGetConfigsTemplates(app)
 	pb.RoutePostPlaceholdersByFilenames(app)
@@ -54,8 +48,8 @@ func Setup(app *pocketbase.PocketBase) {
 		TemplateLang: migratecmd.TemplateLangJS,
 		Automigrate:  true,
 	})
-
 }
+
 func createReverseProxy(target string) func(r *core.RequestEvent) error {
 	return func(r *core.RequestEvent) error {
 		targetURL, err := url.Parse(target)

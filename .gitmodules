@@ -8,6 +8,3 @@
 [submodule "webapp/src/lib/openid-vc-typescript-json-schema"]
 	path = webapp/src/lib/openid-vc-typescript-json-schema
 	url = https://github.com/ForkbombEu/openid-vc-typescript-json-schema
-[submodule "pkg/internal/pb/client_zencode"]
-	path = pkg/internal/pb/client_zencode
-	url = https://github.com/ForkbombEu/client_zencode

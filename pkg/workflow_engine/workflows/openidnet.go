@@ -15,6 +15,7 @@ import (
 	"go.temporal.io/sdk/workflow"
 
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/didimo/pkg/utils"
 	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/activities"
 )
@@ -54,7 +55,7 @@ func (w *OpenIDNetWorkflow) Workflow(
 		},
 		Config: map[string]string{
 			"template": input.Config["template"].(string),
-			"token":    os.Getenv("TOKEN"),
+			"token":    utils.GetEnvironmentVariable("OPENIDNET_TOKEN", nil, true),
 		},
 	}
 	var stepCIResult workflowengine.ActivityResult
@@ -128,7 +129,7 @@ func (w *OpenIDNetWorkflow) Workflow(
 		workflowengine.WorkflowInput{
 			Payload: map[string]any{
 				"rid":     rid,
-				"token":   os.Getenv("TOKEN"),
+				"token":   os.Getenv("OPENIDNET_TOKEN"),
 				"app_url": input.Payload["app_url"].(string),
 			},
 			Config: map[string]any{
@@ -201,6 +202,7 @@ type OpenIDNetLogsWorkflow struct{}
 func (OpenIDNetLogsWorkflow) Name() string {
 	return "OpenIDNetLogsChildWorkflow"
 }
+
 func (OpenIDNetLogsWorkflow) GetOptions() workflow.ActivityOptions {
 	return ActivityOptions
 }

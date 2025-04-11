@@ -101,7 +101,7 @@ func Test_Workflows(t *testing.T) {
 				Name: child.Name(),
 			})
 			// Set environment variables
-			os.Setenv("TOKEN", "test_token")
+			os.Setenv("OPENIDNET_TOKEN", "test_token")
 			os.Setenv("MAIL_SENDER", "test@example.org")
 
 			tc.mockActivities(env)
@@ -130,6 +130,7 @@ func Test_Workflows(t *testing.T) {
 		})
 	}
 }
+
 func Test_LogSubWorkflow(t *testing.T) {
 	testCases := []struct {
 		name          string

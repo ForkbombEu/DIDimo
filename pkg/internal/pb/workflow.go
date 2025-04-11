@@ -9,8 +9,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
-	openid4vp_workflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
 	credential_workflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	engine "github.com/forkbombeu/didimo/pkg/template_engine"
@@ -28,10 +26,15 @@ import (
 	"go.temporal.io/sdk/client"
 )
 
+type OpenID4VPTestInputFile struct {
+	Variant json.RawMessage `json:"variant"`
+	Form    any             `json:"form"`
+}
+
 type OpenID4VPRequest struct {
-	Input    OpenID4VP.OpenID4VPTestInputFile `json:"input"`
-	UserMail string                           `json:"user_mail"`
-	TestName string                           `json:"test_name"`
+	Input    OpenID4VPTestInputFile `json:"input"`
+	UserMail string                 `json:"user_mail"`
+	TestName string                 `json:"test_name"`
 }
 
 type IssuerURL struct {
@@ -201,7 +204,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewBadRequestError("invalid JSON format for test "+testName, nil)
 					}
 
-					var parsedData OpenID4VP.OpenID4VPTestInputFile
+					var parsedData OpenID4VPTestInputFile
 					if err := json.Unmarshal([]byte(jsonData), &parsedData); err != nil {
 						return apis.NewBadRequestError("failed to parse JSON for test "+testName, err)
 					}
@@ -275,7 +278,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 						return apis.NewInternalServerError("failed to render template for test "+testName, err)
 					}
 
-					var parsedVariant OpenID4VP.OpenID4VPTestInputFile
+					var parsedVariant OpenID4VPTestInputFile
 					errParsing := json.Unmarshal([]byte(renderedTemplate), &parsedVariant)
 					if errParsing != nil {
 						return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, errParsing)
@@ -298,7 +301,6 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 					}
 					var w workflows.OpenIDNetWorkflow
 					_, err = w.Start(input)
-
 					if err != nil {
 						return apis.NewBadRequestError("failed to start openidnet wallet for test "+testName, err)
 					}
@@ -320,7 +322,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
 				return apis.NewBadRequestError("Invalid JSON input", err)
 			}
-			data := openid4vp_workflow.SignalData{
+			data := workflows.SignalData{
 				Success: true,
 			}
 			c, err := temporalclient.GetTemporalClient()
@@ -343,7 +345,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
 				return apis.NewBadRequestError("Invalid JSON input", err)
 			}
-			data := openid4vp_workflow.SignalData{
+			data := workflows.SignalData{
 				Success: false,
 				Reason:  request.Reason,
 			}
@@ -358,9 +360,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			return e.JSON(http.StatusOK, map[string]string{"message": "Test failed", "reason": request.Reason})
 		})
+		type LogUpdateRequest struct {
+			WorkflowID string           `json:"workflow_id"`
+			Logs       []map[string]any `json:"logs"`
+		}
 
 		se.Router.POST("/wallet-test/send-log-update", func(e *core.RequestEvent) error {
-			var logData openid4vp_workflow.LogUpdateRequest
+			var logData LogUpdateRequest
 			if err := json.NewDecoder(e.Request.Body).Decode(&logData); err != nil {
 				return apis.NewBadRequestError("invalid JSON input", err)
 			}
@@ -394,8 +400,8 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 		return se.Next()
 	})
 }
-func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 
+func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) error {
 	rawData, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -412,6 +418,7 @@ func notifyLogsUpdate(app core.App, subscription string, data []map[string]any) 
 	}
 	return nil
 }
+
 func HookUpdateCredentialsIssuers(app *pocketbase.PocketBase) {
 	app.OnRecordAfterUpdateSuccess().BindFunc(func(e *core.RecordEvent) error {
 		if e.Record.Collection().Name != "features" || e.Record.Get("name") != "updateIssuers" {

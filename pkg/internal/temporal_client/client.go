@@ -9,7 +9,7 @@ import (
 )
 
 func GetTemporalClient() (client.Client, error) {
-	hostPort := utils.GetEnvironmentVariable("TEMPORAL_ADDRESS", "localhost:7233")
+	hostPort := utils.GetEnvironmentVariable("TEMPORAL_ADDRESS", client.DefaultHostPort)
 	c, err := client.Dial(client.Options{
 		HostPort: hostPort,
 	})

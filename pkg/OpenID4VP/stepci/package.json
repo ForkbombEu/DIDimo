@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "@stepci/runner": "^2.0.7",
-    "commander": "^13.1.0"
-  }
-}

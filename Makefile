@@ -160,11 +160,13 @@ devtools: generate
 		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
 
-tools: generate $(BIN)
+tools: generate $(BIN) $(BIN)/stepci-captured-runner
 	mise install
 	@if [ ! -f "$(HIVEMIND)" ]; then \
 		$(GOINST) github.com/DarthSim/hivemind@latest; \
 	fi
+
+$(BIN)/stepci-captured-runner:
 	wget https://github.com/ForkbombEu/stepci-captured-runner/releases/latest/download/stepci-captured-runner-$(shell uname)-$(shell uname -m) -O $(BIN)/stepci-captured-runner && chmod +x $(BIN)/stepci-captured-runner
 
 ## Help:
