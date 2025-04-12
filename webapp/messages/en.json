@@ -350,7 +350,7 @@
 	"View_test_runs": "View test runs",
 	"Back_to_test_runs": "Back to test runs",
 	"Test_run": "Test run",
-	"hello_user": "Hi, ",
+	"hello_user": "Hi, {username}",
 	"Credential_issuers": "Credential issuers",
 	"Wallets": "Wallets",
 	"Add_new_credential_issuer": "Add new credential issuer",
@@ -365,5 +365,6 @@
 	"vc_api_verifier_standard_description": "Lorem ipsum dolor sit amet consectetur. Tortor phasellus a feugiat mattis massa sollicitudin bibendum.",
 	"Organizations": "Organizations",
 	"Find_providers_of_identity_solutions": "Find providers of identity solutions",
-	"Publish_to_marketplace": "Publish to marketplace"
+	"Publish_to_marketplace": "Publish to marketplace",
+	"Custom_checks": "Custom checks"
 }

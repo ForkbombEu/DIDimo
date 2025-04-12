@@ -16,7 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Sparkle } from 'lucide-svelte';
 </script>
 
-<BaseTopbar class="bg-card border-none">
+<BaseTopbar class="border-none bg-card">
 	{#snippet left()}
 		<!-- <AppLogo /> -->
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>
@@ -31,7 +31,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{m.Credentials()}
 		</Button>
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/organizations'}>
-			{m.Organizations()}
+			{m.organizations()}
 		</Button>
 	{/snippet}
 
