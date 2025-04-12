@@ -8,7 +8,7 @@ import (
 	"errors"
 	"testing"
 
-	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
+	credentialissuer "github.com/forkbombeu/credimi/pkg/credential_issuer"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -57,7 +57,6 @@ func Test_SuccessfulFetchIssuersWorkflows(t *testing.T) {
 
 	require.True(t, env.IsWorkflowCompleted())
 	require.NoError(t, env.GetWorkflowError())
-
 }
 
 func Test_UnsuccessfulFetchIssuersWorkflows(t *testing.T) {

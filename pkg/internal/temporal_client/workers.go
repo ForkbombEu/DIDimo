@@ -8,8 +8,8 @@ import (
 	"log"
 	"sync"
 
-	openidWorkflow "github.com/forkbombeu/didimo/pkg/OpenID4VP/workflow"
-	credentialWorkflow "github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	openidWorkflow "github.com/forkbombeu/credimi/pkg/OpenID4VP/workflow"
+	credentialWorkflow "github.com/forkbombeu/credimi/pkg/credential_issuer/workflow"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"go.temporal.io/sdk/client"
@@ -104,7 +104,6 @@ func WorkersHook(app *pocketbase.PocketBase) {
 		go StartAllWorkers()
 		return se.Next()
 	})
-
 }
 
 func StartUserWorker(namespace string) {

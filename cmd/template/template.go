@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
+	"github.com/forkbombeu/credimi/pkg/OpenID4VP"
 	"github.com/spf13/cobra"
 )
 
@@ -26,11 +26,10 @@ func main() {
 	var outputDir string
 
 	// Define the root command using Cobra
-	var rootCmd = &cobra.Command{
+	rootCmd := &cobra.Command{
 		Use:   "parse-input",
 		Short: "Parses the input string using OpenID4VP and saves output to files",
 		Run: func(cmd *cobra.Command, args []string) {
-
 			info, err := os.Stat(outputDir)
 			if err != nil {
 				fmt.Println("Error: Output directory does not exist:", outputDir)

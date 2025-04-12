@@ -16,7 +16,7 @@ import (
 	_ "modernc.org/sqlite"
 	_ "modernc.org/sqlite/lib"
 
-	credentialissuer "github.com/forkbombeu/didimo/pkg/credential_issuer"
+	credentialissuer "github.com/forkbombeu/credimi/pkg/credential_issuer"
 	"go.temporal.io/sdk/activity"
 	"go.temporal.io/sdk/temporal"
 )
@@ -42,7 +42,8 @@ func FetchCredentialIssuerActivity(ctx context.Context, baseURL string) (*creden
 
 // StoreOrUpdateCredentialsActivity inserts or updates credential issuer data in the database.
 func StoreOrUpdateCredentialsActivity(
-	ctx context.Context, input StoreCredentialsActivityInput) error {
+	ctx context.Context, input StoreCredentialsActivityInput,
+) error {
 	logger := activity.GetLogger(ctx)
 	logger.Info("Storing or updating credential", "issuerID", input.IssuerID, "credKey", input.CredKey)
 

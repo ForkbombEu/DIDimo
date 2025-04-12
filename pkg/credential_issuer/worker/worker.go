@@ -7,8 +7,8 @@ package main
 import (
 	"log"
 
-	"github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
+	"github.com/forkbombeu/credimi/pkg/credential_issuer/workflow"
+	temporalclient "github.com/forkbombeu/credimi/pkg/internal/temporal_client"
 	"go.temporal.io/sdk/worker"
 )
 

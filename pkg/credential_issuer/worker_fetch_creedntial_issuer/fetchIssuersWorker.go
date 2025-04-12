@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/forkbombeu/didimo/pkg/credential_issuer/workflow"
+	"github.com/forkbombeu/credimi/pkg/credential_issuer/workflow"
 
 	"go.temporal.io/sdk/client"
 	"go.temporal.io/sdk/worker"

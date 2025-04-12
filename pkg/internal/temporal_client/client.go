@@ -7,7 +7,7 @@ package temporalclient
 import (
 	"fmt"
 
-	"github.com/forkbombeu/didimo/pkg/utils"
+	"github.com/forkbombeu/credimi/pkg/utils"
 	"go.temporal.io/sdk/client"
 )
 
@@ -16,14 +16,13 @@ func getTemporalClient(args ...string) (client.Client, error) {
 	if len(args) > 0 {
 		namespace = args[0]
 	}
-	
+
 	hostPort := utils.GetEnvironmentVariable("TEMPORAL_HOST_PORT", "localhost:7233")
-	
+
 	c, err := client.Dial(client.Options{
-		HostPort: hostPort,
+		HostPort:  hostPort,
 		Namespace: namespace,
 	})
-
 	if err != nil {
 		return nil, fmt.Errorf("unable to create client: %v", err)
 	}
@@ -35,7 +34,7 @@ func GetTemporalClient() (client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create client: %v", err)
 	}
-	
+
 	return c, nil
 }
 
@@ -44,6 +43,6 @@ func GetTemporalClientWithNamespace(namespace string) (client.Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("unable to create client: %v", err)
 	}
-	
+
 	return c, nil
 }

@@ -16,9 +16,9 @@ import (
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
-	"github.com/forkbombeu/didimo/pkg/internal/pb"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
-	"github.com/forkbombeu/didimo/pkg/utils"
+	"github.com/forkbombeu/credimi/pkg/internal/pb"
+	temporalclient "github.com/forkbombeu/credimi/pkg/internal/temporal_client"
+	"github.com/forkbombeu/credimi/pkg/utils"
 )
 
 func bindAppHooks(app core.App) {
