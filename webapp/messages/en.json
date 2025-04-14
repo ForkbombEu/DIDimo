@@ -366,5 +366,8 @@
 	"Organizations": "Organizations",
 	"Find_providers_of_identity_solutions": "Find providers of identity solutions",
 	"Publish_to_marketplace": "Publish to marketplace",
-	"Custom_checks": "Custom checks"
+	"Custom_checks": "Custom checks",
+	"No_conformance_checks_available": "No conformance checks available",
+	"New_Check": "New Check",
+	"news_description": "Find here a semi-automated news digest, retrieved and aggregated from multiple standard references and news outlets."
 }

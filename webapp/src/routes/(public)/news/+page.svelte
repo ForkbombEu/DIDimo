@@ -25,6 +25,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	{#snippet top({ Search, Filters })}
 		<PageTop>
 			<T tag="h1">{m.news()}</T>
+			<T tag="p">{m.news_description()}</T>
+
 			<div class="flex items-center gap-2">
 				<Search class="border-primary bg-secondary" containerClass="grow" />
 				<Filters>
