@@ -5,13 +5,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import { appName } from '@/brand';
+	import { AppLogo, appName } from '@/brand';
 	import T from '@/components/ui-custom/t.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import { appVersion } from '@/utils/appVersion';
-	import A from '@/components/ui-custom/a.svelte';
+	import LanguageSelect from '@/i18n/languageSelect.svelte';
+	import Icon from '@/components/ui-custom/icon.svelte';
+	import { Sparkle } from 'lucide-svelte';
 
 	const footer_data = [
 		{
@@ -94,28 +96,27 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="mx-auto max-w-screen-xl">
 		<div class="px-8 py-12">
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
-				<div>
-					<T tag="h4">
-						{appName}
-						<span class="pl-1 text-sm text-white/40">{appVersion}</span>
-					</T>
+				<div class="flex flex-col items-start gap-2">
+					<div class="flex flex-row items-center gap-2">
+						<AppLogo />
+						<T tag="h4">
+							{appName}
+							<span class="pl-1 text-sm text-white/40">{appVersion}</span>
+						</T>
+					</div>
 					<p class="border-b border-b-muted">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
-				<div class="flex gap-2 blur-sm">
+				<div class="flex flex-col gap-2 sm:flex-row">
+					<LanguageSelect />
 					<Button
 						variant="default"
 						class="grow basis-1 bg-white text-primary hover:bg-white/90 sm:grow-0"
-						href={$featureFlags.DEMO ? undefined : '/tests/new'}
-						disabled={$featureFlags.DEMO}
+						href="/my/tests/new"
 					>
-						{m.Start_a_new_test()}
+						<Icon src={Sparkle} />
+						{m.Start_a_new_check()}
 					</Button>
-					<Button
-						variant="ghost"
-						class="grow basis-1 border sm:grow-0"
-						href={$featureFlags.DEMO ? undefined : '/login'}
-						disabled={$featureFlags.DEMO}
-					>
+					<Button variant="ghost" class="grow basis-1 border sm:grow-0" href="/login">
 						{m.Login()}
 					</Button>
 				</div>

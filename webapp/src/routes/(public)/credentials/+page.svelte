@@ -14,6 +14,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { m } from '@/i18n';
 	import type { FilterGroup } from '@/collections-components/manager';
 	import { CredentialsFormatOptions } from '@/pocketbase/types';
+	import { currentUser } from '@/pocketbase';
 
 	const filters: FilterGroup[] = [
 		{
@@ -34,7 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	queryOptions={{
 		searchFields: ['name', 'format'],
 		perPage: 20,
-		filter: 'published = true'
+		filter: `published = true ${$currentUser ? `|| credential_issuer = '${$currentUser?.id}'` : ''}`
 	}}
 	{filters}
 >
@@ -51,7 +52,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	{/snippet}
 
 	{#snippet contentWrapper(children)}
-		<PageContent class="bg-secondary grow">
+		<PageContent class="grow bg-secondary">
 			{@render children()}
 		</PageContent>
 	{/snippet}

@@ -6,7 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import { CollectionManager } from '@/collections-components';
-	import { localizeHref, m } from '@/i18n';
+	import { m } from '@/i18n';
 	import { Pencil, Plus } from 'lucide-svelte';
 	import * as Dialog from '@/components/ui/dialog';
 	import { buttonVariants } from '@/components/ui/button';
@@ -121,7 +121,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 									<ul class="space-y-2">
 										{#each credentials as credential}
 											<li
-												class="bg-muted flex items-center justify-between rounded-md p-2 px-4"
+												class="flex items-center justify-between rounded-md bg-muted p-2 px-4"
 											>
 												<div class="flex items-center gap-2">
 													{#if !credential.published}
@@ -184,7 +184,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					{#each records as record (record.id)}
 						<Card
 							{record}
-							class="bg-background overflow-auto"
+							class="overflow-auto bg-background"
 							hide={['select', 'share', 'delete', 'edit']}
 						>
 							{@const conformanceChecks =
@@ -241,7 +241,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 											</Badge>
 										{/each}
 									{:else}
-										<T class="text-gray-300">{m.No_conformance_checks()}</T>
+										<T class="text-gray-300"
+											>{m.No_conformance_checks_available()}</T
+										>
 									{/if}
 								</div>
 							</div>

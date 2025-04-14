@@ -1,0 +1,66 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<script lang="ts">
+	import { localizeHref, m } from '@/i18n';
+	import T from '@/components/ui-custom/t.svelte';
+	import { Badge } from '@/components/ui/badge';
+	import type { WalletsResponse } from '@/pocketbase/types';
+
+	import { Separator } from '@/components/ui/separator';
+	import { type ConformanceCheck } from '../../routes/my/services-and-products/wallet-form-checks-table.svelte';
+	import { cn } from '@/components/ui/utils';
+	import Avatar from '@/components/ui-custom/avatar.svelte';
+	import { pb } from '@/pocketbase';
+
+	type Props = {
+		app: WalletsResponse;
+		class?: string;
+	};
+
+	const { app, class: className = '' }: Props = $props();
+
+	const logo = $derived(pb.files.getURL(app, app.logo));
+	const conformanceChecks = $derived(app.conformance_checks) as ConformanceCheck[];
+</script>
+
+<a
+	href={localizeHref(`/apps/${app.id}`)}
+	class={cn(
+		'block overflow-auto rounded-lg border border-primary bg-card p-6 text-card-foreground shadow-sm ring-primary transition-all hover:-translate-y-2 hover:ring-2 ',
+		className
+	)}
+>
+	<div class="space-y-4 overflow-scroll">
+		<div class="flex flex-row justify-between">
+			<div>
+				<div class="flex items-center gap-2">
+					{#if logo}
+						<Avatar src={logo} class="!rounded-sm" hideIfLoadingError />
+					{/if}
+					<T class="font-semibold">{app.name}</T>
+				</div>
+				<T class="mt-1 text-xs text-gray-400">
+					{app.description}
+				</T>
+			</div>
+		</div>
+
+		<Separator />
+
+		<div class="flex flex-wrap gap-2">
+			{#if conformanceChecks.length > 0}
+				{#each conformanceChecks as check}
+					<Badge variant={check.status === 'success' ? 'secondary' : 'destructive'}>
+						{check.test}
+					</Badge>
+				{/each}
+			{:else}
+				<T class="text-gray-300">{m.No_conformance_checks_available()}</T>
+			{/if}
+		</div>
+	</div>
+</a>

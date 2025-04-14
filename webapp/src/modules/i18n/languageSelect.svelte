@@ -13,6 +13,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import type { Snippet } from 'svelte';
 	import type { GenericRecord } from '@/utils/types';
 	import { setLocale } from './paraglide/runtime';
+	import { cn } from '@/components/ui/utils';
 
 	type Props = {
 		contentClass?: string;
@@ -34,7 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 						{@render triggerSnippet({ ...data, triggerAttributes })}
 					{:else}
 						{@const { icon: LanguageIcon, text } = data}
-						<Button variant="outline" {...triggerAttributes}>
+						<Button variant="secondary" {...triggerAttributes}>
 							<Icon src={LanguageIcon} />
 							{text}
 						</Button>
@@ -44,7 +45,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{/snippet}
 
 		{#snippet languages({ languages })}
-			<Popover.Content class="space-y-0.5 p-1 {contentClass} w-[--bits-popover-anchor-width]">
+			<Popover.Content
+				class={cn('w-[--bits-popover-anchor-width] space-y-0.5 p-1', contentClass)}
+			>
 				{#each languages as { name, flag, isCurrent, tag }}
 					<Button
 						onclick={() => setLocale(tag)}

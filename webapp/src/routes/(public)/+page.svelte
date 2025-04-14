@@ -5,12 +5,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import FakeTable from '$lib/layout/fakeTable.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
-	import PageGrid from '$lib/layout/pageGrid.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
-	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
@@ -18,57 +15,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
 	import { m } from '@/i18n';
-	import { pb } from '@/pocketbase';
-	import {
-		Collections,
-		OrganizationInfoCountryOptions,
-		CredentialsFormatOptions,
-		type CredentialsResponse,
-		type OrganizationInfoResponse
-	} from '@/pocketbase/types';
+	import { currentUser, pb } from '@/pocketbase';
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
-	import NewsCard from '$lib/layout/newsCard.svelte';
-
-	const fakeService: OrganizationInfoResponse = {
-		id: 'das',
-		country: OrganizationInfoCountryOptions.IT,
-		created: '2024-12-12',
-		updated: '2024-12-12',
-
-		description: 'Lorem ipsum',
-
-		legal_entity: 'ForkbombEu',
-		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
-		name: 'Test credential issuer',
-		owner: 'id',
-		collectionId: '',
-		collectionName: Collections.OrganizationInfo,
-		contact_email: 'asd@asd.com',
-		external_website_url: 'https://google.com'
-	};
-
-	const fakeCredential: CredentialsResponse = {
-		id: 'das',
-		created: '2024-12-12',
-		updated: '2024-12-12',
-		credential_issuer: 'das',
-		json: {},
-		key: 'das',
-		description: 'Lorem ipsum',
-		format: CredentialsFormatOptions['jwt_vc_json'],
-		issuer_name: 'das',
-		logo: 'das',
-		name: 'das',
-		locale: 'en',
-		type: 'plc',
-		collectionId: '',
-		collectionName: Collections.Credentials,
-		deeplink: '',
-		published: false
-	};
+	import CredentialSection from './_sections/credential_section.svelte';
+	import AppsSection from './_sections/apps_section.svelte';
+	import IssuerSection from './_sections/issuer_section.svelte';
+	import VerifierSection from './_sections/verifier_section.svelte';
+	import Icon from '@/components/ui-custom/icon.svelte';
+	import { Sparkle } from 'lucide-svelte';
 
 	const schema = z.object({
 		name: z.string(),
@@ -109,149 +65,33 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <PageTop>
 	<div class="space-y-2">
-		<T tag="h1" class="text-balance">{m.Find_and_test_identity_solutions_with_ease()}</T>
-		<T tag="h3" class="text-balance">
-			{m.Didimo_is_your_trusted_source_for_compliance_verification()}
-		</T>
+		<T tag="h1" class="text-balance">{m.EUDIW_Conformance_Interoperability_and_Marketplace()}</T
+		>
+		<div class="flex flex-col gap-2 py-2">
+			<T tag="small" class="text-balance">
+				{m.Explore_the_marketplace_and_try_credentials_wallets_and_services()}
+			</T>
+			<T tag="small" class="text-balance"
+				>{m.Test_the_conformance_and_interoperability_of_your_EUDIW()}</T
+			>
+		</div>
 	</div>
 	<div class="flex gap-4">
-		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/tests/new'}>
-			{m.Start_a_new_test()}
+		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
+			{m.Explore_Marketplace()}
 		</Button>
-		<Button variant="secondary">{m.See_how_it_works()}</Button>
+		<Button variant="secondary" href={$currentUser ? '/my/tests/new' : '/login'}>
+			<Icon src={Sparkle} />
+			{m.Conformance_Checks()}
+		</Button>
 	</div>
 </PageTop>
 
 <PageContent class="bg-secondary" contentClass="space-y-12">
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
-			<T tag="h3">{m.latest_news_and_updates()}</T>
-
-			{#if $featureFlags.DEMO}
-				<Button variant="default" disabled class="select-none blur">
-					{m.all_news()}
-				</Button>
-			{:else}
-				<Button variant="default" href="/news">
-					{m.all_news()}
-				</Button>
-			{/if}
-		</div>
-
-		{#if $featureFlags.DEMO}
-			<PageGrid class="select-none blur-sm">
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard
-					service={fakeService}
-					class="pointer-events-none hidden grow basis-1 lg:block"
-				/>
-			</PageGrid>
-		{:else}
-			{@const MAX_ITEMS = 2}
-			<CollectionManager
-				collection="news"
-				queryOptions={{ perPage: MAX_ITEMS, sort: ['created', 'DESC'] }}
-				hide={['pagination']}
-			>
-				{#snippet records({ records })}
-					<PageGrid class="lg:grid-cols-2">
-						{#each records as record}
-							<NewsCard news={record} />
-						{/each}
-					</PageGrid>
-				{/snippet}
-			</CollectionManager>
-		{/if}
-	</div>
-
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
-			<T tag="h3">{m.Find_solutions()}</T>
-
-			{#if $featureFlags.DEMO}
-				<Button variant="default" disabled class="select-none blur">
-					{m.All_solutions()}
-				</Button>
-			{:else}
-				<Button variant="default" href="/providers">
-					{m.All_solutions()}
-				</Button>
-			{/if}
-		</div>
-
-		{#if $featureFlags.DEMO}
-			<PageGrid class="select-none blur-sm">
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard
-					service={fakeService}
-					class="pointer-events-none hidden grow basis-1 lg:block"
-				/>
-			</PageGrid>
-		{:else}
-			{@const MAX_ITEMS = 3}
-			<CollectionManager
-				collection="organization_info"
-				queryOptions={{ perPage: MAX_ITEMS }}
-				hide={['pagination']}
-			>
-				{#snippet records({ records })}
-					<PageGrid>
-						{#each records as service, i}
-							{@const isLast = i == MAX_ITEMS - 1}
-							<ServiceCard {service} class={isLast ? 'hidden lg:block' : ''} />
-						{/each}
-					</PageGrid>
-				{/snippet}
-			</CollectionManager>
-		{/if}
-	</div>
-
-	<div class="space-y-6">
-		<div class="flex items-center justify-between">
-			<T tag="h3">{m.Find_credentials()}</T>
-			{#if $featureFlags.DEMO}
-				<Button variant="default" disabled class="select-none blur">
-					{m.All_credentials()}
-				</Button>
-			{:else}
-				<Button variant="default" href="/credentials">{m.All_credentials()}</Button>
-			{/if}
-		</div>
-		{#if $featureFlags.DEMO}
-			<PageGrid class="select-none blur-sm">
-				<CredentialCard
-					credential={fakeCredential}
-					class="pointer-events-none grow basis-1"
-				/>
-				<CredentialCard
-					credential={fakeCredential}
-					class="pointer-events-none grow basis-1"
-				/>
-				<CredentialCard
-					credential={fakeCredential}
-					class="pointer-events-none hidden grow basis-1 lg:block"
-				/>
-			</PageGrid>
-		{:else}
-			{@const MAX_ITEMS = 3}
-			<CollectionManager
-				collection="credentials"
-				queryOptions={{ perPage: MAX_ITEMS }}
-				hide={['pagination']}
-			>
-				{#snippet records({ records })}
-					<PageGrid>
-						{#each records as credential, i}
-							{@const isLast = i == MAX_ITEMS - 1}
-							<CredentialCard {credential} class={isLast ? 'hidden lg:flex' : ''} />
-						{/each}
-					</PageGrid>
-				{/snippet}
-			</CollectionManager>
-		{/if}
-	</div>
+	<CredentialSection />
+	<AppsSection />
+	<IssuerSection />
+	<VerifierSection />
 </PageContent>
 
 <PageContent class="border-y-primaryborder-y-2" contentClass="!space-y-8">

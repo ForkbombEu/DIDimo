@@ -34,7 +34,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 {@render trigger({
 	icon: Languages,
-	text: m.Select_language(),
+	text: m.Language(),
 	language: currentLanguage
 })}
 
