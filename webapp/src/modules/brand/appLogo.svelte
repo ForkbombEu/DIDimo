@@ -19,7 +19,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <a href={localizeHref(href)}>
-	<img src={'/logo.svg'} class="h-9" alt={appName} />
+	<img src={'/logos/credimi_logo-transp_emblem.png'} class="h-9 w-auto" alt={appName} />
 </a>
 
 <!--  

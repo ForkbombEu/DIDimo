@@ -14,25 +14,28 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { Sparkle } from 'lucide-svelte';
+	import { AppLogo } from '@/brand';
 </script>
 
 <BaseTopbar class="border-none bg-card">
 	{#snippet left()}
-		<!-- <AppLogo /> -->
 		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>
-			{m.Getting_started()}
+			<AppLogo />
 		</Button>
-		<!-- <Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/'}>{m.Tests()}</Button> -->
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/services'}>
-			{m.Services()}
-		</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/apps'}>{m.Apps()}</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
-			{m.Credentials()}
-		</Button>
-		<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/organizations'}>
-			{m.organizations()}
-		</Button>
+		<div class="hidden flex-row sm:flex">
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/services'}>
+				{m.Services()}
+			</Button>
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/apps'}
+				>{m.Apps()}</Button
+			>
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
+				{m.Credentials()}
+			</Button>
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/organizations'}>
+				{m.organizations()}
+			</Button>
+		</div>
 	{/snippet}
 
 	{#snippet right()}
