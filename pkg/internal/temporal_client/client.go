@@ -7,8 +7,8 @@ package temporalclient
 import (
 	"fmt"
 
-	"github.com/forkbombeu/didimo/pkg/utils"
 	"go.temporal.io/sdk/client"
+	"github.com/forkbombeu/didimo/pkg/utils"
 )
 
 func getTemporalClient(args ...string) (client.Client, error) {
@@ -16,9 +16,7 @@ func getTemporalClient(args ...string) (client.Client, error) {
 	if len(args) > 0 {
 		namespace = args[0]
 	}
-	
-	hostPort := utils.GetEnvironmentVariable("TEMPORAL_HOST_PORT", "localhost:7233")
-	
+	hostPort := utils.GetEnvironmentVariable("TEMPORAL_ADDRESS", client.DefaultHostPort)
 	c, err := client.Dial(client.Options{
 		HostPort: hostPort,
 		Namespace: namespace,

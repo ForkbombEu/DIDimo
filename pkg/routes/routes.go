@@ -10,14 +10,13 @@ import (
 	"net/http/httputil"
 	"net/url"
 
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/worker_engine"
 	"github.com/pocketbase/pocketbase"
-	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
 
 	"github.com/forkbombeu/didimo/pkg/internal/pb"
-	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	"github.com/forkbombeu/didimo/pkg/utils"
 )
 
@@ -29,12 +28,6 @@ func bindAppHooks(app core.App) {
 		for path, target := range routes {
 			se.Router.Any(path, createReverseProxy(target))
 		}
-
-		se.Router.POST("/api/keypairoom-server", pb.KeypairoomServerHandler(app)).
-			Bind(apis.RequireAuth())
-
-		se.Router.GET("/api/did", pb.DidHandler(app)).Bind(apis.RequireAuth())
-
 		return se.Next()
 	})
 }
@@ -50,7 +43,7 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.RouteWorkflow(app)
 	pb.HookAtUserCreation(app)
 	pb.Register(app)
-	temporalclient.WorkersHook(app)
+	worker_engine.WorkersHook(app)
 
 	jsvm.MustRegister(app, jsvm.Config{
 		HooksWatch: true,
