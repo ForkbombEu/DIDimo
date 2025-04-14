@@ -1,5 +1,12 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { cn } from '@/components/ui/utils';
 
 	type Props = {
 		class?: string;
@@ -9,6 +16,6 @@
 	let { class: className = '', children }: Props = $props();
 </script>
 
-<div class="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3 {className}">
+<div class={cn('grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3', className)}>
 	{@render children?.()}
 </div>

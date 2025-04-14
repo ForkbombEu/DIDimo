@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
@@ -25,7 +31,11 @@
 
 <CollectionManager
 	collection="credentials"
-	queryOptions={{ searchFields: ['name', 'format'], perPage: 20 }}
+	queryOptions={{
+		searchFields: ['name', 'format'],
+		perPage: 20,
+		filter: 'published = true'
+	}}
 	{filters}
 >
 	{#snippet top({ Search, Filters })}

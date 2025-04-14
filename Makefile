@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 PROJECT_NAME 	?= didimo
 ORGANIZATION 	?= forkbombeu
 DESCRIPTION  	?= "SSI Compliance tool"
@@ -37,6 +41,8 @@ GOCOVERTREEMAP	?= $(GOBIN)/go-cover-treemap
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
 DEPS 			= mise git temporal wget
+DEPS 			= mise git temporal
+DEV_DEPS		= pre-commit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 all: help
@@ -74,7 +80,7 @@ $(WEBENV):
 	cp $(WEBAPP)/.env.example $(WEBAPP)/.env
 
 dev: $(WEBENV) tools devtools submodules ## 🚀 run in watch mode
-	$(HIVEMIND) Procfile.dev
+	DEBUG=1 $(HIVEMIND) -T Procfile.dev
 
 test: ## 🧪 run tests with coverage
 	$(GOTEST) $(GODIRS) -v -cover
@@ -104,6 +110,7 @@ tidy: $(GOMOD_FILES)
 purge: ## ⛔ Purge the database
 	@echo "⛔ Purge the database"
 	@rm -rf $(DATA)
+	@mkdir $(DATA)
 
 ## Deployment
 
@@ -130,15 +137,17 @@ docker: ## 🐳 run docker with all the infrastructure services
 
 ## Misc
 
-doc: ## 📚 Serve documentation on localhost
+doc: ## 📚 Serve documentation on localhost with --host
 	cd $(DOCS) && bun i
-	cd $(DOCS) && bun run docs:dev --open
+	cd $(DOCS) && bun run docs:dev --open --host
 
 clean: ## 🧹 Clean files and caches
 	@$(GOCLEAN)
 	@rm -f $(BINARY_NAME)
 	@rm -f $(BINARY_NAME)-ui
 	@rm -fr $(WEBAPP)/build
+	@rm -fr $(WEBAPP)/node_modules
+	@rm -fr $(WEBAPP)/.svelte-kit
 	@rm -f $(DOCS)/.vitepress/config.ts.timestamp*
 	@rm -f $(COVOUT) coverage.svg
 	@echo "🧹 cleaned"
@@ -159,6 +168,9 @@ devtools: generate
 	@if [ ! -f "$(GOW)" ]; then \
 		$(GOINST) github.com/mitranim/gow@latest; \
 	fi
+	pre-commit install
+	pre-commit autoupdate
+	-$(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
 tools: generate $(BIN) $(BIN)/stepci-captured-runner
 	mise install

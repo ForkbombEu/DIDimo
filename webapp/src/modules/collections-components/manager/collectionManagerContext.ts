@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import type { CollectionFormOptions } from '@/collections-components/form';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import type { PocketbaseQueryExpandOption } from '@/pocketbase/query';

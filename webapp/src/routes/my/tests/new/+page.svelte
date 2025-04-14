@@ -1,0 +1,70 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
+<script lang="ts">
+	import SelectTestForm from './_partials/select-test-form.svelte';
+	import { getVariables, type FieldsResponse } from './_partials/logic';
+	import TestsDataForm from './_partials/tests-data-form.svelte';
+	import T from '@/components/ui-custom/t.svelte';
+	import * as Tabs from '@/components/ui/tabs/index.js';
+	import BackButton from '$lib/layout/back-button.svelte';
+
+	//
+
+	let { data } = $props();
+
+	let d = $state<FieldsResponse>();
+	let compositeTestId = $state('');
+
+	const tabs = [
+		{ id: 'standard', label: '1. Standard and test suite' },
+		{ id: 'values', label: '2. Key values and JSONs' }
+	] as const;
+
+	type Tab = (typeof tabs)[number]['id'];
+
+	const currentTab = $derived<Tab>(d ? 'values' : 'standard');
+</script>
+
+<!--  -->
+
+<div class="mx-auto w-full max-w-screen-xl space-y-12 p-8 pb-0">
+	<div>
+		<BackButton href="/my">Back to dashboard</BackButton>
+		<T tag="h1">Compliance tests</T>
+	</div>
+
+	<Tabs.Root value={currentTab} class="w-full">
+		<Tabs.List class="bg-secondary flex">
+			<Tabs.Trigger
+				value={tabs[0].id}
+				class="data-[state=inactive]:hover:bg-primary/10 grow data-[state=inactive]:text-black"
+				onclick={() => {
+					d = undefined;
+				}}
+			>
+				{tabs[0].label}
+			</Tabs.Trigger>
+			<Tabs.Trigger value={tabs[1].id} class="grow" disabled={!Boolean(d)}>
+				{tabs[1].label}
+			</Tabs.Trigger>
+		</Tabs.List>
+	</Tabs.Root>
+</div>
+
+{#if !d}
+	<SelectTestForm
+		standards={data.standardsAndTestSuites}
+		onSelectTests={(standardId, tests) => {
+			compositeTestId = standardId;
+			getVariables(standardId, tests).then((res) => {
+				d = res;
+			});
+		}}
+	/>
+{:else}
+	<TestsDataForm data={d} testId={compositeTestId} />
+{/if}

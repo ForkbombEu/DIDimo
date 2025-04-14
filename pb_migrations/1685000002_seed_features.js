@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 // @ts-check
 /// <reference path="../pb_data/types.d.ts" />
 
@@ -5,12 +9,14 @@
 const features = [
     {
         name: "keypairoom",
+        active: false,
         envVariables: {
             SALT: "bWltbW8K",
         },
     },
     {
         name: "DID",
+        active: false,
         envVariables: {
             DID_URL: "url",
             DID_SPEC: "string",
@@ -43,6 +49,13 @@ const features = [
     {
         name: "demo",
         active: false,
+    },
+    {
+        name: "updateIssuers",
+        active: false,
+        envVariables: {
+            interval: "daily",
+        },
     },
 ];
 

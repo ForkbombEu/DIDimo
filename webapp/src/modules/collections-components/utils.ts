@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import { getCollectionModel, getCollectionNameFromId } from '@/pocketbase/collections-models';
 import type { CollectionName } from '@/pocketbase/collections-models';
 import type { CollectionResponses } from '@/pocketbase/types';
@@ -36,7 +40,7 @@ export function createRecordDisplay<R extends ValueOf<CollectionResponses>>(
 	displayFields: (keyof R)[] | undefined,
 	displayFn: RecordPresenter<R> | undefined
 ) {
-	console.log(displayFields);
+	// console.log(displayFields);
 	if (displayFields) return createRecordDisplayFromFields(record, displayFields);
 	else if (displayFn) return displayFn(record);
 	else {

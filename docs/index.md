@@ -5,13 +5,13 @@ layout: home
 hero:
   name: "Credimi"
   tagline: "The go-to platform for testing, validating, and ensuring EUDI-ARF compliance of wallet, issuers, relying parties, using multiple testing suites."
-  text: "\nEUDI-ARF 1.5 §7, \nwallet certification: \nhere we go!"
+  text: "\nEUDI-ARF 1.8 §7, \nwallet certification: \nhere we go!"
   image:
    src: https://raw.githubusercontent.com/ForkbombEu/DIDimo/main/docs/images/logo/credimi_logo-transp_emblem.png
   actions:
     - theme: brand
       text: 🕹 Get started
-      link: /Architecture/1_start.html
+      link: /Manual/
     - theme: alt
       text: 🐝 API reference
       target: _self

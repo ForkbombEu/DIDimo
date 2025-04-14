@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import PageContent from '$lib/layout/pageContent.svelte';
 	import PageGrid from '$lib/layout/pageGrid.svelte';
@@ -12,7 +18,8 @@
 	collection="news"
 	queryOptions={{
 		searchFields: ['title', 'summary', 'news'],
-		perPage: 20
+		perPage: 20,
+		sort: ['created', 'DESC']
 	}}
 >
 	{#snippet top({ Search, Filters })}

@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: 2024 Puria Nafisi Azizi 
-# SPDX-FileCopyrightText: 2024 The Forkbomb Company
+# SPDX-FileCopyrightText: 2025 Puria Nafisi Azizi 
+# SPDX-FileCopyrightText: 2025 The Forkbomb Company
 #
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
@@ -9,7 +9,33 @@ SPDX-PackageSupplier = "Puria Nafisi Azizi <puria@dyne.org>"
 SPDX-PackageDownloadLocation = "https://github.com/ForkbombEu/didimo"
 
 [[annotations]]
-path = ["webapp/static/emails", "webapp/.vscode/extensions.json", "webapp/src/app.postcss", "webapp/project.inlang/project_id", "webapp/.env.example", "webapp/.npmrc", "docs/index.md"]
+path = [
+    "config_templates/**/*",
+    "docs/**/*",
+    ".env.example",
+    "fixtures/test_pb_data/types.d.ts",
+    "schemas/**/*",
+    "VERSION",
+    "webapp/project.inlang/project_id",
+    "webapp/src/lib/types/openid-credential-issuer.ts",
+    "webapp/src/modules/i18n/paraglide/.gitignore",
+    "webapp/src/modules/i18n/paraglide/.prettierignore",
+    "webapp/.env.example",
+    "webapp/bun.lock",
+    "webapp/messages/**/*",
+    ".vscode/settings.json",
+    "webapp/src/lib/types/openid-credential-issuer.ts",
+    "webapp/src/modules/i18n/paraglide/.gitignore",
+    "webapp/src/modules/i18n/paraglide/.prettierignore",
+    "pkg/credential_issuer/openid-credential-issuer.schema.go",
+    "pb_migrations/*"
+]
 precedence = "override"
-SPDX-FileCopyrightText = "2024 The Forkbomb Company"
+SPDX-FileCopyrightText = "Forkbomb BV"
 SPDX-License-Identifier = "AGPL-3.0-or-later"
+
+[[annotations]]
+path = ["deployment/grafana/**/*", "deployment/thirdparty-simulator/**/*"]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "temporal.io"
+SPDX-License-Identifier = "MIT"

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package workflows
 
 import (
@@ -177,7 +181,13 @@ func (w *OpenIDNetWorkflow) Start(
 ) (result workflowengine.WorkflowResult, err error) {
 	// Load environment variables.
 	godotenv.Load()
-	c, err := temporalclient.GetTemporalClient()
+	namespace := "default"
+	if input.Config["namespace"] != nil {
+		namespace = input.Config["namespace"].(string)
+	}
+	c, err := temporalclient.GetTemporalClientWithNamespace(
+		namespace,
+	)
 	if err != nil {
 		return workflowengine.WorkflowResult{}, fmt.Errorf("unable to create client: %v", err)
 	}
@@ -186,6 +196,9 @@ func (w *OpenIDNetWorkflow) Start(
 	workflowOptions := client.StartWorkflowOptions{
 		ID:        "OpenIDTestWorkflow" + uuid.NewString(),
 		TaskQueue: OpenIDNetTaskQueue,
+	}
+	if input.Config["Memo"] != nil {
+		workflowOptions.Memo = input.Config["Memo"].(map[string]any)
 	}
 
 	// Start the workflow execution.

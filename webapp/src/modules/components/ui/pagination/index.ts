@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 import Root from "./pagination.svelte";
 import Content from "./pagination-content.svelte";
 import Item from "./pagination-item.svelte";

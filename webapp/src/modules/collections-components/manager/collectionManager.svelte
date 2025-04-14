@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script
 	lang="ts"
 	generics="C extends CollectionName, E extends PocketbaseQueryExpandOption<C> = never"
@@ -55,6 +61,7 @@
 					Card: typeof Card;
 					Table: typeof Table;
 					Pagination: typeof Pagination;
+					reloadRecords: () => void;
 				}
 			]
 		>;
@@ -160,7 +167,15 @@
 			icon={MessageCircleWarning}
 		/>
 	{:else if manager.records.length > 0}
-		{@render records?.({ records: manager.records, Card, Table, Pagination })}
+		{@render records?.({
+			records: manager.records,
+			Card,
+			Table,
+			Pagination,
+			reloadRecords: () => {
+				manager.loadRecords();
+			}
+		})}
 
 		{#if !hide.includes('pagination')}
 			<Pagination class="mt-6" />

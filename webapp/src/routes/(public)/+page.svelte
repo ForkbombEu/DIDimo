@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Forkbomb BV
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 <script lang="ts">
 	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import FakeTable from '$lib/layout/fakeTable.svelte';
@@ -15,10 +21,10 @@
 	import { pb } from '@/pocketbase';
 	import {
 		Collections,
-		ServicesCountryOptions,
+		OrganizationInfoCountryOptions,
 		CredentialsFormatOptions,
 		type CredentialsResponse,
-		type ServicesResponse
+		type OrganizationInfoResponse
 	} from '@/pocketbase/types';
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
@@ -26,22 +32,21 @@
 	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 	import NewsCard from '$lib/layout/newsCard.svelte';
 
-	const fakeService: ServicesResponse = {
+	const fakeService: OrganizationInfoResponse = {
 		id: 'das',
-		country: ServicesCountryOptions.IT,
+		country: OrganizationInfoCountryOptions.IT,
 		created: '2024-12-12',
 		updated: '2024-12-12',
-		credential_issuers: [],
+
 		description: 'Lorem ipsum',
-		wallets: [],
+
 		legal_entity: 'ForkbombEu',
 		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
 		name: 'Test credential issuer',
 		owner: 'id',
 		collectionId: '',
-		collectionName: Collections.Services,
+		collectionName: Collections.OrganizationInfo,
 		contact_email: 'asd@asd.com',
-		documentation_url: 'https://google.com',
 		external_website_url: 'https://google.com'
 	};
 
@@ -60,7 +65,9 @@
 		locale: 'en',
 		type: 'plc',
 		collectionId: '',
-		collectionName: Collections.Credentials
+		collectionName: Collections.Credentials,
+		deeplink: '',
+		published: false
 	};
 
 	const schema = z.object({
@@ -141,14 +148,14 @@
 				/>
 			</PageGrid>
 		{:else}
-			{@const MAX_ITEMS = 3}
+			{@const MAX_ITEMS = 2}
 			<CollectionManager
 				collection="news"
-				queryOptions={{ perPage: MAX_ITEMS }}
+				queryOptions={{ perPage: MAX_ITEMS, sort: ['created', 'DESC'] }}
 				hide={['pagination']}
 			>
 				{#snippet records({ records })}
-					<PageGrid>
+					<PageGrid class="lg:grid-cols-2">
 						{#each records as record}
 							<NewsCard news={record} />
 						{/each}
@@ -185,7 +192,7 @@
 		{:else}
 			{@const MAX_ITEMS = 3}
 			<CollectionManager
-				collection="services"
+				collection="organization_info"
 				queryOptions={{ perPage: MAX_ITEMS }}
 				hide={['pagination']}
 			>

@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
 package routes
 
 import (
@@ -5,21 +9,20 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"os"
 
-	"github.com/forkbombeu/didimo/pkg/internal/pb"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/worker_engine"
 	"github.com/pocketbase/pocketbase"
 	"github.com/pocketbase/pocketbase/core"
 	"github.com/pocketbase/pocketbase/plugins/jsvm"
 	"github.com/pocketbase/pocketbase/plugins/migratecmd"
+
+	"github.com/forkbombeu/didimo/pkg/internal/pb"
+	"github.com/forkbombeu/didimo/pkg/utils"
 )
 
 func bindAppHooks(app core.App) {
 	routes := map[string]string{
-		"/workflows/{path...}":  getEnv("ADDRESS_TEMPORAL", "http://localhost:8080"),
-		"/monitoring/{path...}": getEnv("ADDRESS_GRAFANA", "http://localhost:8085"),
-		"/{path...}":            getEnv("ADDRESS_UI", "http://localhost:5100"),
+		"/{path...}": utils.GetEnvironmentVariable("ADDRESS_UI", "http://localhost:5100"),
 	}
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		for path, target := range routes {
@@ -37,7 +40,8 @@ func Setup(app *pocketbase.PocketBase) {
 	pb.HookCredentialWorkflow(app)
 	pb.AddOpenID4VPTestEndpoints(app)
 	pb.HookUpdateCredentialsIssuers(app)
-	pb.RouteWorkflowList(app)
+	pb.RouteWorkflow(app)
+	pb.HookAtUserCreation(app)
 	pb.Register(app)
 	worker_engine.WorkersHook(app)
 
@@ -56,7 +60,14 @@ func createReverseProxy(target string) func(r *core.RequestEvent) error {
 		if err != nil {
 			return err
 		}
-		log.Printf("Proxying request: %s -> %s%s", r.Request.URL.Path, targetURL.String(), r.Request.URL.Path)
+		if v := utils.GetEnvironmentVariable("DEBUG"); len(v) > 0 {
+			log.Printf(
+				"Proxying request: %s -> %s%s",
+				r.Request.URL.Path,
+				targetURL.String(),
+				r.Request.URL.Path,
+			)
+		}
 
 		proxy := httputil.NewSingleHostReverseProxy(targetURL)
 		proxy.Director = func(req *http.Request) {
@@ -74,11 +85,4 @@ func createReverseProxy(target string) func(r *core.RequestEvent) error {
 		proxy.ServeHTTP(r.Response, r.Request)
 		return nil
 	}
-}
-
-func getEnv(key, fallback string) string {
-	if value := os.Getenv(key); value != "" {
-		return value
-	}
-	return fallback
 }
