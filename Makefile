@@ -40,6 +40,7 @@ GOCOVERTREEMAP	?= $(GOBIN)/go-cover-treemap
 # Submodules
 WEBENV			= $(WEBAPP)/.env
 BIN				= $(ROOT_DIR)/.bin
+DEPS 			= mise git temporal wget
 DEPS 			= mise git temporal
 DEV_DEPS		= pre-commit
 K 				:= $(foreach exec,$(DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
@@ -171,11 +172,14 @@ devtools: generate
 	pre-commit autoupdate
 	-$(foreach exec,$(DEV_DEPS), $(if $(shell which $(exec)),some string,$(error "🥶 `$(exec)` not found in PATH please install it")))
 
-tools: generate
+tools: generate $(BIN) $(BIN)/stepci-captured-runner
 	mise install
 	@if [ ! -f "$(HIVEMIND)" ]; then \
 		$(GOINST) github.com/DarthSim/hivemind@latest; \
 	fi
+
+$(BIN)/stepci-captured-runner:
+	wget https://github.com/ForkbombEu/stepci-captured-runner/releases/latest/download/stepci-captured-runner-$(shell uname)-$(shell uname -m) -O $(BIN)/stepci-captured-runner && chmod +x $(BIN)/stepci-captured-runner
 
 ## Help:
 help: ## Show this help.

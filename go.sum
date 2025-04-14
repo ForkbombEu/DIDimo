@@ -31,8 +31,6 @@ github.com/dop251/goja_nodejs v0.0.0-20250325151027-56d2092bee9a h1:nHFTGJby12Rq
 github.com/dop251/goja_nodejs v0.0.0-20250325151027-56d2092bee9a/go.mod h1:Tb7Xxye4LX7cT3i8YLvmPMGCV92IOi4CDZvm/V8ylc0=
 github.com/dustin/go-humanize v1.0.1 h1:GzkhY7T5VNhEkwH0PVJgjz+fX1rhBrR7pRT3mDkpeCY=
 github.com/dustin/go-humanize v1.0.1/go.mod h1:Mu1zIs6XwVuF/gI1OepvI0qD18qycQx+mFykh5fBlto=
-github.com/dyne/slangroom-exec/bindings/go v0.0.0-20250218102838-fef1b2b6cb58 h1:wI8b1uhC5npYyKgFW3NGFVeATwCMpM0wL8V20cMwqts=
-github.com/dyne/slangroom-exec/bindings/go v0.0.0-20250218102838-fef1b2b6cb58/go.mod h1:OXlCZWI8XQ8suaNik1N6xmjoH0P6fJ9MH9AK1hxw/sw=
 github.com/envoyproxy/go-control-plane v0.9.0/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/go-control-plane v0.9.4/go.mod h1:6rpuAdCZL397s3pYoYcLgu1mIlRU8Am5FuJP05cCM98=

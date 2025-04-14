@@ -7,7 +7,6 @@ module github.com/forkbombeu/didimo
 go 1.24.1
 
 require (
-	github.com/dyne/slangroom-exec/bindings/go v0.0.0-20250218102838-fef1b2b6cb58
 	github.com/go-sprout/sprout v1.0.0
 	github.com/go-webauthn/webauthn v0.12.2
 	github.com/google/uuid v1.6.0
@@ -23,7 +22,6 @@ require (
 	golang.org/x/exp v0.0.0-20250305212735-054e65f0b394
 	google.golang.org/protobuf v1.36.6
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
-	gopkg.in/yaml.v3 v3.0.1
 	modernc.org/sqlite v1.36.2
 )
 
@@ -85,6 +83,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250324211829-b45e905df463 // indirect
 	google.golang.org/grpc v1.71.0 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	modernc.org/libc v1.61.13 // indirect
 	modernc.org/mathutil v1.7.1 // indirect
 	modernc.org/memory v1.9.1 // indirect
