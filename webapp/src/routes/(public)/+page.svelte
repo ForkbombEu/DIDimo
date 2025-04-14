@@ -95,10 +95,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		</T>
 	</div>
 	<div class="flex gap-4">
-		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/tests/new'}>
-			{m.Start_a_new_test()}
+		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/my/tests/new'}>
+			{m.Explore_Marketplace()}
 		</Button>
-		<Button variant="secondary">{m.See_how_it_works()}</Button>
+		<Button variant="secondary" href="/services">{m.Conformance_Checks()}</Button>
 	</div>
 </PageTop>
 

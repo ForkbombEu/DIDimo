@@ -16,6 +16,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type CredentialsResponse
 	} from '@/pocketbase/types';
 	import { CollectionManager } from '@/collections-components';
+	import { currentUser } from '@/pocketbase';
 
 	const fakeCredential: CredentialsResponse = {
 		id: 'das',
@@ -62,7 +63,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{@const MAX_ITEMS = 3}
 		<CollectionManager
 			collection="credentials"
-			queryOptions={{ perPage: MAX_ITEMS }}
+			queryOptions={{
+				perPage: MAX_ITEMS,
+				filter: `published = true ${$currentUser ? `|| credential_issuer = '${$currentUser?.id}'` : ''}`
+			}}
 			hide={['pagination']}
 		>
 			{#snippet records({ records })}
