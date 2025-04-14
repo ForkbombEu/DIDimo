@@ -23,14 +23,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<AppLogo />
 		</Button>
 		<div class="hidden flex-row sm:flex">
-			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/services'}>
-				{m.Services()}
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
+				{m.Credentials()}
 			</Button>
 			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/apps'}
 				>{m.Apps()}</Button
 			>
-			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
-				{m.Credentials()}
+			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/services'}>
+				{m.Issuers()}
 			</Button>
 			<Button variant="link" href={$featureFlags.DEMO ? '#waitlist' : '/organizations'}>
 				{m.organizations()}
@@ -40,27 +40,18 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	{#snippet right()}
 		<div class="flex items-center space-x-2">
+			<Button variant="link" href="/news">{m.News()}</Button>
+			<Button variant="link" href="/help">{m.Help()}</Button>
 			{#if !$featureFlags.DEMO && $featureFlags.AUTH}
-				{#if $currentUser}
-					<Button href="/my/tests/new">
+				{#if !$currentUser}
+					<Button variant="secondary" href="/login">{m.Login()}</Button>
+				{:else}
+					<Button variant="link" href="/my/tests/new">
 						<Icon src={Sparkle} />
 						{m.Start_a_new_test()}
 					</Button>
-
 					<UserNav />
-				{:else}
-					<Button variant="link" href="/login">{m.Login()}</Button>
 				{/if}
-			{/if}
-
-			{#if !$currentUser}
-				<LanguageSelect flagsOnly>
-					{#snippet trigger({ triggerAttributes, language })}
-						<Button variant="outline" class="w-14 text-2xl" {...triggerAttributes}>
-							{language.flag}
-						</Button>
-					{/snippet}
-				</LanguageSelect>
 			{/if}
 		</div>
 	{/snippet}

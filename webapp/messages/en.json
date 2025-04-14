@@ -369,5 +369,12 @@
 	"Custom_checks": "Custom checks",
 	"No_conformance_checks_available": "No conformance checks available",
 	"New_Check": "New Check",
-	"news_description": "Find here a semi-automated news digest, retrieved and aggregated from multiple standard references and news outlets."
+	"news_description": "Find here a semi-automated news digest, retrieved and aggregated from multiple standard references and news outlets.",
+	"Find_apps": "Find apps",
+	"All_apps": "All apps",
+	"Find_issuers": "Find issuers",
+	"All_issuers": "All issuers",
+	"Find_verifiers": "Find verifiers",
+	"All_verifiers": "All verifiers",
+	"News": "News"
 }

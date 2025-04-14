@@ -11,6 +11,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { featureFlags } from '@/features';
 	import { m } from '@/i18n';
 	import { appVersion } from '@/utils/appVersion';
+	import LanguageSelect from '@/i18n/languageSelect.svelte';
 
 	const footer_data = [
 		{
@@ -93,13 +94,24 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<div class="mx-auto max-w-screen-xl">
 		<div class="px-8 py-12">
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
-				<div>
+				<div class="flex flex-col items-start gap-2">
 					<div class="flex flex-row items-center gap-2">
 						<AppLogo />
 						<T tag="h4">
 							{appName}
 							<span class="pl-1 text-sm text-white/40">{appVersion}</span>
 						</T>
+						<LanguageSelect flagsOnly>
+							{#snippet trigger({ triggerAttributes, language })}
+								<Button
+									variant="outline"
+									class="w-14 text-2xl"
+									{...triggerAttributes}
+								>
+									{language.flag}
+								</Button>
+							{/snippet}
+						</LanguageSelect>
 					</div>
 					<p class="border-b border-b-muted">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
