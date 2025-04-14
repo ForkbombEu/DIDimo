@@ -5,14 +5,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 -->
 
 <script lang="ts">
-	import { m } from '@/i18n';
+	import { localizeHref, m } from '@/i18n';
 	import T from '@/components/ui-custom/t.svelte';
-	import Card from '@/components/ui-custom/card.svelte';
 	import { Badge } from '@/components/ui/badge';
 	import type { WalletsResponse } from '@/pocketbase/types';
 
 	import { Separator } from '@/components/ui/separator';
-	import A from '@/components/ui-custom/a.svelte';
 	import { type ConformanceCheck } from '../../routes/my/services-and-products/wallet-form-checks-table.svelte';
 	import { cn } from '@/components/ui/utils';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
@@ -26,15 +24,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const { app, class: className = '' }: Props = $props();
 
 	const logo = $derived(pb.files.getURL(app, app.logo));
+	const conformanceChecks = $derived(app.conformance_checks) as ConformanceCheck[];
 </script>
 
-<Card
+<a
+	href={localizeHref(`/apps/${app.id}`)}
 	class={cn(
-		'block overflow-auto rounded-lg border border-primary bg-card text-card-foreground shadow-sm ring-primary transition-all hover:-translate-y-2 hover:ring-2 ',
+		'block overflow-auto rounded-lg border border-primary bg-card p-6 text-card-foreground shadow-sm ring-primary transition-all hover:-translate-y-2 hover:ring-2 ',
 		className
 	)}
 >
-	{@const conformanceChecks = app.conformance_checks as ConformanceCheck[]}
 	<div class="space-y-4 overflow-scroll">
 		<div class="flex flex-row justify-between">
 			<div>
@@ -42,13 +41,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					{#if logo}
 						<Avatar src={logo} class="!rounded-sm" hideIfLoadingError />
 					{/if}
-					<T class="font-bold">
-						{#if !app.published}
-							{app.name}
-						{:else}
-							<A href="/apps/{app.id}">{app.name}</A>
-						{/if}
-					</T>
+					<T class="font-semibold">{app.name}</T>
 				</div>
 				<T class="mt-1 text-xs text-gray-400">
 					{app.description}
@@ -70,4 +63,4 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{/if}
 		</div>
 	</div>
-</Card>
+</a>

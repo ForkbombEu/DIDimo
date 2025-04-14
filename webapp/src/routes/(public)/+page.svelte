@@ -7,9 +7,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import FakeTable from '$lib/layout/fakeTable.svelte';
 	import PageContent from '$lib/layout/pageContent.svelte';
-	import PageGrid from '$lib/layout/pageGrid.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
-	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import Alert from '@/components/ui-custom/alert.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
@@ -18,39 +16,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { Field } from '@/forms/fields';
 	import { m } from '@/i18n';
 	import { currentUser, pb } from '@/pocketbase';
-	import {
-		Collections,
-		OrganizationInfoCountryOptions,
-		type OrganizationInfoResponse
-	} from '@/pocketbase/types';
 	import { onMount } from 'svelte';
 	import { zod } from 'sveltekit-superforms/adapters';
 	import { z } from 'zod';
-	import CollectionManager from '@/collections-components/manager/collectionManager.svelte';
 	import CredentialSection from './_sections/credential_section.svelte';
 	import AppsSection from './_sections/apps_section.svelte';
 	import IssuerSection from './_sections/issuer_section.svelte';
 	import VerifierSection from './_sections/verifier_section.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { Sparkle } from 'lucide-svelte';
-
-	const fakeService: OrganizationInfoResponse = {
-		id: 'das',
-		country: OrganizationInfoCountryOptions.IT,
-		created: '2024-12-12',
-		updated: '2024-12-12',
-
-		description: 'Lorem ipsum',
-
-		legal_entity: 'ForkbombEu',
-		logo: 'https://avatars.githubusercontent.com/u/96812851?s=200&v=4',
-		name: 'Test credential issuer',
-		owner: 'id',
-		collectionId: '',
-		collectionName: Collections.OrganizationInfo,
-		contact_email: 'asd@asd.com',
-		external_website_url: 'https://google.com'
-	};
 
 	const schema = z.object({
 		name: z.string(),
@@ -118,48 +92,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<AppsSection />
 	<IssuerSection />
 	<VerifierSection />
-	<!-- <div class="space-y-6">
-		<div class="flex items-center justify-between">
-			<T tag="h3">{m.Find_solutions()}</T>
-
-			{#if $featureFlags.DEMO}
-				<Button variant="default" disabled class="select-none blur">
-					{m.All_solutions()}
-				</Button>
-			{:else}
-				<Button variant="default" href="/providers">
-					{m.All_solutions()}
-				</Button>
-			{/if}
-		</div>
-
-		{#if $featureFlags.DEMO}
-			<PageGrid class="select-none blur-sm">
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard service={fakeService} class="pointer-events-none grow basis-1" />
-				<ServiceCard
-					service={fakeService}
-					class="pointer-events-none hidden grow basis-1 lg:block"
-				/>
-			</PageGrid>
-		{:else}
-			{@const MAX_ITEMS = 3}
-			<CollectionManager
-				collection="organization_info"
-				queryOptions={{ perPage: MAX_ITEMS }}
-				hide={['pagination']}
-			>
-				{#snippet records({ records })}
-					<PageGrid>
-						{#each records as service, i}
-							{@const isLast = i == MAX_ITEMS - 1}
-							<ServiceCard {service} class={isLast ? 'hidden lg:block' : ''} />
-						{/each}
-					</PageGrid>
-				{/snippet}
-			</CollectionManager>
-		{/if}
-	</div> -->
 </PageContent>
 
 <PageContent class="border-y-primaryborder-y-2" contentClass="!space-y-8">

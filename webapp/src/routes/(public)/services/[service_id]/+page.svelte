@@ -9,16 +9,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import PageHeader from '$lib/layout/pageHeader.svelte';
 	import PageIndex from '$lib/layout/pageIndex.svelte';
 	import PageTop from '$lib/layout/pageTop.svelte';
-	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import T from '@/components/ui-custom/t.svelte';
-	import Button from '@/components/ui-custom/button.svelte';
-	import { m, localizeHref } from '@/i18n';
-	import { Building2, Layers, FolderCheck, ScanEye } from 'lucide-svelte';
+	import { m } from '@/i18n';
+	import { Building2, Layers } from 'lucide-svelte';
 	import type { IndexItem } from '$lib/layout/pageIndex.svelte';
 	import InfoBox from '$lib/layout/infoBox.svelte';
-	import { currentUser, pb } from '@/pocketbase/index.js';
-	import * as Sheet from '@/components/ui/sheet';
-	import { CollectionForm } from '@/collections-components/index.js';
 	import { String } from 'effect';
 	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import BackButton from '$lib/layout/back-button.svelte';
@@ -27,7 +22,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	let { data } = $props();
 	const { service } = $derived(data);
-
 	//
 
 	const sections = {
