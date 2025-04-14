@@ -37,7 +37,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			{#if service.logo_url && String.isNonEmpty(service.logo_url)}
 				<Avatar src={service.logo_url} class="!rounded-sm" hideIfLoadingError />
 			{/if}
-			<T class="font-semibold">{title}</T>
+			<T class="overflow-hidden text-ellipsis font-semibold">{title}</T>
 		</div>
 		{#if String.isNonEmpty(service.description)}
 			<T tag="p" class="block font-normal leading-snug">{service.description}</T>
