@@ -17,7 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { createForm, Form, SubmitButton } from '@/forms';
 	import { Field } from '@/forms/fields';
 	import { m } from '@/i18n';
-	import { pb } from '@/pocketbase';
+	import { currentUser, pb } from '@/pocketbase';
 	import {
 		Collections,
 		OrganizationInfoCountryOptions,
@@ -106,7 +106,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
 			{m.Explore_Marketplace()}
 		</Button>
-		<Button variant="secondary" href="/my/tests/new">
+		<Button variant="secondary" href={$currentUser ? '/my/tests/new' : '/login'}>
 			<Icon src={Sparkle} />
 			{m.Conformance_Checks()}
 		</Button>
