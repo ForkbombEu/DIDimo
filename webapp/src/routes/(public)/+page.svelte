@@ -31,6 +31,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import AppsSection from './_sections/apps_section.svelte';
 	import IssuerSection from './_sections/issuer_section.svelte';
 	import VerifierSection from './_sections/verifier_section.svelte';
+	import Icon from '@/components/ui-custom/icon.svelte';
+	import { Sparkle } from 'lucide-svelte';
 
 	const fakeService: OrganizationInfoResponse = {
 		id: 'das',
@@ -89,16 +91,25 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <PageTop>
 	<div class="space-y-2">
-		<T tag="h1" class="text-balance">{m.Find_and_test_identity_solutions_with_ease()}</T>
-		<T tag="h3" class="text-balance">
-			{m.Didimo_is_your_trusted_source_for_compliance_verification()}
-		</T>
+		<T tag="h1" class="text-balance">{m.EUDIW_Conformance_Interoperability_and_Marketplace()}</T
+		>
+		<div class="flex flex-col gap-2 py-2">
+			<T tag="small" class="text-balance">
+				{m.Explore_the_marketplace_and_try_credentials_wallets_and_services()}
+			</T>
+			<T tag="small" class="text-balance"
+				>{m.Test_the_conformance_and_interoperability_of_your_EUDIW()}</T
+			>
+		</div>
 	</div>
 	<div class="flex gap-4">
-		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/my/tests/new'}>
+		<Button variant="default" href={$featureFlags.DEMO ? '#waitlist' : '/credentials'}>
 			{m.Explore_Marketplace()}
 		</Button>
-		<Button variant="secondary" href="/services">{m.Conformance_Checks()}</Button>
+		<Button variant="secondary" href="/my/tests/new">
+			<Icon src={Sparkle} />
+			{m.Conformance_Checks()}
+		</Button>
 	</div>
 </PageTop>
 

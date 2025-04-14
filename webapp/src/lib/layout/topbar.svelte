@@ -11,7 +11,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import BaseTopbar from '@/components/layout/topbar.svelte';
 	import { currentUser } from '@/pocketbase';
 	import UserNav from './userNav.svelte';
-	import LanguageSelect from '@/i18n/languageSelect.svelte';
 	import Icon from '@/components/ui-custom/icon.svelte';
 	import { Sparkle } from 'lucide-svelte';
 	import { AppLogo } from '@/brand';
@@ -40,15 +39,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	{#snippet right()}
 		<div class="flex items-center space-x-2">
-			<Button variant="link" href="/news">{m.News()}</Button>
-			<Button variant="link" href="/help">{m.Help()}</Button>
+			<div class="hidden sm:flex sm:flex-row">
+				<Button variant="link" href="/news">{m.News()}</Button>
+				<Button variant="link" href="/help">{m.Help()}</Button>
+			</div>
 			{#if !$featureFlags.DEMO && $featureFlags.AUTH}
 				{#if !$currentUser}
 					<Button variant="secondary" href="/login">{m.Login()}</Button>
 				{:else}
 					<Button variant="link" href="/my/tests/new">
 						<Icon src={Sparkle} />
-						{m.Start_a_new_test()}
+						{m.Start_a_new_check()}
 					</Button>
 					<UserNav />
 				{/if}

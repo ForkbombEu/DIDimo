@@ -12,6 +12,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { m } from '@/i18n';
 	import { appVersion } from '@/utils/appVersion';
 	import LanguageSelect from '@/i18n/languageSelect.svelte';
+	import Icon from '@/components/ui-custom/icon.svelte';
+	import { Sparkle } from 'lucide-svelte';
 
 	const footer_data = [
 		{
@@ -101,35 +103,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 							{appName}
 							<span class="pl-1 text-sm text-white/40">{appVersion}</span>
 						</T>
-						<LanguageSelect flagsOnly>
-							{#snippet trigger({ triggerAttributes, language })}
-								<Button
-									variant="outline"
-									class="w-14 text-2xl"
-									{...triggerAttributes}
-								>
-									{language.flag}
-								</Button>
-							{/snippet}
-						</LanguageSelect>
 					</div>
 					<p class="border-b border-b-muted">{m.Test_and_find_decentralized_IDs()}</p>
 				</div>
-				<div class="flex gap-2 blur-sm">
+				<div class="flex flex-col gap-2 sm:flex-row">
+					<LanguageSelect />
 					<Button
 						variant="default"
 						class="grow basis-1 bg-white text-primary hover:bg-white/90 sm:grow-0"
-						href={$featureFlags.DEMO ? undefined : '/tests/new'}
-						disabled={$featureFlags.DEMO}
+						href="/my/tests/new"
 					>
-						{m.Start_a_new_test()}
+						<Icon src={Sparkle} />
+						{m.Start_a_new_check()}
 					</Button>
-					<Button
-						variant="ghost"
-						class="grow basis-1 border sm:grow-0"
-						href={$featureFlags.DEMO ? undefined : '/login'}
-						disabled={$featureFlags.DEMO}
-					>
+					<Button variant="ghost" class="grow basis-1 border sm:grow-0" href="/login">
 						{m.Login()}
 					</Button>
 				</div>
