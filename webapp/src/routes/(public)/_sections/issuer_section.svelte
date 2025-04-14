@@ -6,11 +6,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 <script lang="ts">
 	import { m } from '@/i18n';
 	import PageGrid from '$lib/layout/pageGrid.svelte';
+	import ServiceCard from '$lib/layout/serviceCard.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
 	import { CollectionManager } from '@/collections-components';
-	import RecordCard from '@/collections-components/manager/recordCard.svelte';
-	import ServiceCard from '$lib/layout/serviceCard.svelte';
 
 	const MAX_ITEMS = 3;
 </script>
