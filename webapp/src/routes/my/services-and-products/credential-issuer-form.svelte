@@ -46,6 +46,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	<Field {form} name="url" options={{ type: 'url', label: m.Credential_issuer_URL() }} />
 
 	{#snippet submitButton()}
-		<SubmitButton class="flex w-full">{m.Start_check()}</SubmitButton>
+		<SubmitButton class="flex w-full">{m.Add_new_credential_issuer()}</SubmitButton>
 	{/snippet}
 </Form>

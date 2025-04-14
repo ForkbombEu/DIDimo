@@ -69,7 +69,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
@@ -102,7 +102,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<div class="space-y-6">
 			<PageHeader title={sections.credentials.label} id={sections.credentials.anchor} />
 
-			<div>
+			<div class="flex flex-col gap-4">
 				{#each service.expand?.credentials_via_credential_issuer ?? [] as credential}
 					<CredentialCard {credential} />
 				{:else}

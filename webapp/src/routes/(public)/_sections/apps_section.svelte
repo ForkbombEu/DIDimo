@@ -9,7 +9,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import T from '@/components/ui-custom/t.svelte';
 	import Button from '@/components/ui-custom/button.svelte';
 	import { CollectionManager } from '@/collections-components';
-	import RecordCard from '@/collections-components/manager/recordCard.svelte';
+	import WalletCard from '$lib/layout/walletCard.svelte';
 
 	const MAX_ITEMS = 3;
 </script>
@@ -26,9 +26,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	>
 		{#snippet records({ records })}
 			<PageGrid>
-				{#each records as credential, i}
+				{#each records as record, i}
 					{@const isLast = i == MAX_ITEMS - 1}
-					<RecordCard record={credential} class={isLast ? 'hidden lg:flex' : ''} />
+					<WalletCard app={record} class={isLast ? 'hidden lg:flex' : ''} />
 				{/each}
 			</PageGrid>
 		{/snippet}
