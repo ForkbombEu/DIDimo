@@ -35,7 +35,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		createForm({
 			adapter: zod(schema),
 			onSubmit: async ({ form }) => {
-				$currentUser = await pb.collection('users').update($currentUser?.id!, form.data);
+				const dataToUpdate = { ...form.data };
+				delete dataToUpdate.verified;
+				$currentUser = await pb.collection('users').update($currentUser?.id!, dataToUpdate);
 				showForm.off();
 			},
 			initialData: {
@@ -78,7 +80,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 
 	{#if $showForm}
-		<Form {form}>
+		<Form {form} enctype="multipart/form-data">
 			<Field {form} name="name" options={{ label: m.Username() }} />
 
 			<div class="space-y-2">
