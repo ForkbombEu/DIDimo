@@ -15,10 +15,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		type ConformanceCheck
 	} from './wallet-form-checks-table.svelte';
 	import TextareaField from '@/forms/fields/textareaField.svelte';
-	import type { WalletsFormData, WalletsRecord, WalletsResponse } from '@/pocketbase/types';
+	import type { WalletsResponse } from '@/pocketbase/types';
 	import { zodFileSchema } from '@/utils/files';
-	import { createCollectionZodSchema } from '@/pocketbase/zod-schema';
-	import { init } from 'effect/Array';
 
 	//
 
@@ -40,7 +38,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	 * Handle this somehow (Maybe by treating the JSON field as a string and parsing it on submit?)
 	 */
 
-	// const mimeTypes = ['image/png', 'image/jpeg'];
+	const mimeTypes = ['image/png', 'image/jpeg'];
 
 	// TODO – Maybe use createCollectionZodSchema
 	const schema = z.object({
@@ -48,7 +46,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		description: z.string(),
 		playstore_url: z.string().url('Invalid URL'),
 		appstore_url: z.string().url('Invalid URL'),
-		// logo: zodFileSchema({ mimeTypes }),
+		logo: zodFileSchema({ mimeTypes }),
 		repository: z.string().url('Invalid URL'),
 		home_url: z.string().url('Invalid URL'),
 		conformance_checks: z
@@ -70,17 +68,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				onSuccess?.(wallet);
 			}
 		},
+		options: {
+			dataType: 'form'
+		},
 		initialData: {
 			...initialData,
-			conformance_checks: (initialData.conformance_checks ?? []) as ConformanceCheck[]
-			// logo: initialData.logo
-			// 	? new File([], initialData.logo as string, { type: mimeTypes[0] })
-			// 	: undefined
+			conformance_checks: (initialData.conformance_checks ?? []) as ConformanceCheck[],
+			logo: initialData.logo
+				? new File([], initialData.logo as string, { type: mimeTypes[0] })
+				: undefined
 		}
 	});
 </script>
 
-<Form {form} class="!space-y-8" hideRequiredIndicator>
+<Form {form} enctype="multipart/form-data" class="!space-y-8" hideRequiredIndicator>
 	<Field
 		{form}
 		name="name"
@@ -98,6 +99,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			placeholder: 'Enter app description'
 		}}
 	/>
+	<FileField
+		{form}
+		name="logo"
+		options={{
+			label: 'Logo',
+			placeholder: 'Upload logo'
+		}}
+	/>
 	<Field
 		{form}
 		name="playstore_url"
@@ -107,14 +116,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			placeholder: 'Enter Play Store URL'
 		}}
 	/>
-	<!-- <FileField
-		{form}
-		name="logo"
-		options={{
-			label: 'Logo',
-			placeholder: 'Upload logo'
-		}}
-	/> -->
 	<Field
 		{form}
 		name="appstore_url"
