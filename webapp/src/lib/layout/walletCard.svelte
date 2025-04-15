@@ -35,7 +35,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		className
 	)}
 >
-	<div class="space-y-2 overflow-scroll">
+	<div class="space-y-2 overflow-x-auto sm:overflow-hidden">
 		<div class="flex flex-row justify-between">
 			<div class="flex flex-col gap-2">
 				<div class="flex items-center gap-2">
