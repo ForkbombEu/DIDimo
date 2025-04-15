@@ -98,9 +98,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<div class="flex flex-col justify-between gap-6 sm:flex-row">
 				<div class="flex flex-col items-start gap-2">
 					<div class="flex flex-row items-center gap-2">
-						<AppLogo />
+						<AppLogo version="full" />
 						<T tag="h4">
-							{appName}
 							<span class="pl-1 text-sm text-white/40">{appVersion}</span>
 						</T>
 					</div>

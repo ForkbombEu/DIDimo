@@ -18,8 +18,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	const src = $derived(pb.files.getURL(user, user.avatar));
 	const fallback = $derived(user.name.slice(0, 2));
-
-	$inspect(user);
 </script>
 
 <Avatar {...rest} {src} {fallback} alt="{m.Avatar()} {user.name}" />
