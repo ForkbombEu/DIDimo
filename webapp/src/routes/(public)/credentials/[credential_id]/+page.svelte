@@ -140,7 +140,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 			{#if credentialConfiguration}
 				<pre
-					class="w-fit rounded-xl border border-primary bg-card p-6 text-xs text-card-foreground shadow-sm ring-primary transition-transform hover:-translate-y-2 hover:ring-2">{JSON.stringify(
+					class="w-fit max-w-screen-lg overflow-x-clip rounded-xl border border-primary bg-card p-6 text-xs text-card-foreground shadow-sm ring-primary transition-transform hover:-translate-y-2 hover:ring-2">{JSON.stringify(
 						credentialConfiguration,
 						null,
 						2
