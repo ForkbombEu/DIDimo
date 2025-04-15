@@ -80,7 +80,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 
 	{#if $showForm}
-		<Form {form} enctype="multipart/form-data">
+		<Form {form}>
 			<Field {form} name="name" options={{ label: m.Username() }} />
 
 			<div class="space-y-2">
