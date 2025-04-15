@@ -6,6 +6,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <script lang="ts">
 	import { appName } from '@/brand';
+	import { cn } from '@/components/ui/utils';
 	import { localizeHref } from '@/i18n';
 
 	interface Props {
@@ -18,14 +19,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 	let { href = '/', version = 'icon' }: Props = $props();
 
-	const logo =
-		version === 'icon'
-			? '/logos/credimi_logo-transp_emblem.png'
-			: '/logos/credimi_logo-transp.png';
+	const logo = version === 'icon' ? '/logos/credimi_logo.svg' : '/logos/credimi_logo-transp.png';
 </script>
 
-<a href={localizeHref(href)}>
-	<img src={logo} class="h-9 w-auto" alt={appName} />
+<a href={localizeHref(href)} class="flex items-center justify-center gap-2">
+	<img
+		src={logo}
+		class={cn('object-cover', version === 'icon' ? 'h-14 w-14' : 'h-10 w-auto')}
+		alt={appName}
+	/>
 </a>
 
 <!--  
