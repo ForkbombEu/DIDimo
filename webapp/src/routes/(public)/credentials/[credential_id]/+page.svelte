@@ -55,9 +55,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const credentialConfiguration = $derived(
 		credential.json as CredentialConfiguration | undefined
 	);
-	const credentialSubject = $derived(
-		credentialConfiguration?.credential_definition?.credentialSubject
-	);
+
 	const credentialIssuer = $derived(credential.expand?.credential_issuer);
 </script>
 
@@ -72,7 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
@@ -133,39 +131,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				id={sections.credential_subjects.anchor}
 			/>
 
-			{#if credentialSubject}
-				<InfoBox
-					label="Type"
-					value={credentialConfiguration?.credential_definition?.type?.join(', ')}
-				/>
-
-				<div class="grid grid-cols-[auto_auto_auto] gap-3">
-					{#each Object.entries(credentialSubject) as [key, value]}
-						<InfoBox label="Property">
-							<T>{key}</T>
-						</InfoBox>
-
-						{#if value.display}
-							<InfoBox label="Label">
-								<T>
-									{value.display
-										.map((d) => `${d.name}${d.locale ? ` (${d.locale})` : ''}`)
-										.join(', ')}
-								</T>
-							</InfoBox>
-						{:else}
-							<div></div>
-						{/if}
-
-						{#if value.mandatory}
-							<InfoBox label="Required">
-								<T>Mandatory</T>
-							</InfoBox>
-						{:else}
-							<div></div>
-						{/if}
-					{/each}
-				</div>
+			{#if credentialConfiguration}
+				<pre
+					class="w-fit rounded-xl border border-primary bg-card p-6 text-xs text-card-foreground shadow-sm ring-primary transition-transform hover:-translate-y-2 hover:ring-2">{JSON.stringify(
+						credentialConfiguration,
+						null,
+						2
+					)}</pre>
 			{/if}
 		</div>
 
