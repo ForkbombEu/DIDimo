@@ -20,6 +20,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { QrCode } from '@/qr/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
 	import { String } from 'effect';
+	import { pb } from '@/pocketbase/index.js';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 	const { credential } = $derived(data);
@@ -61,11 +63,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <PageTop contentClass="!space-y-4">
 	<BackButton href="/credentials">Back to credentials</BackButton>
-	<div class="flex items-center gap-2">
-		<Avatar src={credential.logo} class="!rounded-sm" hideIfLoadingError />
-		<div class="">
-			<T class="">Credential name</T>
-			<T tag="h1">{credential.name}</T>
+	<div class="flex items-center gap-6">
+		{#if credential.logo}
+			<Avatar src={credential.logo} class="size-32 rounded-sm" hideIfLoadingError />
+		{/if}
+
+		<div class="space-y-3">
+			<div class="space-y-1">
+				<T class="text-sm">{m.Credential_name()}</T>
+				<T tag="h1">{credential.name}</T>
+			</div>
 		</div>
 	</div>
 </PageTop>

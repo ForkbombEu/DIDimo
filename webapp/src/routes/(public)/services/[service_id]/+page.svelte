@@ -17,6 +17,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { String } from 'effect';
 	import CredentialCard from '$lib/layout/credentialCard.svelte';
 	import BackButton from '$lib/layout/back-button.svelte';
+	import Avatar from '@/components/ui-custom/avatar.svelte';
 
 	//
 
@@ -56,10 +57,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 <PageTop contentClass="!space-y-4">
 	<BackButton href="/services">Back to services</BackButton>
+	<div class="flex items-center gap-6">
+		{#if service.logo_url}
+			<Avatar src={service.logo_url} class="size-32 rounded-sm" hideIfLoadingError />
+		{/if}
 
-	<div>
-		<T>Service name</T>
-		<T tag="h1">{title}</T>
+		<div class="space-y-3">
+			<div class="space-y-1">
+				<T class="text-sm">{m.Service_name()}</T>
+				<T tag="h1">{title}</T>
+			</div>
+		</div>
 	</div>
 </PageTop>
 
@@ -96,7 +104,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<div class="space-y-6">
 			<PageHeader title={sections.credentials.label} id={sections.credentials.anchor} />
 
-			<div class="flex flex-col gap-4">
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				{#each service.expand?.credentials_via_credential_issuer ?? [] as credential}
 					<CredentialCard {credential} />
 				{:else}

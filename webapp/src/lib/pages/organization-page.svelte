@@ -18,6 +18,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { pb } from '@/pocketbase/index.js';
 	import type { OrganizationInfoResponse } from '@/pocketbase/types';
 	import ServiceCard from '$lib/layout/serviceCard.svelte';
+	import BackButton from '$lib/layout/back-button.svelte';
 
 	type Props = {
 		organizationInfo: OrganizationInfoResponse;
@@ -52,7 +53,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	});
 </script>
 
-<PageTop>
+<PageTop contentClass="!space-y-4">
+	<BackButton href="/organizations">Back to organizations</BackButton>
 	<div class="flex items-center gap-6">
 		{#if organizationInfo.logo}
 			{@const providerUrl = pb.files.getURL(organizationInfo, organizationInfo.logo)}
@@ -68,7 +70,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex flex-col md:flex-row gap-16 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex flex-col md:flex-row gap-16 items-start">
 	<div class="sticky top-5 shrink-0">
 		<PageIndex sections={Object.values(sections)} />
 	</div>
@@ -120,7 +122,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 {#snippet CircledNumber(index: number)}
 	<div
-		class="border-primary flex size-4 shrink-0 items-center justify-center rounded-full border text-sm text-slate-500"
+		class="flex size-4 shrink-0 items-center justify-center rounded-full border border-primary text-sm text-slate-500"
 	>
 		<p>
 			{index}
