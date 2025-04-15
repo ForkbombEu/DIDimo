@@ -223,7 +223,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 
 			_, errStart := w.Start(input)
 			if errStart != nil {
-				return apis.NewBadRequestError("failed to start check", err)
+				return apis.NewBadRequestError("failed to start check", errStart)
 			}
 
 			return e.JSON(http.StatusOK, map[string]bool{
