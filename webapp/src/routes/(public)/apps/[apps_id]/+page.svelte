@@ -90,17 +90,23 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 </script>
 
 <PageTop contentClass="!space-y-4">
-	<BackButton href="/apps">Back to Apps</BackButton>
-	<div class="flex items-center gap-2">
-		<Avatar src={logo} class="!rounded-sm" hideIfLoadingError />
-		<div class="">
-			<T class="">App name</T>
-			<T tag="h1">{wallet.name}</T>
+	<BackButton href="/apps">Back to apps</BackButton>
+	<div class="flex items-center gap-6">
+		{#if wallet.logo}
+			{@const providerUrl = pb.files.getURL(wallet, wallet.logo)}
+			<Avatar src={providerUrl} class="size-32 rounded-sm" hideIfLoadingError />
+		{/if}
+
+		<div class="space-y-3">
+			<div class="space-y-1">
+				<T class="text-sm">{m.App_name()}</T>
+				<T tag="h1">{wallet.name}</T>
+			</div>
 		</div>
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
