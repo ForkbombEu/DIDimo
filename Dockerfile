@@ -61,7 +61,7 @@ WORKDIR /app
 
 # install the stepci-captured-runner
 RUN mkdir .bin
-RUN wget https://github.com/ForkbombEu/stepci-captured-runner/releases/latest/download/stepci-captured-runner-Linux-amd64 -O .bin/stepci-captured-runner && chmod +x .bin/stepci-captured-runner
+RUN wget https://github.com/ForkbombEu/stepci-captured-runner/releases/latest/download/stepci-captured-runner-Linux-x86_64 -O .bin/stepci-captured-runner && chmod +x .bin/stepci-captured-runner
 
 # copy everything
 COPY . ./
