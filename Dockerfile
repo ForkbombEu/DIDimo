@@ -57,10 +57,16 @@ RUN gunzip overmind-v2.5.1-linux-amd64.gz
 RUN mv overmind-v2.5.1-linux-amd64 /usr/local/bin/overmind
 RUN chmod +x /usr/local/bin/overmind
 
-# copy everything
 WORKDIR /app
+
+# install the stepci-captured-runner
+RUN mkdir .bin
+RUN wget https://github.com/ForkbombEu/stepci-captured-runner/releases/latest/download/stepci-captured-runner-Linux-amd64 -O .bin/stepci-captured-runner && chmod +x .bin/stepci-captured-runner
+
+# copy everything
 COPY . ./
 RUN didimo migrate up
+
 
 WORKDIR /app/webapp
 ARG PUBLIC_POCKETBASE_URL
