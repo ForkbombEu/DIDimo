@@ -13,13 +13,19 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		 * The url to navigate to when the logo is clicked.
 		 */
 		href?: string;
+		version?: 'icon' | 'full';
 	}
 
-	let { href = '/' }: Props = $props();
+	let { href = '/', version = 'icon' }: Props = $props();
+
+	const logo =
+		version === 'icon'
+			? '/logos/credimi_logo-transp_emblem.png'
+			: '/logos/credimi_logo-transp.png';
 </script>
 
 <a href={localizeHref(href)}>
-	<img src={'/logos/credimi_logo-transp_emblem.png'} class="h-9 w-auto" alt={appName} />
+	<img src={logo} class="h-9 w-auto" alt={appName} />
 </a>
 
 <!--  
