@@ -10,12 +10,11 @@ import (
 	"io"
 	"os"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
 	crIss "github.com/forkbombeu/didimo/pkg/credential_issuer"
 	"github.com/spf13/cobra"
 )
 
-//go:generate go run  github.com/atombender/go-jsonschema@v0.18.0   -p credentialissuer ../../schemas/openid-credential-issuer.schema.json -o ../../pkg/credential_issuer/openid-credential-issuer.schema.go
+//go:generate go run  github.com/atombender/go-jsonschema@v0.18.0   -p credentials_config ../../schemas/openid-credential-issuer.schema.json -o ../../pkg/workflow_engine/workflows/credentials_config/openid-credential-issuer.schema.go
 func main() {
 	var outputFile string
 

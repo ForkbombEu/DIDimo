@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/forkbombeu/didimo/pkg/OpenID4VP"
+	"github.com/forkbombeu/didimo/pkg/template_engine"
 	"github.com/spf13/cobra"
 )
 
@@ -42,13 +42,13 @@ func main() {
 			}
 
 			var variants Variants
-			if err := OpenID4VP.LoadJSON(input, &variants); err != nil {
+			if err := template_engine.LoadJSON(input, &variants); err != nil {
 				fmt.Println("Error loading JSON:", err)
 				return
 			}
 
 			for _, variantString := range variants.Variants {
-				result, err := OpenID4VP.ParseInput(variantString, defaultPath, configPath)
+				result, err := template_engine.ParseInput(variantString, defaultPath, configPath)
 				if err != nil {
 					fmt.Println("Error processing variant:", err)
 					continue

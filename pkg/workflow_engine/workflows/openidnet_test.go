@@ -20,7 +20,7 @@ import (
 	"go.temporal.io/sdk/workflow"
 )
 
-func Test_Workflows(t *testing.T) {
+func Test_OpenIDNETWorkflows(t *testing.T) {
 	testCases := []struct {
 		name                string
 		mockActivities      func(env *testsuite.TestWorkflowEnvironment)

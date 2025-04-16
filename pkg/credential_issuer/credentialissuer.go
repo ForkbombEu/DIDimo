@@ -11,12 +11,13 @@ import (
 	"strings"
 
 	metadata "github.com/forkbombeu/didimo/pkg/internal/metadata"
+	"github.com/forkbombeu/didimo/pkg/workflow_engine/workflows/credentials_config"
 )
 
 var credentialIssuerEndpoint string = "/.well-known/openid-credential-issuer"
 
 // FetchCredentialIssuer fetches the metadata for a credential issuer and handles specific errors, including 404 status.
-func FetchCredentialIssuer(baseURL string) (*OpenidCredentialIssuerSchemaJson, error) {
+func FetchCredentialIssuer(baseURL string) (*credentials_config.OpenidCredentialIssuerSchemaJson, error) {
 	if strings.HasPrefix(baseURL, "http://") {
 		// Print a warning instead of returning an error
 		log.Printf("WARNING: HTTP is not supported, only HTTPS is allowed for the credential issuer URL")
@@ -28,7 +29,7 @@ func FetchCredentialIssuer(baseURL string) (*OpenidCredentialIssuerSchemaJson, e
 	}
 
 	// Call FetchJSON from the metadata package
-	issuerMetadata, err := metadata.FetchJSON[OpenidCredentialIssuerSchemaJson](baseURL, credentialIssuerEndpoint)
+	issuerMetadata, err := metadata.FetchJSON[credentials_config.OpenidCredentialIssuerSchemaJson](baseURL, credentialIssuerEndpoint)
 	if err != nil {
 		switch e := err.(type) {
 		case *metadata.NetworkError:
@@ -51,8 +52,8 @@ func FetchCredentialIssuer(baseURL string) (*OpenidCredentialIssuerSchemaJson, e
 }
 
 // PrintCredentialIssuer prints the credential issuer metadata to the provided writer.
-func PrintCredentialIssuer(issuerData *OpenidCredentialIssuerSchemaJson, writer io.Writer) error {
-	if err := metadata.PrintJSON[OpenidCredentialIssuerSchemaJson](*issuerData, writer); err != nil {
+func PrintCredentialIssuer(issuerData *credentials_config.OpenidCredentialIssuerSchemaJson, writer io.Writer) error {
+	if err := metadata.PrintJSON[credentials_config.OpenidCredentialIssuerSchemaJson](*issuerData, writer); err != nil {
 		return fmt.Errorf("failed to print credential issuer metadata: %v", err)
 	}
 	return nil
