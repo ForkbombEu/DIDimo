@@ -15,6 +15,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { cn } from '@/components/ui/utils';
 	import Avatar from '@/components/ui-custom/avatar.svelte';
 	import { pb } from '@/pocketbase';
+	import RenderHtml from '@/components/ui-custom/renderHTML.svelte';
 
 	type Props = {
 		app: WalletsResponse;
@@ -34,17 +35,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		className
 	)}
 >
-	<div class="space-y-4 overflow-scroll">
+	<div class="space-y-2 overflow-x-auto sm:overflow-hidden">
 		<div class="flex flex-row justify-between">
-			<div>
+			<div class="flex flex-col gap-2">
 				<div class="flex items-center gap-2">
 					{#if logo}
 						<Avatar src={logo} class="!rounded-sm" hideIfLoadingError />
 					{/if}
 					<T class="font-semibold">{app.name}</T>
 				</div>
-				<T class="mt-1 text-xs text-gray-400">
-					{app.description}
+				<T class="text-xs text-gray-400">
+					<RenderHtml content={app.description} />
 				</T>
 			</div>
 		</div>
@@ -52,7 +53,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		<Separator />
 
 		<div class="flex flex-wrap gap-2">
-			{#if conformanceChecks.length > 0}
+			{#if conformanceChecks && conformanceChecks.length > 0}
 				{#each conformanceChecks as check}
 					<Badge variant={check.status === 'success' ? 'secondary' : 'destructive'}>
 						{check.test}

@@ -23,7 +23,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	};
 
 	const { title, icon, href, options, children, ...rest }: Props = $props();
-	$inspect(icon);
 </script>
 
 <DropdownMenuItem {...options} class="{options?.class} hover:cursor-pointer">

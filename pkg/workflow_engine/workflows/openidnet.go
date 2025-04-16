@@ -197,8 +197,8 @@ func (w *OpenIDNetWorkflow) Start(
 		ID:        "OpenIDTestWorkflow" + uuid.NewString(),
 		TaskQueue: OpenIDNetTaskQueue,
 	}
-	if input.Config["Memo"] != nil {
-		workflowOptions.Memo = input.Config["Memo"].(map[string]any)
+	if input.Config["memo"] != nil {
+		workflowOptions.Memo = input.Config["memo"].(map[string]any)
 	}
 
 	// Start the workflow execution.

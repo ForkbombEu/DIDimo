@@ -20,6 +20,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import { QrCode } from '@/qr/index.js';
 	import { Building2, FolderCheck, Layers3, ScanEye } from 'lucide-svelte';
 	import { String } from 'effect';
+	import { pb } from '@/pocketbase/index.js';
+	import { onMount } from 'svelte';
 
 	let { data } = $props();
 	const { credential } = $derived(data);
@@ -55,24 +57,27 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	const credentialConfiguration = $derived(
 		credential.json as CredentialConfiguration | undefined
 	);
-	const credentialSubject = $derived(
-		credentialConfiguration?.credential_definition?.credentialSubject
-	);
+
 	const credentialIssuer = $derived(credential.expand?.credential_issuer);
 </script>
 
 <PageTop contentClass="!space-y-4">
 	<BackButton href="/credentials">Back to credentials</BackButton>
-	<div class="flex items-center gap-2">
-		<Avatar src={credential.logo} class="!rounded-sm" hideIfLoadingError />
-		<div class="">
-			<T class="">Credential name</T>
-			<T tag="h1">{credential.name}</T>
+	<div class="flex items-center gap-6">
+		{#if credential.logo}
+			<Avatar src={credential.logo} class="size-32 rounded-sm" hideIfLoadingError />
+		{/if}
+
+		<div class="space-y-3">
+			<div class="space-y-1">
+				<T class="text-sm">{m.Credential_name()}</T>
+				<T tag="h1">{credential.name}</T>
+			</div>
 		</div>
 	</div>
 </PageTop>
 
-<PageContent class="bg-secondary grow" contentClass="flex gap-12 items-start">
+<PageContent class="grow bg-secondary" contentClass="flex gap-12 items-start">
 	<PageIndex sections={Object.values(sections)} class="sticky top-5" />
 
 	<div class="grow space-y-16">
@@ -133,39 +138,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 				id={sections.credential_subjects.anchor}
 			/>
 
-			{#if credentialSubject}
-				<InfoBox
-					label="Type"
-					value={credentialConfiguration?.credential_definition?.type?.join(', ')}
-				/>
-
-				<div class="grid grid-cols-[auto_auto_auto] gap-3">
-					{#each Object.entries(credentialSubject) as [key, value]}
-						<InfoBox label="Property">
-							<T>{key}</T>
-						</InfoBox>
-
-						{#if value.display}
-							<InfoBox label="Label">
-								<T>
-									{value.display
-										.map((d) => `${d.name}${d.locale ? ` (${d.locale})` : ''}`)
-										.join(', ')}
-								</T>
-							</InfoBox>
-						{:else}
-							<div></div>
-						{/if}
-
-						{#if value.mandatory}
-							<InfoBox label="Required">
-								<T>Mandatory</T>
-							</InfoBox>
-						{:else}
-							<div></div>
-						{/if}
-					{/each}
-				</div>
+			{#if credentialConfiguration}
+				<pre
+					class="w-fit max-w-screen-lg overflow-x-clip rounded-xl border border-primary bg-card p-6 text-xs text-card-foreground shadow-sm ring-primary transition-transform hover:-translate-y-2 hover:ring-2">{JSON.stringify(
+						credentialConfiguration,
+						null,
+						2
+					)}</pre>
 			{/if}
 		</div>
 
