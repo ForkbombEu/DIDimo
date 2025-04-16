@@ -126,7 +126,7 @@ func (w *CredentialsIssuersWorkflow) Workflow(ctx workflow.Context, input workfl
 	}
 	var cleanupResponse workflowengine.ActivityResult
 	err = workflow.ExecuteActivity(ctx, HTTPActivity.Name(), cleanupInput).Get(ctx, &cleanupResponse)
-	logs["RemovedCredentials"] = append(logs["RemovedCredentials"], cleanupResponse.Output.(map[string]any)["body"].(map[string]any)["key"])
+	logs["RemovedCredentials"] = append(logs["RemovedCredentials"], cleanupResponse.Output.(map[string]any)["body"].(map[string]any)["deleted"])
 	if err != nil {
 		return workflowengine.WorkflowResult{Log: logs}, err
 	}
