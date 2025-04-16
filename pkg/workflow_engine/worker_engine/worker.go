@@ -71,7 +71,7 @@ func StartAllWorkers() {
 			Activities: []workflowengine.ExecutableActivity{
 				&activities.StepCIWorkflowActivity{},
 				&activities.SendMailActivity{},
-				&activities.HTTPActivity{},
+				&activities.HttpActivity{},
 			},
 		},
 		{
@@ -81,12 +81,12 @@ func StartAllWorkers() {
 			},
 			Activities: []workflowengine.ExecutableActivity{
 				&activities.CheckCredentialsIssuerActivity{},
-				&activities.ParseJSONActivity{
+				&activities.JsonActivity{
 					StructRegistry: map[string]reflect.Type{
 						"OpenidCredentialIssuerSchemaJson": reflect.TypeOf(credentials_config.OpenidCredentialIssuerSchemaJson{}),
 					},
 				},
-				&activities.HTTPActivity{},
+				&activities.HttpActivity{},
 			},
 		},
 	}

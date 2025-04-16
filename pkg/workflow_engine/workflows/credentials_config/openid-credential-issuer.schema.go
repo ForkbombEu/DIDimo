@@ -239,25 +239,10 @@ type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDispl
 	AltText *string `json:"alt_text,omitempty" yaml:"alt_text,omitempty" mapstructure:"alt_text,omitempty"`
 
 	// Uri corresponds to the JSON schema field "uri".
-	Uri string `json:"uri" yaml:"uri" mapstructure:"uri"`
-}
+	Uri *string `json:"uri,omitempty" yaml:"uri,omitempty" mapstructure:"uri,omitempty"`
 
-// UnmarshalJSON implements json.Unmarshaler.
-func (j *OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo) UnmarshalJSON(value []byte) error {
-	var raw map[string]interface{}
-	if err := json.Unmarshal(value, &raw); err != nil {
-		return err
-	}
-	if _, ok := raw["uri"]; raw != nil && !ok {
-		return fmt.Errorf("field uri in OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo: required")
-	}
-	type Plain OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo
-	var plain Plain
-	if err := json.Unmarshal(value, &plain); err != nil {
-		return err
-	}
-	*j = OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueDisplayElemLogo(plain)
-	return nil
+	// Url corresponds to the JSON schema field "url".
+	Url *string `json:"url,omitempty" yaml:"url,omitempty" mapstructure:"url,omitempty"`
 }
 
 // UnmarshalJSON implements json.Unmarshaler.
@@ -300,10 +285,14 @@ type OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProof
 
 const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemES256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "ES256"
 const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemEdDSA OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "EdDSA"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemPS256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "PS256"
+const OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElemRS256 OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = "RS256"
 
 var enumValues_OpenidCredentialIssuerSchemaJsonCredentialConfigurationsSupportedValueProofTypesSupportedValueProofSigningAlgValuesSupportedElem = []interface{}{
 	"ES256",
 	"EdDSA",
+	"PS256",
+	"RS256",
 }
 
 // UnmarshalJSON implements json.Unmarshaler.

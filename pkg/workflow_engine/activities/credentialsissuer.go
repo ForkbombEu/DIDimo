@@ -30,7 +30,7 @@ type Credential struct {
 type CheckCredentialsIssuerActivity struct{}
 
 func (a *CheckCredentialsIssuerActivity) Name() string {
-	return "CheckCredentialsIssuer"
+	return "Parse the Credential issuer metadata (.well-known/openid-credential-issuer)"
 }
 
 func (a *CheckCredentialsIssuerActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {

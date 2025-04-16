@@ -141,7 +141,10 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 					locale = *display.Locale
 				}
 				if display.Logo != nil {
-					logo = display.Logo.Uri
+					// do not broke if URI is nil
+					if display.Logo.Uri != nil {
+						logo = *display.Logo.Uri
+					}
 				}
 			}
 

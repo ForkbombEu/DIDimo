@@ -267,7 +267,7 @@ func (w *OpenIDNetLogsWorkflow) Workflow(
 			logger.Info("Workflow canceled, returning collected logs")
 			return workflowengine.WorkflowResult{Log: logs}, nil
 		}
-		var HTTPActivity activities.HTTPActivity
+		var HTTPActivity activities.HttpActivity
 		var HTTPResponse workflowengine.ActivityResult
 		// Fetch logs
 		err := workflow.ExecuteActivity(subCtx, HTTPActivity.Name(), GetLogsInput).
