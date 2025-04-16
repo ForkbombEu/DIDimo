@@ -70,7 +70,15 @@ export interface OpenidCredentialIssuerSchema {
         | "did:key"
         | "cose_key"
       )[];
-      credential_signing_alg_values_supported?: ("ES256" | "EdDSA" | "RS256" | "ES256K" | "RSA" | "RsaSignature2018")[];
+      credential_signing_alg_values_supported?: (
+        | "ES256"
+        | "EdDSA"
+        | "Ed25519Signature2020"
+        | "RS256"
+        | "ES256K"
+        | "RSA"
+        | "RsaSignature2018"
+      )[];
       proof_types_supported?: {
         [k: string]: {
           proof_signing_alg_values_supported: ("ES256" | "EdDSA" | "PS256" | "RS256")[];
