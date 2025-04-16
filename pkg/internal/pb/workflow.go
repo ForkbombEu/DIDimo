@@ -62,11 +62,12 @@ func HookCredentialWorkflow(app *pocketbase.PocketBase) {
 
 			existingRecords, err := app.FindRecordsByFilter(
 				collection.Id,
-				"url = {:url}",
+				"url = {:url} && owner = {:owner}",
 				"",
 				1,
 				0,
-				dbx.Params{"url": req.URL},
+				dbx.Params{"url": req.URL,
+					"owner": e.Auth.Id},
 			)
 			if err != nil {
 				return err
