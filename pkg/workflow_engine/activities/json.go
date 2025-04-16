@@ -13,15 +13,15 @@ import (
 	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 )
 
-type ParseJSONActivity struct {
+type JsonActivity struct {
 	StructRegistry map[string]reflect.Type // Maps type names to their reflect.Type
 }
 
-func (a *ParseJSONActivity) Name() string {
-	return "ParseJSON"
+func (a *JsonActivity) Name() string {
+	return "Parse a JSON and validate it against a schema"
 }
 
-func (a *ParseJSONActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
+func (a *JsonActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
 	// Get rawJSON
 	raw, ok := input.Payload["rawJSON"]
 	if !ok {
@@ -47,9 +47,9 @@ func (a *ParseJSONActivity) Execute(ctx context.Context, input workflowengine.Ac
 
 	// Create a new instance of the struct
 	target := reflect.New(structType).Interface()
-	// Decode JSON into the struct
+	// add additional extra properties
 	decoder := json.NewDecoder(strings.NewReader(rawStr))
-	decoder.DisallowUnknownFields()
+
 	if err := decoder.Decode(target); err != nil {
 		return workflowengine.Fail(&workflowengine.ActivityResult{},
 			fmt.Sprintf("Invalid JSON: %v", err))

@@ -24,11 +24,11 @@ func Test_Workflow(t *testing.T) {
 	env.RegisterActivityWithOptions(CheckActivity.Execute, activity.RegisterOptions{
 		Name: CheckActivity.Name(),
 	})
-	var JSONActivity activities.ParseJSONActivity
+	var JSONActivity activities.JsonActivity
 	env.RegisterActivityWithOptions(JSONActivity.Execute, activity.RegisterOptions{
 		Name: JSONActivity.Name(),
 	})
-	var HTTPActivity activities.HTTPActivity
+	var HTTPActivity activities.HttpActivity
 	env.RegisterActivityWithOptions(HTTPActivity.Execute, activity.RegisterOptions{
 		Name: HTTPActivity.Name(),
 	})
