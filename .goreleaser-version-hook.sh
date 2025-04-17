@@ -1,11 +1,15 @@
 #!/bin/env bash
+
+# SPDX-FileCopyrightText: 2025 Forkbomb BV
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 set -euo pipefail
 
 echo "$GORELEASER_VERSION" > VERSION
 
 # Optional: configure git if running in CI (especially GitHub Actions)
-git config user.name "goreleaser"
-git config user.email "goreleaser@forkbomb.eu"
+git config user.name "forkboteu"
+git config user.email "apps@forkbomb.eu"
 
 # Add and commit the file
 git add VERSION
