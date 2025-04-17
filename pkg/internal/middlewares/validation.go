@@ -5,8 +5,13 @@
 package middlewares
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
+	"io"
+	"reflect"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
@@ -16,16 +21,23 @@ var validate = validator.New()
 
 func ValidateInputMiddleware[T any]() func(e *core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
-		var input T
-
-		if err := json.NewDecoder(e.Request.Body).Decode(&input); err != nil {
+		raw, err := io.ReadAll(e.Request.Body)
+		if err != nil {
 			return apis.NewBadRequestError("Invalid JSON body", err)
 		}
+		ptr := new(T)
+		if err := json.NewDecoder(e.Request.Body).Decode(ptr); err != nil {
+			return apis.NewBadRequestError("Invalid JSON body i", err)
+		}
 
-		if err := validate.Struct(input); err != nil {
-			if validationErrors, ok := err.(validator.ValidationErrors); ok {
-				details := make([]map[string]interface{}, 0, len(validationErrors))
-				for _, ve := range validationErrors {
+		tKind := reflect.TypeOf(*ptr).Kind()
+		var details []map[string]interface{}
+
+		switch tKind {
+		case reflect.Struct:
+			// Direct struct validation
+			if err := validate.Struct(*ptr); err != nil {
+				for _, ve := range err.(validator.ValidationErrors) {
 					details = append(details, map[string]interface{}{
 						"field":   ve.Field(),
 						"tag":     ve.Tag(),
@@ -34,17 +46,55 @@ func ValidateInputMiddleware[T any]() func(e *core.RequestEvent) error {
 						"message": ve.Error(),
 					})
 				}
-				return apis.NewBadRequestError("Validation failed", map[string]interface{}{
-					"errors": details,
+			}
+
+		case reflect.Map:
+			m := reflect.ValueOf(ptr)
+			for _, key := range m.MapKeys() {
+				val := m.MapIndex(key).Interface()
+				vType := reflect.TypeOf(val)
+
+				if vType.Kind() == reflect.Struct || (vType.Kind() == reflect.Ptr && vType.Elem().Kind() == reflect.Struct) {
+					if err := validate.Struct(val); err != nil {
+						for _, ve := range err.(validator.ValidationErrors) {
+							details = append(details, map[string]interface{}{
+								"field":   fmt.Sprintf("%v.%s", key, ve.Field()),
+								"tag":     ve.Tag(),
+								"param":   ve.Param(),
+								"value":   ve.Value(),
+								"message": ve.Error(),
+							})
+						}
+					}
+				} else {
+					if err := validate.Var(val, "required"); err != nil {
+						details = append(details, map[string]interface{}{
+							"field":   fmt.Sprintf("%v", key),
+							"message": err.Error(),
+						})
+					}
+				}
+			}
+
+		default:
+			// Fallback for other types: require non-zero
+			if err := validate.Var(*ptr, "required"); err != nil {
+				details = append(details, map[string]interface{}{
+					"field":   "",
+					"message": err.Error(),
 				})
 			}
-			return apis.NewBadRequestError("Validation failed", err)
 		}
-		ctx := e.Request.Context()
-		ctx = context.WithValue(ctx, "validatedInput", input)
-		e.Request = e.Request.WithContext(ctx)
-		e.Request = e.Request.WithContext(ctx)
 
+		if len(details) > 0 {
+			return apis.NewBadRequestError("Validation failed", map[string]interface{}{"errors": details})
+		}
+
+		e.Request.Body = io.NopCloser(bytes.NewBuffer(raw))
+
+
+		ctx := context.WithValue(e.Request.Context(), "validatedInput", *ptr)
+		e.Request = e.Request.WithContext(ctx)
 		return e.Next()
 	}
 }

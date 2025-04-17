@@ -80,7 +80,6 @@ func TestAddOpenID4VPTestEndpoints_RoutesRegistered(t *testing.T) {
 				"start",
 			},
 			NotExpectedContent: []string{"error"},
-			// ExpectedEvents:     map[string]int{"OpenIDTestEvent": 1},
 			TestAppFactory:     setupTestApp,
 		},
 		// {

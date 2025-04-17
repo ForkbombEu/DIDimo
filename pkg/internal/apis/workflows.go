@@ -11,26 +11,34 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/forkbombeu/didimo/pkg/internal/middlewares"
 	temporalclient "github.com/forkbombeu/didimo/pkg/internal/temporal_client"
 	engine "github.com/forkbombeu/didimo/pkg/template_engine"
 	workflowengine "github.com/forkbombeu/didimo/pkg/workflow_engine"
 	"github.com/forkbombeu/didimo/pkg/workflow_engine/workflows"
 	"github.com/pocketbase/pocketbase/apis"
 	"github.com/pocketbase/pocketbase/core"
+	"github.com/pocketbase/pocketbase/tools/hook"
 	"go.temporal.io/api/enums/v1"
 	"google.golang.org/protobuf/encoding/protojson"
 )
+
+type SaveVariablesAndStartRequest map[string]struct {
+	Format string      `json:"format" validate:"required"`
+	Data   interface{} `json:"data" validate:"required"`
+}
 
 func AddComplianceChecks(app core.App) {
 	app.OnServe().BindFunc(func(se *core.ServeEvent) error {
 		g := se.Router.Group("/api/compliance/check")
 
-		// g.Bind(apis.RequireAuth())
-
+		g.Bind(apis.RequireAuth())
 
 		g.POST("", HandleOpenID4VPTest(app))
-		g.POST("/{protocol}/{author}/save-variables-and-start", 
-			HandleSaveVariablesAndStart(app))
+		g.POST("/{protocol}/{author}/save-variables-and-start",
+			HandleSaveVariablesAndStart(app)).Bind(&hook.Handler[*core.RequestEvent]{
+			Func: middlewares.ValidateInputMiddleware[*SaveVariablesAndStartRequest](),
+		})
 		g.POST("/confirm-success", HandleConfirmSuccess(app))
 		g.POST("/notify-failure", HandleNotifyFailure(app))
 		g.POST("/send-log-update", HandleSendLogUpdate(app))
@@ -107,7 +115,7 @@ func HandleOpenID4VPTest(app core.App) func(*core.RequestEvent) error {
 		}
 
 		appURL := app.Settings().Meta.AppURL
-		templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") +"/"+workflows.OpenIDNetStepCITemplatePath)
+		templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") + "/" + workflows.OpenIDNetStepCITemplatePath)
 		if err != nil {
 			return apis.NewBadRequestError(err.Error(), err)
 		}
@@ -135,10 +143,7 @@ func HandleOpenID4VPTest(app core.App) func(*core.RequestEvent) error {
 
 func HandleSaveVariablesAndStart(app core.App) func(*core.RequestEvent) error {
 	return func(e *core.RequestEvent) error {
-		var req map[string]struct {
-			Format string      `json:"format"`
-			Data   interface{} `json:"data"`
-		}
+		var req SaveVariablesAndStartRequest
 		if err := decodeJSON(e.Request.Body, &req); err != nil {
 			return err
 		}
@@ -189,8 +194,8 @@ func HandleSaveVariablesAndStart(app core.App) func(*core.RequestEvent) error {
 }
 
 func processJSONChecks(app core.App, e *core.RequestEvent, testData struct {
-	Format string      `json:"format"`
-	Data   interface{} `json:"data"`
+	Format string      `json:"format" validate:"required"`
+	Data   interface{} `json:"data" validate:"required"`
 }, email, appURL string, namespace interface{}, memo map[string]interface{}) error {
 	jsonData, ok := testData.Data.(string)
 	if !ok {
@@ -202,7 +207,7 @@ func processJSONChecks(app core.App, e *core.RequestEvent, testData struct {
 		return apis.NewBadRequestError("failed to parse JSON input", err)
 	}
 
-	templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") +"/"+workflows.OpenIDNetStepCITemplatePath)
+	templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") + "/" + workflows.OpenIDNetStepCITemplatePath)
 	if err != nil {
 		return apis.NewBadRequestError(err.Error(), err)
 	}
@@ -228,8 +233,8 @@ func processJSONChecks(app core.App, e *core.RequestEvent, testData struct {
 }
 
 func processVariablesTest(app core.App, e *core.RequestEvent, testName string, testData struct {
-	Format string      `json:"format"`
-	Data   interface{} `json:"data"`
+	Format string      `json:"format" validate:"required"`
+	Data   interface{} `json:"data" validate:"required"`
 }, email, appURL string, namespace interface{}, dirPath string, memo map[string]interface{}) error {
 	variables, ok := testData.Data.(map[string]interface{})
 	if !ok {
@@ -279,7 +284,7 @@ func processVariablesTest(app core.App, e *core.RequestEvent, testName string, t
 		return apis.NewBadRequestError("failed to unmarshal JSON for test "+testName, err)
 	}
 
-	templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") +"/"+workflows.OpenIDNetStepCITemplatePath)
+	templateStr, err := readTemplateFile(os.Getenv("ROOT_DIR") + "/" + workflows.OpenIDNetStepCITemplatePath)
 	if err != nil {
 		return apis.NewBadRequestError(err.Error(), err)
 	}
@@ -388,4 +393,3 @@ func HandleSendLogUpdateStart(app core.App) func(*core.RequestEvent) error {
 		return e.JSON(http.StatusOK, map[string]string{"message": "Realtime Logs update started successfully"})
 	}
 }
-
