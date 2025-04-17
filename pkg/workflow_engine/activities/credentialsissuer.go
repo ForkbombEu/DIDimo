@@ -34,7 +34,6 @@ func (a *CheckCredentialsIssuerActivity) Name() string {
 }
 
 func (a *CheckCredentialsIssuerActivity) Execute(ctx context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
-
 	baseURL, ok := input.Config["base_url"]
 	if !ok || strings.TrimSpace(baseURL) == "" {
 		return workflowengine.Fail(&workflowengine.ActivityResult{}, "Missing baseURL in config")

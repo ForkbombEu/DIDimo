@@ -25,7 +25,7 @@ const CredentialsTaskQueue = "CredentialsTaskQueue"
 type CredentialsIssuersWorkflow struct{}
 
 func (w *CredentialsIssuersWorkflow) Name() string {
-	return "CredentialsIssuers"
+	return "Validate and import Credential Issuer metadata"
 }
 
 func (w *CredentialsIssuersWorkflow) GetOptions() workflow.ActivityOptions {
