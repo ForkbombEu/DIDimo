@@ -1,9 +1,56 @@
-// Following the https://google.github.io/styleguide/jsoncstyleguide.xml
-// All the calls should have the same structure of error reporting
-// Follows https://github.com/ForkbombEu/DIDimo/issues/53
+// SPDX-FileCopyrightText: 2025 Forkbomb BV
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
 
+package middlewares
 
-func MIDDLEWARE DELLERRROE()  {
+import (
+    "github.com/pocketbase/pocketbase/core"
+    "log"
+    "errors"
+    "github.com/forkbombeu/didimo/pkg/internal/apierror" 
+)
 
-	
+func ErrorHandlingMiddleware(e *core.RequestEvent) error {
+    err := e.Next()
+    if err == nil {
+        return nil
+    }
+
+    var apiError *apierror.APIError
+    if errors.As(err, &apiError) {
+        // apiError ci facciamo quello che vogliamo (sentry, mail, etc)
+        log.Printf("Handled API error: %v", apiError)
+        return e.JSON(apiError.Code, map[string]interface{}{
+            "apiVersion": "2.0",
+            "error": map[string]interface{}{
+                "code":    apiError.Code,
+                "message": apiError.Message,
+                "errors": []map[string]string{
+                    {
+                        "domain":  apiError.Domain,
+                        "reason":  apiError.Reason,
+                        "message": apiError.Message,
+                    },
+                },
+            },
+        })
+    }
+
+    log.Printf("Unhandled error: %v", err)
+
+    return e.JSON(500, map[string]interface{}{
+        "apiVersion": "2.0",
+        "error": map[string]interface{}{
+            "code":    500,
+            "message": "Internal Server Error",
+            "errors": []map[string]string{
+                {
+                    "domain":  "internal",
+                    "reason":  "UnhandledException",
+                    "message": err.Error(),
+                },
+            },
+        },
+    })
 }
