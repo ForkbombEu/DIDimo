@@ -269,6 +269,69 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			})
 		})
 
+		se.Router.POST("/api/custom-check/{id}/start", func(e *core.RequestEvent) error {
+			id := e.Request.PathValue("id")
+
+			customChecksCollection, err := e.App.FindCollectionByNameOrId("custom_checks")
+			if err != nil {
+				return apis.NewBadRequestError("failed to find custom_checks collection", err)
+			}
+			customCheckRecord, err := e.App.FindRecordById(customChecksCollection.Id, id)
+			if err != nil {
+				return apis.NewBadRequestError("failed to find custom check record", err)
+			}
+
+			if customCheckRecord == nil {
+				return apis.NewBadRequestError("custom check record not found", nil)
+			}
+
+			yaml := customCheckRecord.GetString("yaml")
+			if yaml == "" {
+				return apis.NewBadRequestError("yaml is empty", nil)
+			}
+			authName := customCheckRecord.GetString("owner")
+			standard := customCheckRecord.GetString("standard")
+
+			appURL := app.Settings().Meta.AppURL
+
+			email := e.Auth.GetString("email")
+
+			namespace, err := getUserNamespace(app, e.Auth.Id)
+			if err != nil {
+				return apis.NewBadRequestError("failed to get user namespace", err)
+			}
+
+			memo := map[string]interface{}{
+				"test":     "custom-check",
+				"standard": standard,
+				"author":   authName,
+			}
+
+			input := workflowengine.WorkflowInput{
+				Payload: map[string]any{
+					"user_mail": email,
+					"app_url":   appURL,
+				},
+				Config: map[string]any{
+					"template":  yaml,
+					"namespace": namespace,
+					"memo":      memo,
+				},
+			}
+
+			var w workflows.OpenIDNetWorkflow
+
+			_, errStart := w.Start(input)
+			if errStart != nil {
+				return apis.NewBadRequestError("failed to start check", errStart)
+			}
+
+			return e.JSON(http.StatusOK, map[string]bool{
+				"started": true,
+			},
+			)
+		}).Bind(apis.RequireAuth())
+
 		se.Router.POST("/api/{protocol}/{author}/save-variables-and-start", func(e *core.RequestEvent) error {
 			var req map[string]struct {
 				Format string      `json:"format"`
@@ -340,6 +403,7 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 							"memo":      memo,
 						},
 					}
+
 					var w workflows.OpenIDNetWorkflow
 					_, err = w.Start(input)
 					if err != nil {
