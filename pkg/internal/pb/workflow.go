@@ -499,12 +499,51 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 			if err := notifyLogsUpdate(app, logData.WorkflowID+"openid4vp-wallet-logs", logData.Logs); err != nil {
 				return apis.NewBadRequestError("failed to send real-time log update", err)
 			}
-
+			log.Println("HEREEEEEEEE")
 			return e.JSON(http.StatusOK, map[string]string{
 				"message": "Log update sent successfully",
 			})
 		})
 		se.Router.POST("/wallet-test/send-log-update-start", func(e *core.RequestEvent) error {
+			var request struct {
+				WorkflowID string `json:"workflow_id"`
+			}
+
+			if err := json.NewDecoder(e.Request.Body).Decode(&request); err != nil {
+				return apis.NewBadRequestError("Invalid JSON input", err)
+			}
+
+			c, err := temporalclient.GetTemporalClient()
+			if err != nil {
+				return err
+			}
+			defer c.Close()
+
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
+			if err != nil {
+				wf := c.GetWorkflow(context.Background(), request.WorkflowID+"-log", "")
+				var result workflowengine.WorkflowResult
+
+				err := wf.Get(context.Background(), &result)
+				if err != nil {
+					return apis.NewBadRequestError("Failed to send start logs update signal", err)
+				}
+
+				if logsInterface, ok := result.Log.([]any); ok {
+					logs := workflows.AsSliceOfMaps(logsInterface)
+					if err := notifyLogsUpdate(app, request.WorkflowID+"openid4vp-wallet-logs", logs); err != nil {
+						return apis.NewBadRequestError("Failed to send real-time log update", err)
+					}
+				} else {
+					return apis.NewBadRequestError("Invalid log format in workflow result", err)
+				}
+			}
+
+			return e.JSON(http.StatusOK, map[string]string{
+				"message": "Realtime Logs update started successfully",
+			})
+		})
+		se.Router.POST("/wallet-test/send-log-update-stop", func(e *core.RequestEvent) error {
 			var request struct {
 				WorkflowID string `json:"workflow_id"`
 			}
@@ -518,12 +557,13 @@ func AddOpenID4VPTestEndpoints(app *pocketbase.PocketBase) {
 				return err
 			}
 
-			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-start-log-update", struct{}{})
+			err = c.SignalWorkflow(context.Background(), request.WorkflowID+"-log", "", "wallet-test-stop-log-update", struct{}{})
 			if err != nil {
-				return apis.NewBadRequestError("Failed to send start logs update signal", err)
+				return apis.NewBadRequestError("Failed to send stop logs update signal", err)
 			}
-
-			return e.JSON(http.StatusOK, map[string]string{"message": "Realtime Logs update started successfully"})
+			return e.JSON(http.StatusOK, map[string]string{
+				"message": "Realtime Logs update started successfully",
+			})
 		})
 
 		return se.Next()

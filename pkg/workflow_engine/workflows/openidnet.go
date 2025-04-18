@@ -6,6 +6,7 @@ package workflows
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -225,114 +226,117 @@ func (w *OpenIDNetLogsWorkflow) Workflow(
 	input workflowengine.WorkflowInput,
 ) (workflowengine.WorkflowResult, error) {
 	logger := workflow.GetLogger(ctx)
-
 	subCtx := workflow.WithActivityOptions(ctx, w.GetOptions())
 
-	GetLogsInput := workflowengine.ActivityInput{
-		Config: map[string]string{
-			"method": "GET",
-			"url": fmt.Sprintf(
-				"%s/%s",
-				"https://www.certification.openid.net/api/log/",
-				url.PathEscape(input.Payload["rid"].(string)),
-			),
-		},
-		Payload: map[string]any{
-			"headers": map[string]any{
-				"Authorization": fmt.Sprintf("Bearer %s", input.Payload["token"].(string)),
-			},
-			"query_params": map[string]any{
-				"public": "false",
-			},
-		},
-	}
-	var logs []map[string]any
-
-	signalChan := workflow.GetSignalChannel(ctx, "wallet-test-start-log-update")
-	selector := workflow.NewSelector(ctx)
-	var triggerEnabled bool // Persistent flag to enable activity executions
-
-	// Timer setup
+	var logs []map[string]interface{}
+	var timerCancel workflow.CancelFunc
+	var isPolling bool
 	var timerFuture workflow.Future
+
+	signalChanStart := workflow.GetSignalChannel(ctx, "wallet-test-start-log-update")
+	signalChanStop := workflow.GetSignalChannel(ctx, "wallet_test-stop-log-update")
+
+	// Timer setup function
 	startTimer := func() {
-		timerCtx, _ := workflow.WithCancel(ctx)
-		timerFuture = workflow.NewTimer(timerCtx, time.Duration(input.Config["interval"].(float64))*time.Nanosecond)
+		timerCtx, cancel := workflow.WithCancel(ctx)
+		timerCancel = cancel
+		interval := time.Duration(input.Config["interval"].(float64)) * time.Nanosecond
+		timerFuture = workflow.NewTimer(timerCtx, interval)
 	}
 
-	// Initialize the timer
-	startTimer()
+	selector := workflow.NewSelector(ctx)
+	selector.AddReceive(signalChanStart, func(c workflow.ReceiveChannel, _ bool) {
+		logger.Info("Received wallet-test-start-log-update signal")
+		isPolling = true
+	})
+	selector.AddReceive(signalChanStop, func(c workflow.ReceiveChannel, _ bool) {
+		logger.Info("Received wallet-test-stop-log-update signal")
+		isPolling = false
+		if timerCancel != nil {
+			timerCancel()
+			timerCancel = nil
+			timerFuture = nil
+		}
+	})
 
 	for {
-		if ctx.Err() != nil {
+		// If workflow context is canceled, exit
+		if errors.Is(ctx.Err(), workflow.ErrCanceled) {
 			logger.Info("Workflow canceled, returning collected logs")
 			return workflowengine.WorkflowResult{Log: logs}, nil
 		}
-		var HTTPActivity activities.HttpActivity
-		var HTTPResponse workflowengine.ActivityResult
-		// Fetch logs
-		err := workflow.ExecuteActivity(subCtx, HTTPActivity.Name(), GetLogsInput).
-			Get(subCtx, &HTTPResponse)
-		if err != nil {
-			logger.Error("Failed to get logs", "error", err)
-			return workflowengine.WorkflowResult{}, err
-		}
 
-		logs = asSliceOfMaps(HTTPResponse.Output.(map[string]any)["body"])
-		// Check termination condition
-		if len(logs) > 0 {
-			if result, ok := logs[len(logs)-1]["result"].(string); ok {
-				if result == "INTERRUPTED" || result == "FINISHED" {
-					return workflowengine.WorkflowResult{Log: logs}, nil
-				}
-			}
-		}
-
-		// Register events in the selector
-		selector.AddReceive(signalChan, func(c workflow.ReceiveChannel, _ bool) {
-			var signalVal interface{}
-			c.Receive(ctx, &signalVal)
-			triggerEnabled = true // Enable activity execution
-		})
-		selector.AddFuture(timerFuture, func(f workflow.Future) {
-			// Timer expired; reset the timer for the next interval
+		if isPolling {
 			startTimer()
-		})
 
-		// Wait for either a signal or the timer to expire
-		selector.Select(ctx)
+			getLogsInput := workflowengine.ActivityInput{
+				Config: map[string]string{
+					"method": "GET",
+					"url": fmt.Sprintf(
+						"https://www.certification.openid.net/api/log/%s",
+						url.PathEscape(input.Payload["rid"].(string)),
+					),
+				},
+				Payload: map[string]any{
+					"headers": map[string]any{
+						"Authorization": fmt.Sprintf("Bearer %s", input.Payload["token"].(string)),
+					},
+					"query_params": map[string]any{
+						"public": "false",
+					},
+				},
+			}
 
-		// Execute TriggerLogsUpdateActivity if enabled
-		if triggerEnabled {
+			var httpActivity activities.HttpActivity
+			var httpResponse workflowengine.ActivityResult
+
+			// Execute the HTTP request to fetch logs
+			err := workflow.ExecuteActivity(subCtx, httpActivity.Name(), getLogsInput).Get(subCtx, &httpResponse)
+			if err != nil {
+				logger.Error("Failed to get logs", "error", err)
+				return workflowengine.WorkflowResult{}, err
+			}
+
+			logs = AsSliceOfMaps(httpResponse.Output.(map[string]any)["body"])
+
+			// Prepare and send logs if polling is still active
 			triggerLogsInput := workflowengine.ActivityInput{
 				Config: map[string]string{
 					"method": "POST",
-					"url": fmt.Sprintf(
-						"%s/%s",
-						input.Payload["app_url"].(string),
-						"wallet-test/send-log-update",
-					),
+					"url":    fmt.Sprintf("%s/wallet-test/send-log-update", input.Payload["app_url"].(string)),
 				},
 				Payload: map[string]any{
 					"headers": map[string]any{
 						"Content-Type": "application/json",
 					},
 					"body": map[string]any{
-						"workflow_id": strings.TrimSuffix(
-							workflow.GetInfo(ctx).WorkflowExecution.ID,
-							"-log",
-						),
-						"logs": logs,
+						"workflow_id": strings.TrimSuffix(workflow.GetInfo(ctx).WorkflowExecution.ID, "-log"),
+						"logs":        logs,
 					},
 				},
 			}
 
-			err = workflow.ExecuteActivity(subCtx, HTTPActivity.Name(), triggerLogsInput).
-				Get(ctx, nil)
+			err = workflow.ExecuteActivity(subCtx, httpActivity.Name(), triggerLogsInput).Get(subCtx, nil)
 			if err != nil {
 				logger.Error("Failed to send logs", "error", err)
-				return workflowengine.WorkflowResult{}, err
 			}
+			// Check if we reached a terminal condition
+			if len(logs) > 0 {
+				if result, ok := logs[len(logs)-1]["result"].(string); ok {
+					if result == "INTERRUPTED" || result == "FINISHED" {
+						logger.Info("Workflow completed with terminal log result")
+						return workflowengine.WorkflowResult{Log: logs}, nil
+					}
+				}
+			}
+			selector.AddFuture(timerFuture, func(f workflow.Future) {
+				timerFuture = nil
+			})
 		}
+
+		// Wait for either a signal or timer event
+
+		selector.Select(ctx)
 	}
 }
 
@@ -344,7 +348,7 @@ func (w *OpenIDNetLogsWorkflow) Configure(ctx workflow.Context) workflow.Context
 	return workflow.WithChildOptions(ctx, childOptions)
 }
 
-func asSliceOfMaps(val any) []map[string]any {
+func AsSliceOfMaps(val any) []map[string]any {
 	if v, ok := val.([]map[string]any); ok {
 		return v
 	}
