@@ -10621,6 +10621,49 @@ steps:
         method: GET
         url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-standard-all-28f43ce6-create-capture-session.outputs.body.session_id }}
     - continue_on_error: true
+      id: dcql-string-claim-path-index-selecto-e72d9b13-create
+      use: http-request
+      with:
+        body:
+            presentation_request:
+                dcql_query:
+                    credentials:
+                        - claim_sets:
+                            - - index_selector_on_string
+                          claims:
+                            - id: index_selector_on_string
+                              path:
+                                - address
+                                - street_address
+                                - 0
+                          format: dc+sd-jwt
+                          id: pid
+                          meta:
+                            vct_values:
+                                - urn:eudi:pid:1
+            request_uri_method: post
+            response_mode: direct_post
+        expected_status: 201
+        headers:
+            Content-Type: application/json
+        method: POST
+        url: https://capture-wallet.credimi.io/openid4vp/sessions
+    - continue_on_error: true
+      id: dcql-string-claim-path-index-selecto-e72d9b13-wallet
+      use: mobile-automation
+      with:
+        action_id: forkbomb-bv-andrea/eudiw-beta-wallet/fcaf-exercise-wallet-generic
+        parameters:
+            deeplink: ${{ dcql-string-claim-path-index-selecto-e72d9b13-create.outputs.body.deeplink }}
+        version_id: installed_from_external_source
+    - continue_on_error: true
+      id: dcql-string-claim-path-index-selecto-e72d9b13-session
+      use: http-request
+      with:
+        expected_status: 200
+        method: GET
+        url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-string-claim-path-index-selecto-e72d9b13-create.outputs.body.session_id }}
+    - continue_on_error: true
       id: dcql-string-claim-path-segment-189c3530-create
       use: http-request
       with:
@@ -14111,6 +14154,10 @@ steps:
                     pid_sdjwt_presentations: ${{ dcql-standard-all-28f43ce6-fetch-capture-session.outputs.body.observed.wallet_response.value.vp_token | optional }}
                     trusted_authority: ${{ dcql-standard-all-28f43ce6-fetch-capture-session.outputs.body | optional }}
                     visual_evidence: ${{ dcql-standard-all-28f43ce6-exercise-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
+            pipeline.dcql.string-claim-path-index-selector:
+                output:
+                    dcql_exchange: ${{ dcql-string-claim-path-index-selecto-e72d9b13-session.outputs.body | optional }}
+                    visual_evidence: ${{ dcql-string-claim-path-index-selecto-e72d9b13-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
             pipeline.dcql.string-claim-path-segment:
                 output:
                     dcql_exchange: ${{ dcql-string-claim-path-segment-189c3530-session.outputs.body | optional }}

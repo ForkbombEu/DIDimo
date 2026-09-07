@@ -192,6 +192,16 @@ the required non-array failure rather than a missing claim. It reuses the
 strict `wallet_error_required` validator to reject both a presentation and a
 silent discontinuation.
 
+## TextualEncoding 010
+
+`WS_RP_SH_Encoding_TextualEncoding_010` uses the dedicated Capture Wallet path
+`["address", "street_address", 0]`. Capture's standard PID exposes
+`address.street_address` as a scalar, so the final integer selector exercises
+the required non-array failure. The source example uses a conflicting null
+component, but its objective and expected result require a non-negative integer
+component; the scenario follows those normative statements and requires an
+error without a presentation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

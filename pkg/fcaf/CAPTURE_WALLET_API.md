@@ -100,6 +100,9 @@ no `type` was also accepted and preserved in the signed Request Object.
 On 07/09/2026, a nested claim path containing a null selector,
 `["address", null, "street_address"]`, was accepted and preserved unchanged in
 the returned Authorization Request (Capture session `eb00f511-2fc2-4746-baaf-aea6961d3f71`).
+On 07/09/2026, the same was observed for the integer-selector path
+`["address", "street_address", 0]` (Capture session
+`846a712e-19b2-4234-ad85-26bf51b07867`).
 
 `additionalProperties` are accepted by the public request schema, but that does **not** establish that an unknown property appears in the signed Authorization Request. Retrieve and decode the request before using an unknown field as test evidence.
 
