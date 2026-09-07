@@ -103,6 +103,9 @@ the returned Authorization Request (Capture session `eb00f511-2fc2-4746-baaf-aea
 On 07/09/2026, the same was observed for the integer-selector path
 `["address", "street_address", 0]` (Capture session
 `846a712e-19b2-4234-ad85-26bf51b07867`).
+On 07/09/2026, Capture also preserved the unsupported Boolean component in
+`["address", "street_address", false]` (Capture session
+`d3c78b51-3d53-4e03-87f9-84b003e70384`).
 
 `additionalProperties` are accepted by the public request schema, but that does **not** establish that an unknown property appears in the signed Authorization Request. Retrieve and decode the request before using an unknown field as test evidence.
 

@@ -202,6 +202,14 @@ component, but its objective and expected result require a non-negative integer
 component; the scenario follows those normative statements and requires an
 error without a presentation.
 
+## TextualEncoding 012
+
+`WS_RP_SH_Encoding_TextualEncoding_012` uses the dedicated Capture Wallet path
+`["address", "street_address", false]`. The Boolean is an unsupported DCQL
+claim-path component, so the Wallet must reject the request before it can
+produce a presentation. The scenario asserts the exact component type and
+requires an error without a presentation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

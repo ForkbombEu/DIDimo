@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is the dedicated worklist for tests whose assertions were classified as pending or verifier-blocked on `fix/fcaf-improvments` before the merge with `origin/main`. The tests remain in the generated aggregate pipeline; completing an item means reviewing its source scenario, pipeline evidence, and assertions rather than removing it from execution.
 
-Total: 314 tests (260 pending, 54 verifier-blocked).
+Total: 313 tests (259 pending, 54 verifier-blocked).
 
 ## Pending
 
@@ -23,7 +23,6 @@ Total: 314 tests (260 pending, 54 verifier-blocked).
 - [ ] `WS_RP_MS_ProtocolMessages__151`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_008`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_011`
-- [ ] `WS_RP_SH_Encoding_TextualEncoding_012`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_013`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_014`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_015`
@@ -267,6 +266,7 @@ Total: 314 tests (260 pending, 54 verifier-blocked).
 
 ## Done
 
+- [x] `WS_RP_SH_Encoding_TextualEncoding_012` (dedicated `address`/`street_address`/false path uses an unsupported Boolean component and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_010` (dedicated `address`/`street_address`/0 path applies an index selector to a scalar claim and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_009` (dedicated `address`/null/`street_address` path applies an array selector to an object and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_007` (dedicated `given_name`/`firstname` path attempts to traverse beneath a scalar claim and requires an error without a presentation)

@@ -11893,6 +11893,47 @@ steps:
         method: GET
         url: ${fixture.verifier_url}/ui/presentations/${{ dcql-unchecked-claim-0efe5303-create-presentation.outputs.body.transaction_id }}
     - continue_on_error: true
+      id: dcql-unsupported-claim-path-componen-39ccebe1-create
+      use: http-request
+      with:
+        body:
+            presentation_request:
+                dcql_query:
+                    credentials:
+                        - claims:
+                            - id: unsupported_boolean_component
+                              path:
+                                - address
+                                - street_address
+                                - false
+                          format: dc+sd-jwt
+                          id: pid
+                          meta:
+                            vct_values:
+                                - urn:eudi:pid:1
+            request_uri_method: post
+            response_mode: direct_post
+        expected_status: 201
+        headers:
+            Content-Type: application/json
+        method: POST
+        url: https://capture-wallet.credimi.io/openid4vp/sessions
+    - continue_on_error: true
+      id: dcql-unsupported-claim-path-componen-39ccebe1-wallet
+      use: mobile-automation
+      with:
+        action_id: forkbomb-bv-andrea/eudiw-beta-wallet/fcaf-exercise-wallet-generic
+        parameters:
+            deeplink: ${{ dcql-unsupported-claim-path-componen-39ccebe1-create.outputs.body.deeplink }}
+        version_id: installed_from_external_source
+    - continue_on_error: true
+      id: dcql-unsupported-claim-path-componen-39ccebe1-session
+      use: http-request
+      with:
+        expected_status: 200
+        method: GET
+        url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-unsupported-claim-path-componen-39ccebe1-create.outputs.body.session_id }}
+    - continue_on_error: true
       id: dcql-user-authentication-failed-9c3ae613-create-presentation
       use: http-request
       with:
@@ -14279,6 +14320,10 @@ steps:
                     fetch-result: ${{ dcql-unchecked-claim-0efe5303-fetch-result.outputs | optional }}
                     present-with-unchecked-address: ${{ dcql-unchecked-claim-0efe5303-present-with-unchecked-address.outputs | optional }}
                     visual_evidence: ${{ dcql-unchecked-claim-0efe5303-present-with-unchecked-address.outputs.flow_output.maestro_screenshot_urls | optional }}
+            pipeline.dcql.unsupported-claim-path-component:
+                output:
+                    dcql_exchange: ${{ dcql-unsupported-claim-path-componen-39ccebe1-session.outputs.body | optional }}
+                    visual_evidence: ${{ dcql-unsupported-claim-path-componen-39ccebe1-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
             pipeline.dcql.user-authentication-failed:
                 output:
                     create-presentation: ${{ dcql-user-authentication-failed-9c3ae613-create-presentation.outputs | optional }}
