@@ -174,6 +174,8 @@ steps:
         - WS_RP_DM_IdentifyingData_Sex_PID_ISO-mdoc_002
         - WS_RP_DM_IdentifyingData_Sex_PID_ISO-mdoc_003
         - WS_RP_SH_Cryptography_CryptographicHash_002
+
+        - WS_RP_SH_Encoding_TextualEncoding_014
       suite: wallet_solution/relying_party
       pipeline_outputs:
         pipeline.pid.presentation.mdoc.all-claims-elements:

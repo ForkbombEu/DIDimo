@@ -218,6 +218,14 @@ address object and then produces an empty selection because the second member
 does not exist. The scenario asserts that exact path and requires an error
 without a presentation.
 
+## TextualEncoding 014
+
+`WS_RP_SH_Encoding_TextualEncoding_014` reuses the established PID mdoc
+presentation flow. Its Capture request includes the valid two-element claim
+path `["eu.europa.ec.eudi.pid.1", "given_name"]`; the dedicated DCQL validator
+requires that exact path and a returned mdoc containing the element. The mdoc
+UTF-8 validator independently proves the selected element is CBOR text.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

@@ -76,6 +76,7 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		"credential_sets_single_available_option",
 		"credential_sets_combined_option_no_match",
 		"credential_format_presentation",
+		"mdoc_claim_path_presentation",
 		"vp_token_signed_presentation",
 		"vp_token_json_object",
 		"vp_token_query_ids",
@@ -107,7 +108,7 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 	default:
 		return Result{
 			Status:  StatusError,
-			Message: "mode must be credential_sets, credential_format_presentation, credentials_match, without_credential_sets, without_trusted_authorities, without_claims, empty_claims, empty_array, property_type, property_equals, trusted_authority_property_type, trusted_authority_array_item_type, trusted_authority_empty_string_item, multiple_default_false, multiple_true, no_match, request_rejected, trusted_authorities_match, trusted_authorities_no_match, claim_sets, claim_path_member_type_error, wallet_error_expected, invalid_scope, unknown_field_stripped, vp_formats_not_supported, transaction_data_error, invalid_client, invalid_request_generic, access_denied, or jwe_enc_verified",
+			Message: "mode must be credential_sets, credential_format_presentation, mdoc_claim_path_presentation, credentials_match, without_credential_sets, without_trusted_authorities, without_claims, empty_claims, empty_array, property_type, property_equals, trusted_authority_property_type, trusted_authority_array_item_type, trusted_authority_empty_string_item, multiple_default_false, multiple_true, no_match, request_rejected, trusted_authorities_match, trusted_authorities_no_match, claim_sets, claim_path_member_type_error, wallet_error_expected, invalid_scope, unknown_field_stripped, vp_formats_not_supported, transaction_data_error, invalid_client, invalid_request_generic, access_denied, or jwe_enc_verified",
 		}
 	}
 
@@ -231,6 +232,8 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		return validateOptionalCredentialSetNoMatch(query, responseValue)
 	case "credential_format_presentation":
 		return validateCredentialFormatPresentation(query, responseValue, params.ExpectedFormat)
+	case "mdoc_claim_path_presentation":
+		return validateMDocClaimPathPresentation(query, responseValue, params.ExpectedClaimPath)
 	case "vp_token_signed_presentation":
 		return validateVPTokenSignedPresentation(root, query, responseValue)
 	case "vp_token_json_object":
@@ -1101,6 +1104,76 @@ func validateCredentialFormatPresentation(
 			queryID,
 		),
 	}
+}
+
+func validateMDocClaimPathPresentation(
+	query map[string]any,
+	responseValue any,
+	expectedPath []any,
+) Result {
+	if len(expectedPath) != 2 {
+		return Result{Status: StatusError, Message: "expected_claim_path must contain namespace and element"}
+	}
+	namespace, namespaceOK := expectedPath[0].(string)
+	element, elementOK := expectedPath[1].(string)
+	if !namespaceOK || namespace == "" || !elementOK || element == "" {
+		return Result{Status: StatusError, Message: "expected_claim_path namespace and element must be non-empty strings"}
+	}
+
+	credentials, ok := query["credentials"].([]any)
+	if !ok || len(credentials) != 1 {
+		return Result{Status: StatusFail, Message: "dcql_query must contain exactly one credential query"}
+	}
+	if err := validateDCQLCredentialQueries(credentials); err != nil {
+		return Result{Status: StatusFail, Message: err.Error()}
+	}
+	credential, _ := normalizeJSONObject(credentials[0])
+	if credential["format"] != "mso_mdoc" {
+		return Result{Status: StatusFail, Message: "credential query format must be mso_mdoc"}
+	}
+	queryID, _ := credential["id"].(string)
+	claims, ok := credential["claims"].([]any)
+	if !ok {
+		return Result{Status: StatusFail, Message: "mdoc credential query has no claims"}
+	}
+	pathFound := false
+	for _, rawClaim := range claims {
+		claim, ok := normalizeJSONObject(rawClaim)
+		if !ok {
+			continue
+		}
+		path, ok := claim["path"].([]any)
+		if ok && reflect.DeepEqual(path, expectedPath) {
+			pathFound = true
+			break
+		}
+	}
+	if !pathFound {
+		return Result{Status: StatusFail, Message: "mdoc credential query does not contain the expected namespace and element path"}
+	}
+
+	response, ok := normalizeJSONObject(responseValue)
+	if !ok {
+		return Result{Status: StatusFail, Message: "wallet response vp_token is not an object"}
+	}
+	presentations, ok := response[queryID].([]any)
+	if !ok || len(presentations) == 0 {
+		return Result{Status: StatusFail, Message: fmt.Sprintf("vp_token has no presentation for query %q", queryID)}
+	}
+	for index, rawPresentation := range presentations {
+		token, ok := rawPresentation.(string)
+		if !ok || token == "" {
+			return Result{Status: StatusFail, Message: fmt.Sprintf("vp_token[%q][%d] is not an mdoc presentation", queryID, index)}
+		}
+		presentation, err := evidence.ParseMDocPresentation(token)
+		if err != nil {
+			return Result{Status: StatusFail, Message: fmt.Sprintf("vp_token[%q][%d] is not a valid mdoc presentation: %v", queryID, index, err)}
+		}
+		if _, found := presentation.Element(namespace, element); !found {
+			return Result{Status: StatusFail, Message: fmt.Sprintf("vp_token[%q][%d] does not contain mdoc element %q in namespace %q", queryID, index, element, namespace)}
+		}
+	}
+	return Result{Status: StatusPass, Message: "wallet returned the requested mdoc namespace and element in a CBOR presentation"}
 }
 
 func validateVPTokenSignedPresentation(
