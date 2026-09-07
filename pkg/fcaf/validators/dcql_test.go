@@ -1652,6 +1652,18 @@ func TestDCQLClaimsPathNoMatchRequiresExpectedClaimPath(t *testing.T) {
 	require.Equal(t, StatusFail, result.Status, result.Message)
 }
 
+func TestDCQLWalletErrorRequiredRejectsSilentDiscontinuation(t *testing.T) {
+	result := DCQLResponseConstraintsValidator{}.Validate(context.Background(), Input{
+		Value: map[string]any{
+			"dcql_query": map[string]any{"credentials": []any{validSDJWTCredentialQuery("pid")}},
+		},
+		Params: map[string]any{"mode": "wallet_error_required"},
+	})
+
+	require.Equal(t, StatusFail, result.Status)
+	require.Contains(t, result.Message, "expected error")
+}
+
 func TestDCQLVPTokenResponseModes(t *testing.T) {
 	baseEvidence := func() map[string]any {
 		return map[string]any{

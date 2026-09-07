@@ -100,6 +100,7 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		"trusted_authorities_match",
 		"trusted_authorities_no_match",
 		"access_denied_required",
+		"wallet_error_required",
 		"transaction_data_error_required",
 		"invalid_request_required",
 		"claim_sets":
@@ -472,6 +473,8 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		return validateClaimPathMemberTypeError(responseValue, errorValue)
 	case "wallet_error_expected":
 		return validateWalletErrorExpected(responseValue, errorValue, params.ExpectedValue)
+	case "wallet_error_required":
+		return validateWalletErrorRequired(responseValue, errorValue)
 	case "invalid_scope":
 		return validateErrorCode(responseValue, errorValue, "invalid_scope")
 	case "unknown_field_stripped":
@@ -3788,6 +3791,17 @@ func validateWalletErrorExpected(responseValue, errorValue, expected any) Result
 		Status:  StatusPass,
 		Message: "wallet did not return vp_token (expected error case)",
 	}
+}
+
+// validateWalletErrorRequired checks that the wallet aborts without returning a presentation.
+func validateWalletErrorRequired(responseValue, errorValue any) Result {
+	if !isEmptyDCQLValue(responseValue) {
+		return Result{Status: StatusFail, Message: "wallet returned vp_token, expected error"}
+	}
+	if errStr := normalizeString(errorValue); errStr != "" {
+		return Result{Status: StatusPass, Message: fmt.Sprintf("wallet returned error %s", errStr)}
+	}
+	return Result{Status: StatusFail, Message: "wallet returned no vp_token but no error, expected error"}
 }
 
 // validateErrorCode checks that wallet returns a specific OAuth2/OID4VP error code.

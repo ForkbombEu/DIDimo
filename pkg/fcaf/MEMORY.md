@@ -174,6 +174,15 @@ but no root `street_address`, so the test distinguishes a non-matching
 top-level claim pointer from a missing fixture. The source accepts a captured
 error or interaction discontinuation; the validator rejects any presentation.
 
+## TextualEncoding 007
+
+`WS_RP_SH_Encoding_TextualEncoding_007` uses the dedicated Capture Wallet path
+`["given_name", "firstname"]`. Capture's standard PID exposes `given_name` as a
+scalar, so applying the second member distinguishes a traversal-type error from
+an absent claim. The `wallet_error_required` validator rejects both a
+presentation and a silent discontinuation, requiring the protocol error stated
+by the source.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case
