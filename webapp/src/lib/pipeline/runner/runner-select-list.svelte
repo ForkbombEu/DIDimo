@@ -8,9 +8,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import type { Snippet } from 'svelte';
 	import type { ClassValue } from 'svelte/elements';
 
-	import { EmptyState, WithEmptyState } from '$lib/pipeline-form/steps/_partials/index.js';
+	import { EmptyState } from '$lib/pipeline-form/steps/_partials/index.js';
 	import { fly } from 'svelte/transition';
 
+	import FadeScrollArea from '@/components/ui-custom/fade-scroll-area.svelte';
 	import Spinner from '@/components/ui-custom/spinner.svelte';
 	import T from '@/components/ui-custom/t.svelte';
 	import { m } from '@/i18n';
@@ -55,15 +56,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{@render prepend?.()}
 
 		{#if scrollable}
-			<WithEmptyState
-				items={foundRunners}
-				emptyText={m.No_runners_found()}
-				containerClass={listContainerClass}
-			>
-				{#snippet item({ item })}
-					<RunnerSelectListItem {item} {presentation} {selectedRunner} {onSelect} />
-				{/snippet}
-			</WithEmptyState>
+			{#if foundRunners.length > 0}
+				<FadeScrollArea class={listContainerClass} refresh={foundRunners.length}>
+					{#each foundRunners as item (item.path)}
+						<RunnerSelectListItem {item} {presentation} {selectedRunner} {onSelect} />
+					{/each}
+				</FadeScrollArea>
+			{:else}
+				<EmptyState text={m.No_runners_found()} containerClass={emptyContainerClass} />
+			{/if}
 		{:else}
 			<div class={['space-y-2', listContainerClass]}>
 				{#each foundRunners as item (item.path)}

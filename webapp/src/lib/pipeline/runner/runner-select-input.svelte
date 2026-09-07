@@ -26,7 +26,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		selectedRunner?: string;
 		name?: string;
 		required?: boolean;
-		constrainResults?: boolean;
+		/** Bound-height ScrollArea for the results list (dialogs / dense forms). */
+		scrollable?: boolean;
 	};
 
 	let {
@@ -35,13 +36,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		selectedRunner,
 		name,
 		required = false,
-		constrainResults = false
+		scrollable = false
 	}: Props = $props();
 
 	const runnerCatalog = bindRunnerCatalogSearch();
 </script>
 
-{#snippet runnerResults()}
+{#if runnerCatalog.catalogLoading}
 	<RunnerSelectList
 		{presentation}
 		foundRunners={runnerCatalog.foundRunners}
@@ -49,10 +50,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		{onSelect}
 		{selectedRunner}
 	/>
-{/snippet}
-
-{#if runnerCatalog.catalogLoading}
-	{@render runnerResults()}
 {:else}
 	<div class="space-y-3" transition:fly>
 		<div class="space-y-2">
@@ -65,17 +62,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			<SearchInput search={runnerCatalog.runnerSearch} {name} />
 		</div>
 
-		{#if constrainResults}
-			<div class="max-h-64 overflow-y-auto pr-2" role="region" aria-label={m.Runners()}>
-				{@render runnerResults()}
-			</div>
-			{#if runnerCatalog.foundRunners.length > 5}
-				<p class="text-xs text-muted-foreground" aria-live="polite">
-					{m.runner_picker_scroll_hint({ count: runnerCatalog.foundRunners.length })}
-				</p>
-			{/if}
-		{:else}
-			{@render runnerResults()}
-		{/if}
+		<RunnerSelectList
+			{presentation}
+			foundRunners={runnerCatalog.foundRunners}
+			catalogLoading={runnerCatalog.catalogLoading}
+			{onSelect}
+			{selectedRunner}
+			{scrollable}
+			listContainerClass={scrollable ? 'h-[min(16rem,calc(100dvh-20rem))]' : undefined}
+		/>
 	</div>
 {/if}

@@ -62,7 +62,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	});
 </script>
 
-<Dialog bind:open {title} {description} hideTrigger>
+<Dialog
+	bind:open
+	{title}
+	{description}
+	hideTrigger
+	contentClass="max-h-[calc(100dvh-2rem)] overflow-hidden"
+>
 	{#snippet content()}
 		<!-- {#if currentRunner}
 			<Alert variant="info" class="bg-blue-50">
@@ -76,6 +82,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			presentation="run"
 			onSelect={handleSelect}
 			selectedRunner={currentRunnerPath}
+			scrollable
 		/>
 	{/snippet}
 </Dialog>
