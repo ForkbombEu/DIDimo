@@ -2869,6 +2869,46 @@ steps:
         method: GET
         url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-empty-claim-id-30473d71-create-capture-session.outputs.body.session_id }}
     - continue_on_error: true
+      id: dcql-empty-claim-path-selection-5f7756d6-create
+      use: http-request
+      with:
+        body:
+            presentation_request:
+                dcql_query:
+                    credentials:
+                        - claims:
+                            - id: empty_address_member_selection
+                              path:
+                                - address
+                                - unavailable_address_member
+                          format: dc+sd-jwt
+                          id: pid
+                          meta:
+                            vct_values:
+                                - urn:eudi:pid:1
+            request_uri_method: post
+            response_mode: direct_post
+        expected_status: 201
+        headers:
+            Content-Type: application/json
+        method: POST
+        url: https://capture-wallet.credimi.io/openid4vp/sessions
+    - continue_on_error: true
+      id: dcql-empty-claim-path-selection-5f7756d6-wallet
+      use: mobile-automation
+      with:
+        action_id: forkbomb-bv-andrea/eudiw-beta-wallet/fcaf-exercise-wallet-generic
+        parameters:
+            deeplink: ${{ dcql-empty-claim-path-selection-5f7756d6-create.outputs.body.deeplink }}
+        version_id: installed_from_external_source
+    - continue_on_error: true
+      id: dcql-empty-claim-path-selection-5f7756d6-session
+      use: http-request
+      with:
+        expected_status: 200
+        method: GET
+        url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-empty-claim-path-selection-5f7756d6-create.outputs.body.session_id }}
+    - continue_on_error: true
       id: dcql-empty-claim-path-5e517cde-create-capture-session
       use: http-request
       with:
@@ -13833,6 +13873,10 @@ steps:
                     fetch-capture-session: ${{ dcql-empty-claim-path-5e517cde-fetch-capture-session.outputs | optional }}
                     request_object: ${{ dcql-empty-claim-path-5e517cde-fetch-signed-request-object.outputs.body | optional }}
                     visual_evidence: ${{ dcql-empty-claim-path-5e517cde-exercise-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
+            pipeline.dcql.empty-claim-path-selection:
+                output:
+                    dcql_exchange: ${{ dcql-empty-claim-path-selection-5f7756d6-session.outputs.body | optional }}
+                    visual_evidence: ${{ dcql-empty-claim-path-selection-5f7756d6-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
             pipeline.dcql.encoding:
                 output:
                     dcql_exchange: ${{ dcql-encoding-93928417-fetch-capture-session.outputs.body | optional }}

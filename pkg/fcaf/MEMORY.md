@@ -210,6 +210,14 @@ claim-path component, so the Wallet must reject the request before it can
 produce a presentation. The scenario asserts the exact component type and
 requires an error without a presentation.
 
+## TextualEncoding 013
+
+`WS_RP_SH_Encoding_TextualEncoding_013` uses the dedicated Capture Wallet path
+`["address", "unavailable_address_member"]`. It first selects the known PID
+address object and then produces an empty selection because the second member
+does not exist. The scenario asserts that exact path and requires an error
+without a presentation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case
