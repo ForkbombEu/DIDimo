@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is the dedicated worklist for tests whose assertions were classified as pending or verifier-blocked on `fix/fcaf-improvments` before the merge with `origin/main`. The tests remain in the generated aggregate pipeline; completing an item means reviewing its source scenario, pipeline evidence, and assertions rather than removing it from execution.
 
-Total: 312 tests (256 pending, 54 verifier-blocked).
+Total: 312 tests (255 pending, 54 verifier-blocked).
 
 ## Pending
 
@@ -23,7 +23,6 @@ Total: 312 tests (256 pending, 54 verifier-blocked).
 - [ ] `WS_RP_MS_ProtocolMessages__151`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_008`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_011`
-- [ ] `WS_RP_SH_Encoding_TextualEncoding_016`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_017`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_018`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_019`
@@ -263,6 +262,7 @@ Total: 312 tests (256 pending, 54 verifier-blocked).
 
 ## Done
 
+- [x] `WS_RP_SH_Encoding_TextualEncoding_016` (dedicated PID mdoc flow requests absent namespace `org.iso.18013.5.1` and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_015` (reuses the PID mdoc query whose first path element is namespace `eu.europa.ec.eudi.pid.1`, and verifies the selected data element is CBOR UTF-8 text)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_014` (reuses the PID mdoc request path `[eu.europa.ec.eudi.pid.1, given_name]` and verifies the returned element is CBOR UTF-8 text)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_013` (dedicated `address`/`unavailable_address_member` path produces an empty selection and requires an error without a presentation)

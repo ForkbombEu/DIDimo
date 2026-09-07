@@ -1704,6 +1704,55 @@ func TestDCQLMDocClaimPathPresentation(t *testing.T) {
 	}
 }
 
+func TestDCQLMDocClaimPathNoMatch(t *testing.T) {
+	baseEvidence := func() map[string]any {
+		return map[string]any{
+			"dcql_query": map[string]any{
+				"credentials": []any{map[string]any{
+					"id":     "pid_mdoc",
+					"format": "mso_mdoc",
+					"meta":   map[string]any{"doctype_value": "eu.europa.ec.eudi.pid.1"},
+					"claims": []any{map[string]any{
+						"path": []any{"org.iso.18013.5.1", "first_name"},
+					}},
+				}},
+			},
+		}
+	}
+
+	validator := DCQLResponseConstraintsValidator{}
+	for _, test := range []struct {
+		name   string
+		mutate func(map[string]any)
+		status Status
+	}{
+		{name: "accepts an absent mdoc namespace path", status: StatusPass},
+		{
+			name: "rejects a different absent mdoc namespace path",
+			mutate: func(value map[string]any) {
+				credential := value["dcql_query"].(map[string]any)["credentials"].([]any)[0].(map[string]any)
+				credential["claims"] = []any{map[string]any{"path": []any{"org.iso.18013.5.1", "family_name"}}}
+			},
+			status: StatusFail,
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			evidence := baseEvidence()
+			if test.mutate != nil {
+				test.mutate(evidence)
+			}
+			result := validator.Validate(context.Background(), Input{
+				Value: evidence,
+				Params: map[string]any{
+					"mode":                "mdoc_claim_path_no_match",
+					"expected_claim_path": []any{"org.iso.18013.5.1", "first_name"},
+				},
+			})
+			require.Equal(t, test.status, result.Status, result.Message)
+		})
+	}
+}
+
 func TestDCQLWalletErrorRequiredRejectsSilentDiscontinuation(t *testing.T) {
 	result := DCQLResponseConstraintsValidator{}.Validate(context.Background(), Input{
 		Value: map[string]any{

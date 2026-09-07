@@ -109,6 +109,10 @@ On 07/09/2026, Capture also preserved the unsupported Boolean component in
 On 07/09/2026, Capture preserved the nested missing-member path
 `["address", "unavailable_address_member"]` (Capture session
 `bb38af67-df85-4654-88b4-56b2699be424`).
+On 07/09/2026, Capture accepted and preserved the mdoc path with an absent
+namespace, `["org.iso.18013.5.1", "first_name"]`, under
+`format: mso_mdoc` and `doctype_value: eu.europa.ec.eudi.pid.1` (Capture
+session `13aa1df4-e5b8-432f-b208-5454d71bbea0`).
 
 `additionalProperties` are accepted by the public request schema, but that does **not** establish that an unknown property appears in the signed Authorization Request. Retrieve and decode the request before using an unknown field as test evidence.
 

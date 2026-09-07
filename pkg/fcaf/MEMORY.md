@@ -233,6 +233,15 @@ case 014. The DCQL assertion proves the first component of the exact path
 `["eu.europa.ec.eudi.pid.1", "given_name"]` resolves as the namespace in the
 returned mdoc; the mdoc validator separately confirms CBOR UTF-8 encoding.
 
+## TextualEncoding 016
+
+`WS_RP_SH_Encoding_TextualEncoding_016` uses a dedicated PID mdoc flow. Capture
+accepted and preserved its absent namespace path
+`["org.iso.18013.5.1", "first_name"]` in session
+`13aa1df4-e5b8-432f-b208-5454d71bbea0`. The test requires that exact mdoc
+query plus a Wallet error and no `vp_token`; it does not accept silent
+discontinuation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case
