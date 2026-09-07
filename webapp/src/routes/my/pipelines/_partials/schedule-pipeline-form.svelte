@@ -132,7 +132,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 					onSelect={onRunnerSelect}
 					selectedRunner={($formData as { global_runner_id?: string }).global_runner_id}
 					required
-					constrainResults
+					scrollable
 				/>
 			{/if}
 
