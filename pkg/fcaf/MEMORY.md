@@ -183,6 +183,15 @@ an absent claim. The `wallet_error_required` validator rejects both a
 presentation and a silent discontinuation, requiring the protocol error stated
 by the source.
 
+## TextualEncoding 009
+
+`WS_RP_SH_Encoding_TextualEncoding_009` uses the dedicated Capture Wallet path
+`["address", null, "street_address"]`. Capture's standard PID exposes
+`address` as an object with `street_address`, so the null selector exercises
+the required non-array failure rather than a missing claim. It reuses the
+strict `wallet_error_required` validator to reject both a presentation and a
+silent discontinuation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

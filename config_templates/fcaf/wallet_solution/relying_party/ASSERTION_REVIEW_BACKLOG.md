@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is the dedicated worklist for tests whose assertions were classified as pending or verifier-blocked on `fix/fcaf-improvments` before the merge with `origin/main`. The tests remain in the generated aggregate pipeline; completing an item means reviewing its source scenario, pipeline evidence, and assertions rather than removing it from execution.
 
-Total: 316 tests (262 pending, 54 verifier-blocked).
+Total: 315 tests (261 pending, 54 verifier-blocked).
 
 ## Pending
 
@@ -22,7 +22,6 @@ Total: 316 tests (262 pending, 54 verifier-blocked).
 - [ ] `WS_RP_MS_ProtocolMessages__095`
 - [ ] `WS_RP_MS_ProtocolMessages__151`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_008`
-- [ ] `WS_RP_SH_Encoding_TextualEncoding_009`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_010`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_011`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_012`
@@ -269,6 +268,7 @@ Total: 316 tests (262 pending, 54 verifier-blocked).
 
 ## Done
 
+- [x] `WS_RP_SH_Encoding_TextualEncoding_009` (dedicated `address`/null/`street_address` path applies an array selector to an object and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_007` (dedicated `given_name`/`firstname` path attempts to traverse beneath a scalar claim and requires an error without a presentation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_006` (dedicated absent top-level `street_address` path accepts error or interaction discontinuation)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_005` (reuses the top-level `given_name` DCQL path and proves selective disclosure)

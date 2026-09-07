@@ -5659,6 +5659,49 @@ steps:
         method: GET
         url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-non-array-claim-path-c23ef0aa-create-capture-session.outputs.body.session_id }}
     - continue_on_error: true
+      id: dcql-object-claim-path-array-selecto-611dd5cc-create
+      use: http-request
+      with:
+        body:
+            presentation_request:
+                dcql_query:
+                    credentials:
+                        - claim_sets:
+                            - - array_selector_on_object
+                          claims:
+                            - id: array_selector_on_object
+                              path:
+                                - address
+                                - null
+                                - street_address
+                          format: dc+sd-jwt
+                          id: pid
+                          meta:
+                            vct_values:
+                                - urn:eudi:pid:1
+            request_uri_method: post
+            response_mode: direct_post
+        expected_status: 201
+        headers:
+            Content-Type: application/json
+        method: POST
+        url: https://capture-wallet.credimi.io/openid4vp/sessions
+    - continue_on_error: true
+      id: dcql-object-claim-path-array-selecto-611dd5cc-wallet
+      use: mobile-automation
+      with:
+        action_id: forkbomb-bv-andrea/eudiw-beta-wallet/fcaf-exercise-wallet-generic
+        parameters:
+            deeplink: ${{ dcql-object-claim-path-array-selecto-611dd5cc-create.outputs.body.deeplink }}
+        version_id: installed_from_external_source
+    - continue_on_error: true
+      id: dcql-object-claim-path-array-selecto-611dd5cc-session
+      use: http-request
+      with:
+        expected_status: 200
+        method: GET
+        url: https://capture-wallet.credimi.io/openid4vp/sessions/${{ dcql-object-claim-path-array-selecto-611dd5cc-create.outputs.body.session_id }}
+    - continue_on_error: true
       id: dcql-presentation-76d882de-create-capture-session
       use: http-request
       with:
@@ -13869,6 +13912,10 @@ steps:
                 output:
                     dcql_exchange: ${{ dcql-main-interaction-eeb8ef1f-main-interaction-028-fetch-result.outputs.body | optional }}
                     visual_evidence: ${{ dcql-main-interaction-eeb8ef1f-main-interaction-028-present-full-disclosure.outputs.flow_output.maestro_screenshot_urls | optional }}
+            pipeline.dcql.object-claim-path-array-selector:
+                output:
+                    dcql_exchange: ${{ dcql-object-claim-path-array-selecto-611dd5cc-session.outputs.body | optional }}
+                    visual_evidence: ${{ dcql-object-claim-path-array-selecto-611dd5cc-wallet.outputs.flow_output.maestro_screenshot_urls | optional }}
             pipeline.dcql.presentation:
                 output:
                     dcql_exchange: ${{ dcql-presentation-76d882de-fetch-capture-session.outputs.body | optional }}
