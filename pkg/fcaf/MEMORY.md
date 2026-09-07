@@ -166,6 +166,14 @@ DCQL request for the top-level `given_name` path. The claims-subset validator
 requires that exact requested path to be disclosed and `family_name` to remain
 absent, proving selective disclosure of a named top-level attribute.
 
+## TextualEncoding 006
+
+`WS_RP_SH_Encoding_TextualEncoding_006` uses a dedicated Capture Wallet query
+for top-level `street_address`. Capture's PID has `address.street_address`,
+but no root `street_address`, so the test distinguishes a non-matching
+top-level claim pointer from a missing fixture. The source accepts a captured
+error or interaction discontinuation; the validator rejects any presentation.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case
