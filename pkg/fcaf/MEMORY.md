@@ -226,6 +226,13 @@ path `["eu.europa.ec.eudi.pid.1", "given_name"]`; the dedicated DCQL validator
 requires that exact path and a returned mdoc containing the element. The mdoc
 UTF-8 validator independently proves the selected element is CBOR text.
 
+## TextualEncoding 015
+
+`WS_RP_SH_Encoding_TextualEncoding_015` reuses the same PID mdoc exchange as
+case 014. The DCQL assertion proves the first component of the exact path
+`["eu.europa.ec.eudi.pid.1", "given_name"]` resolves as the namespace in the
+returned mdoc; the mdoc validator separately confirms CBOR UTF-8 encoding.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

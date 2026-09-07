@@ -84,7 +84,6 @@ steps:
     - WS_RP_SH_Encoding_TextualEncoding_011
     - WS_RP_SH_Encoding_TextualEncoding_012
     - WS_RP_SH_Encoding_TextualEncoding_013
-    - WS_RP_SH_Encoding_TextualEncoding_015
     - WS_RP_SH_Encoding_TextualEncoding_016
     - WS_RP_SH_Encoding_TextualEncoding_017
     - WS_RP_SH_Encoding_TextualEncoding_018

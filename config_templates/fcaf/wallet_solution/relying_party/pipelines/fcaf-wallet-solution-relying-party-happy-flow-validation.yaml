@@ -2289,6 +2289,7 @@ steps:
             - WS_RP_SH_Cryptography_CryptographicHash_010
             - WS_RP_SH_Cryptography_Encryption_002
             - WS_RP_SH_Encoding_TextualEncoding_014
+            - WS_RP_SH_Encoding_TextualEncoding_015
             - WS_RP_SM_DeviceBinding__002
             - WS_RP_SM_DeviceBinding__003
             - WS_RP_SM_DeviceBinding__004
