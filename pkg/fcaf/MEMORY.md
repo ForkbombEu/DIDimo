@@ -159,6 +159,13 @@ test left-to-right processing rather than merely a missing claim. The scenario
 reuses the established no-match Wallet UI flow and retains exact session and
 visual evidence.
 
+## TextualEncoding 005
+
+`WS_RP_SH_Encoding_TextualEncoding_005` reuses the existing Capture Wallet
+DCQL request for the top-level `given_name` path. The claims-subset validator
+requires that exact requested path to be disclosed and `family_name` to remain
+absent, proving selective disclosure of a named top-level attribute.
+
 ## Next candidate
 
 `WS_RP_SM_DeviceBinding__008` is the next runnable mandatory candidate. Case

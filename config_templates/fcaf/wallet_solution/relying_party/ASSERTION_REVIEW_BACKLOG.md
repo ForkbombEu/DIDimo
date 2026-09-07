@@ -8,7 +8,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 
 This is the dedicated worklist for tests whose assertions were classified as pending or verifier-blocked on `fix/fcaf-improvments` before the merge with `origin/main`. The tests remain in the generated aggregate pipeline; completing an item means reviewing its source scenario, pipeline evidence, and assertions rather than removing it from execution.
 
-Total: 319 tests (265 pending, 54 verifier-blocked).
+Total: 318 tests (264 pending, 54 verifier-blocked).
 
 ## Pending
 
@@ -21,7 +21,6 @@ Total: 319 tests (265 pending, 54 verifier-blocked).
 - [ ] `WS_RP_IA_Supportive__006`      (hard load?????????)
 - [ ] `WS_RP_MS_ProtocolMessages__095`
 - [ ] `WS_RP_MS_ProtocolMessages__151`
-- [ ] `WS_RP_SH_Encoding_TextualEncoding_005`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_006`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_007`
 - [ ] `WS_RP_SH_Encoding_TextualEncoding_008`
@@ -272,6 +271,7 @@ Total: 319 tests (265 pending, 54 verifier-blocked).
 
 ## Done
 
+- [x] `WS_RP_SH_Encoding_TextualEncoding_005` (reuses the top-level `given_name` DCQL path and proves selective disclosure)
 - [x] `WS_RP_SH_Encoding_TextualEncoding_004` (dedicated reversed `street_address`/`address` DCQL path rejects rather than matching `address.street_address`)
 
 - [x] `WS_RP_SH_Encoding_TextualEncoding_001` (reuses a string-only `given_name` path and proves selective disclosure)
