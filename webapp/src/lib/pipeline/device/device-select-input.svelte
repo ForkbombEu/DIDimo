@@ -26,6 +26,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		selectedDevice?: string;
 		name?: string;
 		required?: boolean;
+		/** Bound-height ScrollArea for the results list (dialogs / dense forms). */
+		scrollable?: boolean;
 	};
 
 	let {
@@ -33,7 +35,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		onSelect,
 		selectedDevice,
 		name,
-		required = false
+		required = false,
+		scrollable = false
 	}: Props = $props();
 
 	const deviceCatalog = bindDeviceCatalogSearch();
@@ -65,6 +68,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 			catalogLoading={deviceCatalog.catalogLoading}
 			{onSelect}
 			{selectedDevice}
+			{scrollable}
+			listContainerClass={scrollable ? 'h-[min(16rem,calc(100dvh-20rem))]' : undefined}
 		/>
 	</div>
 {/if}

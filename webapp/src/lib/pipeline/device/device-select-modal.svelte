@@ -13,7 +13,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 	import type { PipelinesResponse } from '@/pocketbase/types';
 
 	import Dialog from '@/components/ui-custom/dialog.svelte';
-	import { m } from '@/i18n';
 
 	import DeviceSelectInput from './device-select-input.svelte';
 
@@ -50,32 +49,25 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 		return Pipeline.Device.Binding.get(pipeline.id);
 	});
 
-	// let currentDevice = $derived.by(() => {
-	// 	if (!currentDevicePath) return undefined;
-	// 	Pipeline.Device.Catalog.read();
-	// 	return Pipeline.Device.Catalog.findByPath(currentDevicePath);
-	// });
-
 	$effect(() => {
 		if (!open) return;
 		void Pipeline.Device.Catalog.refresh();
 	});
 </script>
 
-<Dialog bind:open {title} {description} hideTrigger>
+<Dialog
+	bind:open
+	{title}
+	{description}
+	hideTrigger
+	contentClass="max-h-[calc(100dvh-2rem)] overflow-hidden"
+>
 	{#snippet content()}
-		<!-- {#if currentDevice}
-			<Alert variant="info" class="bg-blue-50">
-				<T>
-					<span>{'Current device'}:</span>
-					<span class="font-semibold">{currentDevice.name} </span>
-				</T>
-			</Alert>
-		{/if} -->
 		<DeviceSelectInput
 			presentation="run"
 			onSelect={handleSelect}
 			selectedDevice={currentDevicePath}
+			scrollable
 		/>
 	{/snippet}
 </Dialog>

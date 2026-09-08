@@ -930,7 +930,6 @@ func TestCalculateStatsFromExecutionsTracksLatestFailedRun(t *testing.T) {
 	require.NotNil(t, lastRun, "failed latest run must be tracked for scoreboard evidence")
 	require.Equal(t, "latest-failure", lastRun.WorkflowID)
 	require.Equal(t, "run-2", lastRun.RunID)
-
 }
 
 func createRunnerRecord(t testing.TB, app *tests.TestApp, orgID, name string) *core.Record {
