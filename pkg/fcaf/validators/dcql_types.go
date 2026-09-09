@@ -190,67 +190,57 @@ func isEmptyDCQLValue(value any) bool {
 		return false
 	}
 }
-func claimPathArrayIndex(value any, length int) (int, bool) {
-	if !isNonNegativeInteger(value) {
-		return 0, false
+func containsCredentialFormat(formats map[string]string, expected string) bool {
+	for _, actual := range formats {
+		if actual == expected {
+			return true
+		}
 	}
-	var index uint64
-	switch typed := value.(type) {
-	case int:
-		index = uint64(typed)
-	case int8:
-		index = uint64(typed)
-	case int16:
-		index = uint64(typed)
-	case int32:
-		index = uint64(typed)
-	case int64:
-		index = uint64(typed)
-	case uint:
-		index = uint64(typed)
-	case uint8:
-		index = uint64(typed)
-	case uint16:
-		index = uint64(typed)
-	case uint32:
-		index = uint64(typed)
-	case uint64:
-		index = typed
-	case float32:
-		index = uint64(typed)
-	case float64:
-		index = uint64(typed)
-	default:
-		return 0, false
-	}
-	if index >= uint64(length) {
-		return 0, false
-	}
-	return int(index), true
+	return false
 }
-func isNonNegativeInteger(value any) bool {
-	switch typed := value.(type) {
-	case int:
-		return typed >= 0
-	case int8:
-		return typed >= 0
-	case int16:
-		return typed >= 0
-	case int32:
-		return typed >= 0
-	case int64:
-		return typed >= 0
-	case uint, uint8, uint16, uint32, uint64:
-		return true
-	case float32:
-		return typed >= 0 && typed == float32(int64(typed))
-	case float64:
-		return typed >= 0 && typed == float64(int64(typed))
-	default:
-		return false
+func validatedVPTokenPresentations(
+	query map[string]any,
+	responseValue any,
+) (map[string]any, *Result) {
+	credentials, ok := query["credentials"].([]any)
+	if !ok || len(credentials) == 0 {
+		return nil, &Result{Status: StatusFail, Message: "dcql_query does not contain credentials"}
 	}
+	if err := validateDCQLCredentialQueries(credentials); err != nil {
+		return nil, &Result{Status: StatusFail, Message: err.Error()}
+	}
+	response, ok := normalizeJSONObject(responseValue)
+	if !ok {
+		return nil, &Result{
+			Status:  StatusFail,
+			Message: "wallet response vp_token is not a JSON object",
+		}
+	}
+	for _, queryID := range queryCredentialIDs(query) {
+		presentations, ok := response[queryID].([]any)
+		if !ok || len(presentations) == 0 {
+			return nil, &Result{
+				Status:  StatusFail,
+				Message: fmt.Sprintf("vp_token[%q] is not a non-empty presentation array", queryID),
+			}
+		}
+	}
+	return response, nil
+}
+func queryCredentialIDs(query map[string]any) []string {
+	credentials, _ := query["credentials"].([]any)
+	ids := make([]string, 0, len(credentials))
+	for _, rawCredential := range credentials {
+		credential, _ := normalizeJSONObject(rawCredential)
+		id, _ := credential["id"].(string)
+		ids = append(ids, id)
+	}
+	return ids
 }
 func normalizeString(v any) string {
+	if v == nil {
+		return ""
+	}
 	s, _ := v.(string)
 	return s
 }

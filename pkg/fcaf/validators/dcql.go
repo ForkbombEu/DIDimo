@@ -1,7 +1,3 @@
-// SPDX-FileCopyrightText: 2026 Forkbomb BV
-//
-// SPDX-License-Identifier: AGPL-3.0-or-later
-
 package validators
 
 import (
@@ -9,33 +5,38 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+
+	"github.com/forkbombeu/credimi/pkg/fcaf/evidence"
 )
 
-const invalidRequestError = "invalid_request"
-
 var dcqlIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-]+$`)
+
+const invalidRequestError = "invalid_request"
 
 type DCQLResponseConstraintsValidator struct{}
 
 func (DCQLResponseConstraintsValidator) ID() string {
 	return "dcql.response_satisfies_constraints"
 }
-
-//nolint:gocyclo // DCQL modes remain explicit so each conformance branch is auditable.
 func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input) Result {
 	params, err := DecodeParams[struct {
-		Mode           string  `json:"mode"`
-		ForbiddenPaths [][]any `json:"forbidden_paths"`
-		Property       string  `json:"property"`
-		ExpectedType   string  `json:"expected_type"`
-		Valid          bool    `json:"valid"`
-		ExpectedValue  any     `json:"expected_value"`
+		Mode              string  `json:"mode"`
+		ForbiddenPaths    [][]any `json:"forbidden_paths"`
+		Property          string  `json:"property"`
+		ExpectedType      string  `json:"expected_type"`
+		Valid             bool    `json:"valid"`
+		ExpectedValue     any     `json:"expected_value"`
+		ExpectedFormat    string  `json:"expected_format"`
+		ExpectedClaimPath []any   `json:"expected_claim_path"`
 	}](input.Params)
 	if err != nil {
 		return Result{Status: StatusError, Message: err.Error()}
 	}
 	switch params.Mode {
 	case "credential_sets",
+		"claim_sets_preferred_option",
+		"claim_sets_no_match",
+		"claim_sets_without_claims",
 		"claims_present",
 		"claims_subset",
 		"claims_union",
@@ -60,10 +61,24 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		"credential_sets_required_true_no_match",
 		"credential_sets_required_omitted",
 		"credential_sets_required_false_with_match",
+		"required_credentials_no_partial_presentation",
+		"credential_sets_required_optional",
+		"credential_sets_optional_no_match",
+		"credential_sets_single_available_option",
+		"credential_sets_combined_option_no_match",
+		"credential_format_presentation",
+		"mdoc_claim_path_presentation",
+		"mdoc_claim_path_no_match",
+		"vp_token_signed_presentation",
+		"vp_token_json_object",
+		"vp_token_query_ids",
+		"vp_token_presentation_arrays",
+		"two_distinct_format_presentations",
 		"credentials_match",
 		"without_credential_sets",
 		"without_trusted_authorities",
 		"without_claims",
+		"without_claim_disclosures",
 		"empty_claims",
 		"empty_array",
 		"property_type",
@@ -77,11 +92,15 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		"request_rejected",
 		"trusted_authorities_match",
 		"trusted_authorities_no_match",
+		"access_denied_required",
+		"wallet_error_required",
+		"transaction_data_error_required",
+		"invalid_request_required",
 		"claim_sets":
 	default:
 		return Result{
 			Status:  StatusError,
-			Message: "mode must be credential_sets, credentials_match, without_credential_sets, without_trusted_authorities, without_claims, empty_claims, empty_array, property_type, property_equals, trusted_authority_property_type, trusted_authority_array_item_type, trusted_authority_empty_string_item, multiple_default_false, multiple_true, no_match, request_rejected, trusted_authorities_match, trusted_authorities_no_match, claim_sets, claim_path_member_type_error, wallet_error_expected, invalid_scope, unknown_field_stripped, vp_formats_not_supported, transaction_data_error, invalid_client, invalid_request_generic, access_denied, or jwe_enc_verified",
+			Message: "mode must be credential_sets, credential_format_presentation, mdoc_claim_path_presentation, mdoc_claim_path_no_match, credentials_match, without_credential_sets, without_trusted_authorities, without_claims, empty_claims, empty_array, property_type, property_equals, trusted_authority_property_type, trusted_authority_array_item_type, trusted_authority_empty_string_item, multiple_default_false, multiple_true, no_match, request_rejected, trusted_authorities_match, trusted_authorities_no_match, claim_sets, claim_path_member_type_error, wallet_error_expected, invalid_scope, unknown_field_stripped, vp_formats_not_supported, transaction_data_error, invalid_client, invalid_request_generic, access_denied, or jwe_enc_verified",
 		}
 	}
 
@@ -119,11 +138,11 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 	case "claims_union":
 		return validateClaimsUnion(query, responseValue, params.ForbiddenPaths)
 	case "claims_path_no_match":
-		return validateClaimsPathNoMatch(query, responseValue)
+		return validateClaimsPathNoMatch(query, responseValue, params.ExpectedClaimPath)
 	case "claims_values_no_match":
 		return validateClaimsValuesNoMatch(query, responseValue)
 	case "claim_id_missing_with_claim_sets":
-		return validateMissingClaimIDWithClaimSets(query, responseValue)
+		return validateMissingClaimIDWithClaimSets(query, responseValue, errorValue)
 	case "claims_without_id_without_claim_sets":
 		return validateClaimsWithoutIDWithoutClaimSets(query, responseValue)
 	case "duplicate_claim_ids":
@@ -195,10 +214,35 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		"credential_sets_required_omitted",
 		"credential_sets_required_false_with_match":
 		return validateCredentialSetsRequired(query, responseValue, params.Mode)
+	case "required_credentials_no_partial_presentation":
+		return validateRequiredCredentialsNoPartialPresentation(query, responseValue, errorValue)
+	case "credential_sets_required_optional",
+		"credential_sets_single_available_option",
+		"credential_sets_combined_option_no_match":
+		return validateCredentialSetInteraction(query, responseValue, params.Mode)
+	case "credential_sets_optional_no_match":
+		return validateOptionalCredentialSetNoMatch(query, responseValue)
+	case "credential_format_presentation":
+		return validateCredentialFormatPresentation(query, responseValue, params.ExpectedFormat)
+	case "mdoc_claim_path_presentation":
+		return validateMDocClaimPathPresentation(query, responseValue, params.ExpectedClaimPath)
+	case "mdoc_claim_path_no_match":
+		return validateMDocClaimPathNoMatch(query, params.ExpectedClaimPath)
+	case "vp_token_signed_presentation":
+		return validateVPTokenSignedPresentation(root, query, responseValue)
+	case "vp_token_json_object":
+		return validateVPTokenJSONObject(responseValue)
+	case "vp_token_query_ids":
+		return validateVPTokenQueryIDs(query, responseValue)
+	case "vp_token_presentation_arrays":
+		return validateVPTokenPresentationArrays(query, responseValue)
+	case "two_distinct_format_presentations":
+		return validateTwoDistinctFormatPresentations(query, responseValue)
 	case "credentials_match",
 		"without_credential_sets",
 		"without_trusted_authorities",
 		"without_claims",
+		"without_claim_disclosures",
 		"multiple_default_false",
 		"multiple_true":
 		if params.Mode == "without_credential_sets" {
@@ -239,7 +283,7 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 					}
 				}
 			}
-			if params.Mode == "without_claims" {
+			if params.Mode == "without_claims" || params.Mode == "without_claim_disclosures" {
 				if _, exists := credential["claims"]; exists {
 					return Result{
 						Status:  StatusFail,
@@ -262,6 +306,54 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 						"vp_token has no presentation for credential query %q",
 						id,
 					),
+				}
+			}
+			if params.Mode == "without_claim_disclosures" {
+				presentations, ok := presentation.([]any)
+				if !ok || len(presentations) == 0 {
+					return Result{
+						Status: StatusFail,
+						Message: fmt.Sprintf(
+							"vp_token has no SD-JWT presentation for credential query %q",
+							id,
+						),
+					}
+				}
+				for presentationIndex, rawPresentation := range presentations {
+					token, ok := rawPresentation.(string)
+					if !ok || token == "" {
+						return Result{
+							Status: StatusFail,
+							Message: fmt.Sprintf(
+								"vp_token[%q][%d] is not an SD-JWT presentation",
+								id,
+								presentationIndex,
+							),
+						}
+					}
+					parsed, err := evidence.ParseSDJWTPresentation(token)
+					if err != nil {
+						return Result{
+							Status: StatusFail,
+							Message: fmt.Sprintf(
+								"vp_token[%q][%d] is not a valid SD-JWT presentation: %v",
+								id,
+								presentationIndex,
+								err,
+							),
+						}
+					}
+					if parsed.DisclosureCount != 0 {
+						return Result{
+							Status: StatusFail,
+							Message: fmt.Sprintf(
+								"vp_token[%q][%d] disclosed %d claim(s) although claims was omitted",
+								id,
+								presentationIndex,
+								parsed.DisclosureCount,
+							),
+						}
+					}
 				}
 			}
 			if params.Mode == "multiple_default_false" {
@@ -378,20 +470,28 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 		return validateClaimPathMemberTypeError(responseValue, errorValue)
 	case "wallet_error_expected":
 		return validateWalletErrorExpected(responseValue, errorValue, params.ExpectedValue)
+	case "wallet_error_required":
+		return validateWalletErrorRequired(responseValue, errorValue)
 	case "invalid_scope":
 		return validateErrorCode(responseValue, errorValue, "invalid_scope")
 	case "unknown_field_stripped":
-		return validateUnknownFieldStripped(query, responseValue)
+		return validateUnknownFieldStripped(query, responseValue, params.Property)
 	case "vp_formats_not_supported":
 		return validateErrorCode(responseValue, errorValue, "vp_formats_not_supported")
 	case "transaction_data_error":
 		return validateErrorCode(responseValue, errorValue, "invalid_transaction_data")
+	case "transaction_data_error_required":
+		return validateRequiredErrorCode(responseValue, errorValue, "invalid_transaction_data")
+	case "invalid_request_required":
+		return validateRequiredErrorCode(responseValue, errorValue, invalidRequestError)
 	case "invalid_client":
 		return validateErrorCode(responseValue, errorValue, "invalid_client")
 	case "invalid_request_generic":
 		return validateErrorCode(responseValue, errorValue, invalidRequestError)
 	case "access_denied":
 		return validateErrorCode(responseValue, errorValue, "access_denied")
+	case "access_denied_required":
+		return validateRequiredErrorCode(responseValue, errorValue, "access_denied")
 	case "jwe_enc_verified":
 		return validateJWEEncVerified(responseValue)
 	case "session_encryption":
@@ -879,34 +979,15 @@ func (DCQLResponseConstraintsValidator) Validate(_ context.Context, input Input)
 				Message: "wallet response contains no vp_token fclaim_sets, claim_path_member_type_error, wallet_error_expected, invalid_scope, unknown_field_stripped, vp_formats_not_supported, transaction_data_error, invalid_client, invalid_request_generic, access_denied, or jwe_enc_verified",
 			}
 		}
+	case "claim_sets_preferred_option":
+		return validateClaimSetsPreferredOption(query, responseValue, params.ExpectedValue)
+	case "claim_sets_no_match":
+		return validateClaimSetsNoMatch(query, responseValue)
+	case "claim_sets_without_claims":
+		return validateClaimSetsWithoutClaims(query, responseValue)
 	}
 	return Result{
 		Status:  StatusPass,
 		Message: fmt.Sprintf("wallet response satisfies DCQL %s constraints", params.Mode),
 	}
 }
-
-//nolint:gocyclo // Each credential-set shape has distinct conformance semantics.
-
-// validateClaimsSubset proves both sides of a user-controlled claim selection:
-// requested claims are disclosed, while explicitly unchecked paths are absent.
-
-// validateClaimPathMemberTypeError checks that wallet rejects DCQL queries with invalid claim-path
-// member types (boolean, negative integer, unsupported object types).
-
-// validateWalletErrorExpected checks that wallet returns an expected error code.
-// If expected is nil, any error code is accepted.
-
-// validateErrorCode checks that wallet returns a specific OAuth2/OID4VP error code.
-
-// validateUnknownFieldStripped checks that wallet processes request with unknown fields stripped.
-
-// validateJWEEncVerified checks JWE encryption parameters in the wallet response.
-
-// validateSessionEncryption checks session encryption evidence.
-
-// validateEncoding checks encoding validation evidence.
-
-// validateInteractionCompleted checks that wallet interaction completed successfully.
-
-// validateEvidencePresent checks that evidence exists and no error occurred.
