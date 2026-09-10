@@ -41,9 +41,9 @@ func bindMobileRunnerLifecycleMonitor(app core.App) {
 		return se.Next()
 	})
 
-	app.OnTerminate().BindFunc(func(_ *core.TerminateEvent) error {
+	app.OnTerminate().BindFunc(func(te *core.TerminateEvent) error {
 		cancelMobileRunnerLifecycleMonitor(app)
-		return nil
+		return te.Next()
 	})
 }
 
