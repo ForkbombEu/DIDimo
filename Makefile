@@ -120,6 +120,8 @@ test.all: ## 🧪 run all tests, including long tests skipped by test
 	$(call require_tools,$(TEST_DEPS))
 	TEST_SHORT=0 bash ./scripts/test-summary.sh
 
+testdata.refresh: ## 🗄️ Apply pending migrations into test_pb_data (run after PocketBase upgrades)
+	$(GOCMD) run ./cmd/testdata-refresh
 fcaf-generate: ## Generate one complete FCAF validation pipeline from scenario sources
 	$(GOCMD) run ./cmd/fcaf-pipeline-gen
 

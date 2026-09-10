@@ -486,10 +486,6 @@
                                   "type": "array"
                                 }
                               },
-                              "required": [
-                                "IPv4Address",
-                                "IPv6Address"
-                              ],
                               "type": "object"
                             },
                             "IPAddress": {
