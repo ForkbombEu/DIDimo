@@ -118,13 +118,13 @@ Callbacks then use the origin and avoid the emulated challenge. Clearing `CREDIM
 sends them through the emulated proxy and the run fails with `Unexpected HTTP status code: expected
 200, got 403`, matching the production failure mode.
 
-## Mobile Runner Semaphore Ops (Internal)
+## mobile device semaphore Ops (Internal)
 
 ### Defaults and knobs
 
 - Default acquire wait timeout: 45m.
-- Override timeout: `MOBILE_RUNNER_SEMAPHORE_WAIT_TIMEOUT=30m` (or any valid `time.ParseDuration` value).
-- Disable semaphore (no-op acquire/release): `MOBILE_RUNNER_SEMAPHORE_DISABLED=1`.
+- Override timeout: `MOBILE_DEVICE_SEMAPHORE_WAIT_TIMEOUT=30m` (or any valid `time.ParseDuration` value).
+- Disable semaphore (no-op acquire/release): `MOBILE_DEVICE_SEMAPHORE_DISABLED=1`.
 - Internal Temporal API auth key: `CREDIMI_INTERNAL_ADMIN_KEY=<plaintext key>` (required for internal workflow HTTP calls).
 
 ### Internal admin API key rollout
@@ -137,6 +137,6 @@ sends them through the emulated proxy and the run fails with `Unexpected HTTP st
 
 ### Emergency procedures
 
-- Semaphore workflows live in the Temporal `default` namespace with IDs: `mobile-runner-semaphore/<runner_id>`.
-- Query current state via Temporal UI (`GetState`) or `GET /api/mobile-runner/semaphore?runner_identifier=...`.
+- Semaphore workflows live in the Temporal `default` namespace with IDs: `mobile-device-semaphore/<device_id>`.
+- Query current state via Temporal UI (`GetState`) or `GET /api/mobile-runner/semaphore?device_identifier=...`.
 - To unstick a runner, terminate the semaphore workflow in Temporal; it will be recreated on the next acquire.
