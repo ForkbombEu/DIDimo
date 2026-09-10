@@ -131,7 +131,7 @@ func loadPipelineFCAFReportImages(
 
 	images := make([]reportpdf.ImageAsset, 0, len(storedFilenames))
 	for _, filename := range storedFilenames {
-		reader, err := fileSystem.GetFile(record.BaseFilesPath() + "/" + filename)
+		reader, err := fileSystem.GetReader(record.BaseFilesPath() + "/" + filename)
 		if err != nil {
 			warnings = append(warnings, fmt.Sprintf("read visual evidence %s: %v", filename, err))
 			continue
