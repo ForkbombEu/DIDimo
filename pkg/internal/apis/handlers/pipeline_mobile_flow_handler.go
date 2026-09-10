@@ -112,13 +112,13 @@ func HandlePipelineMobileFlow() func(*core.RequestEvent) error {
 			},
 			mobileWorkflow.Name(),
 			workflowengine.WorkflowInput{
-				Config: map[string]any{
+				Config: workflowengine.WithInternalAppURL(map[string]any{
 					"app_url": e.App.Settings().Meta.AppURL,
 					"taskqueue": fmt.Sprintf(
 						"%s-TaskQueue",
 						canonify.NormalizePath(workflowengine.AsString(device["runner_id"])),
 					),
-				},
+				}),
 				Payload: workflows.MobileAutomationWorkflowPayload{
 					ActionID:   strings.TrimSpace(input.ActionID),
 					ActionCode: actionCode,

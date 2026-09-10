@@ -123,3 +123,13 @@ Do not treat an entry here as approved policy until a human maintainer resolves 
 - **Options considered:** Keep new formatter versions and regenerated schema (repo-owned entrypoints produce them); pin old formatters/suppress deprecations; hand-revert schema JSON.
 - **Default risk:** Formatting churn touches files outside the upgrade scope; the schema JSON change relaxes pipeline-schema validation for mdoc namespace objects; full `-race` suite now needs >10m.
 - **Owner:** puria — **Status:** open
+### 2026-09-10 — Temporal callbacks behind Cloudflare WAF
+
+- status: resolved
+- owner: human maintainer
+- context: Temporal activities used the persisted public `app_url`, causing Cloudflare WAF/browser challenges to block server-to-server callbacks. Public links must remain on `app_url`, while callbacks need an origin-reachable URL.
+- question: How should deployments provide a callback URL without making persisted workflow links private?
+- options considered: Replace `app_url` globally with a compose hostname; add a separate optional internal URL with public fallback; add Cloudflare allow rules for every worker egress IP.
+- default risk: A private hostname in `app_url` breaks browsers, external runners, schedules, and cross-instance workers; WAF allowlists are operationally brittle.
+- decision: Use `CREDIMI_INTERNAL_APP_URL`, injected as separate workflow config `internal_app_url`; callback consumers prefer it and fall back to public `app_url`. Production deployments must provision all required credentials explicitly; Docker Compose does not add development host aliases.
+- follow-up: Non-Compose deployments must set `CREDIMI_INTERNAL_APP_URL` to a DNS name reachable from every Temporal worker that executes these workflows.
