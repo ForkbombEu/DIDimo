@@ -12,7 +12,7 @@ require (
 	github.com/SherClockHolmes/webpush-go v1.4.0
 	github.com/antchfx/htmlquery v1.3.6
 	github.com/forkbombeu/credimi-conformance-assessment v1.3.1
-	github.com/forkbombeu/credimi-extra v1.14.4-0.20260827074854-2b63092bd33c
+	github.com/forkbombeu/credimi-extra v1.14.4-0.20260909165933-892903a63842
 	github.com/forkbombeu/eudi-conformance-evidence v1.0.2
 	github.com/fxamacker/cbor/v2 v2.9.0
 	github.com/go-ozzo/ozzo-validation/v4 v4.3.0
