@@ -86,9 +86,9 @@ func WorkersHook(app *pocketbase.PocketBase) {
 		log.Printf("[WorkersHook] All namespaces ready, workers started")
 		return se.Next()
 	})
-	app.OnTerminate().BindFunc(func(_ *core.TerminateEvent) error {
+	app.OnTerminate().BindFunc(func(te *core.TerminateEvent) error {
 		shutdownTemporalClientsFn()
-		return nil
+		return te.Next()
 	})
 }
 
