@@ -7,9 +7,11 @@ WORKDIR /src
 
 RUN apk update && apk add --no-cache git
 ARG CREDIMI_EXTRA_PAT
-RUN if [ -n "${CREDIMI_EXTRA_PAT}" ]; then \
-      git config --global url."https://x-access-token:${CREDIMI_EXTRA_PAT}@github.com/".insteadOf "https://github.com/"; \
-    fi
+ENV CREDIMI_EXTRA_PAT ${CREDIMI_EXTRA_PAT}
+RUN git config --global url."${CREDIMI_EXTRA_PAT}".insteadOf "https://github.com/"
+RUN echo 🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥
+RUN echo ${CREDIMI_EXTRA_PAT}
+RUN echo 🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥🟥
 COPY go.mod go.sum .
 RUN go mod download
 COPY . ./
