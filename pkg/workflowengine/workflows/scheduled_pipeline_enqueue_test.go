@@ -42,7 +42,8 @@ steps:
 			MaxPipelinesInQueue: 3,
 		},
 		Config: map[string]any{
-			"app_url": "https://example.test",
+			"app_url":          "https://example.test",
+			"internal_app_url": "http://credimi:8090",
 		},
 	}
 
@@ -59,6 +60,8 @@ steps:
 	})
 
 	var capturedPayload activities.EnqueuePipelineRunTicketActivityInput
+	var capturedHTTPURL string
+	var capturedInternalHTTPURL string
 	env.RegisterActivityWithOptions(
 		func(_ context.Context, input workflowengine.ActivityInput) (workflowengine.ActivityResult, error) {
 			payload, err := workflowengine.DecodePayload[activities.EnqueuePipelineRunTicketActivityInput](
@@ -72,6 +75,15 @@ steps:
 	)
 
 	env.OnActivity(httpAct.Name(), mock.Anything, mock.Anything).
+		Run(func(args mock.Arguments) {
+			input, ok := args.Get(1).(workflowengine.ActivityInput)
+			require.True(t, ok)
+			payload, err := workflowengine.DecodePayload[activities.HTTPActivityPayload](
+				input.Payload,
+			)
+			require.NoError(t, err)
+			capturedHTTPURL = payload.URL
+		}).
 		Return(workflowengine.ActivityResult{
 			Output: map[string]any{
 				"body": map[string]any{
@@ -83,6 +95,15 @@ steps:
 			},
 		}, nil)
 	env.OnActivity(internalHTTPAct.Name(), mock.Anything, mock.Anything).
+		Run(func(args mock.Arguments) {
+			input, ok := args.Get(1).(workflowengine.ActivityInput)
+			require.True(t, ok)
+			payload, err := workflowengine.DecodePayload[activities.InternalHTTPActivityPayload](
+				input.Payload,
+			)
+			require.NoError(t, err)
+			capturedInternalHTTPURL = payload.URL
+		}).
 		Return(workflowengine.ActivityResult{
 			Output: map[string]any{
 				"body": map[string]any{"valid": true},
@@ -113,6 +134,17 @@ steps:
 	config := capturedPayload.PipelineConfig
 	require.Equal(t, "org-1", config["namespace"])
 	require.Equal(t, "https://example.test", config["app_url"])
+	require.Equal(t, "http://credimi:8090", config["internal_app_url"])
+	require.Equal(
+		t,
+		"http://credimi:8090/api/canonify/identifier/validate",
+		capturedHTTPURL,
+	)
+	require.Equal(
+		t,
+		"http://credimi:8090/api/mobile-runner/validate-access",
+		capturedInternalHTTPURL,
+	)
 
 	require.Equal(t, "pipeline-run", capturedPayload.Memo["test"])
 	require.Equal(

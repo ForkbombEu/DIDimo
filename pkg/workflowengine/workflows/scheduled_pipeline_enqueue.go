@@ -93,6 +93,7 @@ func (w *ScheduledPipelineEnqueueWorkflow) ExecuteWorkflow(
 		config["namespace"] = ownerNamespace
 	}
 	appURL, _ := config["app_url"].(string)
+	internalAppURL := workflowengine.InternalAppURLFromConfig(config)
 
 	if pipelineIdentifier == "" {
 		return workflowengine.WorkflowResult{}, workflowengine.NewMissingOrInvalidPayloadError(
@@ -132,7 +133,7 @@ func (w *ScheduledPipelineEnqueueWorkflow) ExecuteWorkflow(
 		Payload: activities.HTTPActivityPayload{
 			Method: http.MethodPost,
 			URL: utils.JoinURL(
-				appURL,
+				internalAppURL,
 				"api", "canonify", "identifier", "validate",
 			),
 			Headers: map[string]string{
@@ -275,7 +276,7 @@ func (w *ScheduledPipelineEnqueueWorkflow) ExecuteWorkflow(
 	}
 	if err := validateScheduledPipelineRunnerAccess(
 		ctx,
-		appURL,
+		internalAppURL,
 		ownerNamespace,
 		deviceIDs,
 		input.RunMetadata,
