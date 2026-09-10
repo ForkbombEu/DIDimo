@@ -341,7 +341,10 @@ func fetchChildPipelineYAML(
 	req := workflowengine.ActivityInput{
 		Payload: activities.InternalHTTPActivityPayload{
 			Method: http.MethodGet,
-			URL:    utils.JoinURL(appURL, "api", "pipeline", "get-yaml"),
+			URL: utils.JoinURL(
+				workflowengine.InternalAppURLFromConfig(input.WorkflowInput.Config),
+				"api", "pipeline", "get-yaml",
+			),
 			QueryParams: map[string]string{
 				"pipeline_identifier": pipelineID,
 			},

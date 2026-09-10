@@ -110,7 +110,7 @@ func runOpenIDConformanceWorkflow(
 	return pollOpenIDConformanceLogs(
 		ctx,
 		rid,
-		appURL,
+		workflowengine.InternalAppURLFromConfig(input.Config),
 		utils.GetEnvironmentVariable("OPENIDNET_TOKEN"),
 		notifyLogs,
 		input.RunMetadata,

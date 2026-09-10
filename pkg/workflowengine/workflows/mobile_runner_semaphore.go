@@ -1521,7 +1521,7 @@ func (r *mobileRunnerSemaphoreRuntime) cleanupRunTicketResources(
 	var result workflowengine.ActivityResult
 	err := workflow.ExecuteActivity(activityCtx, cleanupActivity.Name(), workflowengine.ActivityInput{
 		Payload: activities.CleanupMobileRunnerSemaphoreResourcesActivityInput{
-			AppURL:  runTicketAppURL(state),
+			AppURL:  runTicketInternalAppURL(state),
 			Cleanup: state.Request.Cleanup,
 		},
 	}).
@@ -1787,6 +1787,10 @@ func runTicketAppURL(state MobileRunnerSemaphoreRunTicketState) string {
 		return strings.TrimSpace(state.Request.Notification.GitHubPR.AppURL)
 	}
 	return ""
+}
+
+func runTicketInternalAppURL(state MobileRunnerSemaphoreRunTicketState) string {
+	return workflowengine.InternalAppURLFromConfig(state.Request.PipelineConfig)
 }
 
 func sortedRunnerIDs(runnerIDs []string) []string {

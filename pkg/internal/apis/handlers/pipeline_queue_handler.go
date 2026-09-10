@@ -539,7 +539,7 @@ func buildPipelineQueueConfig(
 		"logos",
 		strings.ToLower(appName)+"_logo-transp_emblem.png",
 	)
-	return map[string]any{
+	config := map[string]any{
 		"namespace": namespace,
 		"app_url":   appURL,
 		"app_name":  appName,
@@ -547,6 +547,7 @@ func buildPipelineQueueConfig(
 		"user_name": userName,
 		"user_mail": userMail,
 	}
+	return workflowengine.WithInternalAppURL(config)
 }
 
 func applyPipelineQueueCleanupConfig(

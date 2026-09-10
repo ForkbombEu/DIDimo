@@ -146,9 +146,9 @@ func HandleWalletStartCheck() func(*core.RequestEvent) error {
 		}
 		// Start the workflow
 		workflowInput := workflowengine.WorkflowInput{
-			Config: map[string]any{
+			Config: workflowengine.WithInternalAppURL(map[string]any{
 				"app_url": e.App.Settings().Meta.AppURL,
-			},
+			}),
 			Payload: workflows.WalletWorkflowPayload{
 				URL: req.URL,
 			},

@@ -59,6 +59,9 @@ func (a *CleanupMobileRunnerSemaphoreResourcesActivity) Execute(
 	}
 
 	appURL := strings.TrimSpace(payload.AppURL)
+	if internalURL := workflowengine.InternalAppURLOverride(); internalURL != "" {
+		appURL = internalURL
+	}
 	if appURL == "" {
 		output.CleanupFailures = []string{"app_url missing for queued resource cleanup"}
 		result.Output = output

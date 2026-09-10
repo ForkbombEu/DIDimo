@@ -252,9 +252,9 @@ func HandleStartAggregateScoreboard() func(*core.RequestEvent) error {
 					TaskQueue: workflows.AggregateScoreboardTaskQueue,
 					Args: []interface{}{
 						workflowengine.WorkflowInput{
-							Config: map[string]any{
+							Config: workflowengine.WithInternalAppURL(map[string]any{
 								"app_url": appURL,
-							},
+							}),
 						},
 					},
 				},
@@ -280,9 +280,9 @@ func HandleStartAggregateScoreboard() func(*core.RequestEvent) error {
 		workflowResult, err := aggregateScoreboardWorkflowStart(
 			aggregateScoreboardNamespace,
 			workflowengine.WorkflowInput{
-				Config: map[string]any{
+				Config: workflowengine.WithInternalAppURL(map[string]any{
 					"app_url": e.App.Settings().Meta.AppURL,
-				},
+				}),
 			},
 		)
 		if err != nil {
