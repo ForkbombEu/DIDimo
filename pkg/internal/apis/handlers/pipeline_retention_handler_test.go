@@ -318,6 +318,7 @@ func buildAppMux(t testing.TB, app *tests.TestApp) http.Handler {
 		return nil
 	})
 	require.NoError(t, err)
+	require.NotNil(t, mux, "OnServe trigger must have built the request mux")
 	return mux
 }
 
