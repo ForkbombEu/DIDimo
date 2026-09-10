@@ -320,7 +320,11 @@ func markExternalInstallSteps(
 			// resolving a missing identifier would query "<nil>".
 			return nil
 		}
-		category, err := fetchMobileActionCategory(ctx, appURL, actionID)
+		category, err := fetchMobileActionCategory(
+			ctx,
+			workflowengine.InternalAppURLFromConfig(config),
+			actionID,
+		)
 		if err != nil {
 			return err
 		}
@@ -452,7 +456,7 @@ func processStep(
 		ao:            input.ao,
 		payload:       payload,
 		settedDevices: input.settedDevices,
-		appURL:        appURL,
+		appURL:        workflowengine.InternalAppURLFromConfig(input.config),
 		stepID:        input.step.ID,
 	})
 	if err != nil {

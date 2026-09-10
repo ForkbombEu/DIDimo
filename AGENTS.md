@@ -164,6 +164,10 @@ Procfile dev processes:
 - `API`: waits for Temporal at `localhost:7233`, then runs `go tool gow run -tags=credimi_extra main.go serve`.
 - `UI`: waits for PocketBase at `localhost:8090`, then runs `cd webapp && bun i && bun dev`.
 
+WAF emulation:
+
+- Use `make waf-emulator` to reproduce the public proxy challenge from the host. Production Compose intentionally does not add host-gateway aliases.
+
 Persistence:
 
 - PocketBase SQLite data lives in `pb_data/`.
@@ -176,7 +180,7 @@ Key environment variables:
 - `MOBILE_RUNNER_SEMAPHORE_DISABLED`: disables the mobile-runner semaphore path when configured.
 - `MOBILE_RUNNER_SEMAPHORE_WAIT_TIMEOUT`: mobile-runner queue wait timeout.
 - `CREDIMI_INTERNAL_ADMIN_KEY`: plaintext runtime key for trusted internal HTTP activities and internal result posting.
-- `CREDIMI_EXTRA_PAT`: optional Docker build token for private `credimi-extra` access.
+- `CREDIMI_INTERNAL_APP_URL`: deployment-local Temporal-worker-to-Credimi base URL; callback consumers prefer it while persisted `app_url` remains public. It must be provisioned wherever workers execute.
 
 Do not commit local `pb_data/`, `.env`, generated local databases, secrets, coverage files, binaries, or downloaded `.bin/` tools.
 

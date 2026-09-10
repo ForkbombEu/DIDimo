@@ -198,6 +198,9 @@ func (a *StartQueuedPipelineActivity) Execute(
 			},
 		)
 	}
+	if internalURL := workflowengine.InternalAppURLOverride(); internalURL != "" {
+		config[workflowengine.InternalAppURLConfigKey] = internalURL
+	}
 
 	memo := payload.Memo
 	if memo == nil {
@@ -330,7 +333,7 @@ func (a *StartQueuedPipelineActivity) Execute(
 	if err := createPipelineExecutionResultWithRetry(
 		ctx,
 		httpDoer,
-		appURL,
+		workflowengine.InternalAppURLFromConfig(config),
 		payload.OwnerNamespace,
 		payload.PipelineIdentifier,
 		workflowID,

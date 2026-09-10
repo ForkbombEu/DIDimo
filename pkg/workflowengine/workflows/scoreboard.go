@@ -130,6 +130,7 @@ func (w *AggregateScoreboardWorkflow) ExecuteWorkflow(
 			input.RunMetadata,
 		)
 	}
+	appURL = workflowengine.InternalAppURLFromConfig(input.Config)
 
 	httpActivity := activities.NewInternalHTTPActivity()
 

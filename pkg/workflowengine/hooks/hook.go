@@ -685,9 +685,9 @@ func executeWorkerManagerWorkflow(
 			OldNamespace: oldNamespace,
 			RunnerURLs:   uniqueWorkerManagerURLs(runnerURLs),
 		},
-		Config: map[string]any{
+		Config: workflowengine.WithInternalAppURL(map[string]any{
 			"app_url": appURL,
-		},
+		}),
 		ActivityOptions: ao,
 	}
 
