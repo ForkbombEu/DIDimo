@@ -12,3 +12,7 @@ node = "24.13.0"
 pre-commit = "latest"
 "github:forkbombeu/stepci-captured-runner" = { version = "latest", bin = "stepci-captured-runner" }
 "github:forkbombeu/et-tu-cesr" = "latest"
+
+[tools."github:temporalio/cli"]
+version = "1.8.1"
+
